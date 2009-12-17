@@ -1,0 +1,23 @@
+package network;
+
+message Player {
+  enum ClassType {
+    ALCHEMIST = 0;
+    VANQUISHER = 1;
+    DESTROYER = 2;
+  }
+  
+  enum PetType {
+	DOG = 0;
+	CAT = 1;
+  }
+  
+  message Pet {
+    required int64 id = 1;
+    required PetType type = 2;
+  }
+  
+  required string name = 1;
+  required int64 id = 2;
+  required ClassType type = 3;
+}
