@@ -4,82 +4,82 @@
 
 namespace TLMP {
 
-  TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool),                           0x5F03F0);
-  TLFUNCPTR(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3, u32),                      0x4F04D0);
-  TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t, const wchar_t, u32, u32),   0x5F0E80);
-  TLFUNCPTR(SetAlignment,       PVOID,    __thiscall, (PVOID, u32),                                      0x482930);
-  TLFUNCPTR(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float),                      0x491840);
-  TLFUNCPTR(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32),                             0x50B770);
-  TLFUNCPTR(SetAction,          PVOID,    __thiscall, (PVOID, u32),                                      0x488C30);
-  TLFUNCPTR(UseSkill,           PVOID,    __thiscall, (PVOID, u64),                                      0x493BC0);
-  TLFUNCPTR(SetPosition,        PVOID,    __thiscall, (PVOID, const Vector3),                            0x50B7D0);
-  TLFUNCPTR(AddMinion,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x4A86E0);
-  TLFUNCPTR(CreateSomething,    PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5F09F0);
+  TLFUNC(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool));
+  TLFUNC(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3, u32));
+  TLFUNC(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t, const wchar_t, u32, u32));
+  TLFUNC(SetAlignment,       PVOID,    __thiscall, (PVOID, u32));
+  TLFUNC(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float));
+  TLFUNC(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32));
+  TLFUNC(SetAction,          PVOID,    __thiscall, (PVOID, u32));
+  TLFUNC(UseSkill,           PVOID,    __thiscall, (PVOID, u64));
+  TLFUNC(SetPosition,        PVOID,    __thiscall, (PVOID, const Vector3));
+  TLFUNC(AddMinion,          PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(CreateSomething,    PVOID,    __thiscall, (PVOID, u64, u32, u32, u32));
 
-  TLFUNCPTR(SetAttack,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x4916E0);
+  TLFUNC(SetAttack,          PVOID,    __thiscall, (PVOID, PVOID));
 
-  TLFUNCPTR(OnStrike,           PVOID,    __thiscall, (PVOID, PVOID, PVOID, PVOID, u32, float, float, u32), 0x49EDD0);
+  TLFUNC(OnStrike,           PVOID,    __thiscall, (PVOID, PVOID, PVOID, PVOID, u32, float, float, u32));
 
-  TLFUNCPTR(SpiderProcessAI,    PVOID,    __thiscall, (PVOID, PVOID, float),                             0x4D19F0);
-  TLFUNCPTR(SetAnimation,       PVOID,    __thiscall, (PVOID, u32, bool, float, float, u32),             0x483080);
+  TLFUNC(SpiderProcessAI,    PVOID,    __thiscall, (PVOID, PVOID, float));
+  TLFUNC(SetAnimation,       PVOID,    __thiscall, (PVOID, u32, bool, float, float, u32));
 
-  TLFUNCPTR(DoAttack,           PVOID,    __thiscall, (PVOID),                                           0x48E930);
+  TLFUNC(DoAttack,           PVOID,    __thiscall, (PVOID));
 
-  TLFUNCPTR(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID),                                    0x4BCC50);
-  TLFUNCPTR(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3, bool),                     0x4F0650);
-  TLFUNCPTR(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5EFF50);
-  TLFUNCPTR(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID),                             0x495720);
-  TLFUNCPTR(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32),                          0x4E4340);
-  TLFUNCPTR(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID),                                    0x4E4BF0);
-  TLFUNCPTR(ItemHide,           PVOID,    __thiscall, (PVOID, PVOID, u32),                               0x4F1E80);
+  TLFUNC(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3, bool));
+  TLFUNC(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32));
+  TLFUNC(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID));
+  TLFUNC(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32));
+  TLFUNC(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(ItemHide,           PVOID,    __thiscall, (PVOID, PVOID, u32));
 
-  TLFUNCPTR(LoadArea,           PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32),     0x40CF40);
+  TLFUNC(LoadArea,           PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32));
 
-  TLFUNCPTR(AddGoldToPlayer,    PVOID,    __thiscall, (PVOID, u32),                                      0x484F10);
+  TLFUNC(AddGoldToPlayer,    PVOID,    __thiscall, (PVOID, u32));
 
-  TLFUNCPTR(LevelUp,            PVOID,    __thiscall, (PVOID),                                           0x4D9520);
-  TLFUNCPTR(LevelUpSilent,      PVOID,    __thiscall, (PVOID),                                           0x48D4A0);
+  TLFUNC(LevelUp,            PVOID,    __thiscall, (PVOID));
+  TLFUNC(LevelUpSilent,      PVOID,    __thiscall, (PVOID));
 
-  TLFUNCPTR(PetawayTimer,       PVOID,    __thiscall, (PVOID, u32, u32),                                 0x491250);
+  TLFUNC(PetawayTimer,       PVOID,    __thiscall, (PVOID, u32, u32));
 
-  TLFUNCPTR(InteractWithObject, PVOID,    __thiscall, (PVOID, PVOID),                                    0x4DC360);
-  TLFUNCPTR(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64),                                      0x4448F0);
+  TLFUNC(InteractWithObject, PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64));
 
-  TLFUNCPTR(BarrelDestroy,      PVOID,    __thiscall, (PVOID, PVOID),                                    0x4815A0);
-  TLFUNCPTR(BarrelKnockback,    PVOID,    __thiscall, (PVOID),                                           0x508110);
+  TLFUNC(BarrelDestroy,      PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(BarrelKnockback,    PVOID,    __thiscall, (PVOID));
 
-  TLFUNCPTR(CheckgamePaused,    void,     __thiscall, (PVOID),                                           0x40DD50);
+  TLFUNC(CheckgamePaused,    void,     __thiscall, (PVOID));
 
-  TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32),                                 0x5F0030);
+  TLFUNC(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32));
 
-  TLFUNCPTR(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM),                      0x401670);
+  TLFUNC(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM));
 
-  TLFUNCPTR(GetPlayer,          PVOID,    __thiscall, (void),                                            0x5EFBD0);
-  TLFUNCPTR(PlayerDied,         void,     __thiscall, (void),                                            0x5458D0);
-  TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (void),                                            0x56AE30);
+  TLFUNC(GetPlayer,          PVOID,    __thiscall, (void));
+  TLFUNC(PlayerDied,         void,     __thiscall, (void));
+  TLFUNC(PlayerResurrect,    void,     __thiscall, (void));
 
   // -------------------------------------------------------------------------------- //
   // In-place definitions
 
-  TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A780);
+  TLFUNC(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
 
-  TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D2730);
-  TLFUNCPTR(MonsterIdle,        void,     __thiscall, (PVOID, PVOID),                                    0x4D2C20);
-  TLFUNCPTR(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID),                                    0x4D0CE0);
+  TLFUNC(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID));
+  TLFUNC(MonsterIdle,        void,     __thiscall, (PVOID, PVOID));
+  TLFUNC(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID));
     
-  TLFUNCPTR(PlayerCtor,         void,     __thiscall, (PVOID),                                           0x4D7D60);
+  TLFUNC(PlayerCtor,         void,     __thiscall, (PVOID));
 
-  TLFUNCPTR(PlayerSetAction,    void,     __thiscall, (PVOID),                                           0x4D3F80);
+  TLFUNC(PlayerSetAction,    void,     __thiscall, (PVOID));
   
-  TLFUNCPTR(TitleScreenProcess, void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x40DF50);
+  TLFUNC(TitleScreenProcess, void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
 
-  TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, PVOID),                                    0x418940);
+  TLFUNC(LoadMap,            void,     __thiscall, (PVOID, PVOID));
 
-  TLFUNCPTR(Random,             void,     __thiscall, (),                                                0x5B6A10);
+  TLFUNC(Random,             void,     __thiscall, ());
 
-  TLFUNCPTR(Destroy,            void,     __thiscall, (PVOID),                                           0x4F3030);
+  TLFUNC(Destroy,            void,     __thiscall, (PVOID));
 
-  TLFUNCPTR(EntityReadProp,     void,     __thiscall, (PVOID),                                           0x47DB00);
+  TLFUNC(EntityReadProp,     void,     __thiscall, (PVOID));
 
   //TLFUNCPTR(LoadArea,           void,     __thiscall, (/* 18 */),                                        0x40CF40);
 

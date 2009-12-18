@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Common.h"
+#include "Entity.h"
 
 namespace TLMP {
-
-  static PVOID spider_mgr_this = 0;
 
   void _spider_some_create_pre STDARG;
   void _spider_some_create_post STDARG;

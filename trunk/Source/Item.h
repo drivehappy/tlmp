@@ -1,12 +1,19 @@
 #pragma once
 
 #include "Common.h"
+#include "Entity.h"
+#include "Network.h"
+
+#include "network.pb.h"
+
 
 namespace TLMP {
 
-  static PVOID drop_item_this = 0;
-  static PVOID item_initialize_this = 0;
+  static PVOID  drop_item_this = 0;
+  static PVOID  item_initialize_this = 0;
+  static bool   allowItemSpawn = true;
 
+  // Item Structure
   struct c_item {
 	  uint id;
 	  unsigned long long guid;
@@ -23,7 +30,11 @@ namespace TLMP {
 	  }
   };
 
+  // Network Item-specific Callbacks
+  void NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1);
 
+
+  // Hooked Functions
   void _item_initialize_pre STDARG;
 
   void _item_create_pre STDARG;

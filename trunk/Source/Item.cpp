@@ -1,5 +1,12 @@
 #include "Item.h"
 
+void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
+{
+  log("NetItem_OnItemCreated");
+
+  void *r = ItemCreate(EntityManager, guid, level, unk0, unk1);
+}
+
 void TLMP::_item_initialize_pre STDARG
 {
 	log(" %p :: item initialize %p",e->_this,Pz[0]);
@@ -27,6 +34,15 @@ void TLMP::_item_create_pre STDARG
 		log2("Host _item_create_pre GUID: %016I64X", guid);
 	}
   */
+
+  if (Network::NetworkState == Network::CLIENT && !allowItemSpawn) {
+    log("[CLIENT] _item_create_pre stopping item spawn (%p)", e->_this);
+
+    e->calloriginal = false;
+    e->retval = false;
+  } else if (Network::NetworkState == Network::SERVER) {
+    log("[HOST] _item_create_pre GUID: %016I64X", guid);
+  }
 }
 
 void TLMP::_item_create_post STDARG
@@ -61,6 +77,25 @@ void TLMP::_item_create_post STDARG
 		host.send_to_all();
 	}
   */
+
+  if (Network::NetworkState == Network::SERVER) {
+    c_item o;
+		o.e = (void*)e->retval;
+		o.guid = guid;
+		o.level = Pz[2];
+		o.unk0 = Pz[3];
+		o.unk1 = Pz[4];
+
+    log("[HOST] item created GUID: %016I64X (%p)", guid, o.e);
+
+    NetworkMessages::Item message;
+    message.set_guid(guid);
+    message.set_level(Pz[2]);
+    message.set_unk0(Pz[3]);
+    message.set_unk1(Pz[4]);
+
+    Network::Server::getSingleton().SendMessage<NetworkMessages::Item>(&message);
+  }
 }
 
 void TLMP::_item_drop_pre STDARG

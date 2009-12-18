@@ -34,6 +34,7 @@ using namespace std;
 #include "DataTypes.h"
 #include "Helper.h"
 #include "Hook.h"
+#include "Offsets.h"
 
 #define STDARG (TLMP::HookStruct *e, TLMP::HookFunctionDef *_f)
 #define Pz e->arg

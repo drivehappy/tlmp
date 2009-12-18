@@ -31,6 +31,7 @@ void  protobuf_AddDesc_network_2eproto();
 void protobuf_AssignDesc_network_2eproto();
 void protobuf_ShutdownFile_network_2eproto();
 
+class Item;
 class Player;
 class Player_Pet;
 
@@ -72,6 +73,117 @@ inline bool Player_PetType_Parse(
     Player_PetType_descriptor(), name, value);
 }
 // ===================================================================
+
+class Item : public ::google::protobuf::Message {
+ public:
+  Item();
+  virtual ~Item();
+  
+  Item(const Item& from);
+  
+  inline Item& operator=(const Item& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Item& default_instance();
+  void Swap(Item* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Item* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Item& from);
+  void MergeFrom(const Item& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int64 guid = 1;
+  inline bool has_guid() const;
+  inline void clear_guid();
+  static const int kGuidFieldNumber = 1;
+  inline ::google::protobuf::int64 guid() const;
+  inline void set_guid(::google::protobuf::int64 value);
+  
+  // required int32 level = 2;
+  inline bool has_level() const;
+  inline void clear_level();
+  static const int kLevelFieldNumber = 2;
+  inline ::google::protobuf::int32 level() const;
+  inline void set_level(::google::protobuf::int32 value);
+  
+  // required int32 unk0 = 3;
+  inline bool has_unk0() const;
+  inline void clear_unk0();
+  static const int kUnk0FieldNumber = 3;
+  inline ::google::protobuf::int32 unk0() const;
+  inline void set_unk0(::google::protobuf::int32 value);
+  
+  // required int32 unk1 = 4;
+  inline bool has_unk1() const;
+  inline void clear_unk1();
+  static const int kUnk1FieldNumber = 4;
+  inline ::google::protobuf::int32 unk1() const;
+  inline void set_unk1(::google::protobuf::int32 value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int64 guid_;
+  ::google::protobuf::int32 level_;
+  ::google::protobuf::int32 unk0_;
+  ::google::protobuf::int32 unk1_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Item* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class Player_Pet : public ::google::protobuf::Message {
  public:
@@ -327,6 +439,74 @@ class Player : public ::google::protobuf::Message {
 
 
 // ===================================================================
+
+// Item
+
+// required int64 guid = 1;
+inline bool Item::has_guid() const {
+  return _has_bit(0);
+}
+inline void Item::clear_guid() {
+  guid_ = GOOGLE_LONGLONG(0);
+  _clear_bit(0);
+}
+inline ::google::protobuf::int64 Item::guid() const {
+  return guid_;
+}
+inline void Item::set_guid(::google::protobuf::int64 value) {
+  _set_bit(0);
+  guid_ = value;
+}
+
+// required int32 level = 2;
+inline bool Item::has_level() const {
+  return _has_bit(1);
+}
+inline void Item::clear_level() {
+  level_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 Item::level() const {
+  return level_;
+}
+inline void Item::set_level(::google::protobuf::int32 value) {
+  _set_bit(1);
+  level_ = value;
+}
+
+// required int32 unk0 = 3;
+inline bool Item::has_unk0() const {
+  return _has_bit(2);
+}
+inline void Item::clear_unk0() {
+  unk0_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 Item::unk0() const {
+  return unk0_;
+}
+inline void Item::set_unk0(::google::protobuf::int32 value) {
+  _set_bit(2);
+  unk0_ = value;
+}
+
+// required int32 unk1 = 4;
+inline bool Item::has_unk1() const {
+  return _has_bit(3);
+}
+inline void Item::clear_unk1() {
+  unk1_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 Item::unk1() const {
+  return unk1_;
+}
+inline void Item::set_unk1(::google::protobuf::int32 value) {
+  _set_bit(3);
+  unk1_ = value;
+}
+
+// -------------------------------------------------------------------
 
 // Player_Pet
 

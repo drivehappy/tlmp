@@ -2,6 +2,7 @@
 
 #include "DataTypes.h"
 #include "Common.h"
+#include "Messages.h"
 
 #include "../ExternalLibs/raknet/include/RakPeerInterface.h"
 #include "../ExternalLibs/raknet/include/RakNetworkFactory.h"
@@ -35,7 +36,8 @@ namespace TLMP {
 
       void ReceiveMessages();
 
-      void SendMessage(NetworkMessages::Player message);
+      template<typename T>
+      void SendMessage(::google::protobuf::Message *message);
 
     protected:
       Server();
@@ -44,7 +46,8 @@ namespace TLMP {
       ~Server();
 
     private:
-      void ParseMessage(u8 *packetData, u32 length);
+      template<typename T>
+      T* ParseMessage(u8 *packetData, u32 length);
 
       RakPeerInterface *m_pServer;
       RakNet::BitStream *m_pBitStream;
@@ -58,3 +61,6 @@ namespace TLMP {
   };
 
 };
+
+// Template parameterization, needs to be defined after above declarations
+#include "Server.cpp.h"
