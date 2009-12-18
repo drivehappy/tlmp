@@ -44,6 +44,9 @@ void Client::Disconnect()
 
 void Client::ReceiveMessages()
 {
+  if (!m_pClient)
+    return;
+
   Packet *packet = m_pClient->Receive();
 	while (packet)
 	{

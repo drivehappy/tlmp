@@ -21,7 +21,7 @@
 #endif
 
 
-#pragma comment(linker, "/entry:DllMain")
+//#pragma comment(linker, "/entry:DllMainCRTStartup")
 
 #include <string>
 #include <stack>

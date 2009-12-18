@@ -48,6 +48,9 @@ void Server::Shutdown()
 
 void Server::ReceiveMessages()
 {
+  if (!m_pServer)
+    return;
+
   Packet *packet = m_pServer->Receive();
 	while (packet) {
 		switch(packet->data[0]) {
