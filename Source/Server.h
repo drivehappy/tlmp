@@ -37,7 +37,7 @@ namespace TLMP {
       void ReceiveMessages();
 
       template<typename T>
-      void SendMessage(::google::protobuf::Message *message);
+      void SendMessage(Message msg, ::google::protobuf::Message *message);
 
     protected:
       Server();
@@ -47,7 +47,9 @@ namespace TLMP {
 
     private:
       template<typename T>
-      T* ParseMessage(u8 *packetData, u32 length);
+      T* ParseMessage(RakNet::BitStream *bitStream);
+
+      void WorkMessage(Message msg, RakNet::BitStream *bitStream);
 
       RakPeerInterface *m_pServer;
       RakNet::BitStream *m_pBitStream;

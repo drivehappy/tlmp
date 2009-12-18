@@ -31,6 +31,8 @@ void  protobuf_AddDesc_network_2eproto();
 void protobuf_AssignDesc_network_2eproto();
 void protobuf_ShutdownFile_network_2eproto();
 
+class Destination;
+class Entity;
 class Item;
 class Player;
 class Player_Pet;
@@ -73,6 +75,212 @@ inline bool Player_PetType_Parse(
     Player_PetType_descriptor(), name, value);
 }
 // ===================================================================
+
+class Destination : public ::google::protobuf::Message {
+ public:
+  Destination();
+  virtual ~Destination();
+  
+  Destination(const Destination& from);
+  
+  inline Destination& operator=(const Destination& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Destination& default_instance();
+  void Swap(Destination* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Destination* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Destination& from);
+  void MergeFrom(const Destination& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required float x = 1;
+  inline bool has_x() const;
+  inline void clear_x();
+  static const int kXFieldNumber = 1;
+  inline float x() const;
+  inline void set_x(float value);
+  
+  // required float y = 2;
+  inline bool has_y() const;
+  inline void clear_y();
+  static const int kYFieldNumber = 2;
+  inline float y() const;
+  inline void set_y(float value);
+  
+  // required float z = 3;
+  inline bool has_z() const;
+  inline void clear_z();
+  static const int kZFieldNumber = 3;
+  inline float z() const;
+  inline void set_z(float value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  float x_;
+  float y_;
+  float z_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Destination* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Entity : public ::google::protobuf::Message {
+ public:
+  Entity();
+  virtual ~Entity();
+  
+  Entity(const Entity& from);
+  
+  inline Entity& operator=(const Entity& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Entity& default_instance();
+  void Swap(Entity* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Entity* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Entity& from);
+  void MergeFrom(const Entity& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 level = 1;
+  inline bool has_level() const;
+  inline void clear_level();
+  static const int kLevelFieldNumber = 1;
+  inline ::google::protobuf::int32 level() const;
+  inline void set_level(::google::protobuf::int32 value);
+  
+  // required int64 guid = 2;
+  inline bool has_guid() const;
+  inline void clear_guid();
+  static const int kGuidFieldNumber = 2;
+  inline ::google::protobuf::int64 guid() const;
+  inline void set_guid(::google::protobuf::int64 value);
+  
+  // optional .TLMP.NetworkMessages.Destination destination = 3;
+  inline bool has_destination() const;
+  inline void clear_destination();
+  static const int kDestinationFieldNumber = 3;
+  inline const ::TLMP::NetworkMessages::Destination& destination() const;
+  inline ::TLMP::NetworkMessages::Destination* mutable_destination();
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 level_;
+  ::google::protobuf::int64 guid_;
+  ::TLMP::NetworkMessages::Destination* destination_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Entity* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class Item : public ::google::protobuf::Message {
  public:
@@ -439,6 +647,111 @@ class Player : public ::google::protobuf::Message {
 
 
 // ===================================================================
+
+// Destination
+
+// required float x = 1;
+inline bool Destination::has_x() const {
+  return _has_bit(0);
+}
+inline void Destination::clear_x() {
+  x_ = 0;
+  _clear_bit(0);
+}
+inline float Destination::x() const {
+  return x_;
+}
+inline void Destination::set_x(float value) {
+  _set_bit(0);
+  x_ = value;
+}
+
+// required float y = 2;
+inline bool Destination::has_y() const {
+  return _has_bit(1);
+}
+inline void Destination::clear_y() {
+  y_ = 0;
+  _clear_bit(1);
+}
+inline float Destination::y() const {
+  return y_;
+}
+inline void Destination::set_y(float value) {
+  _set_bit(1);
+  y_ = value;
+}
+
+// required float z = 3;
+inline bool Destination::has_z() const {
+  return _has_bit(2);
+}
+inline void Destination::clear_z() {
+  z_ = 0;
+  _clear_bit(2);
+}
+inline float Destination::z() const {
+  return z_;
+}
+inline void Destination::set_z(float value) {
+  _set_bit(2);
+  z_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// Entity
+
+// required int32 level = 1;
+inline bool Entity::has_level() const {
+  return _has_bit(0);
+}
+inline void Entity::clear_level() {
+  level_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Entity::level() const {
+  return level_;
+}
+inline void Entity::set_level(::google::protobuf::int32 value) {
+  _set_bit(0);
+  level_ = value;
+}
+
+// required int64 guid = 2;
+inline bool Entity::has_guid() const {
+  return _has_bit(1);
+}
+inline void Entity::clear_guid() {
+  guid_ = GOOGLE_LONGLONG(0);
+  _clear_bit(1);
+}
+inline ::google::protobuf::int64 Entity::guid() const {
+  return guid_;
+}
+inline void Entity::set_guid(::google::protobuf::int64 value) {
+  _set_bit(1);
+  guid_ = value;
+}
+
+// optional .TLMP.NetworkMessages.Destination destination = 3;
+inline bool Entity::has_destination() const {
+  return _has_bit(2);
+}
+inline void Entity::clear_destination() {
+  if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Destination::Clear();
+  _clear_bit(2);
+}
+inline const ::TLMP::NetworkMessages::Destination& Entity::destination() const {
+  return destination_ != NULL ? *destination_ : *default_instance_->destination_;
+}
+inline ::TLMP::NetworkMessages::Destination* Entity::mutable_destination() {
+  _set_bit(2);
+  if (destination_ == NULL) destination_ = new ::TLMP::NetworkMessages::Destination;
+  return destination_;
+}
+
+// -------------------------------------------------------------------
 
 // Item
 

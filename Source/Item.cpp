@@ -35,12 +35,12 @@ void TLMP::_item_create_pre STDARG
 	}
   */
 
-  if (Network::NetworkState == Network::CLIENT && !allowItemSpawn) {
+  if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT && !allowItemSpawn) {
     log("[CLIENT] _item_create_pre stopping item spawn (%p)", e->_this);
 
     e->calloriginal = false;
     e->retval = false;
-  } else if (Network::NetworkState == Network::SERVER) {
+  } else if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
     log("[HOST] _item_create_pre GUID: %016I64X", guid);
   }
 }
@@ -78,7 +78,7 @@ void TLMP::_item_create_post STDARG
 	}
   */
 
-  if (Network::NetworkState == Network::SERVER) {
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
     c_item o;
 		o.e = (void*)e->retval;
 		o.guid = guid;
@@ -94,7 +94,7 @@ void TLMP::_item_create_post STDARG
     message.set_unk0(Pz[3]);
     message.set_unk1(Pz[4]);
 
-    Network::Server::getSingleton().SendMessage<NetworkMessages::Item>(&message);
+    Network::Server::getSingleton().SendMessage<NetworkMessages::Item>(Network::S_ITEM_CREATE, &message);
   }
 }
 

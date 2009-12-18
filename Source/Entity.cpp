@@ -1,6 +1,9 @@
 #include "Entity.h"
 using namespace TLMP;
 
+bool TLMP::ClientAllowSpawn = false;
+PVOID TLMP::EntityManager = NULL;
+
 c_entity::c_entity()
 : id(-1), guid(0), level(0), e(0), last_pos_send(0), is_running(false), hp(0), last_target(0), is_player(false)
 {

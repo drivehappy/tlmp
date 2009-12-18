@@ -14,8 +14,8 @@ using namespace std;
 #define EXEBASE       0x400000
 #define EXEOFFSET(o1) (((o1)-EXEBASE)+EXEBASEREAL)
 
-#define TLFUNC(v1, t1, c1, a1)          static t1(c1 *v1)a1;
-#define TLFUNCPTR(v1, t1, c1, a1, o1)   t1(c1 *v1)a1 = ((t1(c1 *)a1)o1);
+#define TLFUNC(v1, t1, c1, a1)          extern t1(c1 *v1)a1;
+#define TLFUNCPTR(v1, t1, c1, a1, o1)   t1(c1 *TLMP::v1)a1 = ((t1(c1 *)a1)o1);
 
 void xcept(const char *fmt, ...);
 

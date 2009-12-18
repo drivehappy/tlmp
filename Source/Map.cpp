@@ -1,10 +1,12 @@
 #include "Map.h"
 
-void TLMP::_load_map_pre STDARG {
+void TLMP::_load_map_pre STDARG
+{
 	log(" %p :: load_map_pre",e->_this);
 }
 
-void TLMP::_load_map_post STDARG {
+void TLMP::_load_map_post STDARG
+{
 	log("load_map_post");
 
   // MOVE ME TO A BETTER FUNCTION
@@ -18,7 +20,8 @@ void TLMP::_load_map_post STDARG {
 	}
 }
 
-void TLMP::_load_area_pre STDARG {
+void TLMP::_load_area_pre STDARG
+{
 	log(" %p :: load_area",e->_this);
 	load_area_this = e->_this;
 	wstring&s1 = *(wstring*)&Pz[0];
@@ -59,9 +62,18 @@ void TLMP::_load_area_pre STDARG {
   *random_seed = 0;
 	*random_seed2 = 0;
   */
+
+  if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
+    log("Load_Area Stopping Client Load");
+    e->calloriginal = false;
+		e->retval = NULL;
+  }
 }
 
-void TLMP::_on_load_area_pre STDARG {
+void TLMP::_on_load_area_pre STDARG
+{
+  log("~~~ _on_load_area_pre");
+
   /* NETWORK STUFF
  	*random_seed = 0;
 	*random_seed2 = 0;
@@ -86,11 +98,33 @@ void TLMP::_on_load_area_pre STDARG {
   */
 }
 
-void TLMP::_on_load_area_post STDARG {
-	//unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
-	//unsigned int level = *((unsigned int*)me + 0x3c);
+void TLMP::_on_load_area_post STDARG
+{
+	unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
+	unsigned int level = *((unsigned int*)me + 0x3c);
 
-	//log("~~~ _on_load_area_post: guid = %016I64X", guid);
+	log("~~~ _on_load_area_post: guid = %016I64X", guid);
+
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    ClientAllowSpawn = false;
+
+    log("[CLIENT] Sending join...");
+    c_entity t;
+		t.e = me;
+		t.init();
+		t.level = level;
+		t.guid = guid;
+
+    NetworkMessages::Entity entity;
+    entity.set_guid(guid);
+    entity.set_level(level);
+    Client::getSingleton().SendMessage<NetworkMessages::Entity>(C_GAME_JOIN, &entity);
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    log("[SERVER] Sending spawn entity... TODO");
+
+
+  }
+
 
   /* NETWORK STUFF
 	if (peer.is_active) {

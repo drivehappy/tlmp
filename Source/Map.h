@@ -2,6 +2,10 @@
 
 #include "Common.h"
 #include "UserInterface.h"
+#include "Entity.h"
+#include "Player.h"
+#include "Network.h"
+using namespace TLMP::Network;
 
 namespace TLMP {
 

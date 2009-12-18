@@ -4,7 +4,7 @@
 
 namespace TLMP {
 
-  static PVOID me = 0;
+  extern PVOID me;
 
   void _player_ctor_post STDARG;
 
@@ -22,5 +22,6 @@ namespace TLMP {
 
   void _levelup_silent_pre STDARG;
 
+  void _add_minion_pre STDARG;
 
 };

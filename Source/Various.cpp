@@ -2,43 +2,29 @@
 
 void TLMP::_set_destination_pre STDARG
 {
-  log("SetDestination");
+  float dest[2] = {*(float *)&Pz[1], *(float *)&Pz[2]};
 
-  /* NETWORK STUFF
-  dst_unk = (void*)Pz[0];
-	if (e->_this==test_dog) {
-	//	e->calloriginal = false;
-	}
-	if (e->_this==me) {
-		my_dst[0] = *(float*)&Pz[1];
-		my_dst[1] = *(float*)&Pz[2];
-		if (peer.is_active && peer_id!=-1) {
-			//log("me, send set destination");
-			c_entity&ne = net_entities[peer_id];
-			peer.sendbuf.reset();
-			peer.sendbuf.pui(-1);
-			peer.sendbuf.pus(id_set_destination);
-			peer.sendbuf.put<float>(my_dst[0]);
-			peer.sendbuf.put<float>(my_dst[1]);
-			peer.sendbuf.put<bool>(ne.attack_midair());
-			peer.send();
-		}
-	}
-	if (host.is_active) {
-		index_t*id;
-		if (entity_map.inuse_get(e->_this,id)) {
-			//log("host, sending set_destination for id %d",*id);
-			c_entity&ne = net_entities[*id];
-			host.sendbuf.reset();
-			host.sendbuf.pui(*id);
-			host.sendbuf.pus(id_set_destination);
-			host.sendbuf.put<float>(*(float*)&Pz[1]);
-			host.sendbuf.put<float>(*(float*)&Pz[2]);
-			peer.sendbuf.put<bool>(ne.attack_midair());
-			host.send_to_all();
-		}
-	}
-  */
+  // Only send my player movement to the server
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (e->_this == me) {
+      NetworkMessages::Destination message;
+      message.set_x(dest[0]);
+      message.set_y(0);       // Ignored
+      message.set_z(dest[1]);
+
+      Client::getSingleton().SendMessage<NetworkMessages::Destination>(C_PLAYER_SETDEST, &message);
+    }
+  }
+
+  // Hosting, send any movement to the client
+  else if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkMessages::Destination message;
+    message.set_x(dest[0]);
+    message.set_y(0);       // Ignored
+    message.set_z(dest[1]);
+
+    Server::getSingleton().SendMessage<NetworkMessages::Destination>(S_ENTITY_SETDEST, &message);
+  }
 }
 
 void TLMP::_on_strike_pre STDARG
