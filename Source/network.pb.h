@@ -23,7 +23,8 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_message_reflection.h>
 
-namespace network {
+namespace TLMP {
+namespace NetworkMessages {
 
 // Internal implementation detail -- do not call these.
 void  protobuf_AddDesc_network_2eproto();
@@ -132,12 +133,12 @@ class Player_Pet : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 id() const;
   inline void set_id(::google::protobuf::int64 value);
   
-  // required .network.Player.PetType type = 2;
+  // required .TLMP.NetworkMessages.Player.PetType type = 2;
   inline bool has_type() const;
   inline void clear_type();
   static const int kTypeFieldNumber = 2;
-  inline ::network::Player_PetType type() const;
-  inline void set_type(::network::Player_PetType value);
+  inline ::TLMP::NetworkMessages::Player_PetType type() const;
+  inline void set_type(::TLMP::NetworkMessages::Player_PetType value);
   
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -284,12 +285,12 @@ class Player : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 id() const;
   inline void set_id(::google::protobuf::int64 value);
   
-  // required .network.Player.ClassType type = 3;
+  // required .TLMP.NetworkMessages.Player.ClassType type = 3;
   inline bool has_type() const;
   inline void clear_type();
   static const int kTypeFieldNumber = 3;
-  inline ::network::Player_ClassType type() const;
-  inline void set_type(::network::Player_ClassType value);
+  inline ::TLMP::NetworkMessages::Player_ClassType type() const;
+  inline void set_type(::TLMP::NetworkMessages::Player_ClassType value);
   
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -345,7 +346,7 @@ inline void Player_Pet::set_id(::google::protobuf::int64 value) {
   id_ = value;
 }
 
-// required .network.Player.PetType type = 2;
+// required .TLMP.NetworkMessages.Player.PetType type = 2;
 inline bool Player_Pet::has_type() const {
   return _has_bit(1);
 }
@@ -353,11 +354,11 @@ inline void Player_Pet::clear_type() {
   type_ = 0;
   _clear_bit(1);
 }
-inline ::network::Player_PetType Player_Pet::type() const {
-  return static_cast< ::network::Player_PetType >(type_);
+inline ::TLMP::NetworkMessages::Player_PetType Player_Pet::type() const {
+  return static_cast< ::TLMP::NetworkMessages::Player_PetType >(type_);
 }
-inline void Player_Pet::set_type(::network::Player_PetType value) {
-  GOOGLE_DCHECK(::network::Player_PetType_IsValid(value));
+inline void Player_Pet::set_type(::TLMP::NetworkMessages::Player_PetType value) {
+  GOOGLE_DCHECK(::TLMP::NetworkMessages::Player_PetType_IsValid(value));
   _set_bit(1);
   type_ = value;
 }
@@ -424,7 +425,7 @@ inline void Player::set_id(::google::protobuf::int64 value) {
   id_ = value;
 }
 
-// required .network.Player.ClassType type = 3;
+// required .TLMP.NetworkMessages.Player.ClassType type = 3;
 inline bool Player::has_type() const {
   return _has_bit(2);
 }
@@ -432,29 +433,30 @@ inline void Player::clear_type() {
   type_ = 0;
   _clear_bit(2);
 }
-inline ::network::Player_ClassType Player::type() const {
-  return static_cast< ::network::Player_ClassType >(type_);
+inline ::TLMP::NetworkMessages::Player_ClassType Player::type() const {
+  return static_cast< ::TLMP::NetworkMessages::Player_ClassType >(type_);
 }
-inline void Player::set_type(::network::Player_ClassType value) {
-  GOOGLE_DCHECK(::network::Player_ClassType_IsValid(value));
+inline void Player::set_type(::TLMP::NetworkMessages::Player_ClassType value) {
+  GOOGLE_DCHECK(::TLMP::NetworkMessages::Player_ClassType_IsValid(value));
   _set_bit(2);
   type_ = value;
 }
 
 
-}  // namespace network
+}  // namespace NetworkMessages
+}  // namespace TLMP
 
 #ifndef SWIG
 namespace google {
 namespace protobuf {
 
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::network::Player_ClassType>() {
-  return ::network::Player_ClassType_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::TLMP::NetworkMessages::Player_ClassType>() {
+  return ::TLMP::NetworkMessages::Player_ClassType_descriptor();
 }
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::network::Player_PetType>() {
-  return ::network::Player_PetType_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::TLMP::NetworkMessages::Player_PetType>() {
+  return ::TLMP::NetworkMessages::Player_PetType_descriptor();
 }
 
 }  // namespace google
