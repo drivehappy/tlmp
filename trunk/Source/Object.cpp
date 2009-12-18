@@ -71,8 +71,9 @@ void TLMP::_interact_with_object STDARG {
 }
 
 void TLMP::_object_create_pre STDARG {
-	log("\nObject pre-create: (this=%p, unk0=%#x) (GUID = %016I64X)", e->_this, Pz[0], ((c_item*)Pz[0])->guid);
-	log("             Unk0: %#x, Unk1: %016I64X", ((c_item*)Pz[0])->unk0, ((c_item*)Pz[0])->unk1);
+  log("\n");
+	log("Object pre-create: (this=%p, unk0=%#x) (GUID = %016I64X)", e->_this, Pz[0], ((c_item*)Pz[0])->guid);
+	log("       Unk0: %#x, Unk1: %016I64X", ((c_item*)Pz[0])->unk0, ((c_item*)Pz[0])->unk1);
 
 	/*
 	// Suppress object creation, get this from the host

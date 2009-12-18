@@ -2,6 +2,8 @@
 
 #include "Common.h"
 #include "Entity.h"
+#include "Network.h"
+using namespace TLMP::Network;
 
 namespace TLMP {
 
@@ -15,5 +17,7 @@ namespace TLMP {
   void _spider_idle_pre STDARG;
 
   void _spider_on_hit_pre STDARG;
+
+  void _set_alignment_pre STDARG;
 
 };

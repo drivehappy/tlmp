@@ -6,7 +6,8 @@
 
 namespace TLMP {
 
-  static PVOID EntityManager = 0;
+  extern PVOID EntityManager;
+  extern bool ClientAllowSpawn;
 
   struct c_entity {
 	  uint id;

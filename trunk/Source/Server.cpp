@@ -82,6 +82,7 @@ void Server::ReceiveMessages()
   if (!m_pServer)
     return;
 
+  // Round up any packets we've received
   Packet *packet = m_pServer->Receive();
 	while (packet) {
 		switch(packet->data[0]) {
@@ -101,15 +102,51 @@ void Server::ReceiveMessages()
       }
 			break;
 		case ID_USER_PACKET_ENUM+1:
-      NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(packet->data, packet->length);
-      log("Player Info Received:");
-      log("  id = %016I64X", player->id());
-      log("  name = %s", player->name().c_str());
-      log("  type = %i", player->type());
+      u32 msg;
+      m_pBitStream->Reset();
+      m_pBitStream->Write((const char *)packet->data, packet->length);
+	    m_pBitStream->IgnoreBits(8);
+      m_pBitStream->Read<u32>(msg);
+
+      WorkMessage((Message)msg, m_pBitStream);
+
       break;
     }
 
 		m_pServer->DeallocatePacket(packet);
 		packet = m_pServer->Receive();
 	}
+}
+
+void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
+{
+  log("Message Received: %x", msg);
+
+  switch (msg) {
+  case C_PLAYER_INFO:
+    {
+      NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(m_pBitStream);
+
+      log("Player Info Received:");
+      log("  id = %016I64X", player->id());
+      log("  name = %s", player->name().c_str());
+      log("  type = %i", player->type());
+    }
+
+    break;
+
+  case C_PLAYER_SETDEST:
+    {
+      NetworkMessages::Destination *destination = ParseMessage<NetworkMessages::Destination>(m_pBitStream);
+
+      /*
+      log("Set Destination Info:");
+      log("  x: %f", destination->x());
+      log("  y: %f", destination->y());
+      log("  z: %f", destination->z());
+      */
+    }
+
+    break;
+  }     
 }

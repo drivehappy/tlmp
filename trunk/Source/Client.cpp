@@ -100,7 +100,14 @@ void Client::ReceiveMessages()
       }
 			break;
     case ID_USER_PACKET_ENUM+1:
-      NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(packet->data, packet->length);
+      u32 msg;
+      m_pBitStream->Reset();
+      m_pBitStream->Write((const char *)packet->data, packet->length);
+	    m_pBitStream->IgnoreBits(8);
+      m_pBitStream->Read<u32>(msg);
+
+      WorkMessage((Message)msg, m_pBitStream);
+
       break;
 		}
 
@@ -118,5 +125,36 @@ void Client::OnConnect(void *args)
   player.set_name("drivehappy");
   player.set_type(NetworkMessages::Player_ClassType_ALCHEMIST);
 
-  SendMessage<NetworkMessages::Player>(&player);
+  SendMessage<NetworkMessages::Player>(C_PLAYER_INFO, &player);
+}
+
+void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
+{
+  log("Message Received: %x", msg);
+
+  switch (msg) {
+  case S_PLAYER_INFO:
+    {
+      NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(m_pBitStream);
+
+      log("Player Info Received:");
+      log("  id = %016I64X", player->id());
+      log("  name = %s", player->name().c_str());
+      log("  type = %i", player->type());
+    }
+    break;
+
+  case S_ENTITY_SETDEST:
+    {
+      NetworkMessages::Destination *destination = ParseMessage<NetworkMessages::Destination>(m_pBitStream);
+
+      /*
+      log("Entity Destination Received:");
+      log("  x = %f", destination->x());
+      log("  y = %f", destination->y());
+      log("  z = %f", destination->z());
+      */
+    }
+    break;
+  }     
 }

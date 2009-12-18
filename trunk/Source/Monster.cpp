@@ -2,10 +2,11 @@
 
 void TLMP::_spider_some_create_pre STDARG
 {
-	log("%p -- %p :: spider_some_create %08X %08X %d %d",e->retaddress,e->_this,Pz[0],Pz[1],Pz[2],Pz[3]);
+	log("!!!!! %p -- %p :: spider_some_create %08X %08X %d %d", e->retaddress, e->_this, Pz[0], Pz[1], Pz[2], Pz[3]);
 	EntityManager = e->_this;
 
 	unsigned long long guid = *(unsigned long long*)&Pz[0];
+
   /* NETWORK STUFF
 	if (peer.is_active && !allow_spawn) {
 // 		if (guid==0xD3A8F9832FA111DE) {
@@ -19,12 +20,18 @@ void TLMP::_spider_some_create_pre STDARG
 		e->retval = 0;
 	}
   */
+
+  if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
+    log("Client, stopping spawn");
+    e->calloriginal = false;
+    e->retval = NULL;
+  }
 }
 
 void TLMP::_spider_some_create_post STDARG
 {
 	unsigned long long guid = *(unsigned long long*)&Pz[0];
-	log("spider_some_create_post guid: %016IX64", guid);
+	log("!!!!!!! spider_some_create_post guid: %016IX64", guid);
 
   /* NETWORK STUFF
 	if (host.is_active && e->retval && !no_netspawn) {
@@ -95,6 +102,26 @@ void TLMP::_spider_on_hit_pre STDARG {
 		if (get_session_id_by_entity(e->_this)!=-1) {
 			e->calloriginal = false;
 			e->retval = 0;
+		}
+	}
+  */
+}
+
+void TLMP::_set_alignment_pre STDARG
+{
+  log("Setting Alignment");
+
+  /* NETWORK STUFF
+	if (host.is_active) {
+		index_t*id;
+		if (entity_map.inuse_get(e->_this,id)) {
+			log("host, sending set_alignment for id %d",*id);
+			char*p = (char*)e->_this;
+			host.sendbuf.reset();
+			host.sendbuf.pui(*id);
+			host.sendbuf.pus(id_set_alignment);
+			host.sendbuf.pui(Pz[0]);
+			host.send_to_all();
 		}
 	}
   */

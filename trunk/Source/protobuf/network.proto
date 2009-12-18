@@ -1,5 +1,17 @@
 package TLMP.NetworkMessages;
 
+message Destination {
+  required float x = 1;
+  required float y = 2;
+  required float z = 3;
+}
+
+message Entity {
+  required int32 level = 1;
+  required int64 guid = 2;
+  optional Destination destination = 3;
+}
+
 message Item {
   required int64 guid = 1;
   required int32 level = 2;

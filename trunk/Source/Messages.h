@@ -4,7 +4,7 @@ namespace TLMP {
 
   namespace Network {
 
-    enum Messages {
+    enum Message {
       // Server messages pushed to clients
       S_UNKNOWN = 0,
       S_PLAYER_INFO,
@@ -16,9 +16,10 @@ namespace TLMP {
       S_ITEM_UNEQUIP,
 
       // Client messages pushed to server
-      C_UNKNOWN = 0x1000,
+      C_UNKNOWN = 0x7F,
       C_PLAYER_INFO,
       C_PLAYER_SETDEST,
+      C_GAME_JOIN,
       C_ITEM_DROP,
       C_ITEM_PICKUP,
       C_ITEM_EQUIP,

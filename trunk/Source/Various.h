@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Common.h"
+#include "Player.h"
+#include "Network.h"
+using namespace TLMP::Network;
 
 namespace TLMP {
 
