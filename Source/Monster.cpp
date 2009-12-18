@@ -3,7 +3,7 @@
 void TLMP::_spider_some_create_pre STDARG
 {
 	log("%p -- %p :: spider_some_create %08X %08X %d %d",e->retaddress,e->_this,Pz[0],Pz[1],Pz[2],Pz[3]);
-	spider_mgr_this = e->_this;
+	EntityManager = e->_this;
 
 	unsigned long long guid = *(unsigned long long*)&Pz[0];
   /* NETWORK STUFF

@@ -1,5 +1,12 @@
 package TLMP.NetworkMessages;
 
+message Item {
+  required int64 guid = 1;
+  required int32 level = 2;
+  required int32 unk0 = 3;
+  required int32 unk1 = 4;
+}
+
 message Player {
   enum ClassType {
     ALCHEMIST = 0;

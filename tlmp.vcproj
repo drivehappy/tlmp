@@ -305,7 +305,15 @@
 				Name="Torchlight"
 				>
 				<File
+					RelativePath=".\Source\Entity.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Item.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\List.cpp"
 					>
 				</File>
 				<File
@@ -343,11 +351,23 @@
 				Name="Network"
 				>
 				<File
+					RelativePath=".\Source\Client.cpp.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Client.h"
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Messages.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Network.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Server.cpp.h"
 					>
 				</File>
 				<File
@@ -488,6 +508,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\Item.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\List.h"
 					>
 				</File>
 				<File

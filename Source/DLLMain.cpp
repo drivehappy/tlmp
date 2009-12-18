@@ -1,8 +1,6 @@
-//#include "Common.h"
-//#include "TLMP.h"
 
 //
-// Code developed by dengus
+// Rerouting code developed by dengus
 
 #include "TLMP.h"
 
@@ -285,19 +283,15 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
   dll_hm = LoadLibrary(dll);
 	this_module = hModule;
 	AllocConsole();
-	freopen("CONOUT$","w",stdout);
-
-	printf("wininet DllMain %d\n",dwReason);
-	printf("dll_hm is %p\n",dll_hm);
+	freopen("CONOUT$", "w", stdout);
 
 	if (GetModuleHandle("torchlight.exe")) {
 		if (dwReason==DLL_PROCESS_ATTACH) {
-			printf("torchlight wahh!!\n");
-			printf("base is at %p\n", GetModuleHandle("torchlight.exe"));
-			printf("PROCESS ATTACH\n");
+			log("Torchlight Multiplayer");
+			log("Base is at %p", GetModuleHandle("torchlight.exe"));
 
       TLMP::Initialize();
-      printf("Initialized\n");
+      log("Initialized");
 			initialized = true;
 		} else if (dwReason==DLL_THREAD_ATTACH) {
 		} else if (dwReason==DLL_PROCESS_DETACH) {

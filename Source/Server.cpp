@@ -101,7 +101,11 @@ void Server::ReceiveMessages()
       }
 			break;
 		case ID_USER_PACKET_ENUM+1:
-      ParseMessage(packet->data, packet->length);
+      NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(packet->data, packet->length);
+      log("Player Info Received:");
+      log("  id = %016I64X", player->id());
+      log("  name = %s", player->name().c_str());
+      log("  type = %i", player->type());
       break;
     }
 
@@ -109,47 +113,3 @@ void Server::ReceiveMessages()
 		packet = m_pServer->Receive();
 	}
 }
-
-void Server::SendMessage(TLMP::NetworkMessages::Player message)
-{
-  // Write message data to array
-  u32 size = sizeof(u8) * message.ByteSize();
-  u8 *dump = new u8[size];
-  message.SerializeToArray(dump, size);
-
-  // Write data and size to raknet
-  m_pBitStream->Write((u8)(ID_USER_PACKET_ENUM+1));
-  m_pBitStream->Write(size);
-  m_pBitStream->Write((const char *)dump, size);
-
-  m_pServer->Send(m_pBitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 1, UNASSIGNED_SYSTEM_ADDRESS, true);
-
-  delete dump;
-}
-
-void Server::ParseMessage(u8 *packetData, u32 length)
-{
-  TLMP::NetworkMessages::Player player;
-
-  m_pBitStream->Reset();
-  m_pBitStream->Write((const char *)packetData, length);
-	m_pBitStream->IgnoreBits(8); // Ignore ID_USER_PACKET_ENUM+1
-
-  u32 size = 0;
-  u8 *data;
-  m_pBitStream->ReadPtr<u32>(&size);
-  data = new u8[size];
-  m_pBitStream->ReadAlignedBytes(data, size);
-  log("Received serialized of size: %i", size);
-
-  player.ParseFromArray(data, size);
-
-  log("Player information received:");
-  log("  id = %i", player.id());
-  log("  name = %s", player.name().c_str());
-  log("  type = %i", player.type());
-
-  delete data;
-}
-
-
