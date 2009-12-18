@@ -12,7 +12,7 @@ void xcept(const char *fmt, ...) {
 }
 
 void log(const char *fmt, ...) {
-  printf("log_enter\n");
+  //printf("log_enter\n");
 
 	static Timer logTimer;
 	va_list args;
@@ -22,7 +22,7 @@ void log(const char *fmt, ...) {
 	s = format("%4.3f  %s\n",t,s.c_str());
 	printf("%s",s.c_str());
 
-  printf("log_exit\n");
+  //printf("log_exit\n");
   /*
 	for (int i=0;i<10 && h_log_file == INVALID_HANDLE_VALUE;i++)
 		h_log_file = CreateFile(format("log%d.txt",i).c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_DELETE,0,CREATE_ALWAYS,0,0);
