@@ -1,4 +1,4 @@
-package network;
+package TLMP.NetworkMessages;
 
 message Player {
   enum ClassType {

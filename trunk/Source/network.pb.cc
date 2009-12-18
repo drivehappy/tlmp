@@ -9,7 +9,8 @@
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
 
-namespace network {
+namespace TLMP {
+namespace NetworkMessages {
 
 namespace {
 
@@ -100,13 +101,14 @@ void protobuf_AddDesc_network_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\rnetwork.proto\022\007network\"\335\001\n\006Player\022\014\n\004n"
-    "ame\030\001 \002(\t\022\n\n\002id\030\002 \002(\003\022\'\n\004type\030\003 \002(\0162\031.ne"
-    "twork.Player.ClassType\0328\n\003Pet\022\n\n\002id\030\001 \002("
-    "\003\022%\n\004type\030\002 \002(\0162\027.network.Player.PetType"
-    "\"9\n\tClassType\022\r\n\tALCHEMIST\020\000\022\016\n\nVANQUISH"
-    "ER\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007PetType\022\007\n\003DOG\020\000\022"
-    "\007\n\003CAT\020\001", 248);
+    "\n\rnetwork.proto\022\024TLMP.NetworkMessages\"\367\001"
+    "\n\006Player\022\014\n\004name\030\001 \002(\t\022\n\n\002id\030\002 \002(\003\0224\n\004ty"
+    "pe\030\003 \002(\0162&.TLMP.NetworkMessages.Player.C"
+    "lassType\032E\n\003Pet\022\n\n\002id\030\001 \002(\003\0222\n\004type\030\002 \002("
+    "\0162$.TLMP.NetworkMessages.Player.PetType\""
+    "9\n\tClassType\022\r\n\tALCHEMIST\020\000\022\016\n\nVANQUISHE"
+    "R\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007PetType\022\007\n\003DOG\020\000\022\007"
+    "\n\003CAT\020\001", 287);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Player::default_instance_ = new Player();
@@ -244,7 +246,7 @@ bool Player_Pet::MergePartialFromCodedStream(
         break;
       }
       
-      // required .network.Player.PetType type = 2;
+      // required .TLMP.NetworkMessages.Player.PetType type = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -253,8 +255,8 @@ bool Player_Pet::MergePartialFromCodedStream(
        parse_type:
         int value;
         DO_(::google::protobuf::internal::WireFormatLite::ReadEnum(input, &value));
-        if (::network::Player_PetType_IsValid(value)) {
-          set_type(static_cast< ::network::Player_PetType >(value));
+        if (::TLMP::NetworkMessages::Player_PetType_IsValid(value)) {
+          set_type(static_cast< ::TLMP::NetworkMessages::Player_PetType >(value));
         } else {
           mutable_unknown_fields()->AddVarint(2, value);
         }
@@ -291,7 +293,7 @@ void Player_Pet::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt64(1, this->id(), output);
   }
   
-  // required .network.Player.PetType type = 2;
+  // required .TLMP.NetworkMessages.Player.PetType type = 2;
   if (_has_bit(1)) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       2, this->type(), output);
@@ -310,7 +312,7 @@ void Player_Pet::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(1, this->id(), target);
   }
   
-  // required .network.Player.PetType type = 2;
+  // required .TLMP.NetworkMessages.Player.PetType type = 2;
   if (_has_bit(1)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       2, this->type(), target);
@@ -334,7 +336,7 @@ int Player_Pet::ByteSize() const {
           this->id());
     }
     
-    // required .network.Player.PetType type = 2;
+    // required .TLMP.NetworkMessages.Player.PetType type = 2;
     if (has_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
@@ -517,7 +519,7 @@ bool Player::MergePartialFromCodedStream(
         break;
       }
       
-      // required .network.Player.ClassType type = 3;
+      // required .TLMP.NetworkMessages.Player.ClassType type = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -526,8 +528,8 @@ bool Player::MergePartialFromCodedStream(
        parse_type:
         int value;
         DO_(::google::protobuf::internal::WireFormatLite::ReadEnum(input, &value));
-        if (::network::Player_ClassType_IsValid(value)) {
-          set_type(static_cast< ::network::Player_ClassType >(value));
+        if (::TLMP::NetworkMessages::Player_ClassType_IsValid(value)) {
+          set_type(static_cast< ::TLMP::NetworkMessages::Player_ClassType >(value));
         } else {
           mutable_unknown_fields()->AddVarint(3, value);
         }
@@ -573,7 +575,7 @@ void Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->id(), output);
   }
   
-  // required .network.Player.ClassType type = 3;
+  // required .TLMP.NetworkMessages.Player.ClassType type = 3;
   if (_has_bit(2)) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       3, this->type(), output);
@@ -602,7 +604,7 @@ void Player::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->id(), target);
   }
   
-  // required .network.Player.ClassType type = 3;
+  // required .TLMP.NetworkMessages.Player.ClassType type = 3;
   if (_has_bit(2)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       3, this->type(), target);
@@ -633,7 +635,7 @@ int Player::ByteSize() const {
           this->id());
     }
     
-    // required .network.Player.ClassType type = 3;
+    // required .TLMP.NetworkMessages.Player.ClassType type = 3;
     if (has_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
@@ -715,4 +717,5 @@ void Player::Swap(Player* other) {
 }
 
 
-}  // namespace network
+}  // namespace NetworkMessages
+}  // namespace TLMP

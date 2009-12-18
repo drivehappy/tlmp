@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy Output\\winmm.dll &quot;C:\\Program Files (x86)\\Steam\\steamapps\\common\\torchlight&quot;"
+				CommandLine="ExternalTools\\upx\\upx.exe Output\\winmm.dll&#x0D;&#x0A;copy Output\\winmm.dll &quot;C:\\Program Files (x86)\\Steam\\steamapps\\common\\torchlight&quot;"
 			/>
 		</Configuration>
 	</Configurations>
