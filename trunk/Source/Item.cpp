@@ -11,6 +11,7 @@ void TLMP::_item_initialize_pre STDARG
 {
 	log(" %p :: item initialize %p",e->_this,Pz[0]);
 	item_initialize_this = (void*)Pz[0];
+  log("Done");
 }
 
 void TLMP::_item_create_pre STDARG

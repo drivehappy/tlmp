@@ -88,8 +88,9 @@ struct version {
 };
 
 version Versions[] = {
-	{"STEAM_1_12B", 0xfde42df},
-	{"STEAM_1_12", 0x766efdb5},
+  {"STEAM_1_14",  0xf80d1690},
+	{"STEAM_1_12B", 0x0fde42df},
+	{"STEAM_1_12",  0x766efdb5},
 };
 
 bool ComputeVersion() {
