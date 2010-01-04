@@ -120,9 +120,18 @@ void Server::ReceiveMessages()
 
 void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 {
-  log("Message Received: %x", msg);
+  //log("Message Received: %x", msg);
 
   switch (msg) {
+  case C_GAME_JOIN:
+    {
+      NetworkMessages::Entity *message = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
+
+      log("Player Joined Game:");
+      log("  guid: %016I64X", message->guid());
+      log("  level: %i", message->level());
+    }
+    break;
   case C_PLAYER_INFO:
     {
       NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(m_pBitStream);

@@ -225,9 +225,10 @@ void TLMP::HookActivate(HookFunctionDef* f)
   // patch up patch_address to jump to entry
 
 	DWORD oldprot;
-	if (!VirtualProtectEx(GetCurrentProcess(),f->patch_address,0x100,PAGE_EXECUTE_READWRITE,&oldprot)) {
+	if (!VirtualProtectEx(GetCurrentProcess(), f->patch_address, 0x100, PAGE_EXECUTE_READWRITE, &oldprot)) {
 		//xcept("hook entry %p; VirtualProtectEx failed (error %d)",GetLastError());
 	}
+
 	uint8_t*out = (uint8_t*)f->patch_address;
 	*out++ = 0xe9;
 	*(uint32_t*)out = (uint8_t*)f->hook_code - (out+4);
@@ -236,14 +237,20 @@ void TLMP::HookActivate(HookFunctionDef* f)
 
 void TLMP::HookDeactivate(HookFunctionDef* f)
 {
-  if (f->hook_code) VirtualFree(f->hook_code,0,MEM_RELEASE);
+  if (f->hook_code) {
+    VirtualFree(f->hook_code, 0, MEM_RELEASE);
+  }
+
 	delete f;
 }
 
-void TLMP::PatchJMP(uint32_t addr,uint32_t to) {
-	uint8_t*p = (uint8_t*)addr;
+void TLMP::PatchJMP(uint32_t addr, uint32_t to)
+{
+  //addr = EXEOFFSET(addr);
+
+	uint8_t *p = (uint8_t*)addr;
 	DWORD old;
-	VirtualProtect(p,5,PAGE_EXECUTE_READWRITE,&old);
+	VirtualProtect(p, 5, PAGE_EXECUTE_READWRITE, &old);
 	*p++ = 0xe9;
 	*(uint32_t*)p = (uint8_t*)(to) - (p+4);
 }

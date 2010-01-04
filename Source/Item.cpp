@@ -11,7 +11,6 @@ void TLMP::_item_initialize_pre STDARG
 {
 	log(" %p :: item initialize %p",e->_this,Pz[0]);
 	item_initialize_this = (void*)Pz[0];
-  log("Done");
 }
 
 void TLMP::_item_create_pre STDARG
@@ -36,7 +35,10 @@ void TLMP::_item_create_pre STDARG
 	}
   */
 
-  if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT && !allowItemSpawn) {
+  log("Allow spawn: %i", ClientAllowSpawn);
+
+  //
+  if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT && !ClientAllowSpawn) {
     log("[CLIENT] _item_create_pre stopping item spawn (%p)", e->_this);
 
     e->calloriginal = false;
@@ -105,9 +107,9 @@ void TLMP::_item_drop_pre STDARG
 	// Update our world ptr
 	//world = e->_this;
 
-	log(" %p :: drop item %p %p %d",e->_this,Pz[0],Pz[1],Pz[2]);
+	//log(" %p :: drop item %p %p %d",e->_this,Pz[0],Pz[1],Pz[2]);
 	c_item *i = (c_item*)e->_this;
-	log("     GUID; %016I64X", i->guid);
+	//log("     GUID; %016I64X", i->guid);
 
   /* NETWORK STUFF
 	if (no_netsend) return;
@@ -132,15 +134,15 @@ void TLMP::_item_drop_pre STDARG
 
 void TLMP::_item_pick_up_pre STDARG
 {
-	log(" %p :: pick up item %p",e->_this,Pz[0]);
+	//log(" %p :: pick up item %p",e->_this,Pz[0]);
 }
 
 void TLMP::_item_pick_up_post STDARG
 {
-	log("pick up, retval is %d",e->retval);
+	//log("pick up, retval is %d",e->retval);
 	void*pitem = (void*)Pz[0];
 
-	log("pick up, retval is %d",e->retval);
+	//log("pick up, retval is %d",e->retval);
 
   /* NETWORK STUFF
 	index_t*id;
@@ -180,7 +182,7 @@ void TLMP::_item_pick_up_post STDARG
 
 void TLMP::_item_equip_pre STDARG
 {
-	log(" %p :: item equip pre %p %d %d",e->_this,Pz[0],Pz[1],Pz[2]);
+	//log(" %p :: item equip pre %p %d %d",e->_this,Pz[0],Pz[1],Pz[2]);
 	c_item c = *(c_item*)Pz[0];
 
 	unsigned long long guid = c.guid;
@@ -206,7 +208,7 @@ void TLMP::_item_equip_pre STDARG
 
 void TLMP::_item_equip_post STDARG
 {
-	log("e->retval is %d",e->retval);
+	//log("e->retval is %d",e->retval);
 	if (!e->retval) return;
 	void*pinv = e->_this;
 	void*pitem = (void*)Pz[0];
@@ -238,7 +240,7 @@ void TLMP::_item_equip_post STDARG
 
 void TLMP::_item_unequip_pre STDARG
 {
-	log(" %p :: item unequip %p",e->_this,Pz[0]);
+	//log(" %p :: item unequip %p",e->_this,Pz[0]);
 	void*pinv = e->_this;
 	void*pitem = (void*)Pz[0];
 	index_t entity_id = -1;

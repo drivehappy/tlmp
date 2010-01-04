@@ -246,10 +246,17 @@ class Entity : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 guid() const;
   inline void set_guid(::google::protobuf::int64 value);
   
-  // optional .TLMP.NetworkMessages.Destination destination = 3;
+  // required bool noItems = 3;
+  inline bool has_noitems() const;
+  inline void clear_noitems();
+  static const int kNoItemsFieldNumber = 3;
+  inline bool noitems() const;
+  inline void set_noitems(bool value);
+  
+  // optional .TLMP.NetworkMessages.Destination destination = 4;
   inline bool has_destination() const;
   inline void clear_destination();
-  static const int kDestinationFieldNumber = 3;
+  static const int kDestinationFieldNumber = 4;
   inline const ::TLMP::NetworkMessages::Destination& destination() const;
   inline ::TLMP::NetworkMessages::Destination* mutable_destination();
   
@@ -259,12 +266,13 @@ class Entity : public ::google::protobuf::Message {
   
   ::google::protobuf::int32 level_;
   ::google::protobuf::int64 guid_;
+  bool noitems_;
   ::TLMP::NetworkMessages::Destination* destination_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -734,19 +742,35 @@ inline void Entity::set_guid(::google::protobuf::int64 value) {
   guid_ = value;
 }
 
-// optional .TLMP.NetworkMessages.Destination destination = 3;
-inline bool Entity::has_destination() const {
+// required bool noItems = 3;
+inline bool Entity::has_noitems() const {
   return _has_bit(2);
+}
+inline void Entity::clear_noitems() {
+  noitems_ = false;
+  _clear_bit(2);
+}
+inline bool Entity::noitems() const {
+  return noitems_;
+}
+inline void Entity::set_noitems(bool value) {
+  _set_bit(2);
+  noitems_ = value;
+}
+
+// optional .TLMP.NetworkMessages.Destination destination = 4;
+inline bool Entity::has_destination() const {
+  return _has_bit(3);
 }
 inline void Entity::clear_destination() {
   if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Destination::Clear();
-  _clear_bit(2);
+  _clear_bit(3);
 }
 inline const ::TLMP::NetworkMessages::Destination& Entity::destination() const {
   return destination_ != NULL ? *destination_ : *default_instance_->destination_;
 }
 inline ::TLMP::NetworkMessages::Destination* Entity::mutable_destination() {
-  _set_bit(2);
+  _set_bit(3);
   if (destination_ == NULL) destination_ = new ::TLMP::NetworkMessages::Destination;
   return destination_;
 }

@@ -8,6 +8,7 @@ namespace TLMP {
       // Server messages pushed to clients
       S_UNKNOWN = 0,
       S_PLAYER_INFO,
+      S_SPAWN_MONSTER,
       S_ENTITY_SETDEST,
       S_ITEM_CREATE,
       S_ITEM_DROP,

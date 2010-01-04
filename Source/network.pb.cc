@@ -59,9 +59,10 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Destination));
   Entity_descriptor_ = file->message_type(1);
-  static const int Entity_offsets_[3] = {
+  static const int Entity_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, guid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, noitems_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, destination_),
   };
   Entity_reflection_ =
@@ -176,17 +177,17 @@ void protobuf_AddDesc_network_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\rnetwork.proto\022\024TLMP.NetworkMessages\".\n"
     "\013Destination\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030"
-    "\003 \002(\002\"]\n\006Entity\022\r\n\005level\030\001 \002(\005\022\014\n\004guid\030\002"
-    " \002(\003\0226\n\013destination\030\003 \001(\0132!.TLMP.Network"
-    "Messages.Destination\"?\n\004Item\022\014\n\004guid\030\001 \002"
-    "(\003\022\r\n\005level\030\002 \002(\005\022\014\n\004unk0\030\003 \002(\005\022\014\n\004unk1\030"
-    "\004 \002(\005\"\367\001\n\006Player\022\014\n\004name\030\001 \002(\t\022\n\n\002id\030\002 \002"
-    "(\003\0224\n\004type\030\003 \002(\0162&.TLMP.NetworkMessages."
-    "Player.ClassType\032E\n\003Pet\022\n\n\002id\030\001 \002(\003\0222\n\004t"
-    "ype\030\002 \002(\0162$.TLMP.NetworkMessages.Player."
-    "PetType\"9\n\tClassType\022\r\n\tALCHEMIST\020\000\022\016\n\nV"
-    "ANQUISHER\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007PetType\022\007\n"
-    "\003DOG\020\000\022\007\n\003CAT\020\001", 495);
+    "\003 \002(\002\"n\n\006Entity\022\r\n\005level\030\001 \002(\005\022\014\n\004guid\030\002"
+    " \002(\003\022\017\n\007noItems\030\003 \002(\010\0226\n\013destination\030\004 \001"
+    "(\0132!.TLMP.NetworkMessages.Destination\"?\n"
+    "\004Item\022\014\n\004guid\030\001 \002(\003\022\r\n\005level\030\002 \002(\005\022\014\n\004un"
+    "k0\030\003 \002(\005\022\014\n\004unk1\030\004 \002(\005\"\367\001\n\006Player\022\014\n\004nam"
+    "e\030\001 \002(\t\022\n\n\002id\030\002 \002(\003\0224\n\004type\030\003 \002(\0162&.TLMP"
+    ".NetworkMessages.Player.ClassType\032E\n\003Pet"
+    "\022\n\n\002id\030\001 \002(\003\0222\n\004type\030\002 \002(\0162$.TLMP.Networ"
+    "kMessages.Player.PetType\"9\n\tClassType\022\r\n"
+    "\tALCHEMIST\020\000\022\016\n\nVANQUISHER\020\001\022\r\n\tDESTROYE"
+    "R\020\002\"\033\n\007PetType\022\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 512);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Destination::default_instance_ = new Destination();
@@ -488,6 +489,7 @@ void Destination::Swap(Destination* other) {
 #ifndef _MSC_VER
 const int Entity::kLevelFieldNumber;
 const int Entity::kGuidFieldNumber;
+const int Entity::kNoItemsFieldNumber;
 const int Entity::kDestinationFieldNumber;
 #endif  // !_MSC_VER
 
@@ -508,6 +510,7 @@ void Entity::SharedCtor() {
   _cached_size_ = 0;
   level_ = 0;
   guid_ = GOOGLE_LONGLONG(0);
+  noitems_ = false;
   destination_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -541,7 +544,8 @@ void Entity::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     level_ = 0;
     guid_ = GOOGLE_LONGLONG(0);
-    if (_has_bit(2)) {
+    noitems_ = false;
+    if (_has_bit(3)) {
       if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Destination::Clear();
     }
   }
@@ -578,12 +582,26 @@ bool Entity::MergePartialFromCodedStream(
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt64(
               input, &guid_));
         _set_bit(1);
-        if (input->ExpectTag(26)) goto parse_destination;
+        if (input->ExpectTag(24)) goto parse_noItems;
         break;
       }
       
-      // optional .TLMP.NetworkMessages.Destination destination = 3;
+      // required bool noItems = 3;
       case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+       parse_noItems:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadBool(
+              input, &noitems_));
+        _set_bit(2);
+        if (input->ExpectTag(34)) goto parse_destination;
+        break;
+      }
+      
+      // optional .TLMP.NetworkMessages.Destination destination = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
           goto handle_uninterpreted;
@@ -629,10 +647,15 @@ void Entity::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->guid(), output);
   }
   
-  // optional .TLMP.NetworkMessages.Destination destination = 3;
+  // required bool noItems = 3;
   if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->noitems(), output);
+  }
+  
+  // optional .TLMP.NetworkMessages.Destination destination = 4;
+  if (_has_bit(3)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
-      3, this->destination(), output);
+      4, this->destination(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -653,11 +676,16 @@ void Entity::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->guid(), target);
   }
   
-  // optional .TLMP.NetworkMessages.Destination destination = 3;
+  // required bool noItems = 3;
   if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->noitems(), target);
+  }
+  
+  // optional .TLMP.NetworkMessages.Destination destination = 4;
+  if (_has_bit(3)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        3, this->destination(), target);
+        4, this->destination(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -685,7 +713,12 @@ int Entity::ByteSize() const {
           this->guid());
     }
     
-    // optional .TLMP.NetworkMessages.Destination destination = 3;
+    // required bool noItems = 3;
+    if (has_noitems()) {
+      total_size += 1 + 1;
+    }
+    
+    // optional .TLMP.NetworkMessages.Destination destination = 4;
     if (has_destination()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -724,6 +757,9 @@ void Entity::MergeFrom(const Entity& from) {
       set_guid(from.guid());
     }
     if (from._has_bit(2)) {
+      set_noitems(from.noitems());
+    }
+    if (from._has_bit(3)) {
       mutable_destination()->::TLMP::NetworkMessages::Destination::MergeFrom(from.destination());
     }
   }
@@ -743,7 +779,7 @@ void Entity::CopyFrom(const Entity& from) {
 }
 
 bool Entity::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
   if (has_destination()) {
     if (!this->destination().IsInitialized()) return false;
@@ -755,6 +791,7 @@ void Entity::Swap(Entity* other) {
   if (other != this) {
     std::swap(level_, other->level_);
     std::swap(guid_, other->guid_);
+    std::swap(noitems_, other->noitems_);
     std::swap(destination_, other->destination_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

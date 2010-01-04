@@ -21,16 +21,20 @@ void TLMP::_spider_some_create_pre STDARG
 	}
   */
 
+  //* TESTING - MOVED TO TEST0_PRE (Parent function call)
   if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
-    log("Client, stopping spawn");
+    log("[CLIENT] Stopping spawn");
     e->calloriginal = false;
-    e->retval = NULL;
+    e->retval = 0;
   }
 }
 
 void TLMP::_spider_some_create_post STDARG
 {
-	unsigned long long guid = *(unsigned long long*)&Pz[0];
+	u64 guid      = *(u64 *)&Pz[0];
+  u32 level     = Pz[2];
+  bool noItems  = *(bool*)&Pz[3];
+
 	log("!!!!!!! spider_some_create_post guid: %016IX64", guid);
 
   /* NETWORK STUFF
@@ -46,9 +50,23 @@ void TLMP::_spider_some_create_post STDARG
 	}
   */
 
-	//if (Pz[1]==0x5C5BBC74) {
-	//	cat = (void*)e->retval;
-	//}
+  if (NetworkState::getSingleton().GetState() == SERVER) {
+    c_entity o;
+		o.e = (void*)e->retval;
+		o.guid = guid;
+		o.level = level;
+		o.noitems = noItems;
+		o.init();
+
+    NetworkMessages::Entity message;
+    message.set_level(level);
+    message.set_guid(guid);
+    message.set_noitems(noItems);
+
+    Server::getSingleton().SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &message);
+
+    log("[SERVER] Sent Monster Spawn to Client");
+  }
 }
 
 void TLMP::_spider_process_ai_pre STDARG {
@@ -109,7 +127,7 @@ void TLMP::_spider_on_hit_pre STDARG {
 
 void TLMP::_set_alignment_pre STDARG
 {
-  log("Setting Alignment");
+  log("Setting Alignment: %p %i", e->_this, Pz[0]);
 
   /* NETWORK STUFF
 	if (host.is_active) {

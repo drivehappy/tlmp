@@ -9,6 +9,8 @@ namespace TLMP {
   extern PVOID EntityManager;
   extern bool ClientAllowSpawn;
 
+  void _entity_initialize_pre STDARG;
+
   struct c_entity {
 	  uint id;
 	  unsigned long long guid;
