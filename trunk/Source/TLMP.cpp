@@ -14,19 +14,21 @@
 #include "Item.h"
 #include "Object.h"
 
+#include "Test.h"
+
 
 // Define the offset locations
-TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool),                           0x5FB440);
+TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool),                           0x5FB460);
 TLFUNCPTR(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3, u32),                      0x4F2720);
-TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t, const wchar_t, u32, u32),   0x5FBED0);
+TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t, const wchar_t, u32, u32),   0x5FBEF0);
 TLFUNCPTR(SetAlignment,       PVOID,    __thiscall, (PVOID, u32),                                      0x483690);
 TLFUNCPTR(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float),                      0x4926E0);
 TLFUNCPTR(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32),                             0x50D920);
 TLFUNCPTR(SetAction,          PVOID,    __thiscall, (PVOID, u32),                                      0x489A90);
 TLFUNCPTR(UseSkill,           PVOID,    __thiscall, (PVOID, u64),                                      0x494A50);
 TLFUNCPTR(SetPosition,        PVOID,    __thiscall, (PVOID, const Vector3),                            0x50D980);
-TLFUNCPTR(AddMinion,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x4A9620);
-TLFUNCPTR(CreateSomething,    PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FBA40);
+TLFUNCPTR(AddMinion,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x4A9610);
+TLFUNCPTR(CreateSomething,    PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FBA60);
 
 TLFUNCPTR(SetAttack,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x492580);
 
@@ -41,7 +43,7 @@ TLFUNCPTR(DoAttack,           PVOID,    __thiscall, (PVOID),                    
 
 TLFUNCPTR(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID),                                    0x4BDD10);
 TLFUNCPTR(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3, bool),                     0x4F28A0);
-TLFUNCPTR(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FAFA0);
+TLFUNCPTR(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FAFC0);
 TLFUNCPTR(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID),                             0x4965B0);
 TLFUNCPTR(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32),                          0x4E6510);
 TLFUNCPTR(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID),                                    0x4E6E40);
@@ -66,7 +68,7 @@ TLFUNCPTR(BarrelKnockback,    PVOID,    __thiscall, (PVOID),                    
 
 TLFUNCPTR(CheckgamePaused,    void,     __thiscall, (PVOID),                                           0x40DD30);
 
-TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32),                                 0x5FB080);
+TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32),                                 0x5FB0A0);
 
 TLFUNCPTR(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM),                      0x401680);
 
@@ -77,7 +79,7 @@ TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (void),                     
 // -------------------------------------------------------------------------------- //
 // In-place definitions
 
-TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A6E0);
+TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A6F0);
 
 TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D3D80);
 TLFUNCPTR(MonsterIdle,        void,     __thiscall, (PVOID, PVOID),                                    0x4D4270);
@@ -89,7 +91,7 @@ TLFUNCPTR(PlayerSetAction,    void,     __thiscall, (PVOID),                    
 
 TLFUNCPTR(TitleScreenProcess, void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x40DF30);
 
-TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, PVOID),                                    0x418830);
+TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, PVOID),                                    0x418840);
 
 TLFUNCPTR(Random,             void,     __thiscall, (),                                                0x5B9EF0);
 
@@ -110,6 +112,7 @@ void TLMP::Initialize()
     return;
   }
 
+  //SetupProcessBase();
   PatchProcess();
   HookFunctions();
 
@@ -122,13 +125,21 @@ void TLMP::Shutdown()
   log("Shutdown");
 }
 
+void TLMP::SetupProcessBase()
+{
+  HMODULE hMod = GetModuleHandle(NULL);
+  FARPROC addr = GetProcAddress(hMod, NULL);
+
+//#define EXEBASEREAL #addr
+}
+
 void TLMP::PatchProcess()
 {
   // patch steam
 	//PatchJMP(0x5FA07D, 0x5FA5D3);
 
 	// always generate new uhm.. monsters? when zoning
-	PatchJMP(0x416911, 0x416961);
+	PatchJMP(0x416931, 0x416981);
 
 	//patch_jmp(0x4AB397,0x4AB4D2);
 
@@ -141,33 +152,36 @@ void TLMP::HookFunctions()
   log("Hooking functions...");
 
   // Map
-  Hook((void*)0x418830, _load_map_pre, _load_map_post, HOOK_THISCALL, 2);
-  Hook((void*)0x40CF20, _load_area_pre, 0, HOOK_THISCALL, 18);
-  Hook((void*)0x419730, _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);
+  Hook(LoadMap, _load_map_pre, _load_map_post, HOOK_THISCALL, 2);
+  Hook(LoadArea, _load_area_pre, 0, HOOK_THISCALL, 18);
+  Hook((void*)0x419740, _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);
 
   log("Map Done");
 
   // Various
   Hook(SetDestination, _set_destination_pre, 0, HOOK_THISCALL, 3);
   Hook(OnStrike, _on_strike_pre, _on_strike_post, HOOK_THISCALL, 7);
-	Hook((void*)0x5B9EF0, 0, _random_post, HOOK_THISCALL, 0);
-	Hook((void*)0x4F5070, _destroy_pre, 0, HOOK_THISCALL, 1);
+	Hook(Random, 0, _random_post, HOOK_THISCALL, 0);
+	Hook(Destroy, _destroy_pre, 0, HOOK_THISCALL, 1);
 
   log("Various Done");
 
   // Monster
   Hook(SpiderSomeCreate, _spider_some_create_pre, _spider_some_create_post, HOOK_THISCALL, 4);
   Hook(SpiderProcessAI, _spider_process_ai_pre, 0, HOOK_THISCALL, 2);
- 	Hook((void*)0x4D3D80, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
-  Hook((void*)0x4D4270, _spider_idle_pre, 0, HOOK_THISCALL, 2);
- 	Hook((void*)0x4D2330, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
+ 	Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
+  Hook(MonsterIdle, _spider_idle_pre, 0, HOOK_THISCALL, 2);
+ 	Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
   Hook(SetAlignment, _set_alignment_pre, 0, HOOK_THISCALL, 1);
 
   log("Monster Done");
 
+  // Entity
+  Hook(EntityInitialize, _entity_initialize_pre, 0, HOOK_THISCALL, 3);
+
   // Player
-  Hook((void*)0x4D99E0, 0, _player_ctor_post, HOOK_THISCALL, 1);
-  Hook((void*)0x4D55E0, _player_set_action_pre, 0, HOOK_THISCALL, 1);
+  Hook(PlayerCtor, 0, _player_ctor_post, HOOK_THISCALL, 1);
+  Hook(PlayerSetAction, _player_set_action_pre, 0, HOOK_THISCALL, 1);
   Hook(AddGoldToPlayer, _add_goldtoplayer, 0, HOOK_THISCALL, 1);
   Hook(PlayerInitialize, NULL, _initialize_player_post, HOOK_THISCALL, 2);
 	Hook(PlayerDied, _player_died_pre, NULL, HOOK_THISCALL, 0);
@@ -178,7 +192,6 @@ void TLMP::HookFunctions()
 
   log("Player Done");
 
-  
   // Item
   Hook(ItemInitialize, _item_initialize_pre, 0, HOOK_THISCALL, 1);
   Hook(ItemCreate, _item_create_pre, _item_create_post, HOOK_THISCALL, 5);
@@ -194,4 +207,13 @@ void TLMP::HookFunctions()
 	Hook(ObjectCreate, _object_create_pre, _object_create_post, HOOK_THISCALL, 1);
 
   log("Hooking complete");
+
+  // Unknowns, Testings
+  // This one handles bypassing monster creation as well (I think this is some sort of initial
+  // monster load from file, while the rest are generated at runtime).
+  // This calls the spider_create, but doesn't handle when it returns null.
+  Hook((void*)0x4F3190, test0_pre, test0_post, HOOK_THISCALL, 5);
+
+  // Doesn't work, don't use
+  //Hook(CreateUnitByName, test1_pre, test1_post, HOOK_THISCALL, 5);
 }

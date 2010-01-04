@@ -20,7 +20,7 @@ void TLMP::Network::Client::SendMessage(Message msg, ::google::protobuf::Message
   m_pBitStream->Write((const char *)dump, size);
 
   m_pClient->Send(m_pBitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 1, UNASSIGNED_SYSTEM_ADDRESS, true);
-  log("Client sent message of type: %x", msg);
+  //log("Client sent message of type: %x", msg);
 
   delete dump;
 }
@@ -35,7 +35,7 @@ T* TLMP::Network::Client::ParseMessage(RakNet::BitStream *bitStream)
   bitStream->ReadPtr<u32>(&size);
   data = new u8[size];
   bitStream->ReadAlignedBytes(data, size);
-  log("Received serialized of size: %i", size);
+  //log("Received serialized of size: %i", size);
 
   message->ParseFromArray(data, size);
 

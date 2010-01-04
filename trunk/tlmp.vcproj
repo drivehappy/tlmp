@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="ExternalTools\\upx\\upx.exe Output\\winmm.dll&#x0D;&#x0A;copy Output\\winmm.dll &quot;C:\\Program Files (x86)\\Steam\\steamapps\\common\\torchlight&quot;"
+				CommandLine="ExternalTools\\upx\\upx.exe Output\\winmm.dll&#x0D;&#x0A;copy Output\\winmm.dll &quot;C:\\Program Files (x86)\\Steam\\steamapps\\common\\torchlight&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -330,6 +330,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\Player.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Test.cpp"
 					>
 				</File>
 				<File
@@ -528,6 +532,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\Player.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Test.h"
 					>
 				</File>
 				<File

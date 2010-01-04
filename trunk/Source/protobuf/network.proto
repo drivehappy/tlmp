@@ -9,7 +9,8 @@ message Destination {
 message Entity {
   required int32 level = 1;
   required int64 guid = 2;
-  optional Destination destination = 3;
+  required bool	 noItems = 3;
+  optional Destination destination = 4;
 }
 
 message Item {

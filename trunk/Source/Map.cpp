@@ -63,11 +63,13 @@ void TLMP::_load_area_pre STDARG
 	*random_seed2 = 0;
   */
 
+  /*
   if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
     log("Load_Area Stopping Client Load");
     e->calloriginal = false;
 		e->retval = NULL;
   }
+  */
 }
 
 void TLMP::_on_load_area_pre STDARG
@@ -119,6 +121,7 @@ void TLMP::_on_load_area_post STDARG
     entity.set_guid(guid);
     entity.set_level(level);
     Client::getSingleton().SendMessage<NetworkMessages::Entity>(C_GAME_JOIN, &entity);
+
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
     log("[SERVER] Sending spawn entity... TODO");
 

@@ -126,11 +126,13 @@ void Client::OnConnect(void *args)
   player.set_type(NetworkMessages::Player_ClassType_ALCHEMIST);
 
   SendMessage<NetworkMessages::Player>(C_PLAYER_INFO, &player);
+
+  log("[CLIENT] Connected.");
 }
 
 void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 {
-  log("Message Received: %x", msg);
+  //log("Message Received: %x", msg);
 
   switch (msg) {
   case S_PLAYER_INFO:
@@ -141,6 +143,21 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("  id = %016I64X", player->id());
       log("  name = %s", player->name().c_str());
       log("  type = %i", player->type());
+    }
+    break;
+
+  case S_SPAWN_MONSTER:
+    {
+      NetworkMessages::Entity *entity = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
+
+      log("[CLIENT] Received Monster Spawn");
+      log("         Level = %i", entity->level());
+      log("         GUID  = %016I64X", entity->guid());
+      log("         NoItems = %i", entity->noitems());
+
+      ClientAllowSpawn = true;
+      SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
+      ClientAllowSpawn = false;
     }
     break;
 
