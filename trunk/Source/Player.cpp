@@ -1,15 +1,16 @@
 #include "Player.h"
 
-PVOID TLMP::me = 0;
+PVOID TLMP::me = NULL;
+PVOID TLMP::otherPlayer = NULL;
 
 void TLMP::_player_ctor_post STDARG
 {
-	me = (void*)e->retval;
+	me = (void *)e->retval;
 }
 
 void TLMP::_player_set_action_pre STDARG
 {
-	log("set action %d",Pz[0]);
+	//log("set action %d",Pz[0]);
 
   /* NETWORK STUFF
 	if (e->_this==me) {
@@ -43,10 +44,10 @@ void TLMP::_add_goldtoplayer STDARG
 
 void TLMP::_initialize_player_post STDARG
 {
-	unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
-	unsigned int level = *((unsigned int*)me + 0x3c);
+	u64 guid = *((u64 *)me + (0x168 / 8));
+	u32 level = *((u32 *)me + 0x3c);
 
-	log("~~~ Player initialized: guid = %016I64X", guid);
+	log("Player initialized: guid = %016I64X", guid);
 
   /* NETWORK STUFF
 	// Level isn't init'd by now, where is it?
@@ -116,4 +117,47 @@ void TLMP::_add_minion_pre STDARG
 		}
 	}
   */
+}
+
+PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
+{
+  log("[SERVER] Spawning Player...");
+  //ServerAllowSpawn = false;
+  PVOID r;
+  if (EntityManager) {
+    r = SpiderSomeCreate(EntityManager, guid, level, true);
+  } else {
+    log("[ERROR] EntityManager is not initialized!");
+  }
+  //ServerAllowSpawn = true;
+	log("  Player is %p", r);
+
+	if (r) {
+    //otherPlayer = r;
+		SetAlignment(r, 1);
+		r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, &position, 0);
+		log("  Player Initialized: %p", r);
+
+    /* NETWORK STUFF
+		host.sendbuf.reset();
+		host.sendbuf.pui(-1);
+		host.sendbuf.pus(id_join);
+		host.sendbuf.pui(entity_map[r]);
+		s->net.send_message(host.sendbuf);
+		s->entity_id = entity_map[r];
+    */
+
+		void *pet = CreateUnitByName(EntityManager, L"MONSTERS", L"Dog", 1, 0);
+		if (pet) {
+			SetAlignment(pet, 1);
+			AddMinion(r, pet);
+			pet = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), pet, &position, 0);
+			log("  Pet initialize: %p\n", pet);
+
+		} else log("[ERROR] Could not spawn pet!");
+	} else log("[ERROR] Could not spawn player!");
+
+  log("Spawn Complete.");
+
+  return r;
 }

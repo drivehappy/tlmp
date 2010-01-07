@@ -5,8 +5,8 @@
 namespace TLMP {
 
   TLFUNC(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool));
-  TLFUNC(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3, u32));
-  TLFUNC(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t, const wchar_t, u32, u32));
+  TLFUNC(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3*, u32));
+  TLFUNC(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t*, const wchar_t*, u32, u32));
   TLFUNC(SetAlignment,       PVOID,    __thiscall, (PVOID, u32));
   TLFUNC(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float));
   TLFUNC(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32));

@@ -1,13 +1,14 @@
 #include "Entity.h"
 using namespace TLMP;
 
-bool TLMP::ClientAllowSpawn = true;
+bool TLMP::ClientAllowSpawn = false;
+bool TLMP::ServerAllowSpawn = true;
 PVOID TLMP::EntityManager = NULL;
 
 
 void TLMP::_entity_initialize_pre STDARG
 {
-  log("Entity Initialize: %p %p %i", e->_this, Pz[0], Pz[1]);
+  log("Entity Initialize: %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2]);
 }
 
 c_entity::c_entity()
@@ -28,12 +29,13 @@ t& c_entity::offset(int offset) const
 {
   if (!e || !ce) {
     log(" !! offset with null this !!");
-    return *(t*)&ce[offset];
+    return *(t*)(&ce[offset]);
   }
 }
 
-Vector3& c_entity::get_pos() const {
-  return offset<Vector3>(0x70);
+Vector3* c_entity::get_pos() const {
+  //return offset<Vector3>(0x70);
+  return (Vector3*)(&ce[0x70]);
 }
 
 void c_entity::set_pos(const Vector3 & pos) {
@@ -71,4 +73,15 @@ bool& c_entity::moving() {
   
 c_inventory*& c_entity::inventory() {
   return offset<c_inventory*>(0x404);
+}
+
+// get_dst
+void* TLMP::GetDestination(void *p) {
+  char *c = *(char **)((char *)p + 0x60);
+
+  if (c) {
+    c = *(char **)(c + 0xc);
+  }
+
+  return c;
 }

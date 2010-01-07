@@ -19,8 +19,8 @@
 
 // Define the offset locations
 TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool),                           0x5FB460);
-TLFUNCPTR(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3, u32),                      0x4F2720);
-TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t, const wchar_t, u32, u32),   0x5FBEF0);
+TLFUNCPTR(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3*, u32),                     0x4F2720);
+TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t*, const wchar_t*, u32, u32), 0x5FBEF0);
 TLFUNCPTR(SetAlignment,       PVOID,    __thiscall, (PVOID, u32),                                      0x483690);
 TLFUNCPTR(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float),                      0x4926E0);
 TLFUNCPTR(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32),                             0x50D920);
@@ -153,7 +153,7 @@ void TLMP::HookFunctions()
 
   // Map
   Hook(LoadMap, _load_map_pre, _load_map_post, HOOK_THISCALL, 2);
-  Hook(LoadArea, _load_area_pre, 0, HOOK_THISCALL, 18);
+  Hook(LoadArea, _load_area_pre, _load_area_post, HOOK_THISCALL, 18);
   Hook((void*)0x419740, _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);
 
   log("Map Done");
@@ -163,6 +163,8 @@ void TLMP::HookFunctions()
   Hook(OnStrike, _on_strike_pre, _on_strike_post, HOOK_THISCALL, 7);
 	Hook(Random, 0, _random_post, HOOK_THISCALL, 0);
 	Hook(Destroy, _destroy_pre, 0, HOOK_THISCALL, 1);
+  Hook(ProcessObjects, _process_objects_pre, _process_objects_pre, HOOK_THISCALL, 4);
+  Hook(WndProc, _wnd_proc_pre, NULL, HOOK_STDCALL, 5);
 
   log("Various Done");
 
@@ -205,6 +207,11 @@ void TLMP::HookFunctions()
   // Object
   Hook(InteractWithObject, _interact_with_object, 0, HOOK_THISCALL, 1);
 	Hook(ObjectCreate, _object_create_pre, _object_create_post, HOOK_THISCALL, 1);
+  log("Object Done");
+
+  // Ogre
+  Hook(GetProcAddress(GetModuleHandle("OgreMain.dll"), "?isActive@RenderWindow@Ogre@@UBE_NXZ"), _ogre_is_active, 0, HOOK_THISCALL, 0);
+  log("OGRE Done");
 
   log("Hooking complete");
 

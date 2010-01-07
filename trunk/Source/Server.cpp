@@ -12,6 +12,7 @@ Server::Server()
 {
   m_pServer = NULL;
   m_pBitStream = new RakNet::BitStream(1024);
+  m_pOtherPlayer = NULL;
 
   m_pOnListening = NULL;
   m_pOnShutdown = NULL;
@@ -130,6 +131,14 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("Player Joined Game:");
       log("  guid: %016I64X", message->guid());
       log("  level: %i", message->level());
+      log("  position: %f %f %f", message->position().Get(0).x(), message->position().Get(0).y(), message->position().Get(0).z());
+
+      Vector3 position;
+      position.x = message->position().Get(0).x();
+      position.y = message->position().Get(0).y();
+      position.z = message->position().Get(0).z();
+
+      m_pOtherPlayer = SpawnPlayer(message->guid(), message->level(), position);
     }
     break;
   case C_PLAYER_INFO:
@@ -146,14 +155,20 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case C_PLAYER_SETDEST:
     {
-      NetworkMessages::Destination *destination = ParseMessage<NetworkMessages::Destination>(m_pBitStream);
+      NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      /*
-      log("Set Destination Info:");
-      log("  x: %f", destination->x());
-      log("  y: %f", destination->y());
-      log("  z: %f", destination->z());
-      */
+      log("SetDest received from client");
+
+      if (m_pOtherPlayer) {
+        SetDestination(m_pOtherPlayer, GetDestination(m_pOtherPlayer), destination->x(), destination->z());
+
+        /*
+        log("Set Destination Info:");
+        log("  x: %f", destination->x());
+        log("  y: %f", destination->y());
+        log("  z: %f", destination->z());
+        */
+      }
     }
 
     break;
