@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Common.h"
+#include "Monster.h"
 
 namespace TLMP {
 
   extern PVOID me;
+  extern PVOID otherPlayer;
 
   void _player_ctor_post STDARG;
 
@@ -23,5 +25,7 @@ namespace TLMP {
   void _levelup_silent_pre STDARG;
 
   void _add_minion_pre STDARG;
+
+  PVOID SpawnPlayer(u64 guid, u32 level, Vector3 position);
 
 };

@@ -9,9 +9,9 @@
 
 namespace TLMP {
 
-  static PVOID  drop_item_this = 0;
-  static PVOID  item_initialize_this = 0;
-  static bool   allowItemSpawn = true;
+  extern PVOID  drop_item_this;
+  extern PVOID  ItemManager;
+  extern bool   allowItemSpawn;
 
   // Item Structure
   struct c_item {

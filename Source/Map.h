@@ -15,6 +15,7 @@ namespace TLMP {
   void _load_map_post STDARG;
 
   void _load_area_pre STDARG;
+  void _load_area_post STDARG;
 
   void _on_load_area_pre STDARG;
   void _on_load_area_post STDARG;

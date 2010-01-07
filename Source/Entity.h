@@ -8,6 +8,7 @@ namespace TLMP {
 
   extern PVOID EntityManager;
   extern bool ClientAllowSpawn;
+  extern bool ServerAllowSpawn;
 
   void _entity_initialize_pre STDARG;
 
@@ -37,10 +38,10 @@ namespace TLMP {
 	  c_entity();
 	  void init();
 	  template<typename t> t& offset(int offset) const;
-	  Vector3& get_pos() const;
+	  Vector3* get_pos() const;
 	  void set_pos(const Vector3 & pos);
 	  float& get_hp();
-	  float&get_mana();
+	  float& get_mana();
 	  void destroy();
 	  void*& target();
 	  bool& attack_midair();
@@ -48,5 +49,7 @@ namespace TLMP {
 	  bool& moving();
 	  c_inventory*& inventory();
   };
+
+  void* GetDestination(void *p);
 
 };

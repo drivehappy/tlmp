@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Player.h"
 #include "Network.h"
+#include "Entity.h"
 using namespace TLMP::Network;
 
 namespace TLMP {
@@ -15,5 +16,12 @@ namespace TLMP {
   void _random_post STDARG;
 
   void _destroy_pre STDARG;
+
+  void _ogre_is_active STDARG;
+
+  void _process_objects_pre STDARG;
+  void _process_objects_post STDARG;
+  
+  void _wnd_proc_pre STDARG;
 
 };

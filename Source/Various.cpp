@@ -7,23 +7,23 @@ void TLMP::_set_destination_pre STDARG
   // Only send my player movement to the server
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (e->_this == me) {
-      NetworkMessages::Destination message;
+      NetworkMessages::Position message;
       message.set_x(dest[0]);
       message.set_y(0);       // Ignored
       message.set_z(dest[1]);
 
-      Client::getSingleton().SendMessage<NetworkMessages::Destination>(C_PLAYER_SETDEST, &message);
+      Client::getSingleton().SendMessage<NetworkMessages::Position>(C_PLAYER_SETDEST, &message);
     }
   }
 
   // Hosting, send any movement to the client
   else if (NetworkState::getSingleton().GetState() == SERVER) {
-    NetworkMessages::Destination message;
+    NetworkMessages::Position message;
     message.set_x(dest[0]);
     message.set_y(0);       // Ignored
     message.set_z(dest[1]);
 
-    Server::getSingleton().SendMessage<NetworkMessages::Destination>(S_ENTITY_SETDEST, &message);
+    Server::getSingleton().SendMessage<NetworkMessages::Position>(S_ENTITY_SETDEST, &message);
   }
 }
 
@@ -109,3 +109,47 @@ void TLMP::_destroy_pre STDARG
 // 	}
 }
 
+void TLMP::_ogre_is_active STDARG
+{
+  e->calloriginal = false;
+	e->retval = 1;
+}
+
+void TLMP::_process_objects_pre STDARG
+{
+  //log("Process Objects pre");
+}
+
+void TLMP::_process_objects_post STDARG
+{
+  //log("Process Objects post");
+}
+
+void TLMP::_wnd_proc_pre STDARG
+{
+	UINT msg = Pz[2];
+	WPARAM wParam = Pz[3];
+
+	if (msg == 0x100 || msg == 0x101 || msg == 0x102) {
+		switch (msg) {
+		case WM_KEYDOWN:
+			break;
+		case WM_KEYUP:
+      switch (wParam) {
+      case 'T':
+        c_entity em;
+	      if (me) {
+		      em.e = me;
+		      em.init();
+	      }
+
+        void *r = CreateUnitByName(EntityManager, L"MONSTERS", L"Troll", 1, 0);
+        r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, em.get_pos(), 0);
+        log("Troll Created: %p (at: %f %f %f --- %p)", r, em.get_pos()->x, em.get_pos()->y, em.get_pos()->z, em.get_pos());
+      }
+			break;
+		case WM_CHAR:
+			break;
+		}
+	}
+}

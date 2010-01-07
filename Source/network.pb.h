@@ -31,7 +31,7 @@ void  protobuf_AddDesc_network_2eproto();
 void protobuf_AssignDesc_network_2eproto();
 void protobuf_ShutdownFile_network_2eproto();
 
-class Destination;
+class Position;
 class Entity;
 class Item;
 class Player;
@@ -76,14 +76,14 @@ inline bool Player_PetType_Parse(
 }
 // ===================================================================
 
-class Destination : public ::google::protobuf::Message {
+class Position : public ::google::protobuf::Message {
  public:
-  Destination();
-  virtual ~Destination();
+  Position();
+  virtual ~Position();
   
-  Destination(const Destination& from);
+  Position(const Position& from);
   
-  inline Destination& operator=(const Destination& from) {
+  inline Position& operator=(const Position& from) {
     CopyFrom(from);
     return *this;
   }
@@ -97,16 +97,16 @@ class Destination : public ::google::protobuf::Message {
   }
   
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Destination& default_instance();
-  void Swap(Destination* other);
+  static const Position& default_instance();
+  void Swap(Position* other);
   
   // implements Message ----------------------------------------------
   
-  Destination* New() const;
+  Position* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Destination& from);
-  void MergeFrom(const Destination& from);
+  void CopyFrom(const Position& from);
+  void MergeFrom(const Position& from);
   void Clear();
   bool IsInitialized() const;
   
@@ -175,7 +175,7 @@ class Destination : public ::google::protobuf::Message {
   }
   
   void InitAsDefaultInstance();
-  static Destination* default_instance_;
+  static Position* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -253,12 +253,22 @@ class Entity : public ::google::protobuf::Message {
   inline bool noitems() const;
   inline void set_noitems(bool value);
   
-  // optional .TLMP.NetworkMessages.Destination destination = 4;
+  // optional .TLMP.NetworkMessages.Position destination = 4;
   inline bool has_destination() const;
   inline void clear_destination();
   static const int kDestinationFieldNumber = 4;
-  inline const ::TLMP::NetworkMessages::Destination& destination() const;
-  inline ::TLMP::NetworkMessages::Destination* mutable_destination();
+  inline const ::TLMP::NetworkMessages::Position& destination() const;
+  inline ::TLMP::NetworkMessages::Position* mutable_destination();
+  
+  // repeated .TLMP.NetworkMessages.Position position = 5;
+  inline int position_size() const;
+  inline void clear_position();
+  static const int kPositionFieldNumber = 5;
+  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >& position() const;
+  inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >* mutable_position();
+  inline const ::TLMP::NetworkMessages::Position& position(int index) const;
+  inline ::TLMP::NetworkMessages::Position* mutable_position(int index);
+  inline ::TLMP::NetworkMessages::Position* add_position();
   
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -267,12 +277,13 @@ class Entity : public ::google::protobuf::Message {
   ::google::protobuf::int32 level_;
   ::google::protobuf::int64 guid_;
   bool noitems_;
-  ::TLMP::NetworkMessages::Destination* destination_;
+  ::TLMP::NetworkMessages::Position* destination_;
+  ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position > position_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -656,52 +667,52 @@ class Player : public ::google::protobuf::Message {
 
 // ===================================================================
 
-// Destination
+// Position
 
 // required float x = 1;
-inline bool Destination::has_x() const {
+inline bool Position::has_x() const {
   return _has_bit(0);
 }
-inline void Destination::clear_x() {
+inline void Position::clear_x() {
   x_ = 0;
   _clear_bit(0);
 }
-inline float Destination::x() const {
+inline float Position::x() const {
   return x_;
 }
-inline void Destination::set_x(float value) {
+inline void Position::set_x(float value) {
   _set_bit(0);
   x_ = value;
 }
 
 // required float y = 2;
-inline bool Destination::has_y() const {
+inline bool Position::has_y() const {
   return _has_bit(1);
 }
-inline void Destination::clear_y() {
+inline void Position::clear_y() {
   y_ = 0;
   _clear_bit(1);
 }
-inline float Destination::y() const {
+inline float Position::y() const {
   return y_;
 }
-inline void Destination::set_y(float value) {
+inline void Position::set_y(float value) {
   _set_bit(1);
   y_ = value;
 }
 
 // required float z = 3;
-inline bool Destination::has_z() const {
+inline bool Position::has_z() const {
   return _has_bit(2);
 }
-inline void Destination::clear_z() {
+inline void Position::clear_z() {
   z_ = 0;
   _clear_bit(2);
 }
-inline float Destination::z() const {
+inline float Position::z() const {
   return z_;
 }
-inline void Destination::set_z(float value) {
+inline void Position::set_z(float value) {
   _set_bit(2);
   z_ = value;
 }
@@ -758,21 +769,46 @@ inline void Entity::set_noitems(bool value) {
   noitems_ = value;
 }
 
-// optional .TLMP.NetworkMessages.Destination destination = 4;
+// optional .TLMP.NetworkMessages.Position destination = 4;
 inline bool Entity::has_destination() const {
   return _has_bit(3);
 }
 inline void Entity::clear_destination() {
-  if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Destination::Clear();
+  if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Position::Clear();
   _clear_bit(3);
 }
-inline const ::TLMP::NetworkMessages::Destination& Entity::destination() const {
+inline const ::TLMP::NetworkMessages::Position& Entity::destination() const {
   return destination_ != NULL ? *destination_ : *default_instance_->destination_;
 }
-inline ::TLMP::NetworkMessages::Destination* Entity::mutable_destination() {
+inline ::TLMP::NetworkMessages::Position* Entity::mutable_destination() {
   _set_bit(3);
-  if (destination_ == NULL) destination_ = new ::TLMP::NetworkMessages::Destination;
+  if (destination_ == NULL) destination_ = new ::TLMP::NetworkMessages::Position;
   return destination_;
+}
+
+// repeated .TLMP.NetworkMessages.Position position = 5;
+inline int Entity::position_size() const {
+  return position_.size();
+}
+inline void Entity::clear_position() {
+  position_.Clear();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >&
+Entity::position() const {
+  return position_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
+Entity::mutable_position() {
+  return &position_;
+}
+inline const ::TLMP::NetworkMessages::Position& Entity::position(int index) const {
+  return position_.Get(index);
+}
+inline ::TLMP::NetworkMessages::Position* Entity::mutable_position(int index) {
+  return position_.Mutable(index);
+}
+inline ::TLMP::NetworkMessages::Position* Entity::add_position() {
+  return position_.Add();
 }
 
 // -------------------------------------------------------------------

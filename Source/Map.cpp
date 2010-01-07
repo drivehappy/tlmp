@@ -18,6 +18,43 @@ void TLMP::_load_map_post STDARG
 
 		UISetup = true;
 	}
+
+  //
+  // Testing character spawn code location
+  //
+  unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
+	unsigned int level = *((unsigned int*)me + 0x3c);
+  
+
+	log("~~~ guid = %016I64X, level = %i", guid, level);
+
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    ClientAllowSpawn = false;
+
+    log("[CLIENT] Sending join...");
+    c_entity t;
+		t.e = me;
+		t.init();
+		t.level = level;
+		t.guid = guid;
+
+    NetworkMessages::Entity entity;
+
+    entity.set_guid(guid);
+    entity.set_level(level);
+    entity.set_noitems(true);
+
+    NetworkMessages::Position *position = entity.add_position();
+
+    position->set_x(t.get_pos()->x);
+    position->set_y(t.get_pos()->y);
+    position->set_z(t.get_pos()->z);
+
+    Client::getSingleton().SendMessage<NetworkMessages::Entity>(C_GAME_JOIN, &entity);
+
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    log("[SERVER] Sending spawn entity... TODO");
+  }
 }
 
 void TLMP::_load_area_pre STDARG
@@ -72,6 +109,11 @@ void TLMP::_load_area_pre STDARG
   */
 }
 
+void TLMP::_load_area_post STDARG
+{
+  log("~~~ _load_area_post");
+}
+
 void TLMP::_on_load_area_pre STDARG
 {
   log("~~~ _on_load_area_pre");
@@ -105,7 +147,7 @@ void TLMP::_on_load_area_post STDARG
 	unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
 	unsigned int level = *((unsigned int*)me + 0x3c);
 
-	log("~~~ _on_load_area_post: guid = %016I64X", guid);
+	log("~~~ _on_load_area_post: guid = %016I64X, level = %i", guid, level);
 
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     ClientAllowSpawn = false;

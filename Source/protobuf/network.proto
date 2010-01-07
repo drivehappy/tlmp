@@ -1,6 +1,6 @@
 package TLMP.NetworkMessages;
 
-message Destination {
+message Position {
   required float x = 1;
   required float y = 2;
   required float z = 3;
@@ -10,7 +10,8 @@ message Entity {
   required int32 level = 1;
   required int64 guid = 2;
   required bool	 noItems = 3;
-  optional Destination destination = 4;
+  optional Position destination = 4;
+  repeated Position position = 5;
 }
 
 message Item {

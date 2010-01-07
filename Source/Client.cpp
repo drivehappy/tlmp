@@ -156,14 +156,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         NoItems = %i", entity->noitems());
 
       ClientAllowSpawn = true;
-      SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
+      //SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
       ClientAllowSpawn = false;
     }
     break;
 
   case S_ENTITY_SETDEST:
     {
-      NetworkMessages::Destination *destination = ParseMessage<NetworkMessages::Destination>(m_pBitStream);
+      NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
       /*
       log("Entity Destination Received:");

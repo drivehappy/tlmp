@@ -1,22 +1,26 @@
 #include "Item.h"
 
+PVOID TLMP::drop_item_this = NULL;
+PVOID TLMP::ItemManager = NULL;
+bool TLMP::allowItemSpawn = true;
+
 void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
 {
   log("NetItem_OnItemCreated");
 
-  void *r = ItemCreate(EntityManager, guid, level, unk0, unk1);
+  void *r = ItemCreate(ItemManager, guid, level, unk0, unk1);
 }
 
 void TLMP::_item_initialize_pre STDARG
 {
-	log(" %p :: item initialize %p",e->_this,Pz[0]);
-	item_initialize_this = (void*)Pz[0];
+	log(" %p :: item initialize %p", e->_this, Pz[0]);
+	ItemManager = (void*)Pz[0];
 }
 
 void TLMP::_item_create_pre STDARG
 {
 	log("Item Create: this: %p  %#x %#x %#x %#x %#x", e->_this, Pz[0], Pz[1], Pz[2], Pz[3], Pz[4]);
-	unsigned long long guid = *(unsigned long long*)&Pz[0];
+	u64 guid = *(u64 *)&Pz[0];
 	int unk0 = Pz[2], unk1 = Pz[3], unk2 = Pz[4];
 
   /* NETWORK STUFF
@@ -50,7 +54,7 @@ void TLMP::_item_create_pre STDARG
 
 void TLMP::_item_create_post STDARG
 {
-	unsigned long long guid = *(unsigned long long*)&Pz[0];
+	u64 guid = *(u64 *)&Pz[0];
 
 	log("%p :: Item created: %p, GUID: %016I64X", e->retval, e->_this, guid);
 
@@ -185,7 +189,7 @@ void TLMP::_item_equip_pre STDARG
 	//log(" %p :: item equip pre %p %d %d",e->_this,Pz[0],Pz[1],Pz[2]);
 	c_item c = *(c_item*)Pz[0];
 
-	unsigned long long guid = c.guid;
+	u64 guid = c.guid;
 
   /* NETWORK STUFF
 	if (peer.is_active && !peer_allow_equip) {
@@ -209,9 +213,12 @@ void TLMP::_item_equip_pre STDARG
 void TLMP::_item_equip_post STDARG
 {
 	//log("e->retval is %d",e->retval);
-	if (!e->retval) return;
-	void*pinv = e->_this;
-	void*pitem = (void*)Pz[0];
+  if (!e->retval) {
+    return;
+  }
+
+	void *pinv = e->_this;
+	void *pitem = (void*)Pz[0];
 	int slot = Pz[1];
 	index_t entity_id = -1;
 
@@ -241,8 +248,8 @@ void TLMP::_item_equip_post STDARG
 void TLMP::_item_unequip_pre STDARG
 {
 	//log(" %p :: item unequip %p",e->_this,Pz[0]);
-	void*pinv = e->_this;
-	void*pitem = (void*)Pz[0];
+	void *pinv = e->_this;
+	void *pitem = (void*)Pz[0];
 	index_t entity_id = -1;
 
   /* NETWORK STUFF
