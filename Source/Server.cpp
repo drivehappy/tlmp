@@ -85,28 +85,28 @@ void Server::ReceiveMessages()
 
   // Round up any packets we've received
   Packet *packet = m_pServer->Receive();
-	while (packet) {
-		switch(packet->data[0]) {
-		case ID_NEW_INCOMING_CONNECTION:
+  while (packet) {
+    switch(packet->data[0]) {
+    case ID_NEW_INCOMING_CONNECTION:
       if (m_pOnClientConnect) {
-			  m_pOnClientConnect(NULL);
+        m_pOnClientConnect(NULL);
       }
-			break;
-		case ID_DISCONNECTION_NOTIFICATION:
+      break;
+    case ID_DISCONNECTION_NOTIFICATION:
       if (m_pOnClientDisconnect) {
-			  m_pOnClientDisconnect(NULL);
+        m_pOnClientDisconnect(NULL);
       }
-			break;
-		case ID_CONNECTION_LOST:
+      break;
+    case ID_CONNECTION_LOST:
       if (m_pOnClientDisconnect) {
-			  m_pOnClientDisconnect(NULL);
+        m_pOnClientDisconnect(NULL);
       }
-			break;
-		case ID_USER_PACKET_ENUM+1:
+      break;
+    case ID_USER_PACKET_ENUM+1:
       u32 msg;
       m_pBitStream->Reset();
       m_pBitStream->Write((const char *)packet->data, packet->length);
-	    m_pBitStream->IgnoreBits(8);
+      m_pBitStream->IgnoreBits(8);
       m_pBitStream->Read<u32>(msg);
 
       WorkMessage((Message)msg, m_pBitStream);
@@ -114,9 +114,9 @@ void Server::ReceiveMessages()
       break;
     }
 
-		m_pServer->DeallocatePacket(packet);
-		packet = m_pServer->Receive();
-	}
+    m_pServer->DeallocatePacket(packet);
+    packet = m_pServer->Receive();
+  }
 }
 
 void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)

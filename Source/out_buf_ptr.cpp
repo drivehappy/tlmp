@@ -31,5 +31,5 @@ uint32_t out_buf_ptr::addr()
 
 bool out_buf_ptr::operator!=(const out_buf_ptr &n)
 {
-	return c!=n.c||oc!=n.oc||chksum!=n.chksum;
+  return c!=n.c||oc!=n.oc||chksum!=n.chksum;
 }

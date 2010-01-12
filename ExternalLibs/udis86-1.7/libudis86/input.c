@@ -17,8 +17,8 @@ static int
 inp_buff_hook(struct ud* u)
 {
   if (u->inp_buff < u->inp_buff_end)
-	return *u->inp_buff++;
-  else	return -1;
+  return *u->inp_buff++;
+  else  return -1;
 }
 
 #ifndef __UD_STANDALONE__
@@ -79,7 +79,7 @@ extern void
 ud_input_skip(struct ud* u, size_t n)
 {
   while (n--) {
-	u->inp_hook(u);
+  u->inp_hook(u);
   }
 }
 
@@ -111,21 +111,21 @@ extern uint8_t inp_next(struct ud* u)
    * input cache.
    */
   if ( u->inp_curr != u->inp_fill ) {
-	c = u->inp_cache[ ++u->inp_curr ];
+  c = u->inp_cache[ ++u->inp_curr ];
   /* if !end-of-input, call the input hook and get a byte */
   } else if ( u->inp_end || ( c = u->inp_hook( u ) ) == -1 ) {
-	/* end-of-input, mark it as an error, since the decoder,
-	 * expected a byte more.
-	 */
-	u->error = 1;
-	/* flag end of input */
-	u->inp_end = 1;
-	return 0;
+  /* end-of-input, mark it as an error, since the decoder,
+   * expected a byte more.
+   */
+  u->error = 1;
+  /* flag end of input */
+  u->inp_end = 1;
+  return 0;
   } else {
-	/* increment pointers, we have a new byte.  */
-	u->inp_curr = ++u->inp_fill;
-	/* add the byte to the cache */
-	u->inp_cache[ u->inp_fill ] = c;
+  /* increment pointers, we have a new byte.  */
+  u->inp_curr = ++u->inp_fill;
+  /* add the byte to the cache */
+  u->inp_cache[ u->inp_fill ] = c;
   }
   /* record bytes input per decode-session. */
   u->inp_sess[ u->inp_ctr++ ] = c;
@@ -141,8 +141,8 @@ extern void
 inp_back(struct ud* u) 
 {
   if ( u->inp_ctr > 0 ) {
-	--u->inp_curr;
-	--u->inp_ctr;
+  --u->inp_curr;
+  --u->inp_ctr;
   }
 }
 
@@ -166,7 +166,7 @@ extern void
 inp_move(struct ud* u, size_t n) 
 {
   while (n--)
-	inp_next(u);
+  inp_next(u);
 }
 
 /*------------------------------------------------------------------------------

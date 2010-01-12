@@ -47,16 +47,16 @@ typedef unsigned long long  u64;
 template<class t>
 class be_v {
 public:
-	t n;
-	static u8 convert8(u8 n) {return n;}
-	static u8 convert(u8 n) {return n;}
-	static u16 convert16(u16 n) {return ((n&0xFF)<<8)|((n&0xFF00)>>8);}
-	static u16 convert(u16 n) {return ((n&0xFF)<<8)|((n&0xFF00)>>8);}
-	static u32 convert32(u32 n) {return ((n&0xFF)<<24)|((n&0xFF00)<<8)|((n&0xFF0000)>>8)|((n&0xFF000000)>>24);}
-	static u32 convert(u32 n) {return ((n&0xFF)<<24)|((n&0xFF00)<<8)|((n&0xFF0000)>>8)|((n&0xFF000000)>>24);}
-	be_v(t nn) : n(convert(nn)) {}
-	operator t() {return convert(n);}
-	be_v() {} 
+  t n;
+  static u8 convert8(u8 n) {return n;}
+  static u8 convert(u8 n) {return n;}
+  static u16 convert16(u16 n) {return ((n&0xFF)<<8)|((n&0xFF00)>>8);}
+  static u16 convert(u16 n) {return ((n&0xFF)<<8)|((n&0xFF00)>>8);}
+  static u32 convert32(u32 n) {return ((n&0xFF)<<24)|((n&0xFF00)<<8)|((n&0xFF0000)>>8)|((n&0xFF000000)>>24);}
+  static u32 convert(u32 n) {return ((n&0xFF)<<24)|((n&0xFF00)<<8)|((n&0xFF0000)>>8)|((n&0xFF000000)>>24);}
+  be_v(t nn) : n(convert(nn)) {}
+  operator t() {return convert(n);}
+  be_v() {} 
 };
 typedef be_v<s8> ns8;
 typedef be_v<s16> ns16;

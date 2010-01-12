@@ -15,19 +15,19 @@ namespace TLMP {
 
   // Item Structure
   struct c_item {
-	  uint id;
-	  unsigned long long guid;
-	  int level;
-	  int unk0, unk1;
-	  union {
-		  void*e;
-		  char*ce;
-	  };
-	  //index_t equipped_entity;
-	  //int equipped_slot;
-	  c_item() {
-		  //equipped_entity = -1;
-	  }
+    uint id;
+    unsigned long long guid;
+    int level;
+    int unk0, unk1;
+    union {
+      void*e;
+      char*ce;
+    };
+    //index_t equipped_entity;
+    //int equipped_slot;
+    c_item() {
+      //equipped_entity = -1;
+    }
   };
 
   // Network Item-specific Callbacks
