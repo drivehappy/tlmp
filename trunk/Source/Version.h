@@ -77,61 +77,58 @@ crc32 (u32 crc, unsigned char *buf, size_t len)
 // End of shameless code stealing
 // --
 
-void log(const char*format,...);
+void log(const char *format, ...);
 
 //
 // Helper function for determining current executable version running
 // too much time wasted realizing offsets are wrong...
 struct version {
-	const char* vendor;
-	int checksum;
+  const char* vendor;
+  int checksum;
 };
 
 version Versions[] = {
-  {"STEAM_1_14B", 0x5e0d5adf},
-  {"STEAM_1_14",  0xf80d1690},
-	{"STEAM_1_12B", 0x0fde42df},
-	{"STEAM_1_12",  0x766efdb5},
+  {"STEAM_1_14B", 0xfcdd52ee},
 };
 
 bool ComputeVersion() {
-	int memSize = 1024;
-	LPVOID buf = new unsigned char[memSize];
-	SIZE_T br;
-	u32 checksum;
-	int seed = 0xc1d23fae;
-	LPCVOID addr = (LPCVOID)0x00400000;
-	HANDLE proc = GetCurrentProcess();
+  int memSize = 0x1000;
+  LPVOID buf = new unsigned char[memSize];
+  SIZE_T br;
+  u32 checksum;
+  int seed = 0xc1d23fae;
+  LPCVOID addr = (LPCVOID)0x00401000;
+  HANDLE proc = GetCurrentProcess();
   version SupportedVersion = Versions[0];
 
-	BOOL success = ReadProcessMemory(proc, addr, buf, memSize, &br);
-	if (success) {
-		checksum = crc32(seed, (unsigned char*)buf, memSize);
-	} else {
-		log("Error reading process memory for versioning");
-	}
+  BOOL success = ReadProcessMemory(proc, addr, buf, memSize, &br);
+  if (success) {
+    checksum = crc32(seed, (unsigned char*)buf, memSize);
+  } else {
+    log("Error reading process memory for versioning");
+  }
   delete buf;
 
-	// Search for version
-	int verCount = sizeof(Versions) / sizeof(version);
-	bool found = false;
-	for (int i = 0; i < verCount; i++) {
-		if (Versions[i].checksum == checksum) {
-			if (SupportedVersion.checksum == Versions[i].checksum) {
-				log("Version is correct (%s %#x)", SupportedVersion.vendor, SupportedVersion.checksum);
-			} else {
-				log("Error: Version mismatch:\n        Supported: %s\n        Current: %s", 
-					SupportedVersion.vendor, Versions[i].vendor);
-			}
-			found = true;
-			break;
-		}
-	}
-	
-	if (!found) {
-		log("Error: Version not found:\n        Supported: %s (%#x)\n        Current: %s (%#x)", 
-			SupportedVersion.vendor, SupportedVersion.checksum, "Unknown", checksum);
-	}
+  // Search for version
+  int verCount = sizeof(Versions) / sizeof(version);
+  bool found = false;
+  for (int i = 0; i < verCount; i++) {
+    if (Versions[i].checksum == checksum) {
+      if (SupportedVersion.checksum == Versions[i].checksum) {
+        log("Version is correct (%s %#x)", SupportedVersion.vendor, SupportedVersion.checksum);
+      } else {
+        log("Error: Version mismatch:\n        Supported: %s\n        Current: %s", 
+          SupportedVersion.vendor, Versions[i].vendor);
+      }
+      found = true;
+      break;
+    }
+  }
 
-	return found;
+  if (!found) {
+    log("Error: Version not found:\n        Supported: %s (%#x)\n        Current: %s (%#x)", 
+      SupportedVersion.vendor, SupportedVersion.checksum, "Unknown", checksum);
+  }
+
+  return found;
 }

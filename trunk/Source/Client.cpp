@@ -34,8 +34,8 @@ void Client::Connect(const char* address, u16 port)
   m_pClient = RakNetworkFactory::GetRakPeerInterface();
 
   SocketDescriptor socketDescriptor(0, 0);
-	m_pClient->Startup(1, 30, &socketDescriptor, 1);
-	m_pClient->Connect(address, port, 0, 0);
+  m_pClient->Startup(1, 30, &socketDescriptor, 1);
+  m_pClient->Connect(address, port, 0, 0);
 }
 
 void Client::Disconnect()
@@ -69,51 +69,51 @@ void Client::ReceiveMessages()
     return;
 
   Packet *packet = m_pClient->Receive();
-	while (packet)
-	{
-		switch(packet->data[0])
-		{
-		case ID_CONNECTION_REQUEST_ACCEPTED:
+  while (packet)
+  {
+    switch(packet->data[0])
+    {
+    case ID_CONNECTION_REQUEST_ACCEPTED:
       if (m_pOnConnected) {
         m_pOnConnected(NULL);
       }
       OnConnect(NULL);
-			break;
-		case ID_NO_FREE_INCOMING_CONNECTIONS:
-      if (m_pOnConnectFailed) {
-			  m_pOnConnectFailed(NULL);
-      }
-			break;
-		case ID_DISCONNECTION_NOTIFICATION:
-      if (m_pOnDisconnected) {
-        m_pOnDisconnected(NULL);
-      }
-			break;
-		case ID_CONNECTION_LOST:
-      if (m_pOnDisconnected) {
-        m_pOnDisconnected(NULL);
-      }
-			break;
-		case ID_CONNECTION_ATTEMPT_FAILED:
+      break;
+    case ID_NO_FREE_INCOMING_CONNECTIONS:
       if (m_pOnConnectFailed) {
         m_pOnConnectFailed(NULL);
       }
-			break;
+      break;
+    case ID_DISCONNECTION_NOTIFICATION:
+      if (m_pOnDisconnected) {
+        m_pOnDisconnected(NULL);
+      }
+      break;
+    case ID_CONNECTION_LOST:
+      if (m_pOnDisconnected) {
+        m_pOnDisconnected(NULL);
+      }
+      break;
+    case ID_CONNECTION_ATTEMPT_FAILED:
+      if (m_pOnConnectFailed) {
+        m_pOnConnectFailed(NULL);
+      }
+      break;
     case ID_USER_PACKET_ENUM+1:
       u32 msg;
       m_pBitStream->Reset();
       m_pBitStream->Write((const char *)packet->data, packet->length);
-	    m_pBitStream->IgnoreBits(8);
+      m_pBitStream->IgnoreBits(8);
       m_pBitStream->Read<u32>(msg);
 
       WorkMessage((Message)msg, m_pBitStream);
 
       break;
-		}
+    }
 
-		m_pClient->DeallocatePacket(packet);
-		packet = m_pClient->Receive();
-	}
+    m_pClient->DeallocatePacket(packet);
+    packet = m_pClient->Receive();
+  }
 }
 
 void Client::OnConnect(void *args)

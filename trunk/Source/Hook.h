@@ -42,17 +42,17 @@ namespace TLMP {
 
   struct HookStruct {
     DWORD   ref_arg[32];
-	  DWORD   arg[32];
-	  DWORD   retval;
-	  bool    calloriginal;
-	  DWORD   user[16];
-	  PVOID   retaddress;
-	  DWORD   _eax;
-	  union {
-		  DWORD _ecx;
-		  PVOID _this;
-	  };
-	  DWORD   _edx, _ebx, _esp, _ebp, _esi, _edi;
+    DWORD   arg[32];
+    DWORD   retval;
+    bool    calloriginal;
+    DWORD   user[16];
+    PVOID   retaddress;
+    DWORD   _eax;
+    union {
+      DWORD _ecx;
+      PVOID _this;
+    };
+    DWORD   _edx, _ebx, _esp, _ebp, _esi, _edi;
   };
 
   struct HookFunctionDef;
@@ -61,17 +61,17 @@ namespace TLMP {
   typedef void (*HookFunction)(HookStruct *e, HookFunctionDef *_f);
 
   struct HookFunctionDef {
-	  HookFunction  pre;
-	  HookFunction  post;
-	  int           flags;
-	  int           args;
-	  int           args_size;
-	  PVOID         address;
-	  PVOID         hook_code;
-	  size_t        hook_code_size;
-	  PVOID         entry;
-	  size_t        entry_size;
-	  PVOID         patch_address;
+    HookFunction  pre;
+    HookFunction  post;
+    int           flags;
+    int           args;
+    int           args_size;
+    PVOID         address;
+    PVOID         hook_code;
+    size_t        hook_code_size;
+    PVOID         entry;
+    size_t        entry_size;
+    PVOID         patch_address;
   };
 
   //

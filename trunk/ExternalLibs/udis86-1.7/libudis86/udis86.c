@@ -38,16 +38,16 @@ extern unsigned int
 ud_disassemble(struct ud* u)
 {
   if (ud_input_end(u))
-	return 0;
+  return 0;
 
  
   u->insn_buffer[0] = u->insn_hexcode[0] = 0;
 
  
   if (ud_decode(u) == 0)
-	return 0;
+  return 0;
   if (u->translator)
-	u->translator(u);
+  u->translator(u);
   return ud_insn_len(u);
 }
 
@@ -59,10 +59,10 @@ extern void
 ud_set_mode(struct ud* u, uint8_t m)
 {
   switch(m) {
-	case 16:
-	case 32:
-	case 64: u->dis_mode = m ; return;
-	default: u->dis_mode = 16; return;
+  case 16:
+  case 32:
+  case 64: u->dis_mode = m ; return;
+  default: u->dis_mode = 16; return;
   }
 }
 
@@ -74,11 +74,11 @@ extern void
 ud_set_vendor(struct ud* u, unsigned v)
 {
   switch(v) {
-	case UD_VENDOR_INTEL:
-		u->vendor = v;
-		break;
-	default:
-		u->vendor = UD_VENDOR_AMD;
+  case UD_VENDOR_INTEL:
+    u->vendor = v;
+    break;
+  default:
+    u->vendor = UD_VENDOR_AMD;
   }
 }
 

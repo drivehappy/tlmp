@@ -136,15 +136,15 @@ void TLMP::SetupProcessBase()
 void TLMP::PatchProcess()
 {
   // patch steam
-	//PatchJMP(0x5FA07D, 0x5FA5D3);
+  //PatchJMP(0x5FA07D, 0x5FA5D3);
 
-	// always generate new uhm.. monsters? when zoning
-	PatchJMP(0x416931, 0x416981);
+  // always generate new uhm.. monsters? when zoning
+  PatchJMP(0x416931, 0x416981);
 
-	//patch_jmp(0x4AB397,0x4AB4D2);
+  //patch_jmp(0x4AB397,0x4AB4D2);
 
   // What is this patch for?
-	PatchJMP(0x489BCD, 0x489CCB);
+  PatchJMP(0x489BCD, 0x489CCB);
 }
 
 void TLMP::HookFunctions()
@@ -161,8 +161,8 @@ void TLMP::HookFunctions()
   // Various
   Hook(SetDestination, _set_destination_pre, 0, HOOK_THISCALL, 3);
   Hook(OnStrike, _on_strike_pre, _on_strike_post, HOOK_THISCALL, 7);
-	Hook(Random, 0, _random_post, HOOK_THISCALL, 0);
-	Hook(Destroy, _destroy_pre, 0, HOOK_THISCALL, 1);
+  Hook(Random, 0, _random_post, HOOK_THISCALL, 0);
+  Hook(Destroy, _destroy_pre, 0, HOOK_THISCALL, 1);
   Hook(ProcessObjects, _process_objects_pre, _process_objects_pre, HOOK_THISCALL, 4);
   Hook(WndProc, _wnd_proc_pre, NULL, HOOK_STDCALL, 5);
 
@@ -171,9 +171,9 @@ void TLMP::HookFunctions()
   // Monster
   Hook(SpiderSomeCreate, _spider_some_create_pre, _spider_some_create_post, HOOK_THISCALL, 4);
   Hook(SpiderProcessAI, _spider_process_ai_pre, 0, HOOK_THISCALL, 2);
- 	Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
+   Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
   Hook(MonsterIdle, _spider_idle_pre, 0, HOOK_THISCALL, 2);
- 	Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
+   Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
   Hook(SetAlignment, _set_alignment_pre, 0, HOOK_THISCALL, 1);
 
   log("Monster Done");
@@ -186,10 +186,10 @@ void TLMP::HookFunctions()
   Hook(PlayerSetAction, _player_set_action_pre, 0, HOOK_THISCALL, 1);
   Hook(AddGoldToPlayer, _add_goldtoplayer, 0, HOOK_THISCALL, 1);
   Hook(PlayerInitialize, NULL, _initialize_player_post, HOOK_THISCALL, 2);
-	Hook(PlayerDied, _player_died_pre, NULL, HOOK_THISCALL, 0);
-	Hook(PlayerResurrect, _player_resurrect_pre, NULL, HOOK_THISCALL, 8);
+  Hook(PlayerDied, _player_died_pre, NULL, HOOK_THISCALL, 0);
+  Hook(PlayerResurrect, _player_resurrect_pre, NULL, HOOK_THISCALL, 8);
   Hook(LevelUp, _levelup_pre, 0, HOOK_THISCALL, 0);
-	Hook(LevelUpSilent, _levelup_silent_pre, NULL, HOOK_THISCALL, 0);
+  Hook(LevelUpSilent, _levelup_silent_pre, NULL, HOOK_THISCALL, 0);
   Hook(AddMinion, _add_minion_pre, 0, HOOK_THISCALL, 1);
 
   log("Player Done");
@@ -197,16 +197,16 @@ void TLMP::HookFunctions()
   // Item
   Hook(ItemInitialize, _item_initialize_pre, 0, HOOK_THISCALL, 1);
   Hook(ItemCreate, _item_create_pre, _item_create_post, HOOK_THISCALL, 5);
-	Hook(ItemDrop, _item_drop_pre, 0, HOOK_THISCALL, 3);
-	Hook(ItemPickup, _item_pick_up_pre, _item_pick_up_post ,HOOK_THISCALL, 2);
-	Hook(ItemEquip, _item_equip_pre, _item_equip_post, HOOK_THISCALL, 3);
-	Hook(ItemUnequip, _item_unequip_pre, 0, HOOK_THISCALL, 1);
+  Hook(ItemDrop, _item_drop_pre, 0, HOOK_THISCALL, 3);
+  Hook(ItemPickup, _item_pick_up_pre, _item_pick_up_post ,HOOK_THISCALL, 2);
+  Hook(ItemEquip, _item_equip_pre, _item_equip_post, HOOK_THISCALL, 3);
+  Hook(ItemUnequip, _item_unequip_pre, 0, HOOK_THISCALL, 1);
 
   log("Item Done");
 
   // Object
   Hook(InteractWithObject, _interact_with_object, 0, HOOK_THISCALL, 1);
-	Hook(ObjectCreate, _object_create_pre, _object_create_post, HOOK_THISCALL, 1);
+  Hook(ObjectCreate, _object_create_pre, _object_create_post, HOOK_THISCALL, 1);
   log("Object Done");
 
   // Ogre

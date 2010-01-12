@@ -5,11 +5,11 @@
 
 class sib {
 public:
-	int ss,index,base;
-	uint32_t disp;
+  int ss,index,base;
+  uint32_t disp;
 
-	sib();
-	sib(int ss,int index,int base);
+  sib();
+  sib(int ss,int index,int base);
 
-	void mk(out_buf *c) const;
+  void mk(out_buf *c) const;
 };

@@ -2,7 +2,7 @@
 
 modrm_reg::modrm_reg(reg _r, reg _rm)
 {
-	mod = 3;
+  mod = 3;
   r = _r;
   rm = _rm;
 }

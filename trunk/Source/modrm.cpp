@@ -7,7 +7,7 @@ modrm::modrm()
 
 void modrm::mk(out_buf*c) const
 {
-	x1(mod<<6|r<<3|rm);
+  x1(mod<<6|r<<3|rm);
   if (has_sib) {
     s.mk(c);
   }

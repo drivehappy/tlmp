@@ -19,17 +19,17 @@ template<typename t>
 void c_runic_list<t>::grow()
 {
   if (!list) {
-	  allocated = growth;
-	  list = new t[allocated];
+    allocated = growth;
+    list = new t[allocated];
   } else {
-	  size_t new_alloc = allocated+growth;
-	  t*new_list = new t[new_alloc];
-	  for (index_t i=0;i<allocated;i++) {
-		  new_list[i] = list[i];
-	  }
-	  delete [] list;
-	  allocated = new_alloc;
-	  list = new_list;
+    size_t new_alloc = allocated+growth;
+    t*new_list = new t[new_alloc];
+    for (index_t i=0;i<allocated;i++) {
+      new_list[i] = list[i];
+    }
+    delete [] list;
+    allocated = new_alloc;
+    list = new_list;
   }
 }
 
