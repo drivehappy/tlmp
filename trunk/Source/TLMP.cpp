@@ -83,6 +83,7 @@ TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (void),                     
 TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A6F0);
 
 TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D3D80);
+TLFUNCPTR(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32),                                      0x498270);
 TLFUNCPTR(MonsterIdle,        void,     __thiscall, (PVOID, PVOID),                                    0x4D4270);
 TLFUNCPTR(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID),                                    0x4D2330);
   
@@ -175,6 +176,7 @@ void TLMP::HookFunctions()
   Hook(SpiderSomeCreate, _spider_some_create_pre, _spider_some_create_post, HOOK_THISCALL, 4);
   Hook(SpiderProcessAI, _spider_process_ai_pre, 0, HOOK_THISCALL, 2);
   Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
+  Hook(MonsterProcessAI3, _spider_process_ai3_pre, _spider_process_ai3_post, HOOK_THISCALL, 1);
   Hook(MonsterIdle, _spider_idle_pre, 0, HOOK_THISCALL, 2);
   Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
   Hook(SetAlignment, _set_alignment_pre, 0, HOOK_THISCALL, 1);

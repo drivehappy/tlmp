@@ -4,6 +4,8 @@ void TLMP::_set_destination_pre STDARG
 {
   float dest[2] = {*(float *)&Pz[1], *(float *)&Pz[2]};
 
+  //log("Set Destination: %f %f of %p", dest[0], dest[1], e->_this);
+
   // Only send my player movement to the server
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (e->_this == me) {
@@ -144,21 +146,23 @@ void TLMP::_wnd_proc_pre STDARG
             em.init();
           }
 
-          void *r = CreateUnitByName(UnitManager, L"MONSTERS", L"Troll", 1, 0);
-          r = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), r, em.get_pos(), 0);
+          log("Creating Troll... EntityManager = %p", EntityManager);
+          void *r = CreateUnitByName(EntityManager, L"MONSTERS", L"Troll", 1, 0);
+          log("Troll Created: %p", r);
+          r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, em.get_pos(), 0);
           log("Troll Created: %p (at: %f %f %f --- %p)", r, em.get_pos()->x, em.get_pos()->y, em.get_pos()->z, em.get_pos());
         }
         break;
 
-      case 'S':
+      case 'R':
         {
           c_entity em;
-          if (me) {
-            em.e = me;
-            em.init();
-          }
+	        if (me) {
+		        em.e = me;
+		        em.init();
+	        }
 
-          SpawnPlayer(0xD3A8F9982FA111DE, 1, *em.get_pos());
+          SpawnPlayer(0xD3A8F9982FA111DE, 13, *em.get_pos());
         }
         break;
       }
