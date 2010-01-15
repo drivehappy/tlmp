@@ -49,7 +49,7 @@ void TLMP::_initialize_player_post STDARG
   u64 guid = *((u64 *)me + (0x168 / 8));
   u32 level = *((u32 *)me + 0x3c);
 
-  log("Player initialized: guid = %016I64X", guid);
+	log("Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
   UnitManager = e->_this;
 
   /* NETWORK STUFF
@@ -124,7 +124,7 @@ void TLMP::_add_minion_pre STDARG
 
 PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
 {
-  log("[SERVER] Spawning Player...");
+  log("[SERVER] Spawning Player %016I64X w/ level: %i, at: %f %f %f", guid, level, position.x, position.y, position.z);
   //ServerAllowSpawn = false;
   PVOID r;
   if (UnitManager) {

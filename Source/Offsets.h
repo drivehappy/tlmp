@@ -64,6 +64,7 @@ namespace TLMP {
   TLFUNC(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
 
   TLFUNC(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID));
+  TLFUNC(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32));
   TLFUNC(MonsterIdle,        void,     __thiscall, (PVOID, PVOID));
   TLFUNC(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID));
     

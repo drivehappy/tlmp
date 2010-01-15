@@ -9,6 +9,7 @@ PVOID TLMP::EntityManager = NULL;
 void TLMP::_entity_initialize_pre STDARG
 {
   log("Entity Initialize: %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2]);
+  //EntityManager = e->_this;
 }
 
 c_entity::c_entity()
