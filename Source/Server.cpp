@@ -12,7 +12,6 @@ Server::Server()
 {
   m_pServer = NULL;
   m_pBitStream = new RakNet::BitStream(1024);
-  m_pOtherPlayer = NULL;
 
   m_pOnListening = NULL;
   m_pOnShutdown = NULL;
@@ -138,7 +137,7 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       position.y = message->position().Get(0).y();
       position.z = message->position().Get(0).z();
 
-      m_pOtherPlayer = SpawnPlayer(message->guid(), message->level(), position);
+      otherPlayer = SpawnPlayer(message->guid(), message->level(), position);
     }
     break;
   case C_PLAYER_INFO:
@@ -159,8 +158,8 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
       log("SetDest received from client");
 
-      if (m_pOtherPlayer) {
-        SetDestination(m_pOtherPlayer, GetDestination(m_pOtherPlayer), destination->x(), destination->z());
+      if (otherPlayer) {
+        SetDestination(otherPlayer, GetDestination(otherPlayer), destination->x(), destination->z());
 
         /*
         log("Set Destination Info:");

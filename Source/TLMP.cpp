@@ -16,6 +16,7 @@
 
 #include "Test.h"
 
+u32 exeBaseReal = (u32)GetModuleHandle("Torchlight.exe");
 
 // Define the offset locations
 TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool),                           0x5FB460);
@@ -107,10 +108,12 @@ void TLMP::Initialize()
 {
   log("Initialized");
 
+  /*
   if (!ComputeVersion()) {
     log("Error: Unknown version, not patching in multiplayer.");
     return;
   }
+  */
 
   //SetupProcessBase();
   PatchProcess();
@@ -139,12 +142,12 @@ void TLMP::PatchProcess()
   //PatchJMP(0x5FA07D, 0x5FA5D3);
 
   // always generate new uhm.. monsters? when zoning
-  PatchJMP(0x416931, 0x416981);
+  PatchJMP(EXEOFFSET(0x416931), EXEOFFSET(0x416981));
 
   //patch_jmp(0x4AB397,0x4AB4D2);
 
   // What is this patch for?
-  PatchJMP(0x489BCD, 0x489CCB);
+  PatchJMP(EXEOFFSET(0x489BCD), EXEOFFSET(0x489CCB));
 }
 
 void TLMP::HookFunctions()
@@ -154,7 +157,7 @@ void TLMP::HookFunctions()
   // Map
   Hook(LoadMap, _load_map_pre, _load_map_post, HOOK_THISCALL, 2);
   Hook(LoadArea, _load_area_pre, _load_area_post, HOOK_THISCALL, 18);
-  Hook((void*)0x419740, _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);
+  Hook((void*)EXEOFFSET(0x419740), _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);
 
   log("Map Done");
 
@@ -171,9 +174,9 @@ void TLMP::HookFunctions()
   // Monster
   Hook(SpiderSomeCreate, _spider_some_create_pre, _spider_some_create_post, HOOK_THISCALL, 4);
   Hook(SpiderProcessAI, _spider_process_ai_pre, 0, HOOK_THISCALL, 2);
-   Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
+  Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
   Hook(MonsterIdle, _spider_idle_pre, 0, HOOK_THISCALL, 2);
-   Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
+  Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
   Hook(SetAlignment, _set_alignment_pre, 0, HOOK_THISCALL, 1);
 
   log("Monster Done");
@@ -219,7 +222,7 @@ void TLMP::HookFunctions()
   // This one handles bypassing monster creation as well (I think this is some sort of initial
   // monster load from file, while the rest are generated at runtime).
   // This calls the spider_create, but doesn't handle when it returns null.
-  Hook((void*)0x4F3190, test0_pre, test0_post, HOOK_THISCALL, 5);
+  Hook((void*)EXEOFFSET(0x4F3190), test0_pre, test0_post, HOOK_THISCALL, 5);
 
   // Doesn't work, don't use
   //Hook(CreateUnitByName, test1_pre, test1_post, HOOK_THISCALL, 5);

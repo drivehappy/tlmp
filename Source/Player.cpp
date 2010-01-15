@@ -2,6 +2,8 @@
 
 PVOID TLMP::me = NULL;
 PVOID TLMP::otherPlayer = NULL;
+PVOID TLMP::otherPlayerPet = NULL;
+PVOID TLMP::UnitManager = NULL;
 
 void TLMP::_player_ctor_post STDARG
 {
@@ -48,6 +50,7 @@ void TLMP::_initialize_player_post STDARG
   u32 level = *((u32 *)me + 0x3c);
 
   log("Player initialized: guid = %016I64X", guid);
+  UnitManager = e->_this;
 
   /* NETWORK STUFF
   // Level isn't init'd by now, where is it?
@@ -124,10 +127,10 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
   log("[SERVER] Spawning Player...");
   //ServerAllowSpawn = false;
   PVOID r;
-  if (EntityManager) {
-    r = SpiderSomeCreate(EntityManager, guid, level, true);
+  if (UnitManager) {
+    r = SpiderSomeCreate(UnitManager, guid, level, true);
   } else {
-    log("[ERROR] EntityManager is not initialized!");
+    log("[ERROR] UnitManager is not initialized!");
   }
   //ServerAllowSpawn = true;
   log("  Player is %p", r);
@@ -135,7 +138,7 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
   if (r) {
     //otherPlayer = r;
     SetAlignment(r, 1);
-    r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, &position, 0);
+    r = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), r, &position, 0);
     log("  Player Initialized: %p", r);
 
     /* NETWORK STUFF
@@ -147,12 +150,13 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
     s->entity_id = entity_map[r];
     */
 
-    void *pet = CreateUnitByName(EntityManager, L"MONSTERS", L"Dog", 1, 0);
+    void *pet = CreateUnitByName(UnitManager, L"MONSTERS", L"Dog", 1, 0);
     if (pet) {
       SetAlignment(pet, 1);
       AddMinion(r, pet);
-      pet = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), pet, &position, 0);
+      pet = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), pet, &position, 0);
       log("  Pet initialize: %p\n", pet);
+      otherPlayerPet = pet;
 
     } else log("[ERROR] Could not spawn pet!");
   } else log("[ERROR] Could not spawn player!");

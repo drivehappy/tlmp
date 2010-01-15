@@ -10,9 +10,9 @@ using namespace std;
 #include "Timer.h"
 #include "Containers.h"
 
-#define EXEBASEREAL   0x400000
+extern u32 exeBaseReal;
 #define EXEBASE       0x400000
-#define EXEOFFSET(o1) (((o1)-EXEBASE)+EXEBASEREAL)
+#define EXEOFFSET(o1) (((o1)-EXEBASE)+(exeBaseReal))
 
 #define TLFUNC(v1, t1, c1, a1)          extern t1(c1 *v1)a1;
 #define TLFUNCPTR(v1, t1, c1, a1, o1)   t1(c1 *TLMP::v1)a1 = ((t1(c1 *)a1)EXEOFFSET(o1));

@@ -82,7 +82,11 @@ void TLMP::_spider_process_ai_pre STDARG
     e->calloriginal = false;
     e->retval = 0;
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    //
+    //if (otherPlayer == e->_this || otherPlayerPet == e->_this)
+    {
+      e->calloriginal = false;
+      e->retval = 0;
+    }
   }
 
   /* NETWORK STUFF
@@ -104,7 +108,11 @@ void TLMP::_spider_process_ai2_pre STDARG
     e->calloriginal = false;
     e->retval = 0;
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    //
+    //if (otherPlayer == e->_this || otherPlayerPet == e->_this)
+    {
+      e->calloriginal = false;
+      e->retval = 0;
+    }
   }
 
   /* NETWORK STUFF
@@ -126,7 +134,11 @@ void TLMP::_spider_idle_pre STDARG
     e->calloriginal = false;
     e->retval = 0;
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    //
+    //if (otherPlayer == e->_this || otherPlayerPet == e->_this)
+    {
+      e->calloriginal = false;
+      e->retval = 0;
+    }
   }
 
   /* NETWORK STUFF
@@ -148,7 +160,11 @@ void TLMP::_spider_on_hit_pre STDARG
     e->calloriginal = false;
     e->retval = 0;
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    //
+    //if (otherPlayer == e->_this || otherPlayerPet == e->_this)
+    {
+      e->calloriginal = false;
+      e->retval = 0;
+    }
   }
 
   /* NETWORK STUFF
