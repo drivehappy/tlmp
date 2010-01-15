@@ -60,9 +60,6 @@ namespace TLMP {
       OnShutdown          m_pOnShutdown;
       OnClientConnect     m_pOnClientConnect;
       OnClientDisconnect  m_pOnClientDisconnect;
-
-      // TODO - This should not be here, testing some weird memory issues
-      PVOID m_pOtherPlayer;
     };
 
   };

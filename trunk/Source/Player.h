@@ -7,6 +7,8 @@ namespace TLMP {
 
   extern PVOID me;
   extern PVOID otherPlayer;
+  extern PVOID otherPlayerPet;
+  extern PVOID UnitManager;
 
   void _player_ctor_post STDARG;
 

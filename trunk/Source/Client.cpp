@@ -156,7 +156,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         NoItems = %i", entity->noitems());
 
       ClientAllowSpawn = true;
-      //SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
+      //SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
       ClientAllowSpawn = false;
     }
     break;

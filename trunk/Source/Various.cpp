@@ -137,15 +137,30 @@ void TLMP::_wnd_proc_pre STDARG
     case WM_KEYUP:
       switch (wParam) {
       case 'T':
-        c_entity em;
-        if (me) {
-          em.e = me;
-          em.init();
-        }
+        {
+          c_entity em;
+          if (me) {
+            em.e = me;
+            em.init();
+          }
 
-        void *r = CreateUnitByName(EntityManager, L"MONSTERS", L"Troll", 1, 0);
-        r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, em.get_pos(), 0);
-        log("Troll Created: %p (at: %f %f %f --- %p)", r, em.get_pos()->x, em.get_pos()->y, em.get_pos()->z, em.get_pos());
+          void *r = CreateUnitByName(UnitManager, L"MONSTERS", L"Troll", 1, 0);
+          r = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), r, em.get_pos(), 0);
+          log("Troll Created: %p (at: %f %f %f --- %p)", r, em.get_pos()->x, em.get_pos()->y, em.get_pos()->z, em.get_pos());
+        }
+        break;
+
+      case 'S':
+        {
+          c_entity em;
+          if (me) {
+            em.e = me;
+            em.init();
+          }
+
+          SpawnPlayer(0xD3A8F9982FA111DE, 1, *em.get_pos());
+        }
+        break;
       }
       break;
     case WM_CHAR:
