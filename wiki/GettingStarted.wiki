@@ -2,9 +2,4 @@
 
 == Getting Started ==
 
-There are several versions of Torchlight, you must identify yours first to identify which multiplayer version you need.
-
-
-== Details ==
-
-List vendor versions here.
+Torchlight Multiplayer is still a work in-progress. No binaries are available for download yet.
