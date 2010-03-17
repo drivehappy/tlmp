@@ -120,6 +120,12 @@ void TLMP::_ogre_is_active STDARG
 void TLMP::_process_objects_pre STDARG
 {
   //log("Process Objects pre");
+
+  if (NetworkState::getSingleton().GetState() == SERVER) {
+    Network::Server::getSingleton().ReceiveMessages();
+  } else if (NetworkState::getSingleton().GetState() == CLIENT) {
+    Network::Client::getSingleton().ReceiveMessages();
+  }
 }
 
 void TLMP::_process_objects_post STDARG
@@ -137,7 +143,8 @@ void TLMP::_wnd_proc_pre STDARG
     case WM_KEYDOWN:
       break;
     case WM_KEYUP:
-      switch (wParam) {
+      switch (wParam)
+      {
       case 'T':
         {
           c_entity em;
@@ -149,8 +156,10 @@ void TLMP::_wnd_proc_pre STDARG
           log("Creating Troll... EntityManager = %p", EntityManager);
           void *r = CreateUnitByName(EntityManager, L"MONSTERS", L"Troll", 1, 0);
           log("Troll Created: %p", r);
-          r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, em.get_pos(), 0);
-          log("Troll Created: %p (at: %f %f %f --- %p)", r, em.get_pos()->x, em.get_pos()->y, em.get_pos()->z, em.get_pos());
+
+          Vector3* position = em.GetPosition();
+          r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, position, 0);
+          log("Troll Created: %p (at: %f %f %f --- %p)", r, position->x, position->y, position->z, position);
         }
         break;
 
@@ -162,9 +171,29 @@ void TLMP::_wnd_proc_pre STDARG
 		        em.init();
 	        }
 
-          SpawnPlayer(0xD3A8F9982FA111DE, 13, *em.get_pos());
+          SpawnPlayer(0xD3A8F9982FA111DE, 13, *em.GetPosition());
         }
         break;
+
+      case 'F':
+        {
+          log("[DEBUG] Retrieving Player Destination");
+
+          c_entity em;
+          if (me) {
+            em.e = me;
+            em.init();
+          }
+
+          Vector3* destination = em.GetDestination();
+          Vector3* position = em.GetPosition();
+
+          log("[DEBUG] Vector3* = %p", destination);
+          log("[DEBUG] Destination = %f %f %f", destination->x, destination->y, destination->z);
+          log("[DEBUG] Position = %f %f %f", position->x, position->y, position->z);
+        }
+        break;
+
       }
       break;
     case WM_CHAR:

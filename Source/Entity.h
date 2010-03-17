@@ -35,11 +35,14 @@ namespace TLMP {
     static const int mana_offset = 0x3b8;
     static const int destroy_offset = 0x158;
 
+    bool m_bInitialized;
+
     c_entity();
     void init();
     template<typename t> t& offset(int offset) const;
-    Vector3* get_pos() const;
-    void set_pos(const Vector3 & pos);
+    Vector3* GetPosition() const;
+    void SetPosition(const Vector3 & pos);
+    Vector3* GetDestination() const;
     float& get_hp();
     float& get_mana();
     void destroy();
@@ -50,7 +53,7 @@ namespace TLMP {
     c_inventory*& inventory();
   };
 
-  void* GetDestination(void *p);
+  //void* GetDestination(void *p);
 
   extern vector<c_entity *> *ServerEntities;
 

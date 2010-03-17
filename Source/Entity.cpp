@@ -10,7 +10,7 @@ vector<c_entity *>   *TLMP::ServerEntities = NULL;
 void TLMP::_entity_initialize_pre STDARG
 {
   log("Entity Initialize: %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2]);
-  /* FIXME_!
+
   u64 guid = *(u64*)&Pz[0];
   u32 level = Pz[2];
   
@@ -19,7 +19,6 @@ void TLMP::_entity_initialize_pre STDARG
   entity->guid = guid;
   entity->level = level;
   entity->init();
-  */
 
   /*
   if (!ServerEntities)
@@ -36,11 +35,13 @@ c_entity::c_entity()
   dst[1] = 0.0f;
   pos_update_time = 0;
   noitems = false;
+  m_bInitialized = false;
 }
   
 void c_entity::init()
 {
   ce = (char*)e;
+  m_bInitialized = true;
 }
   
 template<typename t>
@@ -52,16 +53,40 @@ t& c_entity::offset(int offset) const
   }
 }
 
-Vector3* c_entity::get_pos() const
+Vector3* c_entity::GetPosition() const
 {
   //return offset<Vector3>(0x70);
   return (Vector3*)(&ce[0x70]);
 }
 
-void c_entity::set_pos(const Vector3 & pos)
+void c_entity::SetPosition(const Vector3 & pos)
 {
   //::set_pos(e,pos);
   //get_pos() = pos;
+}
+
+Vector3* c_entity::GetDestination() const
+{
+  Vector3* retVal = NULL;
+
+  if (!m_bInitialized) {
+    log("[ERROR] GetDestination: Entity not initialized!");
+  } else {
+    char* dest = (&ce[0x60]);
+    retVal = (Vector3*)(*(char **)(dest + 0x4));
+    log("[DEBUG] GetDestination: [0x60 -> 0x4] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
+
+    /*
+    retVal = (Vector3*)(&ce[0x64]);
+    log("[DEBUG] GetDestination: [0x64] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
+    retVal = (Vector3*)(&ce[0x68]);
+    log("[DEBUG] GetDestination: [0x68] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
+    retVal = (Vector3*)(&ce[0x6C]);
+    log("[DEBUG] GetDestination: [0x6C] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
+    */
+  }
+
+  return retVal;
 }
   
 float& c_entity::get_hp()
@@ -103,14 +128,21 @@ c_inventory*& c_entity::inventory()
   return offset<c_inventory*>(0x404);
 }
 
+/*
 // get_dst
-void* TLMP::GetDestination(void *p)
+PVOID TLMP::GetDestination(PVOID player)
 {
-  char *c = *(char **)((char *)p + 0x60);
+  log("GetDestination: %p", player);
+
+  char *c = *(char **)((char *)player + 0x60);
+  
+  log("  c = %p", c);
 
   if (c) {
     c = *(char **)(c + 0xc);
+    log("  c = %p", c);
   }
 
   return c;
 }
+*/
