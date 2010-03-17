@@ -6,6 +6,7 @@
 ===Networking===
 (drivehappy) Dengus brought up threading issue with network recv messages shouldn't be calling TL functions from another thread.
   * Solution: We can move this message loop, or buffer the messages, into TL's thread.
+(drivehappy) Networking isn't currently working, I think the above was probably causing a stability issue from what I remember.
 
 ===Stability===
 (drivehappy) v1.15 (r16): Broke (at least) 3 functions: MonsterProcessAI2, MonsterIdle, PlayerInitialize
@@ -15,3 +16,14 @@
 (drivehappy) Develop a testing framework. More than likely due to the closed source nature of our target this will need be run in TL itself.
   * Compiler flag for displaying UI testing suite in game?
   * Run through a set of unit tests utilizing the hooked functions
+
+===Gameplay===
+(drivehappy) Taken from my last known list of problems (not sure of the state of these)
+  * Clients aren't handing off their inventory items to the host to create.
+  * Gold/HP/Mana potions aren't triggering item pickups.
+  * Bridges aren't updating collision information on the client when triggered on either end.
+  * Client monster models die in the air.
+  * Host doesn't handle client resurrection properly.
+  * Client needs to be initially forced to load into host level.
+  * Object interaction needs a sync check (perhaps through a GUID - can we rely on level loads to be deterministic?).
+  * Stability problems on level transfers.
