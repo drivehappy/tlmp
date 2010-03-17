@@ -1,0 +1,19 @@
+#summary Developer discussion on current design problems.
+#labels design
+
+==Design Doc==
+===Overview===
+Intended as an overview for developers to flesh out a roadmap for development. Current major issues, questions, discussion about the overall design are listed here. These are considered brainstorming and jotdowns of potential big-picture problems.
+
+===Networking===
+(drivehappy) Dengus brought up threading issue with network recv messages shouldn't be calling TL functions from another thread.
+  * Solution: We can move this message loop, or buffer the messages, into TL's thread.
+
+===Stability===
+(drivehappy) v1.15 (r16): Broke (at least) 3 functions: MonsterProcessAI2, MonsterIdle, PlayerInitialize
+
+
+===Testing===
+(drivehappy) Develop a testing framework. More than likely due to the closed source nature of our target this will need be run in TL itself.
+  * Compiler flag for displaying UI testing suite in game?
+  * Run through a set of unit tests utilizing the hooked functions
