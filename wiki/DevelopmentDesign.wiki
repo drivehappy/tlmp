@@ -1,9 +1,7 @@
-#summary Developer discussion on current design problems.
+#summary Intended as an overview for developers to flesh out a roadmap for development. Current major issues, questions, discussion about the overall design are listed here. These are considered brainstorming and jotdowns of potential big-picture problems.
 #labels design
 
 ==Design Doc==
-===Overview===
-Intended as an overview for developers to flesh out a roadmap for development. Current major issues, questions, discussion about the overall design are listed here. These are considered brainstorming and jotdowns of potential big-picture problems.
 
 ===Networking===
 (drivehappy) Dengus brought up threading issue with network recv messages shouldn't be calling TL functions from another thread.
