@@ -16,6 +16,7 @@ namespace TLMP {
 
   void _add_goldtoplayer STDARG;
 
+  void _initialize_player_pre STDARG;
   void _initialize_player_post STDARG;
 
   void _player_died_pre STDARG;

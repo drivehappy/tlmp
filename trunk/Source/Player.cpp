@@ -44,12 +44,16 @@ void TLMP::_add_goldtoplayer STDARG
   log("Added gold to player: %p (Amt: %i)", e->_this, Pz[0]);
 }
 
+void TLMP::_initialize_player_pre STDARG
+{
+}
+
 void TLMP::_initialize_player_post STDARG
 {
   u64 guid = *((u64 *)me + (0x168 / 8));
   u32 level = *((u32 *)me + 0x3c);
 
-	log("Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
+	log("post- Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
   UnitManager = e->_this;
 
   /* NETWORK STUFF
@@ -124,46 +128,53 @@ void TLMP::_add_minion_pre STDARG
 
 PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
 {
+  PVOID player, pet;
+
   log("[SERVER] Spawning Player %016I64X w/ level: %i, at: %f %f %f", guid, level, position.x, position.y, position.z);
   //ServerAllowSpawn = false;
-  PVOID r;
+
   if (UnitManager) {
-    r = SpiderSomeCreate(UnitManager, guid, level, true);
+    player = SpiderSomeCreate(UnitManager, guid, level, true);
+  
+    //ServerAllowSpawn = true;
+    log("  Player is %p", player);
+
+    if (player) {
+      //otherPlayer = r;
+      SetAlignment(player, 1);
+      player = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), player, &position, 0);
+      log("  Player Initialized: %p", player);
+
+      /* NETWORK STUFF
+      host.sendbuf.reset();
+      host.sendbuf.pui(-1);
+      host.sendbuf.pus(id_join);
+      host.sendbuf.pui(entity_map[r]);
+      s->net.send_message(host.sendbuf);
+      s->entity_id = entity_map[r];
+      */
+
+      log("  Creating pet...");
+      pet = CreateUnitByName(UnitManager, L"MONSTERS", L"Dog", 1, 0);
+      if (pet) {
+        log("  Pet created, setting alignment...");
+        SetAlignment(pet, 1);
+        AddMinion(player, pet);
+        pet = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), pet, &position, 0);
+        log("  Pet initialize: %p\n", pet);
+        otherPlayerPet = pet;
+
+      } else {
+        log("[ERROR] Could not spawn pet!");
+      }
+    } else {
+      log("[ERROR] Could not spawn player!");
+    }
+
+    log("Spawn Complete.");
   } else {
-    log("[ERROR] UnitManager is not initialized!");
+    log("[ERROR] UnitManager is not initialized! Cannot spawn player.");
   }
-  //ServerAllowSpawn = true;
-  log("  Player is %p", r);
 
-  if (r) {
-    //otherPlayer = r;
-    SetAlignment(r, 1);
-    r = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), r, &position, 0);
-    log("  Player Initialized: %p", r);
-
-    /* NETWORK STUFF
-    host.sendbuf.reset();
-    host.sendbuf.pui(-1);
-    host.sendbuf.pus(id_join);
-    host.sendbuf.pui(entity_map[r]);
-    s->net.send_message(host.sendbuf);
-    s->entity_id = entity_map[r];
-    */
-
-    log("  Creating pet...");
-    void *pet = CreateUnitByName(UnitManager, L"MONSTERS", L"Dog", 1, 0);
-    if (pet) {
-      log("  Pet created, setting alignment...");
-      SetAlignment(pet, 1);
-      AddMinion(r, pet);
-      pet = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), pet, &position, 0);
-      log("  Pet initialize: %p\n", pet);
-      otherPlayerPet = pet;
-
-    } else log("[ERROR] Could not spawn pet!");
-  } else log("[ERROR] Could not spawn player!");
-
-  log("Spawn Complete.");
-
-  return r;
+  return player;
 }

@@ -120,8 +120,8 @@ void TLMP::Initialize()
   PatchProcess();
   HookFunctions();
 
-  log("Starting network thread...");
-  Network::StartReceivingMessages();
+  //log("Starting network thread...");
+  //Network::StartReceivingMessages();
 }
 
 void TLMP::Shutdown()
@@ -177,12 +177,14 @@ void TLMP::HookFunctions()
   Hook(SpiderProcessAI, _spider_process_ai_pre, 0, HOOK_THISCALL, 2);
   
   // Broken in v1.15 -- Look into this
-  //Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 2);
+  // Updated arg count from 2 to 3... check what was added
+  Hook(MonsterProcessAI2, _spider_process_ai2_pre, 0, HOOK_THISCALL, 3);
   
   Hook(MonsterProcessAI3, _spider_process_ai3_pre, _spider_process_ai3_post, HOOK_THISCALL, 1);
   
   // Broken in v1.15 -- Look into this
-  //Hook(MonsterIdle, _spider_idle_pre, 0, HOOK_THISCALL, 2);
+  // Updated arg count from 2 to 3... check what was added
+  Hook(MonsterIdle, _spider_idle_pre, 0, HOOK_THISCALL, 3);
 
   Hook(MonsterOnHit, _spider_on_hit_pre, 0, HOOK_THISCALL, 2);
   Hook(SetAlignment, _set_alignment_pre, 0, HOOK_THISCALL, 1);
@@ -198,7 +200,8 @@ void TLMP::HookFunctions()
   Hook(AddGoldToPlayer, _add_goldtoplayer, 0, HOOK_THISCALL, 1);
   
   // Broken in v1.15 -- Look into this
-  //Hook(PlayerInitialize, NULL, _initialize_player_post, HOOK_THISCALL, 2);
+  // Updated arg count from 2 to 3... check what was added
+  Hook(PlayerInitialize, _initialize_player_pre, _initialize_player_post, HOOK_THISCALL, 3);
   
   Hook(PlayerDied, _player_died_pre, NULL, HOOK_THISCALL, 0);
   Hook(PlayerResurrect, _player_resurrect_pre, NULL, HOOK_THISCALL, 8);

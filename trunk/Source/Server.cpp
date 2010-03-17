@@ -122,7 +122,7 @@ void Server::ReceiveMessages()
 
 void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 {
-  //log("Message Received: %x", msg);
+  log("[NETWORK] Message Received: %x", msg);
 
   switch (msg) {
   case C_GAME_JOIN:
@@ -164,10 +164,26 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      log("SetDest received from client");
+      log("  SetDest received from client");
 
       if (otherPlayer) {
-        SetDestination(otherPlayer, GetDestination(otherPlayer), destination->x(), destination->z());
+        log("  Getting destination...");
+        //PVOID otherDest = GetDestination(otherPlayer);
+
+        // Convert otherPlayer into an entity
+        c_entity otherPlayerEntity;
+        if (otherPlayer) {
+          otherPlayerEntity.e = otherPlayer;
+          otherPlayerEntity.init();
+        }
+
+        Vector3* otherDest = otherPlayerEntity.GetDestination();
+        log("  Retrieved destination");
+        log("  Dest ptr = %p", otherDest);
+        log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
+        log("  Setting destination...");
+        SetDestination(otherPlayer, otherDest, destination->x(), destination->z());
+        log("  Done.");
 
         /*
         log("Set Destination Info:");

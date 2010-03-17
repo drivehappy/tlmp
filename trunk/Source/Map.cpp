@@ -46,9 +46,9 @@ void TLMP::_load_map_post STDARG
 
     NetworkMessages::Position *position = entity.add_position();
 
-    position->set_x(t.get_pos()->x);
-    position->set_y(t.get_pos()->y);
-    position->set_z(t.get_pos()->z);
+    position->set_x(t.GetPosition()->x);
+    position->set_y(t.GetPosition()->y);
+    position->set_z(t.GetPosition()->z);
 
     Client::getSingleton().SendMessage<NetworkMessages::Entity>(C_GAME_JOIN, &entity);
 
