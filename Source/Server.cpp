@@ -17,6 +17,8 @@ Server::Server()
   m_pOnShutdown = NULL;
   m_pOnClientConnect = NULL;
   m_pOnClientDisconnect = NULL;
+
+  ServerEntities = new vector<c_entity *>();
 }
 
 Server::~Server()
@@ -127,6 +129,12 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Entity *message = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
 
+      // Send the client our known entities here on the server
+      log("[SERVER] Sending client entities...");
+      //SendClientEntities();
+      log("[SERVER] Send entities completed.");
+
+      // Create player on the server instance
       log("Player Joined Game:");
       log("  guid: %016I64X", message->guid());
       log("  level: %i", message->level());
@@ -172,4 +180,21 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
     break;
   }     
+}
+
+void Server::SendClientEntities()
+{
+  vector<c_entity *>::iterator itr;
+  TLMP::NetworkMessages::Entity entity;
+
+  for (itr = ServerEntities->begin(); itr != ServerEntities->end(); itr++) {
+    log("[SERVER] Sending entity:");
+    log("         level: %i", (*itr)->level);
+    log("         guid:  %016I64X", (*itr)->guid);
+    
+    entity.set_level((*itr)->level);
+    entity.set_guid((*itr)->guid);
+    entity.set_noitems(true);
+    SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &entity);
+  }
 }

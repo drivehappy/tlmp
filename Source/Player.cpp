@@ -150,8 +150,10 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
     s->entity_id = entity_map[r];
     */
 
+    log("  Creating pet...");
     void *pet = CreateUnitByName(UnitManager, L"MONSTERS", L"Dog", 1, 0);
     if (pet) {
+      log("  Pet created, setting alignment...");
       SetAlignment(pet, 1);
       AddMinion(r, pet);
       pet = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), pet, &position, 0);

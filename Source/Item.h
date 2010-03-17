@@ -50,4 +50,6 @@ namespace TLMP {
 
   void _item_unequip_pre STDARG;
 
+  extern vector<c_item *>   *ServerItems;
+
 };

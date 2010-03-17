@@ -200,6 +200,10 @@
 					RelativePath=".\Source\Server.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\ServerState.cpp"
+					>
+				</File>
 				<Filter
 					Name="protobuf"
 					>
@@ -376,6 +380,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\Server.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ServerState.h"
 					>
 				</File>
 				<File

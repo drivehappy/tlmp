@@ -53,6 +53,8 @@ namespace TLMP {
 
       void WorkMessage(Message msg, RakNet::BitStream *bitStream);
 
+      void SendClientEntities();
+
       RakPeerInterface *m_pServer;
       RakNet::BitStream *m_pBitStream;
       

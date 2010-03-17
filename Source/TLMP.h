@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include "ServerState.h"
 
 /*
 #include "State.h"
