@@ -1,8 +1,10 @@
 #include "Item.h"
+using namespace TLMP;
 
-PVOID TLMP::drop_item_this = NULL;
-PVOID TLMP::ItemManager = NULL;
-bool TLMP::allowItemSpawn = true;
+PVOID                 TLMP::drop_item_this = NULL;
+PVOID                 TLMP::ItemManager = NULL;
+bool                  TLMP::allowItemSpawn = true;
+vector<c_item *>     *TLMP::ServerItems    = NULL;
 
 void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
 {

@@ -27,7 +27,7 @@ void TLMP::_spider_some_create_pre STDARG
     e->calloriginal = false;
     e->retval = 0;
   } else if (NetworkState::getSingleton().GetState() == SERVER && !ServerAllowSpawn) {
-    log("[SERVER] Supressing spawn");
+    log("[SERVER] Suppressing spawn");
     e->calloriginal = false;
     e->retval = 0;
   }

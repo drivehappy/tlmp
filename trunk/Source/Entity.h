@@ -2,7 +2,7 @@
 
 #include "Common.h"
 #include "Inventory.h"
-
+#include "ServerState.h"
 
 namespace TLMP {
 
@@ -51,5 +51,7 @@ namespace TLMP {
   };
 
   void* GetDestination(void *p);
+
+  extern vector<c_entity *> *ServerEntities;
 
 };
