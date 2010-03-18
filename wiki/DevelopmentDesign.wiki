@@ -4,12 +4,18 @@
 ==Design Doc==
 
 ===Networking===
-(drivehappy) Dengus brought up threading issue with network recv messages shouldn't be calling TL functions from another thread.
-  * Solution: We can move this message loop, or buffer the messages, into TL's thread.
-(drivehappy) Networking isn't currently working, I think the above was probably causing a stability issue from what I remember.
+(drivehappy)
+Currently the server holds a {{{list<c_entity*>}}} in TLMP::ServerEntities.
+  * c_entity holds an id var
+  * this id var should be common among networked TL instances
+
+Client suppresses all entity actions at this point.
+  * should we attempt to control the actual player spawn by the server as well
+  * in the big-picture aspect this would work better because there's less back and forth communication
+  * but... is it easily handleable by the client if there's no actual player
 
 ===Stability===
-(drivehappy) v1.15 (r16): Broke (at least) 3 functions: MonsterProcessAI2, MonsterIdle, PlayerInitialize
+(drivehappy) Resizing the window crashes game (at least on main menu).
 
 
 ===Testing===
@@ -18,7 +24,7 @@
   * Run through a set of unit tests utilizing the hooked functions
 
 ===Gameplay===
-(drivehappy) Taken from my last known list of problems (not sure of the state of these)
+(drivehappy) Taken from my last known list of problems (these are from the original prototyped code base)
   * Clients aren't handing off their inventory items to the host to create.
   * Gold/HP/Mana potions aren't triggering item pickups.
   * Bridges aren't updating collision information on the client when triggered on either end.
