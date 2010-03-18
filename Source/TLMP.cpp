@@ -50,7 +50,7 @@ TLFUNCPTR(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32),   
 TLFUNCPTR(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID),                                    0x4E7610);     // 1.15
 TLFUNCPTR(ItemHide,           PVOID,    __thiscall, (PVOID, PVOID, u32),                               0x4F48C0);     // 1.15
 
-TLFUNCPTR(LoadArea,           PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32),     0x40CF60);     // 1.15
+TLFUNCPTR(ChangeLevel,        PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32),     0x40CF60);     // 1.15
 
 TLFUNCPTR(AddGoldToPlayer,    PVOID,    __thiscall, (PVOID, u32),                                      0x4860B0);     // 1.15
 
@@ -93,7 +93,7 @@ TLFUNCPTR(PlayerSetAction,    void,     __thiscall, (PVOID),                    
 
 TLFUNCPTR(TitleScreenProcess, void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x40DF70);     // 1.15
 
-TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, PVOID),                                    0x4188E0);     // 1.15
+TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, u32),                                      0x4188E0);     // 1.15
 
 TLFUNCPTR(Random,             void,     __thiscall, (),                                                0x5BA660);     // 1.15
 
@@ -157,7 +157,7 @@ void TLMP::HookFunctions()
 
   // Map
   Hook(LoadMap, _load_map_pre, _load_map_post, HOOK_THISCALL, 2);
-  Hook(LoadArea, _load_area_pre, _load_area_post, HOOK_THISCALL, 18);
+  Hook(ChangeLevel, _change_level_pre, _change_level_post, HOOK_THISCALL, 18);
   Hook((void*)EXEOFFSET(0x4197E0), _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);    // v1.15
 
   log("Map Done");
@@ -236,8 +236,17 @@ void TLMP::HookFunctions()
   // This one handles bypassing monster creation as well (I think this is some sort of initial
   // monster load from file, while the rest are generated at runtime).
   // This calls the spider_create, but doesn't handle when it returns null.
-  Hook((void*)EXEOFFSET(0x4F3960), test0_pre, test0_post, HOOK_THISCALL, 5);    // v1.15
+  Hook((PVOID)EXEOFFSET(0x4F3960), test0_pre, test0_post, HOOK_THISCALL, 5);    // v1.15
 
   // Doesn't work, don't use
   //Hook(CreateUnitByName, test1_pre, test1_post, HOOK_THISCALL, 5);
+
+  log("Unknowns/Tests");
+
+  // Handles item loading and positioning of objects (if we don't call org then:
+  //   player appears to start at (0,0), no items are loaded, but it does load the level the player is at
+  Hook((PVOID)EXEOFFSET(0x4AA580), test2_pre, test2_post, HOOK_THISCALL, 1);
+
+  // True level load?
+  Hook((PVOID)EXEOFFSET(0x4FC9F0), test3_pre, test3_post, HOOK_THISCALL, 11);
 }

@@ -33,7 +33,7 @@ namespace TLMP {
   TLFUNC(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID));
   TLFUNC(ItemHide,           PVOID,    __thiscall, (PVOID, PVOID, u32));
 
-  TLFUNC(LoadArea,           PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32));
+  TLFUNC(ChangeLevel,        PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32));
 
   TLFUNC(AddGoldToPlayer,    PVOID,    __thiscall, (PVOID, u32));
 
@@ -74,7 +74,7 @@ namespace TLMP {
   
   TLFUNC(TitleScreenProcess, void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
 
-  TLFUNC(LoadMap,            void,     __thiscall, (PVOID, PVOID));
+  TLFUNC(LoadMap,            void,     __thiscall, (PVOID, u32));
 
   TLFUNC(Random,             void,     __thiscall, ());
 

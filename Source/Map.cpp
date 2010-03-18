@@ -1,13 +1,18 @@
 #include "Map.h"
 
+PVOID TLMP::load_map_this = NULL;
+PVOID TLMP::load_area_this = NULL;
+
 void TLMP::_load_map_pre STDARG
 {
-  log(" %p :: load_map_pre",e->_this);
+  log("LoadMap (pre) this = %p, unk0 = %i", e->_this, Pz[0]);
+
+  load_map_this = e->_this;
 }
 
 void TLMP::_load_map_post STDARG
 {
-  log("load_map_post");
+  log("LoadMap (post)");
 
   // MOVE ME TO A BETTER FUNCTION
   static bool UISetup = false;
@@ -57,7 +62,7 @@ void TLMP::_load_map_post STDARG
   }
 }
 
-void TLMP::_load_area_pre STDARG
+void TLMP::_change_level_pre STDARG
 {
   log(" %p :: load_area",e->_this);
   load_area_this = e->_this;
@@ -68,7 +73,7 @@ void TLMP::_load_area_pre STDARG
   wstring&s2 = *(wstring*)&Pz[10];
   int n4 = Pz[17];
 
-  log("load_area '%ls', %d, %d, %d, '%ls', %d",s1.c_str(),n1,n2,n3,s2.c_str(),n4);
+  log("ChangeLevel pre '%ls', %d, %d, %d, '%ls', %d",s1.c_str(),n1,n2,n3,s2.c_str(),n4);
 
   /* NETWORK STUFF
   // Clear out any objects we've made in our list, new ones will be initiated later
@@ -100,18 +105,20 @@ void TLMP::_load_area_pre STDARG
   *random_seed2 = 0;
   */
 
-  /*
-  if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
-    log("Load_Area Stopping Client Load");
+  
+  if (NetworkState::getSingleton().GetState() == CLIENT ||
+      NetworkState::getSingleton().GetState() == SERVER)
+  {
+    log("Suppressing Load_Area");
     e->calloriginal = false;
     e->retval = NULL;
   }
-  */
+  
 }
 
-void TLMP::_load_area_post STDARG
+void TLMP::_change_level_post STDARG
 {
-  log("~~~ _load_area_post");
+  log("ChangeLevel post");
 }
 
 void TLMP::_on_load_area_pre STDARG
@@ -240,4 +247,21 @@ void TLMP::_on_load_area_post STDARG
   }
   is_loading = false;
   */
+}
+
+void TLMP::ChangeGameStateToMainMenu()
+{
+  LoadMap(load_map_this, 0);
+}
+
+void TLMP::ChangeGameStateToInGame()
+{
+  LoadMap(load_map_this, 2);
+}
+
+void TLMP::LoadAreaTown()
+{
+  // Crashes on first try, if a level change is done beforehand then this will reload the current level
+  // -1 was the previous level player was at (not the level spatially above)
+  //LoadArea(load_area_this, L"", 0, 0, 0, L"", 0);
 }
