@@ -131,7 +131,8 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
       // Send the client our known entities here on the server
       log("[SERVER] Sending client entities...");
-      //SendClientEntities();
+      // Just the player atm
+      SendClientEntities();
       log("[SERVER] Send entities completed.");
 
       // Create player on the server instance
@@ -164,7 +165,7 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      log("  SetDest received from client");
+      log("[SERVER] SetDest received from client");
 
       if (otherPlayer) {
         log("  Getting destination...");
@@ -203,6 +204,32 @@ void Server::SendClientEntities()
   vector<c_entity *>::iterator itr;
   TLMP::NetworkMessages::Entity entity;
 
+  // Just send the server's player info
+  c_entity em;
+  if (me) {
+    unsigned long long guid = *((unsigned long long*)me + 0x2d); //(0x168 / 8));
+    unsigned int level = *((unsigned int*)me + 0x3c);
+
+    em.e = me;
+    em.init();
+
+    entity.set_level(level);
+    entity.set_guid(guid);
+    entity.set_noitems(true);
+
+    NetworkMessages::Position *position = entity.add_position();
+
+    position->set_x(em.GetPosition()->x);
+    position->set_y(em.GetPosition()->y);
+    position->set_z(em.GetPosition()->z);
+
+    SendMessage<NetworkMessages::Entity>(S_GAME_JOIN, &entity);
+    log("[SERVER] Sent player info: level: %i, guid: %16I64X", level, guid);
+  } else {
+    log("[ERROR] Server could not find it's player to send client!");
+  }
+
+  /* Don't send monsters for now
   for (itr = ServerEntities->begin(); itr != ServerEntities->end(); itr++) {
     log("[SERVER] Sending entity:");
     log("         level: %i", (*itr)->level);
@@ -213,4 +240,5 @@ void Server::SendClientEntities()
     entity.set_noitems(true);
     SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &entity);
   }
+  */
 }

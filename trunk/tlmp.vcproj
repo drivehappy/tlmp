@@ -198,6 +198,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\NetworkEntity.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Server.cpp"
 					>
 				</File>
@@ -373,6 +377,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\Network.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\NetworkEntity.h"
 					>
 				</File>
 				<File

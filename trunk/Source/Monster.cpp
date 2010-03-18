@@ -82,8 +82,8 @@ void TLMP::_spider_process_ai_pre STDARG
     e->calloriginal = false;
     e->retval = 0;
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    e->calloriginal = false;
-		e->retval = 0;
+    //e->calloriginal = false;
+		//e->retval = 0;
   }
 
   /* NETWORK STUFF

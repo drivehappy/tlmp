@@ -69,7 +69,7 @@ TLFUNCPTR(BarrelKnockback,    PVOID,    __thiscall, (PVOID),                    
 
 TLFUNCPTR(CheckgamePaused,    void,     __thiscall, (PVOID),                                           0x40DD70);     // 1.15
 
-TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32),                                 0x5FB5F0);     // 1.15
+TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32),                                 0x5FB5F0);     // 1.15  -- extra argument needed
 
 TLFUNCPTR(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM),                      0x4016B0);     // 1.15
 
@@ -82,9 +82,9 @@ TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (void),                     
 
 TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A790);     // 1.15
 
-TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D4450);     // 1.15
+TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D4450);     // 1.15  -- extra argument needed
 TLFUNCPTR(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32),                                      0x498670);     // 1.15
-TLFUNCPTR(MonsterIdle,        void,     __thiscall, (PVOID, PVOID),                                    0x4D4950);     // 1.15
+TLFUNCPTR(MonsterIdle,        void,     __thiscall, (PVOID, PVOID),                                    0x4D4950);     // 1.15  -- extra argument needed
 TLFUNCPTR(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID),                                    0x4D29E0);     // 1.15
   
 TLFUNCPTR(PlayerCtor,         void,     __thiscall, (PVOID),                                           0x4DA160);     // 1.15

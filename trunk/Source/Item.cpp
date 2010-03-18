@@ -4,7 +4,7 @@ using namespace TLMP;
 PVOID                 TLMP::drop_item_this = NULL;
 PVOID                 TLMP::ItemManager = NULL;
 bool                  TLMP::allowItemSpawn = true;
-vector<c_item *>     *TLMP::ServerItems    = NULL;
+vector<CItem *>     *TLMP::ServerItems    = NULL;
 
 void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
 {
@@ -24,6 +24,9 @@ void TLMP::_item_create_pre STDARG
   log("Item Create: this: %p  %#x %#x %#x %#x %#x", e->_this, Pz[0], Pz[1], Pz[2], Pz[3], Pz[4]);
   u64 guid = *(u64 *)&Pz[0];
   int unk0 = Pz[2], unk1 = Pz[3], unk2 = Pz[4];
+
+  // Item's utilize the same UnitManager as players do
+  UnitManager = e->_this;
 
   /* NETWORK STUFF
   if (peer.is_active && !allow_spawn) {
@@ -62,7 +65,7 @@ void TLMP::_item_create_post STDARG
 
   /* NETWORK STUFF
   if (host.is_active && e->retval && !no_netspawn) {
-    c_item o;
+    CItem o;
     o.e = (void*)e->retval;
     o.guid = guid;
     o.level = Pz[2];
@@ -88,20 +91,24 @@ void TLMP::_item_create_post STDARG
   */
 
   if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
-    c_item o;
-    o.e = (void*)e->retval;
-    o.guid = guid;
-    o.level = Pz[2];
-    o.unk0 = Pz[3];
-    o.unk1 = Pz[4];
+    CItem* newItem = new CItem((int)e);
+    newItem->e = (PVOID)e->retval;
+    newItem->guid = guid;
+    newItem->level = Pz[2];
+    newItem->unk0 = Pz[3];
+    newItem->unk1 = Pz[4];
 
-    log("[HOST] item created GUID: %016I64X (%p)", guid, o.e);
+    if (!ServerItems)
+      ServerItems = new vector<CItem *>();
+    ServerItems->push_back(newItem);
+
+    log("[HOST] Item created GUID: %016I64X (%p)", newItem->guid, newItem->e);
 
     NetworkMessages::Item message;
-    message.set_guid(guid);
-    message.set_level(Pz[2]);
-    message.set_unk0(Pz[3]);
-    message.set_unk1(Pz[4]);
+    message.set_guid(newItem->guid);
+    message.set_level(newItem->level);
+    message.set_unk0(newItem->unk0);
+    message.set_unk1(newItem->unk1);
 
     Network::Server::getSingleton().SendMessage<NetworkMessages::Item>(Network::S_ITEM_CREATE, &message);
   }
@@ -114,15 +121,15 @@ void TLMP::_item_drop_pre STDARG
   //world = e->_this;
 
   //log(" %p :: drop item %p %p %d",e->_this,Pz[0],Pz[1],Pz[2]);
-  c_item *i = (c_item*)e->_this;
+  CItem *i = (CItem*)e->_this;
   //log("     GUID; %016I64X", i->guid);
 
-  /* NETWORK STUFF
+  /* OLD NETWORK STUFF
   if (no_netsend) return;
   index_t*id;
   if (host.is_active) {
     if (item_map.inuse_get((void*)Pz[0],id)) {
-      c_item&i = net_items[*id];
+      CItem&i = net_items[*id];
 
       sendbuf.reset();
       sendbuf.pui(-1);
@@ -136,6 +143,19 @@ void TLMP::_item_drop_pre STDARG
     }
   }
   */
+
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+    CItem* itemDropped = (CItem*)e->_this;
+    CItem* netItemDropped = NULL;
+
+    // Search the server's item list for the same ptr
+    vector<CItem*>::iterator itr;
+    for (itr = ServerItems->begin(); itr != ServerItems->end(); itr++) {
+      //if ((*itr)->
+    }
+
+    // Send off the common network id 
+  }
 }
 
 void TLMP::_item_pick_up_pre STDARG
@@ -153,7 +173,7 @@ void TLMP::_item_pick_up_post STDARG
   /* NETWORK STUFF
   index_t*id;
   if (item_map.inuse_get(pitem,id)) {
-    c_item&i = net_items[*id];
+    CItem&i = net_items[*id];
 
     c_entity ne;
     ne.e = e->_this;
@@ -189,7 +209,7 @@ void TLMP::_item_pick_up_post STDARG
 void TLMP::_item_equip_pre STDARG
 {
   //log(" %p :: item equip pre %p %d %d",e->_this,Pz[0],Pz[1],Pz[2]);
-  c_item c = *(c_item*)Pz[0];
+  CItem c = *(CItem*)Pz[0];
 
   u64 guid = c.guid;
 

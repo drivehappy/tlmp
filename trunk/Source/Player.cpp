@@ -130,7 +130,7 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
 {
   PVOID player, pet;
 
-  log("[SERVER] Spawning Player %016I64X w/ level: %i, at: %f %f %f", guid, level, position.x, position.y, position.z);
+  log("Spawning Player %016I64X w/ level: %i, at: %f %f %f", guid, level, position.x, position.y, position.z);
   //ServerAllowSpawn = false;
 
   if (UnitManager) {
