@@ -43,6 +43,7 @@ namespace TLMP {
     Vector3* GetPosition() const;
     void SetPosition(const Vector3 & pos);
     Vector3* GetDestination() const;
+    void SetDestination(const Vector3 & pos);
     float& get_hp();
     float& get_mana();
     void destroy();
@@ -51,9 +52,10 @@ namespace TLMP {
     bool& running();
     bool& moving();
     c_inventory*& inventory();
-  };
 
-  //void* GetDestination(void *p);
+    unsigned int& GetLevel() const;
+    unsigned long long& GetGUID() const;
+  };
 
   extern vector<c_entity *> *ServerEntities;
 

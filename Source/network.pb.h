@@ -607,38 +607,38 @@ class Player : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string name = 1;
+  // required int64 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int64 id() const;
+  inline void set_id(::google::protobuf::int64 value);
+  
+  // required .TLMP.NetworkMessages.Player.ClassType type = 2;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 2;
+  inline ::TLMP::NetworkMessages::Player_ClassType type() const;
+  inline void set_type(::TLMP::NetworkMessages::Player_ClassType value);
+  
+  // required string name = 3;
   inline bool has_name() const;
   inline void clear_name();
-  static const int kNameFieldNumber = 1;
+  static const int kNameFieldNumber = 3;
   inline const ::std::string& name() const;
   inline void set_name(const ::std::string& value);
   inline void set_name(const char* value);
   inline void set_name(const char* value, size_t size);
   inline ::std::string* mutable_name();
   
-  // required int64 id = 2;
-  inline bool has_id() const;
-  inline void clear_id();
-  static const int kIdFieldNumber = 2;
-  inline ::google::protobuf::int64 id() const;
-  inline void set_id(::google::protobuf::int64 value);
-  
-  // required .TLMP.NetworkMessages.Player.ClassType type = 3;
-  inline bool has_type() const;
-  inline void clear_type();
-  static const int kTypeFieldNumber = 3;
-  inline ::TLMP::NetworkMessages::Player_ClassType type() const;
-  inline void set_type(::TLMP::NetworkMessages::Player_ClassType value);
-  
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* name_;
-  static const ::std::string _default_name_;
   ::google::protobuf::int64 id_;
   int type_;
+  ::std::string* name_;
+  static const ::std::string _default_name_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
@@ -920,79 +920,79 @@ inline void Player_Pet::set_type(::TLMP::NetworkMessages::Player_PetType value) 
 
 // Player
 
-// required string name = 1;
-inline bool Player::has_name() const {
-  return _has_bit(0);
-}
-inline void Player::clear_name() {
-  if (name_ != &_default_name_) {
-    name_->clear();
-  }
-  _clear_bit(0);
-}
-inline const ::std::string& Player::name() const {
-  return *name_;
-}
-inline void Player::set_name(const ::std::string& value) {
-  _set_bit(0);
-  if (name_ == &_default_name_) {
-    name_ = new ::std::string;
-  }
-  name_->assign(value);
-}
-inline void Player::set_name(const char* value) {
-  _set_bit(0);
-  if (name_ == &_default_name_) {
-    name_ = new ::std::string;
-  }
-  name_->assign(value);
-}
-inline void Player::set_name(const char* value, size_t size) {
-  _set_bit(0);
-  if (name_ == &_default_name_) {
-    name_ = new ::std::string;
-  }
-  name_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* Player::mutable_name() {
-  _set_bit(0);
-  if (name_ == &_default_name_) {
-    name_ = new ::std::string;
-  }
-  return name_;
-}
-
-// required int64 id = 2;
+// required int64 id = 1;
 inline bool Player::has_id() const {
-  return _has_bit(1);
+  return _has_bit(0);
 }
 inline void Player::clear_id() {
   id_ = GOOGLE_LONGLONG(0);
-  _clear_bit(1);
+  _clear_bit(0);
 }
 inline ::google::protobuf::int64 Player::id() const {
   return id_;
 }
 inline void Player::set_id(::google::protobuf::int64 value) {
-  _set_bit(1);
+  _set_bit(0);
   id_ = value;
 }
 
-// required .TLMP.NetworkMessages.Player.ClassType type = 3;
+// required .TLMP.NetworkMessages.Player.ClassType type = 2;
 inline bool Player::has_type() const {
-  return _has_bit(2);
+  return _has_bit(1);
 }
 inline void Player::clear_type() {
   type_ = 0;
-  _clear_bit(2);
+  _clear_bit(1);
 }
 inline ::TLMP::NetworkMessages::Player_ClassType Player::type() const {
   return static_cast< ::TLMP::NetworkMessages::Player_ClassType >(type_);
 }
 inline void Player::set_type(::TLMP::NetworkMessages::Player_ClassType value) {
   GOOGLE_DCHECK(::TLMP::NetworkMessages::Player_ClassType_IsValid(value));
-  _set_bit(2);
+  _set_bit(1);
   type_ = value;
+}
+
+// required string name = 3;
+inline bool Player::has_name() const {
+  return _has_bit(2);
+}
+inline void Player::clear_name() {
+  if (name_ != &_default_name_) {
+    name_->clear();
+  }
+  _clear_bit(2);
+}
+inline const ::std::string& Player::name() const {
+  return *name_;
+}
+inline void Player::set_name(const ::std::string& value) {
+  _set_bit(2);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void Player::set_name(const char* value) {
+  _set_bit(2);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void Player::set_name(const char* value, size_t size) {
+  _set_bit(2);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Player::mutable_name() {
+  _set_bit(2);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  return name_;
 }
 
 

@@ -20,12 +20,15 @@ void TLMP::_set_destination_pre STDARG
 
   // Hosting, send any movement to the client
   else if (NetworkState::getSingleton().GetState() == SERVER) {
-    NetworkMessages::Position message;
-    message.set_x(dest[0]);
-    message.set_y(0);       // Ignored
-    message.set_z(dest[1]);
+    // But for now just send the player movement
+    if (e->_this == me) {
+      NetworkMessages::Position message;
+      message.set_x(dest[0]);
+      message.set_y(0);       // Ignored
+      message.set_z(dest[1]);
 
-    Server::getSingleton().SendMessage<NetworkMessages::Position>(S_ENTITY_SETDEST, &message);
+      Server::getSingleton().SendMessage<NetworkMessages::Position>(S_ENTITY_SETDEST, &message);
+    }
   }
 }
 

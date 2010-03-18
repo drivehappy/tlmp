@@ -9,7 +9,7 @@ message Position {
 message Entity {
   required int32 level = 1;
   required int64 guid = 2;
-  required bool   noItems = 3;
+  required bool noItems = 3;
   optional Position destination = 4;
   repeated Position position = 5;
 }
@@ -29,16 +29,16 @@ message Player {
   }
   
   enum PetType {
-  DOG = 0;
-  CAT = 1;
+	  DOG = 0;
+	  CAT = 1;
   }
   
   message Pet {
-    required int64 id = 1;
-    required PetType type = 2;
+	  required int64    id = 1;
+    required PetType  type = 2;
   }
   
-  required string name = 1;
-  required int64 id = 2;
-  required ClassType type = 3;
+  required int64      id = 1;
+  required ClassType  type = 2;
+  required string     name = 3;
 }

@@ -49,8 +49,9 @@ t& c_entity::offset(int offset) const
 {
   if (!e || !ce) {
     log(" !! offset with null this !!");
-    return *(t*)(&ce[offset]);
   }
+
+  return *(t*)(&ce[offset]);
 }
 
 Vector3* c_entity::GetPosition() const
@@ -87,6 +88,11 @@ Vector3* c_entity::GetDestination() const
   }
 
   return retVal;
+}
+
+void c_entity::SetDestination(const Vector3 & pos)
+{
+  // TODO
 }
   
 float& c_entity::get_hp()
@@ -126,6 +132,16 @@ bool& c_entity::moving() {
 c_inventory*& c_entity::inventory()
 {
   return offset<c_inventory*>(0x404);
+}
+
+unsigned int& c_entity::GetLevel() const
+{
+  return offset<unsigned int>(0x3C);
+}
+
+unsigned long long& c_entity::GetGUID() const
+{
+  return offset<unsigned long long>(0x2D);
 }
 
 /*

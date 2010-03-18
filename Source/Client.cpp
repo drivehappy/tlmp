@@ -135,6 +135,27 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   //log("Message Received: %x", msg);
 
   switch (msg) {
+  case S_GAME_JOIN:
+    {
+      NetworkMessages::Entity *message = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
+
+      // Create player on the client instance
+      log("Player Joined Game:");
+      log("  guid: %016I64X", message->guid());
+      log("  level: %i", message->level());
+      log("  position: %f %f %f", message->position().Get(0).x(), message->position().Get(0).y(), message->position().Get(0).z());
+
+      Vector3 position;
+      position.x = message->position().Get(0).x();
+      position.y = message->position().Get(0).y();
+      position.z = message->position().Get(0).z();
+
+      ClientAllowSpawn = true;
+      otherPlayer = SpawnPlayer(message->guid(), message->level(), position);
+      ClientAllowSpawn = false;
+    }
+    break;
+
   case S_PLAYER_INFO:
     {
       NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(m_pBitStream);
@@ -165,12 +186,34 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      /*
-      log("Entity Destination Received:");
-      log("  x = %f", destination->x());
-      log("  y = %f", destination->y());
-      log("  z = %f", destination->z());
-      */
+      log("[CLIENT] SetDest received from server");
+
+      if (otherPlayer) {
+        log("  Getting destination...");
+        //PVOID otherDest = GetDestination(otherPlayer);
+
+        // Convert otherPlayer into an entity
+        c_entity otherPlayerEntity;
+        if (otherPlayer) {
+          otherPlayerEntity.e = otherPlayer;
+          otherPlayerEntity.init();
+        }
+
+        Vector3* otherDest = otherPlayerEntity.GetDestination();
+        log("  Retrieved destination");
+        log("  Dest ptr = %p", otherDest);
+        log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
+        log("  Setting destination...");
+        SetDestination(otherPlayer, otherDest, destination->x(), destination->z());
+        log("  Done.");
+
+        /*
+        log("Set Destination Info:");
+        log("  x: %f", destination->x());
+        log("  y: %f", destination->y());
+        log("  z: %f", destination->z());
+        */
+      }
     }
     break;
   }     

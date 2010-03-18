@@ -97,9 +97,9 @@ void protobuf_AssignDesc_network_2eproto() {
       sizeof(Item));
   Player_descriptor_ = file->message_type(3);
   static const int Player_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Player, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Player, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Player, type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Player, name_),
   };
   Player_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -183,9 +183,9 @@ void protobuf_AddDesc_network_2eproto() {
     "2\036.TLMP.NetworkMessages.Position\0220\n\010posi"
     "tion\030\005 \003(\0132\036.TLMP.NetworkMessages.Positi"
     "on\"?\n\004Item\022\014\n\004guid\030\001 \002(\003\022\r\n\005level\030\002 \002(\005\022"
-    "\014\n\004unk0\030\003 \002(\005\022\014\n\004unk1\030\004 \002(\005\"\367\001\n\006Player\022\014"
-    "\n\004name\030\001 \002(\t\022\n\n\002id\030\002 \002(\003\0224\n\004type\030\003 \002(\0162&"
-    ".TLMP.NetworkMessages.Player.ClassType\032E"
+    "\014\n\004unk0\030\003 \002(\005\022\014\n\004unk1\030\004 \002(\005\"\367\001\n\006Player\022\n"
+    "\n\002id\030\001 \002(\003\0224\n\004type\030\002 \002(\0162&.TLMP.NetworkM"
+    "essages.Player.ClassType\022\014\n\004name\030\003 \002(\t\032E"
     "\n\003Pet\022\n\n\002id\030\001 \002(\003\0222\n\004type\030\002 \002(\0162$.TLMP.N"
     "etworkMessages.Player.PetType\"9\n\tClassTy"
     "pe\022\r\n\tALCHEMIST\020\000\022\016\n\nVANQUISHER\020\001\022\r\n\tDES"
@@ -1461,9 +1461,9 @@ void Player_Pet::Swap(Player_Pet* other) {
 
 const ::std::string Player::_default_name_;
 #ifndef _MSC_VER
-const int Player::kNameFieldNumber;
 const int Player::kIdFieldNumber;
 const int Player::kTypeFieldNumber;
+const int Player::kNameFieldNumber;
 #endif  // !_MSC_VER
 
 Player::Player() {
@@ -1480,9 +1480,9 @@ Player::Player(const Player& from) {
 
 void Player::SharedCtor() {
   _cached_size_ = 0;
-  name_ = const_cast< ::std::string*>(&_default_name_);
   id_ = GOOGLE_LONGLONG(0);
   type_ = 0;
+  name_ = const_cast< ::std::string*>(&_default_name_);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1515,13 +1515,13 @@ Player* Player::New() const {
 
 void Player::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
+    id_ = GOOGLE_LONGLONG(0);
+    type_ = 0;
+    if (_has_bit(2)) {
       if (name_ != &_default_name_) {
         name_->clear();
       }
     }
-    id_ = GOOGLE_LONGLONG(0);
-    type_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1533,37 +1533,21 @@ bool Player::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string name = 1;
+      // required int64 id = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          goto handle_uninterpreted;
-        }
-        DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-              input, this->mutable_name()));
-        ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-          this->name().data(), this->name().length(),
-          ::google::protobuf::internal::WireFormat::PARSE);
-        if (input->ExpectTag(16)) goto parse_id;
-        break;
-      }
-      
-      // required int64 id = 2;
-      case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           goto handle_uninterpreted;
         }
-       parse_id:
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt64(
               input, &id_));
-        _set_bit(1);
-        if (input->ExpectTag(24)) goto parse_type;
+        _set_bit(0);
+        if (input->ExpectTag(16)) goto parse_type;
         break;
       }
       
-      // required .TLMP.NetworkMessages.Player.ClassType type = 3;
-      case 3: {
+      // required .TLMP.NetworkMessages.Player.ClassType type = 2;
+      case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           goto handle_uninterpreted;
@@ -1574,8 +1558,24 @@ bool Player::MergePartialFromCodedStream(
         if (::TLMP::NetworkMessages::Player_ClassType_IsValid(value)) {
           set_type(static_cast< ::TLMP::NetworkMessages::Player_ClassType >(value));
         } else {
-          mutable_unknown_fields()->AddVarint(3, value);
+          mutable_unknown_fields()->AddVarint(2, value);
         }
+        if (input->ExpectTag(26)) goto parse_name;
+        break;
+      }
+      
+      // required string name = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          goto handle_uninterpreted;
+        }
+       parse_name:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+              input, this->mutable_name()));
+        ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          this->name().data(), this->name().length(),
+          ::google::protobuf::internal::WireFormat::PARSE);
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1604,24 +1604,24 @@ void Player::SerializeWithCachedSizes(
     return;
   }
   
-  // required string name = 1;
+  // required int64 id = 1;
   if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(1, this->id(), output);
+  }
+  
+  // required .TLMP.NetworkMessages.Player.ClassType type = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      2, this->type(), output);
+  }
+  
+  // required string name = 3;
+  if (_has_bit(2)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->name(), output);
-  }
-  
-  // required int64 id = 2;
-  if (_has_bit(1)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->id(), output);
-  }
-  
-  // required .TLMP.NetworkMessages.Player.ClassType type = 3;
-  if (_has_bit(2)) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      3, this->type(), output);
+      3, this->name(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -1632,25 +1632,25 @@ void Player::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* Player::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string name = 1;
+  // required int64 id = 1;
   if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(1, this->id(), target);
+  }
+  
+  // required .TLMP.NetworkMessages.Player.ClassType type = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      2, this->type(), target);
+  }
+  
+  // required string name = 3;
+  if (_has_bit(2)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->name(), target);
-  }
-  
-  // required int64 id = 2;
-  if (_has_bit(1)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->id(), target);
-  }
-  
-  // required .TLMP.NetworkMessages.Player.ClassType type = 3;
-  if (_has_bit(2)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      3, this->type(), target);
+        3, this->name(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1664,24 +1664,24 @@ int Player::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string name = 1;
-    if (has_name()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->name());
-    }
-    
-    // required int64 id = 2;
+    // required int64 id = 1;
     if (has_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int64Size(
           this->id());
     }
     
-    // required .TLMP.NetworkMessages.Player.ClassType type = 3;
+    // required .TLMP.NetworkMessages.Player.ClassType type = 2;
     if (has_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+    }
+    
+    // required string name = 3;
+    if (has_name()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name());
     }
     
   }
@@ -1710,13 +1710,13 @@ void Player::MergeFrom(const Player& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
-      set_name(from.name());
-    }
-    if (from._has_bit(1)) {
       set_id(from.id());
     }
-    if (from._has_bit(2)) {
+    if (from._has_bit(1)) {
       set_type(from.type());
+    }
+    if (from._has_bit(2)) {
+      set_name(from.name());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -1742,9 +1742,9 @@ bool Player::IsInitialized() const {
 
 void Player::Swap(Player* other) {
   if (other != this) {
-    std::swap(name_, other->name_);
     std::swap(id_, other->id_);
     std::swap(type_, other->type_);
+    std::swap(name_, other->name_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

@@ -4,6 +4,8 @@
 #include "Common.h"
 #include "Messages.h"
 
+#include "Player.h"
+
 #include "../ExternalLibs/raknet/include/RakPeerInterface.h"
 #include "../ExternalLibs/raknet/include/RakNetworkFactory.h"
 #include "../ExternalLibs/raknet/include/MessageIdentifiers.h"

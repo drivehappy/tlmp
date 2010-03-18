@@ -13,8 +13,23 @@ namespace TLMP {
   extern PVOID  ItemManager;
   extern bool   allowItemSpawn;
 
+  // New item structure
+  class CItem : public NetworkEntity {
+  public:
+    CItem(int internalId) {};
+
+    unsigned long long guid;
+    int level;
+    int unk0, unk1;
+    union {
+      void*e;
+      char*ce;
+    };
+  };
+
+  /*
   // Item Structure
-  struct c_item {
+  struct CItem {
     uint id;
     unsigned long long guid;
     int level;
@@ -25,10 +40,11 @@ namespace TLMP {
     };
     //index_t equipped_entity;
     //int equipped_slot;
-    c_item() {
+    CItem() {
       //equipped_entity = -1;
     }
   };
+  */
 
   // Network Item-specific Callbacks
   void NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1);
@@ -50,6 +66,6 @@ namespace TLMP {
 
   void _item_unequip_pre STDARG;
 
-  extern vector<c_item *>   *ServerItems;
+  extern vector<CItem *>   *ServerItems;
 
 };

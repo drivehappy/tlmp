@@ -4,6 +4,7 @@
 #include "State.h"
 #include "Server.h"
 #include "Client.h"
+#include "NetworkEntity.h"
 
 namespace TLMP {
 
