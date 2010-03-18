@@ -1,4 +1,5 @@
 #include "Various.h"
+#include "Map.h"
 
 void TLMP::_set_destination_pre STDARG
 {
@@ -194,6 +195,19 @@ void TLMP::_wnd_proc_pre STDARG
           log("[DEBUG] Vector3* = %p", destination);
           log("[DEBUG] Destination = %f %f %f", destination->x, destination->y, destination->z);
           log("[DEBUG] Position = %f %f %f", position->x, position->y, position->z);
+        }
+        break;
+
+      case 'W':
+        {
+          static int gameState = 0;
+          log("[DEBUG] Force load main menu");
+
+          if (gameState++ % 2) {
+            ChangeGameStateToMainMenu();
+          } else {
+            ChangeGameStateToInGame();
+          }
         }
         break;
 

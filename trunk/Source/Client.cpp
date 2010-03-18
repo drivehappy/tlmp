@@ -177,7 +177,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         NoItems = %i", entity->noitems());
 
       ClientAllowSpawn = true;
-      //SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
+      SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
       ClientAllowSpawn = false;
     }
     break;
@@ -186,10 +186,10 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      log("[CLIENT] SetDest received from server");
+      //log("[CLIENT] SetDest received from server");
 
       if (otherPlayer) {
-        log("  Getting destination...");
+        //log("  Getting destination...");
         //PVOID otherDest = GetDestination(otherPlayer);
 
         // Convert otherPlayer into an entity
@@ -200,12 +200,12 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         }
 
         Vector3* otherDest = otherPlayerEntity.GetDestination();
-        log("  Retrieved destination");
-        log("  Dest ptr = %p", otherDest);
-        log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
-        log("  Setting destination...");
+        //log("  Retrieved destination");
+        //log("  Dest ptr = %p", otherDest);
+        //log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
+        //log("  Setting destination...");
         SetDestination(otherPlayer, otherDest, destination->x(), destination->z());
-        log("  Done.");
+        //log("  Done.");
 
         /*
         log("Set Destination Info:");

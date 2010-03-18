@@ -75,7 +75,7 @@ Vector3* c_entity::GetDestination() const
   } else {
     char* dest = (&ce[0x60]);
     retVal = (Vector3*)(*(char **)(dest + 0x4));
-    log("[DEBUG] GetDestination: [0x60 -> 0x4] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
+    //log("[DEBUG] GetDestination: [0x60 -> 0x4] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
 
     /*
     retVal = (Vector3*)(&ce[0x64]);

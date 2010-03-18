@@ -26,10 +26,6 @@ void TLMP::_spider_some_create_pre STDARG
     log("[CLIENT] Stopping spawn");
     e->calloriginal = false;
     e->retval = 0;
-  } else if (NetworkState::getSingleton().GetState() == SERVER && !ServerAllowSpawn) {
-    log("[SERVER] Suppressing spawn");
-    e->calloriginal = false;
-    e->retval = 0;
   }
 }
 
@@ -67,12 +63,12 @@ void TLMP::_spider_some_create_post STDARG
     message.set_guid(guid);
     message.set_noitems(noItems);
 
-    /*
+    ///*
     Server::getSingleton().SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &message);
 
     log("[SERVER] Sent Monster Spawn to Client");
-    */
-    log("[SERVER] Todo Send Monster Spawn to Client");
+    //*/
+    //log("[SERVER] Todo Send Monster Spawn to Client");
   }
 }
 

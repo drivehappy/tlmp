@@ -28,3 +28,24 @@ void TLMP::test1_post STDARG
 {
   log("[TEST 0 POST]");
 }
+
+void TLMP::test2_pre STDARG
+{
+  //log("[[[[TEST 2 PRE]: %p %i", e->_this, Pz[0]);
+  //e->calloriginal = false;
+}
+
+void TLMP::test2_post STDARG
+{
+  //log("[[[[TEST 2 POST]: %p retVal = %i", e->_this, e->retval);
+}
+
+void TLMP::test3_pre STDARG
+{
+  log("============== TEST 3 PRE: %p %p %i %i %p", e->_this, Pz[0], Pz[1], Pz[2], Pz[3]);
+}
+
+void TLMP::test3_post STDARG
+{
+  log("============== TEST 3 POST: %p retVal = %i", e->_this, e->retval);
+}
