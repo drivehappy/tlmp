@@ -10,6 +10,12 @@ namespace TLMP {
   extern PVOID otherPlayerPet;
   extern PVOID UnitManager;
 
+  enum ResurrectOptions {
+    RESURRECT_AT_BODY = 0xE,
+    RESURRECT_AT_LEVEL = 0xF,
+    RESURRECT_AT_TOWN = 0x10,
+  };
+
   void _player_ctor_post STDARG;
 
   void _player_set_action_pre STDARG;
