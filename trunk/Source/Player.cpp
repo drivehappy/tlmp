@@ -78,8 +78,18 @@ void TLMP::_player_died_pre STDARG
 
 void TLMP::_player_resurrect_pre STDARG
 {
+  int selectedResMode;
   log("Player resurrected: %p %#x %#x %#x %#x %#x %#x %#x %#x", e->_this, Pz[0], Pz[1], Pz[2], Pz[3], Pz[4], Pz[5], Pz[6], Pz[7]);
   // 11f93b80 0xe 0 0x1a1accb0 0x11f93b80 0x74056083 0x1 0xa 0xf
+
+  selectedResMode = Pz[0];
+  if (selectedResMode == RESURRECT_AT_BODY) {
+    log("[RESURRECT] Player is Resurrecting at their body.");
+  } else if (selectedResMode == RESURRECT_AT_LEVEL) {
+    log("[RESURRECT] Player is Resurrecting at the beginning of the level.");
+  } else if (selectedResMode == RESURRECT_AT_TOWN) {
+    log("[RESURRECT] Player is Resurrecting at the town.");
+  }
 }
 
 void TLMP::_levelup_pre STDARG {
