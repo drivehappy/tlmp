@@ -14,6 +14,9 @@ Client suppresses all entity actions at this point.
   * in the big-picture aspect this would work better because there's less back and forth communication
   * but... is it easily handleable by the client if there's no actual player
 
+Item handling
+  * Possibly use the CItemSaveState between the CEquipment method's for loading (and assuming there's a save method) to transfer new item info?
+
 ===Stability===
 (drivehappy) Resizing the window crashes game (at least on main menu).
 
@@ -24,6 +27,10 @@ Client suppresses all entity actions at this point.
   * Run through a set of unit tests utilizing the hooked functions
 
 ===Gameplay===
+(drivehappy)
+  * Look into force level change to Town. I think best bet would be looking into how the TP works, although this probably acts in state: e.g. if the player is in town then goto previous level, else goto town. May need a level state check.
+  * 
+
 (drivehappy) Taken from my last known list of problems (these are from the original prototyped code base)
   * Clients aren't handing off their inventory items to the host to create.
   * Gold/HP/Mana potions aren't triggering item pickups.
