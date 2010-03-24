@@ -71,3 +71,5 @@ __declspec(align(1))
 struct Vector3 {
   float x, y, z;
 };
+
+#define NULL 0

@@ -15,10 +15,17 @@ message Entity {
 }
 
 message Item {
-  required int64 guid = 1;
-  required int32 level = 2;
-  required int32 unk0 = 3;
-  required int32 unk1 = 4;
+  required int32 id = 1;
+  required int64 guid = 2;
+  required int32 level = 3;
+  required int32 unk0 = 4;
+  required int32 unk1 = 5;
+}
+
+message ItemDrop {
+  required int32 id = 1;
+  repeated Position position = 2;
+  required bool unk0 = 3;
 }
 
 message Player {

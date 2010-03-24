@@ -26,7 +26,7 @@ namespace TLMP {
   TLFUNC(DoAttack,           PVOID,    __thiscall, (PVOID));
 
   TLFUNC(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID));
-  TLFUNC(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3, bool));
+  TLFUNC(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3 &, bool));
   TLFUNC(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32));
   TLFUNC(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID));
   TLFUNC(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32));

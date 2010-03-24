@@ -74,7 +74,7 @@ Vector3* c_entity::GetDestination() const
     log("[ERROR] GetDestination: Entity not initialized!");
   } else {
     char* dest = (&ce[0x60]);
-    retVal = (Vector3*)(*(char **)(dest + 0x4));
+    retVal = (Vector3*)(*(char **)(dest + 0x0c));
     //log("[DEBUG] GetDestination: [0x60 -> 0x4] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
 
     /*

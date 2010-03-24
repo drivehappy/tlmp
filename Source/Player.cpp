@@ -46,6 +46,11 @@ void TLMP::_add_goldtoplayer STDARG
 
 void TLMP::_initialize_player_pre STDARG
 {
+  u64 guid = *((u64 *)me + (0x168 / 8));
+  u32 level = *((u32 *)me + 0x3c);
+
+	log("pre- Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
+  UnitManager = e->_this;
 }
 
 void TLMP::_initialize_player_post STDARG

@@ -43,7 +43,7 @@ TLFUNCPTR(SetAnimation,       PVOID,    __thiscall, (PVOID, u32, bool, float, fl
 TLFUNCPTR(DoAttack,           PVOID,    __thiscall, (PVOID),                                           0x48FBD0);     // 1.15
 
 TLFUNCPTR(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID),                                    0x4BE250);     // 1.15
-TLFUNCPTR(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3, bool),                     0x4F3070);     // 1.15
+TLFUNCPTR(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3 &, bool),                   0x4F3070);     // 1.15
 TLFUNCPTR(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FB6D0);     // 1.15
 TLFUNCPTR(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID),                             0x4969B0);     // 1.15
 TLFUNCPTR(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32),                          0x4E6CE0);     // 1.15
@@ -249,4 +249,12 @@ void TLMP::HookFunctions()
 
   // True level load?
   Hook((PVOID)EXEOFFSET(0x4FC9F0), test3_pre, test3_post, HOOK_THISCALL, 11);
+
+  // More level loading tests -- appears to be saving items on the previous level
+  Hook((PVOID)EXEOFFSET(0x4E1210), test4_pre, test4_post, HOOK_THISCALL, 3);
+
+  // dengus' unknown/weird function
+  // I'm seeing this getting called 7 times per frame on the main menu,
+  // although it doesn't do it's memmove processing
+  Hook((PVOID)EXEOFFSET(0x5B1DA0), test5_pre, test5_post, HOOK_THISCALL, 5);
 }

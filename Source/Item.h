@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Entity.h"
 #include "Network.h"
+#include "NetworkEntity.h"
 
 #include "network.pb.h"
 
@@ -14,10 +15,8 @@ namespace TLMP {
   extern bool   allowItemSpawn;
 
   // New item structure
-  class CItem : public NetworkEntity {
+  class CItem {
   public:
-    CItem(int internalId) {};
-
     unsigned long long guid;
     int level;
     int unk0, unk1;
@@ -66,6 +65,6 @@ namespace TLMP {
 
   void _item_unequip_pre STDARG;
 
-  extern vector<CItem *>   *ServerItems;
+  extern vector<NetworkEntity *>   *NetworkSharedItems;
 
 };

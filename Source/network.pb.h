@@ -34,6 +34,7 @@ void protobuf_ShutdownFile_network_2eproto();
 class Position;
 class Entity;
 class Item;
+class ItemDrop;
 class Player;
 class Player_Pet;
 
@@ -354,31 +355,38 @@ class Item : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required int64 guid = 1;
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int64 guid = 2;
   inline bool has_guid() const;
   inline void clear_guid();
-  static const int kGuidFieldNumber = 1;
+  static const int kGuidFieldNumber = 2;
   inline ::google::protobuf::int64 guid() const;
   inline void set_guid(::google::protobuf::int64 value);
   
-  // required int32 level = 2;
+  // required int32 level = 3;
   inline bool has_level() const;
   inline void clear_level();
-  static const int kLevelFieldNumber = 2;
+  static const int kLevelFieldNumber = 3;
   inline ::google::protobuf::int32 level() const;
   inline void set_level(::google::protobuf::int32 value);
   
-  // required int32 unk0 = 3;
+  // required int32 unk0 = 4;
   inline bool has_unk0() const;
   inline void clear_unk0();
-  static const int kUnk0FieldNumber = 3;
+  static const int kUnk0FieldNumber = 4;
   inline ::google::protobuf::int32 unk0() const;
   inline void set_unk0(::google::protobuf::int32 value);
   
-  // required int32 unk1 = 4;
+  // required int32 unk1 = 5;
   inline bool has_unk1() const;
   inline void clear_unk1();
-  static const int kUnk1FieldNumber = 4;
+  static const int kUnk1FieldNumber = 5;
   inline ::google::protobuf::int32 unk1() const;
   inline void set_unk1(::google::protobuf::int32 value);
   
@@ -386,6 +394,7 @@ class Item : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
+  ::google::protobuf::int32 id_;
   ::google::protobuf::int64 guid_;
   ::google::protobuf::int32 level_;
   ::google::protobuf::int32 unk0_;
@@ -394,7 +403,7 @@ class Item : public ::google::protobuf::Message {
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -409,6 +418,112 @@ class Item : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static Item* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ItemDrop : public ::google::protobuf::Message {
+ public:
+  ItemDrop();
+  virtual ~ItemDrop();
+  
+  ItemDrop(const ItemDrop& from);
+  
+  inline ItemDrop& operator=(const ItemDrop& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ItemDrop& default_instance();
+  void Swap(ItemDrop* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ItemDrop* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ItemDrop& from);
+  void MergeFrom(const ItemDrop& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // repeated .TLMP.NetworkMessages.Position position = 2;
+  inline int position_size() const;
+  inline void clear_position();
+  static const int kPositionFieldNumber = 2;
+  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >& position() const;
+  inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >* mutable_position();
+  inline const ::TLMP::NetworkMessages::Position& position(int index) const;
+  inline ::TLMP::NetworkMessages::Position* mutable_position(int index);
+  inline ::TLMP::NetworkMessages::Position* add_position();
+  
+  // required bool unk0 = 3;
+  inline bool has_unk0() const;
+  inline void clear_unk0();
+  static const int kUnk0FieldNumber = 3;
+  inline bool unk0() const;
+  inline void set_unk0(bool value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position > position_;
+  bool unk0_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ItemDrop* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -815,68 +930,145 @@ inline ::TLMP::NetworkMessages::Position* Entity::add_position() {
 
 // Item
 
-// required int64 guid = 1;
-inline bool Item::has_guid() const {
+// required int32 id = 1;
+inline bool Item::has_id() const {
   return _has_bit(0);
+}
+inline void Item::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Item::id() const {
+  return id_;
+}
+inline void Item::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int64 guid = 2;
+inline bool Item::has_guid() const {
+  return _has_bit(1);
 }
 inline void Item::clear_guid() {
   guid_ = GOOGLE_LONGLONG(0);
-  _clear_bit(0);
+  _clear_bit(1);
 }
 inline ::google::protobuf::int64 Item::guid() const {
   return guid_;
 }
 inline void Item::set_guid(::google::protobuf::int64 value) {
-  _set_bit(0);
+  _set_bit(1);
   guid_ = value;
 }
 
-// required int32 level = 2;
+// required int32 level = 3;
 inline bool Item::has_level() const {
-  return _has_bit(1);
+  return _has_bit(2);
 }
 inline void Item::clear_level() {
   level_ = 0;
-  _clear_bit(1);
+  _clear_bit(2);
 }
 inline ::google::protobuf::int32 Item::level() const {
   return level_;
 }
 inline void Item::set_level(::google::protobuf::int32 value) {
-  _set_bit(1);
+  _set_bit(2);
   level_ = value;
 }
 
-// required int32 unk0 = 3;
+// required int32 unk0 = 4;
 inline bool Item::has_unk0() const {
-  return _has_bit(2);
+  return _has_bit(3);
 }
 inline void Item::clear_unk0() {
   unk0_ = 0;
-  _clear_bit(2);
+  _clear_bit(3);
 }
 inline ::google::protobuf::int32 Item::unk0() const {
   return unk0_;
 }
 inline void Item::set_unk0(::google::protobuf::int32 value) {
-  _set_bit(2);
+  _set_bit(3);
   unk0_ = value;
 }
 
-// required int32 unk1 = 4;
+// required int32 unk1 = 5;
 inline bool Item::has_unk1() const {
-  return _has_bit(3);
+  return _has_bit(4);
 }
 inline void Item::clear_unk1() {
   unk1_ = 0;
-  _clear_bit(3);
+  _clear_bit(4);
 }
 inline ::google::protobuf::int32 Item::unk1() const {
   return unk1_;
 }
 inline void Item::set_unk1(::google::protobuf::int32 value) {
-  _set_bit(3);
+  _set_bit(4);
   unk1_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ItemDrop
+
+// required int32 id = 1;
+inline bool ItemDrop::has_id() const {
+  return _has_bit(0);
+}
+inline void ItemDrop::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 ItemDrop::id() const {
+  return id_;
+}
+inline void ItemDrop::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// repeated .TLMP.NetworkMessages.Position position = 2;
+inline int ItemDrop::position_size() const {
+  return position_.size();
+}
+inline void ItemDrop::clear_position() {
+  position_.Clear();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >&
+ItemDrop::position() const {
+  return position_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
+ItemDrop::mutable_position() {
+  return &position_;
+}
+inline const ::TLMP::NetworkMessages::Position& ItemDrop::position(int index) const {
+  return position_.Get(index);
+}
+inline ::TLMP::NetworkMessages::Position* ItemDrop::mutable_position(int index) {
+  return position_.Mutable(index);
+}
+inline ::TLMP::NetworkMessages::Position* ItemDrop::add_position() {
+  return position_.Add();
+}
+
+// required bool unk0 = 3;
+inline bool ItemDrop::has_unk0() const {
+  return _has_bit(2);
+}
+inline void ItemDrop::clear_unk0() {
+  unk0_ = false;
+  _clear_bit(2);
+}
+inline bool ItemDrop::unk0() const {
+  return unk0_;
+}
+inline void ItemDrop::set_unk0(bool value) {
+  _set_bit(2);
+  unk0_ = value;
 }
 
 // -------------------------------------------------------------------

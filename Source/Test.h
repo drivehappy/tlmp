@@ -23,4 +23,10 @@ namespace TLMP {
   void test3_pre  STDARG;
   void test3_post STDARG;
 
+  void test4_pre  STDARG;
+  void test4_post STDARG;
+
+  void test5_pre  STDARG;
+  void test5_post STDARG;
+
 };

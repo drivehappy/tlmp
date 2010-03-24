@@ -42,10 +42,30 @@ void TLMP::test2_post STDARG
 
 void TLMP::test3_pre STDARG
 {
-  log("============== TEST 3 PRE: %p %p %i %i %p", e->_this, Pz[0], Pz[1], Pz[2], Pz[3]);
+  //log("============== TEST 3 PRE: %p %p %i %i %p", e->_this, Pz[0], Pz[1], Pz[2], Pz[3]);
 }
 
 void TLMP::test3_post STDARG
 {
-  log("============== TEST 3 POST: %p retVal = %i", e->_this, e->retval);
+  //log("============== TEST 3 POST: %p retVal = %i", e->_this, e->retval);
+}
+
+void TLMP::test4_pre STDARG
+{
+  log("============== TEST 4 PRE: %p %i %i %i", e->_this, Pz[0], Pz[1], Pz[2]);
+}
+
+void TLMP::test4_post STDARG
+{
+  log("============== TEST 4 POST: %p retVal = %i", e->_this, e->retval);
+}
+
+void TLMP::test5_pre STDARG
+{
+  //log("============== TEST 5 PRE: %p %p %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2], Pz[3], Pz[4]);
+}
+
+void TLMP::test5_post STDARG
+{
+  //log("============== TEST 5 POST: %p retVal = %i", e->_this, e->retval);
 }

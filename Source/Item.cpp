@@ -1,29 +1,31 @@
 #include "Item.h"
 using namespace TLMP;
 
-PVOID                 TLMP::drop_item_this = NULL;
-PVOID                 TLMP::ItemManager = NULL;
-bool                  TLMP::allowItemSpawn = true;
-vector<CItem *>     *TLMP::ServerItems    = NULL;
+PVOID                    TLMP::drop_item_this = NULL;
+PVOID                    TLMP::ItemManager = NULL;
+bool                     TLMP::allowItemSpawn = true;
+vector<NetworkEntity *> *TLMP::NetworkSharedItems    = NULL;
 
 void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
 {
   log("NetItem_OnItemCreated");
 
+  ClientAllowSpawn = true;
   void *r = ItemCreate(ItemManager, guid, level, unk0, unk1);
+  ClientAllowSpawn = false;
 }
 
 void TLMP::_item_initialize_pre STDARG
 {
   log(" %p :: item initialize %p", e->_this, Pz[0]);
-  ItemManager = (void*)Pz[0];
+  ItemManager = (PVOID)Pz[0];
 }
 
 void TLMP::_item_create_pre STDARG
 {
   log("Item Create: this: %p  %#x %#x %#x %#x %#x", e->_this, Pz[0], Pz[1], Pz[2], Pz[3], Pz[4]);
   u64 guid = *(u64 *)&Pz[0];
-  int unk0 = Pz[2], unk1 = Pz[3], unk2 = Pz[4];
+  int level = Pz[2], unk0 = Pz[3], unk1 = Pz[4];
 
   // Item's utilize the same UnitManager as players do
   UnitManager = e->_this;
@@ -60,6 +62,7 @@ void TLMP::_item_create_pre STDARG
 void TLMP::_item_create_post STDARG
 {
   u64 guid = *(u64 *)&Pz[0];
+  UnitManager = e->_this;
 
   log("%p :: Item created: %p, GUID: %016I64X", e->retval, e->_this, guid);
 
@@ -90,21 +93,24 @@ void TLMP::_item_create_post STDARG
   }
   */
 
-  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
-    CItem* newItem = new CItem((int)e);
-    newItem->e = (PVOID)e->retval;
-    newItem->guid = guid;
-    newItem->level = Pz[2];
-    newItem->unk0 = Pz[3];
-    newItem->unk1 = Pz[4];
+  CItem* newItem = new CItem();
+  newItem->e = (PVOID)e->retval;
+  newItem->guid = guid;
+  newItem->level = Pz[2];
+  newItem->unk0 = Pz[3];
+  newItem->unk1 = Pz[4];
 
-    if (!ServerItems)
-      ServerItems = new vector<CItem *>();
-    ServerItems->push_back(newItem);
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+    NetworkEntity *networkItem = new NetworkEntity((PVOID)e->retval);
+
+    if (!NetworkSharedItems)
+      NetworkSharedItems = new vector<NetworkEntity *>();
+    NetworkSharedItems->push_back(networkItem);
 
     log("[HOST] Item created GUID: %016I64X (%p)", newItem->guid, newItem->e);
 
     NetworkMessages::Item message;
+    message.set_id(networkItem->getCommonId());
     message.set_guid(newItem->guid);
     message.set_level(newItem->level);
     message.set_unk0(newItem->unk0);
@@ -120,9 +126,13 @@ void TLMP::_item_drop_pre STDARG
   // Update our world ptr
   //world = e->_this;
 
-  //log(" %p :: drop item %p %p %d",e->_this,Pz[0],Pz[1],Pz[2]);
-  CItem *i = (CItem*)e->_this;
-  //log("     GUID; %016I64X", i->guid);
+  CItem *itemDropped = (CItem*)Pz[0];
+  Vector3 *position = (Vector3 *)Pz[1];
+  bool unk0 = *(bool *)&Pz[2];
+
+  log(" %p :: drop item %p %p %d",e->_this, Pz[0], Pz[1], Pz[2]);
+  log("     pos: %f, %f, %f", position->x, position->y, position->z);
+  log("     GUID: %016I64X", itemDropped->guid);
 
   /* OLD NETWORK STUFF
   if (no_netsend) return;
@@ -145,16 +155,41 @@ void TLMP::_item_drop_pre STDARG
   */
 
   if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
-    CItem* itemDropped = (CItem*)e->_this;
-    CItem* netItemDropped = NULL;
+    NetworkEntity* netItemDropped = NULL;
+    bool isItemCreated = false;
 
     // Search the server's item list for the same ptr
-    vector<CItem*>::iterator itr;
-    for (itr = ServerItems->begin(); itr != ServerItems->end(); itr++) {
-      //if ((*itr)->
+    log("[SERVER] Searching for item in network list...");
+    vector<NetworkEntity *>::iterator itr;
+    for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+      log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemDropped);
+      if ((*itr)->getInternalId() == (int)itemDropped) {
+        isItemCreated = true;
+        netItemDropped = (*itr);
+        break;
+      }
     }
 
     // Send off the common network id 
+    if (isItemCreated) {
+      NetworkMessages::ItemDrop message;
+      message.set_id(netItemDropped->getCommonId());
+      message.set_unk0(unk0);
+      
+      NetworkMessages::Position *messagePosition = message.add_position();
+      messagePosition->set_x(position->x);
+      messagePosition->set_y(position->y);
+      messagePosition->set_z(position->z);
+
+      Server::getSingleton().SendMessage<NetworkMessages::ItemDrop>(S_ITEM_DROP, &message);
+
+      log("[SERVER] Sent ItemDrop to client:");
+      log("         id: %p", message.id());
+      log("         unk0: %i", message.unk0());
+      log("         pos: %f, %f, %f", messagePosition->x(), messagePosition->y(),  messagePosition->z());
+    } else {
+      log("[ERROR] Could not find dropped item in network item list (id = %p)", itemDropped);
+    }
   }
 }
 

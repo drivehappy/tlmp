@@ -216,5 +216,66 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       }
     }
     break;
+
+  case S_ITEM_CREATE:
+    {
+      NetworkMessages::Item *item = ParseMessage<NetworkMessages::Item>(m_pBitStream);
+
+      log("[CLIENT] Received item creation:");
+      log("         guid = %016I64X", item->guid());
+      log("         id = %i", item->id());
+
+      if (UnitManager) {
+        ClientAllowSpawn = true;
+        PVOID itemCreated = ItemCreate(ItemManager, item->guid(), item->level(), item->unk0(), item->unk1());
+        //ItemInitialize(itemCreated, 
+        log("Created: %p", itemCreated);
+        ClientAllowSpawn = false;
+
+        NetworkEntity *networkItem = new NetworkEntity(itemCreated, item->id());
+
+        if (!NetworkSharedItems)
+          NetworkSharedItems = new vector<NetworkEntity *>();
+        NetworkSharedItems->push_back(networkItem);
+      } else {
+        log("[ERROR] Could not create item: UnitManager is null!");
+      }
+    }
+    break;
+
+  case S_ITEM_DROP:
+    {
+      NetworkMessages::ItemDrop *itemDropped = ParseMessage<NetworkMessages::ItemDrop>(m_pBitStream);
+      Vector3 *itemPosition = new Vector3();
+      itemPosition->x = itemDropped->position().Get(0).x();
+      itemPosition->y = itemDropped->position().Get(0).y();
+      itemPosition->z = itemDropped->position().Get(0).z();
+
+      log("[CLIENT] Received ItemDrop:");
+      log("         id: %p", itemDropped->id());
+      log("         pos: %f, %f, %f", itemPosition->x, itemPosition->y, itemPosition->z);
+      log("         unk: %i", itemDropped->unk0());
+
+      if (UnitManager) {
+        PVOID item = NULL;
+        vector<NetworkEntity *>::iterator itr;
+
+        // Ensure that the item has been created before we attempt to drop it
+        for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+          if ((*itr)->getCommonId() == itemDropped->id()) {
+            item = (*itr)->getInternalObject();
+            log("[CLIENT] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
+
+            // Drop the item
+            ItemDrop(UnitManager, item, *itemPosition, itemDropped->unk0());
+
+            break;
+          }
+        }
+      } else {
+        log("[ERROR] Could not drop item: UnitManager is null!");
+      }
+    }
+    break;
   }     
 }
