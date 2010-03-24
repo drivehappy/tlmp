@@ -14,6 +14,7 @@
 #include "network.pb.h"
 
 #include "Entity.h"
+#include "Item.h"
 
 
 namespace TLMP {

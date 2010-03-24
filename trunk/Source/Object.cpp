@@ -87,7 +87,7 @@ void TLMP::_object_create_pre STDARG {
 
 void TLMP::_object_create_post STDARG {
   if (e->retval) {
-    CItem o((int)e);
+    CItem o;
     o.e = (PVOID)e->retval;
     o.guid = ((CItem*)e->retval)->guid;
 
