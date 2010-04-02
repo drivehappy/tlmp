@@ -227,7 +227,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
       if (UnitManager) {
         ClientAllowSpawn = true;
-        PVOID itemCreated = ItemCreate(ItemManager, item->guid(), item->level(), item->unk0(), item->unk1());
+        PVOID itemCreated = ItemCreate(UnitManager, item->guid(), item->level(), item->unk0(), item->unk1());
         //ItemInitialize(itemCreated, 
         log("Created: %p", itemCreated);
         ClientAllowSpawn = false;
@@ -267,7 +267,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
             log("[CLIENT] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
 
             // Drop the item
-            ItemDrop(UnitManager, item, *itemPosition, itemDropped->unk0());
+            // SUPPRESSED for now, it's not quite working right and causes crash
+            //ItemDrop(UnitManager, item, *itemPosition, itemDropped->unk0());
 
             break;
           }
