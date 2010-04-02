@@ -1,5 +1,7 @@
 This folder contains the headers and any libraries (if needed) built under VS2008 SP1.
 
-CEGUI:  Headers and Library (for dynamic linking)
-RakNet: Headers and Libraries
-udis86: Headers and Source
+CEGUI:    Headers and Library (for dynamic linking)
+RakNet:   Headers and Libraries
+udis86:   Headers and Source
+protobuf: Headers and Libraries
+
