@@ -186,7 +186,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      //log("[CLIENT] SetDest received from server");
+      log("[CLIENT] SetDest received from server");
 
       if (otherPlayer) {
         //log("  Getting destination...");
@@ -194,12 +194,13 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
         // Convert otherPlayer into an entity
         c_entity otherPlayerEntity;
-        if (otherPlayer) {
-          otherPlayerEntity.e = otherPlayer;
-          otherPlayerEntity.init();
-        }
+        otherPlayerEntity.e = otherPlayer;
+        otherPlayerEntity.init();
+
+#error FIXME, otherDest is bad
 
         Vector3* otherDest = otherPlayerEntity.GetDestination();
+
         //log("  Retrieved destination");
         //log("  Dest ptr = %p", otherDest);
         //log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
@@ -260,18 +261,34 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         PVOID item = NULL;
         vector<NetworkEntity *>::iterator itr;
 
-        // Ensure that the item has been created before we attempt to drop it
-        for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
-          if ((*itr)->getCommonId() == itemDropped->id()) {
-            item = (*itr)->getInternalObject();
-            log("[CLIENT] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
+        if (NetworkSharedItems) {
+          // Ensure that the item has been created before we attempt to drop it
+          for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+            if ((*itr)->getCommonId() == itemDropped->id()) {
+              item = (*itr)->getInternalObject();
+              log("[CLIENT] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
 
-            // Drop the item
-            // SUPPRESSED for now, it's not quite working right and causes crash
-            //ItemDrop(UnitManager, item, *itemPosition, itemDropped->unk0());
+              // Drop the item
+              // SUPPRESSED for now, it's not quite working right and causes crash
+              if (drop_item_this) {
+                /* We don't know who's inventory this was dropped from
+                c_entity ne;
+                ne.e = me;
+                ne.init();
+                c_inventory *inv = ne.inventory();
 
-            break;
+                ItemUnequip(inv, item);
+                */
+                ItemDrop(drop_item_this, item, *itemPosition, 1);
+              } else {
+                log("[ERROR] drop_item_this is null (drivehappy - I think this is the world ptr, but we need a nice loc to set it up)");
+              }
+
+              break;
+            }
           }
+        } else {
+          log("[ERROR] NetworkSharedItems is null.");
         }
       } else {
         log("[ERROR] Could not drop item: UnitManager is null!");

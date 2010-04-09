@@ -396,6 +396,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\SharedState.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\State.h"
 					>
 				</File>
