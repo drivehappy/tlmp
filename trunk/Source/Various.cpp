@@ -149,6 +149,65 @@ void TLMP::_wnd_proc_pre STDARG
     case WM_KEYUP:
       switch (wParam)
       {
+      case '0':
+        {
+          c_entity em;
+
+          em.e = me;
+          em.init();
+
+          int commonID = 4;
+
+          Vector3 *itemPosition = new Vector3();
+          itemPosition->x = em.GetPosition()->x;
+          itemPosition->y = em.GetPosition()->y;
+          itemPosition->z = em.GetPosition()->z;
+
+          log("Forcing item drop commonID = %i", commonID);
+
+          if (UnitManager) {
+            PVOID item = NULL;
+            vector<NetworkEntity *>::iterator itr;
+
+            if (NetworkSharedItems) {
+              // Ensure that the item has been created before we attempt to drop it
+              for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+                if ((*itr)->getCommonId() == commonID) {
+                  item = (*itr)->getInternalObject();
+                  log("[CLIENT] Found item to drop (commonId = %i): %p", commonID, item);
+
+                  // Drop the item
+                  // SUPPRESSED for now, it's not quite working right and causes crash
+                  if (drop_item_this) {
+                    c_entity ne;
+	                  ne.e = me;
+	                  ne.init();
+	                  c_inventory *inv = ne.inventory();
+
+                    ItemUnequip(inv, item);
+                    ItemDrop(drop_item_this, item, *itemPosition, 1);
+                  } else {
+                    log("[ERROR] drop_item_this is null (drivehappy - I think this is the world ptr, but we need a nice loc to set it up)");
+                  }
+
+                  break;
+                }
+              }
+            } else {
+              log("[ERROR] NetworkSharedItems is null.");
+            }
+          } else {
+            log("[ERROR] Could not drop item: UnitManager is null!");
+          }
+        }
+        break;
+
+      case 'L':
+        {
+          LevelUp(me);
+        }
+        break;
+
       case 'T':
         {
           c_entity em;

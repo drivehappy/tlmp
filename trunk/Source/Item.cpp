@@ -133,6 +133,7 @@ void TLMP::_item_drop_pre STDARG
   log(" %p :: drop item %p %p %d",e->_this, Pz[0], Pz[1], Pz[2]);
   log("     pos: %f, %f, %f", position->x, position->y, position->z);
   log("     GUID: %016I64X", itemDropped->guid);
+  log("     GUID Real: %016I64X", itemDropped->getCEquipmentGUID());
 
   /* OLD NETWORK STUFF
   if (no_netsend) return;
@@ -201,9 +202,20 @@ void TLMP::_item_pick_up_pre STDARG
 void TLMP::_item_pick_up_post STDARG
 {
   //log("pick up, retval is %d",e->retval);
-  void*pitem = (void*)Pz[0];
+  void *pitem = (void*)Pz[0];
 
-  //log("pick up, retval is %d",e->retval);
+  log("==== ItemPickup (this: %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], e->retval);
+
+  c_entity ne;
+	ne.e = e->_this;
+	ne.init();
+	c_inventory *inv = ne.inventory();
+  log("---- inv = %p", inv);
+
+  if (inv) {
+    int slot = inv->get_item_slot(pitem);
+    log("---- Slot = %i", slot);
+  }
 
   /* NETWORK STUFF
   index_t*id;
@@ -269,7 +281,8 @@ void TLMP::_item_equip_pre STDARG
 
 void TLMP::_item_equip_post STDARG
 {
-  //log("e->retval is %d",e->retval);
+  log("===== ItemEquip (this: %p, %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], Pz[2], e->retval);
+
   if (!e->retval) {
     return;
   }
@@ -304,10 +317,11 @@ void TLMP::_item_equip_post STDARG
 
 void TLMP::_item_unequip_pre STDARG
 {
-  //log(" %p :: item unequip %p",e->_this,Pz[0]);
   void *pinv = e->_this;
   void *pitem = (void*)Pz[0];
   index_t entity_id = -1;
+
+  log("========= ItemUnequip (this: %p, item: %p) retVal = %i", e->_this, Pz[0], e->retval);
 
   /* NETWORK STUFF
   NL_ITERATE(i,c_entity,net_entities) {

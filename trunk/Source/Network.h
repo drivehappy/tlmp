@@ -2,6 +2,7 @@
 
 #include "Messages.h"
 #include "State.h"
+#include "SharedState.h"
 #include "Server.h"
 #include "Client.h"
 #include "NetworkEntity.h"
