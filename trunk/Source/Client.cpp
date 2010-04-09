@@ -197,9 +197,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         otherPlayerEntity.e = otherPlayer;
         otherPlayerEntity.init();
 
-#error FIXME, otherDest is bad
-
-        Vector3* otherDest = otherPlayerEntity.GetDestination();
+        Vector3* otherDest = (Vector3*)GetDestination(otherPlayer);
 
         //log("  Retrieved destination");
         //log("  Dest ptr = %p", otherDest);

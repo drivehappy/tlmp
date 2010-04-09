@@ -65,35 +65,6 @@ void c_entity::SetPosition(const Vector3 & pos)
   //::set_pos(e,pos);
   //get_pos() = pos;
 }
-
-Vector3* c_entity::GetDestination() const
-{
-  Vector3* retVal = NULL;
-
-  if (!m_bInitialized) {
-    log("[ERROR] GetDestination: Entity not initialized!");
-  } else {
-    char* dest = (&ce[0x60]);
-    retVal = (Vector3*)(*(char **)(dest + 0x0c));
-    //log("[DEBUG] GetDestination: [0x60 -> 0x4] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
-
-    /*
-    retVal = (Vector3*)(&ce[0x64]);
-    log("[DEBUG] GetDestination: [0x64] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
-    retVal = (Vector3*)(&ce[0x68]);
-    log("[DEBUG] GetDestination: [0x68] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
-    retVal = (Vector3*)(&ce[0x6C]);
-    log("[DEBUG] GetDestination: [0x6C] %p -> %f %f %f", retVal, retVal->x, retVal->y, retVal->z);
-    */
-  }
-
-  return retVal;
-}
-
-void c_entity::SetDestination(const Vector3 & pos)
-{
-  // TODO
-}
   
 float& c_entity::get_hp()
 {
@@ -144,7 +115,6 @@ unsigned long long& c_entity::GetGUID() const
   return offset<unsigned long long>(0x2D);
 }
 
-/*
 // get_dst
 PVOID TLMP::GetDestination(PVOID player)
 {
@@ -161,4 +131,4 @@ PVOID TLMP::GetDestination(PVOID player)
 
   return c;
 }
-*/
+

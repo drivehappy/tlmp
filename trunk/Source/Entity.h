@@ -42,8 +42,6 @@ namespace TLMP {
     template<typename t> t& offset(int offset) const;
     Vector3* GetPosition() const;
     void SetPosition(const Vector3 & pos);
-    Vector3* GetDestination() const;
-    void SetDestination(const Vector3 & pos);
     float& get_hp();
     float& get_mana();
     void destroy();
@@ -56,6 +54,9 @@ namespace TLMP {
     unsigned int& GetLevel() const;
     unsigned long long& GetGUID() const;
   };
+
+  PVOID GetDestination(PVOID player);
+  
 
   extern vector<c_entity *> *ServerEntities;
 
