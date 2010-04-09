@@ -181,7 +181,7 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           otherPlayerEntity.init();
         }
 
-        Vector3* otherDest = otherPlayerEntity.GetDestination();
+        Vector3* otherDest = (Vector3*)GetDestination(otherPlayer);
         //log("  Retrieved destination");
         //log("  Dest ptr = %p", otherDest);
         //log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);

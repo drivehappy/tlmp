@@ -248,7 +248,7 @@ void TLMP::_wnd_proc_pre STDARG
             em.init();
           }
 
-          Vector3* destination = em.GetDestination();
+          Vector3* destination = (Vector3*)GetDestination(me);
           Vector3* position = em.GetPosition();
 
           log("[DEBUG] Vector3* = %p", destination);
