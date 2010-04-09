@@ -58,6 +58,6 @@ namespace TLMP {
   PVOID GetDestination(PVOID player);
   
 
-  extern vector<c_entity *> *ServerEntities;
+  //extern vector<c_entity *> *ServerEntities;
 
 };

@@ -15,6 +15,6 @@ using std::vector;
 namespace TLMP {
 
   extern vector<NetworkEntity*>* NetworkSharedItems;
-  extern vector<NetworkEntity*>* NetworkSharedMonsters;
+  extern vector<NetworkEntity*>* NetworkSharedEntities;
 
 };

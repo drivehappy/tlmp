@@ -1,11 +1,13 @@
 #include "Entity.h"
-#include "ServerState.h"
+//#include "ServerState.h"
+#include "SharedState.h"
 using namespace TLMP;
 
 bool                  TLMP::ClientAllowSpawn = false;
 bool                  TLMP::ServerAllowSpawn = true;
 PVOID                 TLMP::EntityManager = NULL;
-vector<c_entity *>   *TLMP::ServerEntities = NULL;
+//vector<c_entity *>   *TLMP::ServerEntities = NULL;
+vector<NetworkEntity*>* TLMP::NetworkSharedEntities = NULL;
 
 void TLMP::_entity_initialize_pre STDARG
 {

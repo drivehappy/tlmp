@@ -7,11 +7,12 @@ message Position {
 }
 
 message Entity {
-  required int32 level = 1;
-  required int64 guid = 2;
-  required bool noItems = 3;
-  optional Position destination = 4;
-  repeated Position position = 5;
+  required int32 id = 1;
+  required int32 level = 2;
+  required int64 guid = 3;
+  required bool noItems = 4;
+  optional Position destination = 5;
+  repeated Position position = 6;
 }
 
 message Item {

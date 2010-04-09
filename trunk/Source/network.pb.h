@@ -233,38 +233,45 @@ class Entity : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required int32 level = 1;
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int32 level = 2;
   inline bool has_level() const;
   inline void clear_level();
-  static const int kLevelFieldNumber = 1;
+  static const int kLevelFieldNumber = 2;
   inline ::google::protobuf::int32 level() const;
   inline void set_level(::google::protobuf::int32 value);
   
-  // required int64 guid = 2;
+  // required int64 guid = 3;
   inline bool has_guid() const;
   inline void clear_guid();
-  static const int kGuidFieldNumber = 2;
+  static const int kGuidFieldNumber = 3;
   inline ::google::protobuf::int64 guid() const;
   inline void set_guid(::google::protobuf::int64 value);
   
-  // required bool noItems = 3;
+  // required bool noItems = 4;
   inline bool has_noitems() const;
   inline void clear_noitems();
-  static const int kNoItemsFieldNumber = 3;
+  static const int kNoItemsFieldNumber = 4;
   inline bool noitems() const;
   inline void set_noitems(bool value);
   
-  // optional .TLMP.NetworkMessages.Position destination = 4;
+  // optional .TLMP.NetworkMessages.Position destination = 5;
   inline bool has_destination() const;
   inline void clear_destination();
-  static const int kDestinationFieldNumber = 4;
+  static const int kDestinationFieldNumber = 5;
   inline const ::TLMP::NetworkMessages::Position& destination() const;
   inline ::TLMP::NetworkMessages::Position* mutable_destination();
   
-  // repeated .TLMP.NetworkMessages.Position position = 5;
+  // repeated .TLMP.NetworkMessages.Position position = 6;
   inline int position_size() const;
   inline void clear_position();
-  static const int kPositionFieldNumber = 5;
+  static const int kPositionFieldNumber = 6;
   inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >& position() const;
   inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >* mutable_position();
   inline const ::TLMP::NetworkMessages::Position& position(int index) const;
@@ -275,6 +282,7 @@ class Entity : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
+  ::google::protobuf::int32 id_;
   ::google::protobuf::int32 level_;
   ::google::protobuf::int64 guid_;
   bool noitems_;
@@ -284,7 +292,7 @@ class Entity : public ::google::protobuf::Message {
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -836,72 +844,88 @@ inline void Position::set_z(float value) {
 
 // Entity
 
-// required int32 level = 1;
-inline bool Entity::has_level() const {
+// required int32 id = 1;
+inline bool Entity::has_id() const {
   return _has_bit(0);
+}
+inline void Entity::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Entity::id() const {
+  return id_;
+}
+inline void Entity::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int32 level = 2;
+inline bool Entity::has_level() const {
+  return _has_bit(1);
 }
 inline void Entity::clear_level() {
   level_ = 0;
-  _clear_bit(0);
+  _clear_bit(1);
 }
 inline ::google::protobuf::int32 Entity::level() const {
   return level_;
 }
 inline void Entity::set_level(::google::protobuf::int32 value) {
-  _set_bit(0);
+  _set_bit(1);
   level_ = value;
 }
 
-// required int64 guid = 2;
+// required int64 guid = 3;
 inline bool Entity::has_guid() const {
-  return _has_bit(1);
+  return _has_bit(2);
 }
 inline void Entity::clear_guid() {
   guid_ = GOOGLE_LONGLONG(0);
-  _clear_bit(1);
+  _clear_bit(2);
 }
 inline ::google::protobuf::int64 Entity::guid() const {
   return guid_;
 }
 inline void Entity::set_guid(::google::protobuf::int64 value) {
-  _set_bit(1);
+  _set_bit(2);
   guid_ = value;
 }
 
-// required bool noItems = 3;
+// required bool noItems = 4;
 inline bool Entity::has_noitems() const {
-  return _has_bit(2);
+  return _has_bit(3);
 }
 inline void Entity::clear_noitems() {
   noitems_ = false;
-  _clear_bit(2);
+  _clear_bit(3);
 }
 inline bool Entity::noitems() const {
   return noitems_;
 }
 inline void Entity::set_noitems(bool value) {
-  _set_bit(2);
+  _set_bit(3);
   noitems_ = value;
 }
 
-// optional .TLMP.NetworkMessages.Position destination = 4;
+// optional .TLMP.NetworkMessages.Position destination = 5;
 inline bool Entity::has_destination() const {
-  return _has_bit(3);
+  return _has_bit(4);
 }
 inline void Entity::clear_destination() {
   if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Position::Clear();
-  _clear_bit(3);
+  _clear_bit(4);
 }
 inline const ::TLMP::NetworkMessages::Position& Entity::destination() const {
   return destination_ != NULL ? *destination_ : *default_instance_->destination_;
 }
 inline ::TLMP::NetworkMessages::Position* Entity::mutable_destination() {
-  _set_bit(3);
+  _set_bit(4);
   if (destination_ == NULL) destination_ = new ::TLMP::NetworkMessages::Position;
   return destination_;
 }
 
-// repeated .TLMP.NetworkMessages.Position position = 5;
+// repeated .TLMP.NetworkMessages.Position position = 6;
 inline int Entity::position_size() const {
   return position_.size();
 }
