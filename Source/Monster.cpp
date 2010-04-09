@@ -52,13 +52,22 @@ void TLMP::_spider_some_create_post STDARG
 
   if (NetworkState::getSingleton().GetState() == SERVER && ServerAllowSpawn) {
     c_entity o;
-    o.e = (void*)e->retval;
+    o.e = (PVOID)e->retval;
     o.guid = guid;
     o.level = level;
     o.noitems = noItems;
     o.init();
 
+    // Store this Monster in our shared entity's list
+    NetworkEntity* entity = new NetworkEntity((PVOID)e->retval);
+
+    if (!NetworkSharedEntities)
+      NetworkSharedEntities = new vector<NetworkEntity*>();
+    NetworkSharedEntities->push_back(entity);
+
+    // Create the network message to the client
     NetworkMessages::Entity message;
+    message.set_id(entity->getCommonId());
     message.set_level(level);
     message.set_guid(guid);
     message.set_noitems(noItems);

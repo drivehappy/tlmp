@@ -144,6 +144,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("  guid: %016I64X", message->guid());
       log("  level: %i", message->level());
       log("  position: %f %f %f", message->position().Get(0).x(), message->position().Get(0).y(), message->position().Get(0).z());
+      log("  commonId: %i", message->id());
 
       Vector3 position;
       position.x = message->position().Get(0).x();
@@ -153,6 +154,13 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       ClientAllowSpawn = true;
       otherPlayer = SpawnPlayer(message->guid(), message->level(), position);
       ClientAllowSpawn = false;
+
+      // Store the monster ptr in our shared network list
+      NetworkEntity *networkItem = new NetworkEntity(otherPlayer, message->id());
+
+      if (!NetworkSharedEntities)
+        NetworkSharedEntities = new vector<NetworkEntity*>();
+      NetworkSharedEntities->push_back(networkItem);
     }
     break;
 
@@ -175,10 +183,19 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         Level = %i", entity->level());
       log("         GUID  = %016I64X", entity->guid());
       log("         NoItems = %i", entity->noitems());
+      log("         CommonId = %i", entity->id());
 
+      // Unlock suppressed entity creation and create the monster
       ClientAllowSpawn = true;
-      SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
+      PVOID newEntity = SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
       ClientAllowSpawn = false;
+
+      // Store the monster ptr in our shared network list
+      NetworkEntity *networkItem = new NetworkEntity(newEntity, entity->id());
+
+      if (!NetworkSharedEntities)
+        NetworkSharedEntities = new vector<NetworkEntity*>();
+      NetworkSharedEntities->push_back(networkItem);
     }
     break;
 
@@ -186,7 +203,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
 
-      log("[CLIENT] SetDest received from server");
+      //log("[CLIENT] SetDest received from server");
 
       if (otherPlayer) {
         //log("  Getting destination...");

@@ -116,25 +116,13 @@ void TLMP::Initialize()
   }
   */
 
-  //SetupProcessBase();
   PatchProcess();
   HookFunctions();
-
-  //log("Starting network thread...");
-  //Network::StartReceivingMessages();
 }
 
 void TLMP::Shutdown()
 {
   log("Shutdown");
-}
-
-void TLMP::SetupProcessBase()
-{
-  HMODULE hMod = GetModuleHandle(NULL);
-  FARPROC addr = GetProcAddress(hMod, NULL);
-
-//#define EXEBASEREAL #addr
 }
 
 void TLMP::PatchProcess()

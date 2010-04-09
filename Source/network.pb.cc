@@ -62,7 +62,8 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Position));
   Entity_descriptor_ = file->message_type(1);
-  static const int Entity_offsets_[5] = {
+  static const int Entity_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, guid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, noitems_),
@@ -203,21 +204,21 @@ void protobuf_AddDesc_network_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\rnetwork.proto\022\024TLMP.NetworkMessages\"+\n"
     "\010Position\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002"
-    "(\002\"\235\001\n\006Entity\022\r\n\005level\030\001 \002(\005\022\014\n\004guid\030\002 \002"
-    "(\003\022\017\n\007noItems\030\003 \002(\010\0223\n\013destination\030\004 \001(\013"
-    "2\036.TLMP.NetworkMessages.Position\0220\n\010posi"
-    "tion\030\005 \003(\0132\036.TLMP.NetworkMessages.Positi"
-    "on\"K\n\004Item\022\n\n\002id\030\001 \002(\005\022\014\n\004guid\030\002 \002(\003\022\r\n\005"
-    "level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n\004unk1\030\005 \002(\005\""
-    "V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010position\030\002 \003("
-    "\0132\036.TLMP.NetworkMessages.Position\022\014\n\004unk"
-    "0\030\003 \002(\010\"\367\001\n\006Player\022\n\n\002id\030\001 \002(\003\0224\n\004type\030\002"
-    " \002(\0162&.TLMP.NetworkMessages.Player.Class"
-    "Type\022\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n\002id\030\001 \002(\003\0222\n"
-    "\004type\030\002 \002(\0162$.TLMP.NetworkMessages.Playe"
-    "r.PetType\"9\n\tClassType\022\r\n\tALCHEMIST\020\000\022\016\n"
-    "\nVANQUISHER\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007PetType\022"
-    "\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 657);
+    "(\002\"\251\001\n\006Entity\022\n\n\002id\030\001 \002(\005\022\r\n\005level\030\002 \002(\005"
+    "\022\014\n\004guid\030\003 \002(\003\022\017\n\007noItems\030\004 \002(\010\0223\n\013desti"
+    "nation\030\005 \001(\0132\036.TLMP.NetworkMessages.Posi"
+    "tion\0220\n\010position\030\006 \003(\0132\036.TLMP.NetworkMes"
+    "sages.Position\"K\n\004Item\022\n\n\002id\030\001 \002(\005\022\014\n\004gu"
+    "id\030\002 \002(\003\022\r\n\005level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n"
+    "\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010p"
+    "osition\030\002 \003(\0132\036.TLMP.NetworkMessages.Pos"
+    "ition\022\014\n\004unk0\030\003 \002(\010\"\367\001\n\006Player\022\n\n\002id\030\001 \002"
+    "(\003\0224\n\004type\030\002 \002(\0162&.TLMP.NetworkMessages."
+    "Player.ClassType\022\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n"
+    "\002id\030\001 \002(\003\0222\n\004type\030\002 \002(\0162$.TLMP.NetworkMe"
+    "ssages.Player.PetType\"9\n\tClassType\022\r\n\tAL"
+    "CHEMIST\020\000\022\016\n\nVANQUISHER\020\001\022\r\n\tDESTROYER\020\002"
+    "\"\033\n\007PetType\022\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 669);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
@@ -519,6 +520,7 @@ void Position::Swap(Position* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int Entity::kIdFieldNumber;
 const int Entity::kLevelFieldNumber;
 const int Entity::kGuidFieldNumber;
 const int Entity::kNoItemsFieldNumber;
@@ -541,6 +543,7 @@ Entity::Entity(const Entity& from) {
 
 void Entity::SharedCtor() {
   _cached_size_ = 0;
+  id_ = 0;
   level_ = 0;
   guid_ = GOOGLE_LONGLONG(0);
   noitems_ = false;
@@ -575,10 +578,11 @@ Entity* Entity::New() const {
 
 void Entity::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    id_ = 0;
     level_ = 0;
     guid_ = GOOGLE_LONGLONG(0);
     noitems_ = false;
-    if (_has_bit(3)) {
+    if (_has_bit(4)) {
       if (destination_ != NULL) destination_->::TLMP::NetworkMessages::Position::Clear();
     }
   }
@@ -593,21 +597,35 @@ bool Entity::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required int32 level = 1;
+      // required int32 id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           goto handle_uninterpreted;
         }
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
-              input, &level_));
+              input, &id_));
         _set_bit(0);
-        if (input->ExpectTag(16)) goto parse_guid;
+        if (input->ExpectTag(16)) goto parse_level;
         break;
       }
       
-      // required int64 guid = 2;
+      // required int32 level = 2;
       case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+       parse_level:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &level_));
+        _set_bit(1);
+        if (input->ExpectTag(24)) goto parse_guid;
+        break;
+      }
+      
+      // required int64 guid = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           goto handle_uninterpreted;
@@ -615,13 +633,13 @@ bool Entity::MergePartialFromCodedStream(
        parse_guid:
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt64(
               input, &guid_));
-        _set_bit(1);
-        if (input->ExpectTag(24)) goto parse_noItems;
+        _set_bit(2);
+        if (input->ExpectTag(32)) goto parse_noItems;
         break;
       }
       
-      // required bool noItems = 3;
-      case 3: {
+      // required bool noItems = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           goto handle_uninterpreted;
@@ -629,13 +647,13 @@ bool Entity::MergePartialFromCodedStream(
        parse_noItems:
         DO_(::google::protobuf::internal::WireFormatLite::ReadBool(
               input, &noitems_));
-        _set_bit(2);
-        if (input->ExpectTag(34)) goto parse_destination;
+        _set_bit(3);
+        if (input->ExpectTag(42)) goto parse_destination;
         break;
       }
       
-      // optional .TLMP.NetworkMessages.Position destination = 4;
-      case 4: {
+      // optional .TLMP.NetworkMessages.Position destination = 5;
+      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
           goto handle_uninterpreted;
@@ -643,12 +661,12 @@ bool Entity::MergePartialFromCodedStream(
        parse_destination:
         DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
              input, mutable_destination()));
-        if (input->ExpectTag(42)) goto parse_position;
+        if (input->ExpectTag(50)) goto parse_position;
         break;
       }
       
-      // repeated .TLMP.NetworkMessages.Position position = 5;
-      case 5: {
+      // repeated .TLMP.NetworkMessages.Position position = 6;
+      case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
           goto handle_uninterpreted;
@@ -656,7 +674,7 @@ bool Entity::MergePartialFromCodedStream(
        parse_position:
         DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
               input, add_position()));
-        if (input->ExpectTag(42)) goto parse_position;
+        if (input->ExpectTag(50)) goto parse_position;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -685,31 +703,36 @@ void Entity::SerializeWithCachedSizes(
     return;
   }
   
-  // required int32 level = 1;
+  // required int32 id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->level(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
   }
   
-  // required int64 guid = 2;
+  // required int32 level = 2;
   if (_has_bit(1)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->guid(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->level(), output);
   }
   
-  // required bool noItems = 3;
+  // required int64 guid = 3;
   if (_has_bit(2)) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->noitems(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(3, this->guid(), output);
   }
   
-  // optional .TLMP.NetworkMessages.Position destination = 4;
+  // required bool noItems = 4;
   if (_has_bit(3)) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
-      4, this->destination(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(4, this->noitems(), output);
   }
   
-  // repeated .TLMP.NetworkMessages.Position position = 5;
+  // optional .TLMP.NetworkMessages.Position destination = 5;
+  if (_has_bit(4)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+      5, this->destination(), output);
+  }
+  
+  // repeated .TLMP.NetworkMessages.Position position = 6;
   for (int i = 0; i < this->position_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
-      5, this->position(i), output);
+      6, this->position(i), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -720,33 +743,38 @@ void Entity::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* Entity::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required int32 level = 1;
+  // required int32 id = 1;
   if (_has_bit(0)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->level(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
   }
   
-  // required int64 guid = 2;
+  // required int32 level = 2;
   if (_has_bit(1)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->guid(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->level(), target);
   }
   
-  // required bool noItems = 3;
+  // required int64 guid = 3;
   if (_has_bit(2)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->noitems(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(3, this->guid(), target);
   }
   
-  // optional .TLMP.NetworkMessages.Position destination = 4;
+  // required bool noItems = 4;
   if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(4, this->noitems(), target);
+  }
+  
+  // optional .TLMP.NetworkMessages.Position destination = 5;
+  if (_has_bit(4)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->destination(), target);
+        5, this->destination(), target);
   }
   
-  // repeated .TLMP.NetworkMessages.Position position = 5;
+  // repeated .TLMP.NetworkMessages.Position position = 6;
   for (int i = 0; i < this->position_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->position(i), target);
+        6, this->position(i), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -760,26 +788,33 @@ int Entity::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required int32 level = 1;
+    // required int32 id = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->id());
+    }
+    
+    // required int32 level = 2;
     if (has_level()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->level());
     }
     
-    // required int64 guid = 2;
+    // required int64 guid = 3;
     if (has_guid()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int64Size(
           this->guid());
     }
     
-    // required bool noItems = 3;
+    // required bool noItems = 4;
     if (has_noitems()) {
       total_size += 1 + 1;
     }
     
-    // optional .TLMP.NetworkMessages.Position destination = 4;
+    // optional .TLMP.NetworkMessages.Position destination = 5;
     if (has_destination()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -787,7 +822,7 @@ int Entity::ByteSize() const {
     }
     
   }
-  // repeated .TLMP.NetworkMessages.Position position = 5;
+  // repeated .TLMP.NetworkMessages.Position position = 6;
   total_size += 1 * this->position_size();
   for (int i = 0; i < this->position_size(); i++) {
     total_size +=
@@ -821,15 +856,18 @@ void Entity::MergeFrom(const Entity& from) {
   position_.MergeFrom(from.position_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
-      set_level(from.level());
+      set_id(from.id());
     }
     if (from._has_bit(1)) {
-      set_guid(from.guid());
+      set_level(from.level());
     }
     if (from._has_bit(2)) {
-      set_noitems(from.noitems());
+      set_guid(from.guid());
     }
     if (from._has_bit(3)) {
+      set_noitems(from.noitems());
+    }
+    if (from._has_bit(4)) {
       mutable_destination()->::TLMP::NetworkMessages::Position::MergeFrom(from.destination());
     }
   }
@@ -849,7 +887,7 @@ void Entity::CopyFrom(const Entity& from) {
 }
 
 bool Entity::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
   
   if (has_destination()) {
     if (!this->destination().IsInitialized()) return false;
@@ -862,6 +900,7 @@ bool Entity::IsInitialized() const {
 
 void Entity::Swap(Entity* other) {
   if (other != this) {
+    std::swap(id_, other->id_);
     std::swap(level_, other->level_);
     std::swap(guid_, other->guid_);
     std::swap(noitems_, other->noitems_);

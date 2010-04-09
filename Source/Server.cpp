@@ -18,7 +18,7 @@ Server::Server()
   m_pOnClientConnect = NULL;
   m_pOnClientDisconnect = NULL;
 
-  ServerEntities = new vector<c_entity *>();
+  //ServerEntities = new vector<c_entity *>();
 }
 
 Server::~Server()
