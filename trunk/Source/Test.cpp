@@ -69,3 +69,44 @@ void TLMP::test5_post STDARG
 {
   //log("============== TEST 5 POST: %p retVal = %i", e->_this, e->retval);
 }
+
+void TLMP::test6_pre STDARG
+{
+  //log("============== TEST (delete) 6 PRE: %p", Pz[0]);
+}
+
+void TLMP::test6_post STDARG
+{
+  //log("============== TEST (delete) 6 POST: %p", Pz[0]);
+  PVOID addr = (PVOID)Pz[0];
+
+  //MemoryManager::getSingleton().removeBlock(addr);
+
+}
+
+void TLMP::test7_pre STDARG
+{
+  //log("============== TEST (new) 7 PRE: %i, retval = %p", Pz[0]);
+}
+
+void TLMP::test7_post STDARG
+{
+  PVOID addr = (PVOID)e->retval;
+  u32 size = Pz[0];
+
+  //if (Pz[0] > 200)
+  MemoryManager::getSingleton().addBlock(addr, size);
+
+  //if (Pz[0] > 96)
+  //  log("============== TEST (new) 7 PRE: %i, retval = %p", Pz[0], e->retval);
+}
+
+void TLMP::test8_pre STDARG
+{
+  log("pre-Player Ctor? : %p\n", e->_this);
+}
+
+void TLMP::test8_post STDARG
+{
+  log("post-Player Ctor? : %p %p\n", e->_this, e->retval);
+}

@@ -149,6 +149,12 @@ void TLMP::_wnd_proc_pre STDARG
     case WM_KEYUP:
       switch (wParam)
       {
+      case '1':
+        {
+          MemoryManager::getSingleton().reportMemory();
+        }
+        break;
+
       case '0':
         {
           c_entity em;

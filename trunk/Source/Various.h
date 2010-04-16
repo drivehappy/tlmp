@@ -6,6 +6,9 @@
 #include "Entity.h"
 using namespace TLMP::Network;
 
+#include "MemoryManager.h"
+
+
 namespace TLMP {
 
   void _set_destination_pre STDARG;

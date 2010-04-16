@@ -2,6 +2,8 @@
 
 #include "Common.h"
 #include "Monster.h"
+#include "MemoryManager.h"
+
 
 namespace TLMP {
 
