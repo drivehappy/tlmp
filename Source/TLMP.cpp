@@ -245,4 +245,13 @@ void TLMP::HookFunctions()
   // I'm seeing this getting called 7 times per frame on the main menu,
   // although it doesn't do it's memmove processing
   Hook((PVOID)EXEOFFSET(0x5B1DA0), test5_pre, test5_post, HOOK_THISCALL, 5);
+
+  // delete(void*)
+  Hook((PVOID)EXEOFFSET(0x6059B8), test6_pre, test6_post, HOOK_CDECL, 1);
+
+  // new(void*)
+  Hook((PVOID)EXEOFFSET(0x605B54), test7_pre, test7_post, HOOK_CDECL, 1);
+  
+  // Player ctor?
+  Hook((PVOID)EXEOFFSET(0x4DB820), test8_pre, test8_post, HOOK_THISCALL, 1);
 }

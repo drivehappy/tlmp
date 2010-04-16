@@ -1,5 +1,8 @@
 #include "Player.h"
 
+// Testing
+#include "CRunicCore.h"
+
 PVOID TLMP::me = NULL;
 PVOID TLMP::otherPlayer = NULL;
 PVOID TLMP::otherPlayerPet = NULL;
@@ -50,6 +53,12 @@ void TLMP::_initialize_player_pre STDARG
   u32 level = *((u32 *)me + 0x3c);
 
 	log("pre- Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
+  log("     Memory size (%p) = %i\n", me, MemoryManager::getSingleton().getMemorySize(me));
+  log("     Structure Test:\n");
+  CRunicCore coreMe = *(CRunicCore*)me;
+  log("         guid0: %016I64X\n", coreMe.guid0);
+  log("         guid1: %016I64X\n", coreMe.guid1);
+
   UnitManager = e->_this;
 }
 

@@ -5,6 +5,8 @@
 #include "Network.h"
 using namespace TLMP::Network;
 
+#include "MemoryManager.h"
+
 //
 // File designed to hold unknown/testing functions
 //
@@ -28,5 +30,13 @@ namespace TLMP {
 
   void test5_pre  STDARG;
   void test5_post STDARG;
-
+  
+  void test6_pre  STDARG;
+  void test6_post STDARG;
+    
+  void test7_pre  STDARG;
+  void test7_post STDARG;
+    
+  void test8_pre  STDARG;
+  void test8_post STDARG;
 };
