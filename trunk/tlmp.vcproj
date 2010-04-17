@@ -604,6 +604,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CAnimationPlayer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CAStarPathFinder.h"
 					>
 				</File>
@@ -728,6 +732,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CLevelTemplateData.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CLogicTrigger.h"
 					>
 				</File>
@@ -780,7 +788,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CQuadtreeNode.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CQuestController.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CResourceManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CRoomPiece.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CRoomPieceData.h"
 					>
 				</File>
 				<File
@@ -796,11 +820,51 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CShape.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkill.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkillEffectAndAffix.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkillEvent.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkillManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkillProperty.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkipCutscene.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSkipCutsceneDescriptor.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CSoundBank.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\CSoundManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CTimeline.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CTimelineProperty.h"
 					>
 				</File>
 				<File
@@ -825,6 +889,18 @@
 				</File>
 				<File
 					RelativePath=".\Source\CUnitTriggerDescriptor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CWardrobe.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CWarper.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CWaypointActivator.h"
 					>
 				</File>
 			</Filter>
