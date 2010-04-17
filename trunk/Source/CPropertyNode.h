@@ -1,12 +1,21 @@
 #pragma once
 
-// Size?: 118h
-struct CItemSaveState
+// Size?: 60h
+// Node: Same base as CItem
+// 
+struct CPropertyNode
 {
   PVOID vtable;
   u32 unk0;
+  u64 guid0;      // 88F1C7449B211DFh
+  u64 guid1;      // 0FFFFFFFFFFFFFFFFh
+  u64 guid2;      // 19463565308B11DEh
+  u64 guid3;      // 0F61AC062B9FC11DEh
 
-  PVOID pCItemSaveState;    // Linked list node? ptr to another CItemSaveState
+  PVOID unk1;
+  PVOID pCUnitTriggerDescriptor;    // CUnitTriggerDescriptor
+
+  u32 unk2;       // 38h
 
   // UNICODE String ie "4 Gold" in place (16 bytes)
   // OR I noticed a ptr string to "TNT Barrel"
@@ -21,5 +30,11 @@ struct CItemSaveState
   u32 nameLength;
   u32 maxNameLength;    // Guess, double check this
 
-  // .. more
+  PVOID pCEditorScene0; // ptr to CEditorScene
+  PVOID pCEditorScene1; // ptr to CEditorScene (same as above)
+
+  float unk3;
+
+  PVOID pOctree0;
+  u32 unk4;             // 0
 };

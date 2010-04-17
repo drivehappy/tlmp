@@ -1,5 +1,7 @@
 #pragma once
 
+
+// Inherits CItem
 struct CTriggerUnit
 {
   u32 unk0;

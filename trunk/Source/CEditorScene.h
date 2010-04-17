@@ -1,5 +1,6 @@
 #pragma once
 
+// Size?: 158h
 struct CEditorScene
 {
   u32 unk0;
@@ -7,5 +8,7 @@ struct CEditorScene
   u64 guid1;  // 0FFFFFFFFFFFFFFFFh
   u64 guid2;  // 0D5CFD0FA499D11DFh
   
+  u64 unk0;
+
   // ..
 };
