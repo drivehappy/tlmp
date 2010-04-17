@@ -1,5 +1,6 @@
 #pragma once
 
+// Size?: 1FCh
 struct CUnitSpawner
 {
   PVOID vtable;

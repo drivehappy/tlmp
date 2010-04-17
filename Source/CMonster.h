@@ -1,5 +1,6 @@
 #pragma once
 
+// Size?: 6D4h
 struct CMonster
 {
   PVOID vtable;
