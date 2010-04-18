@@ -1,5 +1,6 @@
 #pragma once
 
+// Size?: 0Ch
 struct CAIManager
 {
   PVOID vtable;

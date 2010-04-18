@@ -1,18 +1,18 @@
 #pragma once
 
-// Size?: 190h
+// Size?: 180h
 // Note: Similar name structure to CItemSaveState
-//
+// Inheritance: CBaseUnit
 struct CItem
 {
   PVOID vtable;
-  u32 unk0;
+  PVOID unk0;
   u64 guid0;      // 88F1C7449B211DFh
   u64 guid1;      // 0FFFFFFFFFFFFFFFFh
   u64 guid2;      // 19463565308B11DEh
   u64 guid3;      // 0F61AC062B9FC11DEh
 
-  PVOID unk1;
+  PVOID pAnimationTrack;            // ogre
   PVOID pCUnitTriggerDescriptor;    // CUnitTriggerDescriptor
 
   u32 unk2;       // 38h
@@ -45,6 +45,33 @@ struct CItem
   u32 unk5;             // 0
 
   PVOID pOctree1;
-  u32 unk6;             // 0
+  u32 unk6;             // 0   another - 10000
 
+  /// ----
+
+  float unk91[3];       // 33.973099, 0.17998, 98.664
+
+  float unk92[28];      //
+
+  u32 unk93[24];        //
+
+  u32 unk94;            // 1000001
+
+  float unk95[2];       // 83.501953, 0.3
+  
+  u32 unk96;            // 10100h
+
+  float unk97;          // 1.0
+
+  u64 GUIDUnk;          // 8D3EE5363F7611DEh
+
+  float unk98;          // 0.97267
+
+  u32 unk99;            // 20h
+
+  PVOID pCDataGroup;
+  PVOID pCEffectManager;           // NULL
+  PVOID pCCullingBounds;
+  PVOID pCSkillManager;
+  
 };

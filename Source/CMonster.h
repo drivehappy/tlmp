@@ -1,6 +1,7 @@
 #pragma once
 
 // Size?: 6D4h
+// Inheritance: CCharacter, CBaseUnit
 struct CMonster
 {
   PVOID vtable;

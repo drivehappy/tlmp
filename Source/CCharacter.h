@@ -1,36 +1,67 @@
 #pragma once
 
-// Inherits CBaseUnit
+#include "_CString.h"
+
+
+// Size?: 160h
+// Inheritance: CBaseUnit
 struct CCharacter
 {
-  PVOID vtable;
-  PVOID pUnknownStruct;
-  u64 guid0;
-  u64 guid1;
-  u64 guid2;
+  // CBaseUnit stuff here
 
-  u32 unk0[3];        // 0, 0, 0
-  PVOID pCMonsterDescriptor;      // ptr to CMonsterDescriptor
+  PVOID vtableIInventoryListener;
+  PVOID vtableIMissle;
 
-  u32 unk1;
+  float unk0[3];      // -1.0, 0.0, -100.78487
 
-  // Unicode string
-  u32 stringStuff[6];
+  u32 unk1;           // 343C0001h
+  u32 unk2;           // 0
 
-  PVOID pCEditorScene;            // ptr to CEditorScene
-  PVOID pCEditorScene;            // ptr to CEditorScene  (same val as above)
-  u32 unk2;
+  PVOID pCGenericModel;
 
-  PVOID pOctreeSM;                // ptr to Octree
-  u32 unk3;
+  float unk3[8];      // 0, -25.59, 0.0727, 33.62, -25.59, 0.81, 33.62, 0
 
-  PVOID pCResourceManager;        // ptr to CResourceManager
-  u32 unk4;
+  u32 unk4[2];        // 7,8
 
-  PVOID pOctreeSM2;               // ptr to Octree2
-  u32 unk5;
+  float unk5[7];      // 4.0, 0, 0.9842, 0,0,0,0
 
-  float unk6[9];                  // -2.13, 0, 1.5, 1.05075, 1.05075, 1.05075, 0.0078125, 1.0, 0
+  u32 unk6;           // 80000000h
 
-  // ... more
+  float unk7[5];      // 0, 1, 1, 1, 0
+
+  PVOID pCAstarPathfiner;
+  PVOID pCPath;
+
+  float unk8[7];      // 100, 100, 95.69, 95.69, 10, 0,0
+
+  PVOID pCSoundBank0;
+  PVOID pCSoundBank1; // Diff from above
+
+  u32 unk9;           // FFFFFFFFh
+
+  PVOID pBoneOgre0;   // ptr to Ogre Bone
+  PVOID pBoneOgre1;   // Same ptr val as above
+  PVOID pBoneOgre2;   // Diff
+  PVOID pBoneOgre3;   // Diff
+
+  PVOID unk10[2];     // NULL, NULL
+
+  PVOID pBoneOgre4;   // Diff
+  PVOID pBoneOgre5;   // Diff
+
+  PVOID unk11;        // NULL
+
+  PVOID pOctree0;     // ptr Octree Node
+  PVOID pOctree1;     // Diff
+
+  PVOID unk12[2];     // NULL, NULL
+
+  PVOID pOctree2;     // Diff
+
+  float unk13[4];     // 2.0, 0, 0, 1
+
+  u32 unk14[6];
+
+  // hmm getting into some weird values that appear to be garbage... is this size correct?
+
 };

@@ -1,12 +1,36 @@
 #pragma once
 
-struct CPositionalObject
+#include "_CString.h"
+
+// Size: 68h
+// Inheritance: CSceneNodeObject
+struct CPositionableObject
 {
   u32 unk0;
-  u64 guid0;  // 0D5CFD651499D11DFh
+  u64 guid0;  // 3DAE0D294AA311DFh
   u64 guid1;  // 0FFFFFFFFFFFFFFFFh
-  u64 guid2;  // 19463565308B11DEh
-  u64 guid3;  // 0F61AC062B9FC11DEh
+  u64 guid2;  // 0CB7572EABB7F11DEh
+  u64 guid3;  // 0h
+
+  PVOID unk1;
+  PVOID pCRandomGroupDescriptor;
+
+  u32 unk2;   // 0
+
+  CString pCString0;
+
+  // Ditto structure from somewhere
+
+  PVOID pCEditorScene0;
+  PVOID pCEditorScene1;
+  float unk3; // 4.0
+  PVOID pOctree0;
+  float unk4; // 0.0
+  PVOID pCResourceManager;
+  float unk5; // 0.0
+  PVOID pOctree1;
+
+  /* OLD STUFF - IS THIS AT ALL CORRECT?
   u32 unk1;
   PVOID pCUnitTriggerDescriptor;    // ptr to CUnitTriggerDescriptor
   u32 unk2;
@@ -22,4 +46,6 @@ struct CPositionalObject
   u32 unk7[4];                      // values: 0x10000, 0,0,0
 
   // .. some floats maybe?
+  */
+
 };

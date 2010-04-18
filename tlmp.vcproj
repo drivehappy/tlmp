@@ -580,11 +580,35 @@
 				Name="RunicStructures"
 				>
 				<File
+					RelativePath=".\Source\_CString.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\_CUnknownStruct0.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\_CUnknownStruct1.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\_CUnknownStruct2.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CActiveAnimation.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\CAffectorDescriptor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CAffectorWrapper.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CAffix.h"
 					>
 				</File>
 				<File
@@ -609,6 +633,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CAStarPathFinder.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CBaseObjectDescriptor.h"
 					>
 				</File>
 				<File
@@ -653,6 +681,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CDataValue.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CDescriptor.h"
 					>
 				</File>
 				<File
@@ -776,7 +808,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\CPositionalObject.h"
+					RelativePath=".\Source\CPositionableObject.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CPositionableObjectDescriptor.h"
 					>
 				</File>
 				<File

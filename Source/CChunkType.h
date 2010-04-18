@@ -1,6 +1,7 @@
 #pragma once
 
-// Appears to be 60h size
+// Size?: 60h
+// Inheritance: CRunicCore
 struct CChunkType
 {
   PVOID vtable;

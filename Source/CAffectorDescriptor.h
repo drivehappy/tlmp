@@ -1,5 +1,7 @@
 #pragma once
 
+// Size: Unknown
+// Inheritance: CPositionableObjectDescriptor
 struct CAffectorDescriptor
 {
   PVOID vtable;

@@ -1,5 +1,6 @@
 #pragma once
 
+// Inheritance: CRunicCore
 struct CAIFlagManager
 {
   PVOID vtable;
