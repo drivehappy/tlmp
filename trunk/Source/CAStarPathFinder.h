@@ -1,7 +1,21 @@
 #pragma once
 
-// Size?: 18h
-struct CAStarPathFinder
+// Size?: 34h
+// Inheritance: CRunicCore
+struct CAstarPathfinder
 {
-  // 0'd out
+  PVOID vtable;
+
+  u32 unk0[5];
+
+  PVOID unk1;
+
+  u32 unk2[2];
+
+  float unk3;
+
+  u32 unk4;
+
+  PVOID pUnknownStruct0_0;    // ptr to unk struct 0
+  PVOID pUnknownStruct0_1;    // ptr to unk struct 0 (diff)
 };

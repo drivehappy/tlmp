@@ -1,5 +1,7 @@
 #pragma once
 
+// Size: Unknown
+// Inheritance: CItem, CBaseUnit, CPositionableObject, CSceneNodeObject, CEditorBaseObject
 struct CBreakable
 {
   PVOID vtable;

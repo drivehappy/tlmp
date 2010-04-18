@@ -1,6 +1,8 @@
 #pragma once
 
 // Size: 200h
+// Inheritance: CRunicCore
+
 struct CCharacterSaveState
 {
   PVOID vtable;

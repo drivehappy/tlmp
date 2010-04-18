@@ -5,6 +5,8 @@
     Unsure of the exact size of this
     Define functions
 **/
+
+// Inheritance: CRunicCore
 struct CAIFlag
 {
   PVOID vtable;

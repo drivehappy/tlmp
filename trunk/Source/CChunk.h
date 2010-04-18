@@ -1,5 +1,6 @@
 #pragma once
 
+// Inheritance: CRunicCore
 struct CChunk
 {
   PVOID vtable;
