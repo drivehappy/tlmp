@@ -7,6 +7,9 @@ using namespace TLMP::Network;
 
 #include "MemoryManager.h"
 
+// Test Headers
+#include "CCharacterSaveState.h"
+
 //
 // File designed to hold unknown/testing functions
 //
@@ -39,4 +42,7 @@ namespace TLMP {
     
   void test8_pre  STDARG;
   void test8_post STDARG;
+
+  void test9_pre  STDARG;
+  void test9_post STDARG;
 };

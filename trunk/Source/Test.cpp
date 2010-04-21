@@ -110,3 +110,18 @@ void TLMP::test8_post STDARG
 {
   log("post-Player Ctor? : %p %p\n", e->_this, e->retval);
 }
+
+void TLMP::test9_pre STDARG
+{
+  CCharacterSaveState *pCCharacterSaveState = (CCharacterSaveState*)e->_this;
+  log("*** CCharacterSaveState Created: %p", pCCharacterSaveState);
+  log("        Guid2: %016I64X", pCCharacterSaveState->guid2);
+
+  if (pCCharacterSaveState->name.length > 7) {
+    log(L"         Name: %s", pCCharacterSaveState->name.stringPtr[0]);
+  } else {
+    log(L"         Name: %s", &pCCharacterSaveState->name.string);
+  }
+
+  log("");
+}
