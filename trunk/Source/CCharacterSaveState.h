@@ -3,9 +3,8 @@
 #include "DataTypes.h"
 
 #include "_CString.h"
+#include "CItemSaveState.h"
 
-#include <vector>
-using std::vector;
 
 // Size: 200h
 // Inheritance: CRunicCore
@@ -42,13 +41,13 @@ struct CCharacterSaveState
 
   // ... more
 
-  float unk92[18];  //
+  float unk90[18];  //
 
-  CString unk93;    // "HEAL ALL"
+  CString unk91;    // "HEAL ALL"
 
-  PVOID unk94;    // "TOWN PORTAL"
+  PVOID unk92;    // "TOWN PORTAL"
 
-  float unk95[6];
+  float unk93[6];
 
   PVOID unk94;    // "SUMMON ZOMBIES III"
 
@@ -61,7 +60,7 @@ struct CCharacterSaveState
   u32 unk98[24];
 
   PVOID pCOctreeSM;
-  vector<CItemSaveState*>* itemSaveState;
+  CItemSaveState** itemSaveState;
 
   PVOID unk99[2];
 
