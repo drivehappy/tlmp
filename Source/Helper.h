@@ -21,7 +21,11 @@ void xcept(const char *fmt, ...);
 
 static HANDLE h_log_file = INVALID_HANDLE_VALUE;
 void log(const char *fmt, ...);
+void log(const wchar_t *fmt, ...);
 
 #define NL_ITERATE(var,type,list) for (slist_table<type>::iterator var(list);var.i!=list.size();++var)
 string format(const char *format, ...);
 string vformat(const char*format, va_list args);
+
+wstring wformat(const wchar_t *format, ...);
+wstring vwformat(const wchar_t *format, va_list args);

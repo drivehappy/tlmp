@@ -254,4 +254,7 @@ void TLMP::HookFunctions()
   
   // Player ctor?
   Hook((PVOID)EXEOFFSET(0x4DB820), test8_pre, test8_post, HOOK_THISCALL, 1);
+  
+  // CCharacterSaveSlot ctor
+  Hook((PVOID)EXEOFFSET(0x4AE350), test9_pre, NULL, HOOK_THISCALL, 1);
 }

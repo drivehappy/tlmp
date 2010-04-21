@@ -1,30 +1,69 @@
 #pragma once
 
+#include "DataTypes.h"
+
+#include "_CString.h"
+
+#include <vector>
+using std::vector;
+
 // Size: 200h
 // Inheritance: CRunicCore
 
 struct CCharacterSaveState
 {
+  // This is similar to CEditorBaseObject, however I think it's
+  // implemented again since RTTI didn't pick it up, also it doesn't make sense to be in
+  // CEditorBaseObject
+
   PVOID vtable;
   u32 unk0;
   u64 guid0;  // 51D9A040C33711DEh
   u64 guid1;  // 81065BD0B793A300h
   u64 guid2;  // 0D3A8F9982FA111DEh
   u64 guid3;  // 0FFFFFFFFFFFFFFFFh
+
   u32 unk1[2];
   float unk2;
   float unk3;
-  PVOID pStringCharacterName;   // ptr string "Drivehappy"
-  u32 unk4;
-  PVOID pUnknown;               // ptr unknown structure
-  u32 unk5;
-  u32 unk6[12];                 // 37c96440h, 0Ah, 0Fh, 1, 0, 4 dup (FFFFFFFFh), 302DBE98h, 1, 22h
-  float unk7[14];               // 
-  float unk8[5];                //
+  
+  CString name;                 // "Drivehappy"
 
-  u64 guid3;  // 6B0351E39E3311DEh
+  u32 unk6[9];                  // 1, 0, 4 dup (FFFFFFFFh), 302DBE98h, 1, 22h
+
+  Vector3 position;
+  Vector3 unkPosition;
+
+  float unk7[13];               // 
+
   u64 guid4;  // 6B0351E39E3311DEh
-  u64 guid5;  // 0FFFFFFFFFFFFFFFFh
+  u64 guid5;  // 6B0351E39E3311DEh
+  u64 guid6;  // 0FFFFFFFFFFFFFFFFh
 
   // ... more
+
+  float unk92[18];  //
+
+  CString unk93;    // "HEAL ALL"
+
+  PVOID unk94;    // "TOWN PORTAL"
+
+  float unk95[6];
+
+  PVOID unk94;    // "SUMMON ZOMBIES III"
+
+  float unk95[6];
+
+  PVOID unk96;     // "HEAL SELF IV"
+
+  float unk97[3];
+
+  u32 unk98[24];
+
+  PVOID pCOctreeSM;
+  vector<CItemSaveState*>* itemSaveState;
+
+  PVOID unk99[2];
+
+  float unk100[2];      // 0.5 0.5
 };
