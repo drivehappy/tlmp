@@ -4,6 +4,9 @@
 #include "Inventory.h"
 #include "ServerState.h"
 
+#include "Network.h"
+
+
 namespace TLMP {
 
   extern PVOID EntityManager;
@@ -11,6 +14,7 @@ namespace TLMP {
   extern bool ServerAllowSpawn;
 
   void _entity_initialize_pre STDARG;
+  void _entity_initialize_post STDARG;
 
   struct c_entity {
     uint id;

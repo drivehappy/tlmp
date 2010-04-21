@@ -103,7 +103,7 @@ void TLMP::test7_post STDARG
 
 void TLMP::test8_pre STDARG
 {
-  log("pre-Player Ctor? : %p\n", e->_this);
+  //log("pre-Player Ctor? : %p\n", e->_this);
 }
 
 void TLMP::test8_post STDARG

@@ -26,6 +26,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ItemDrop_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ItemDrop_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ItemPickup_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ItemPickup_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Player_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Player_reflection_ = NULL;
@@ -117,7 +120,23 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ItemDrop));
-  Player_descriptor_ = file->message_type(4);
+  ItemPickup_descriptor_ = file->message_type(4);
+  static const int ItemPickup_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, slot_),
+  };
+  ItemPickup_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ItemPickup_descriptor_,
+      ItemPickup::default_instance_,
+      ItemPickup_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ItemPickup));
+  Player_descriptor_ = file->message_type(5);
   static const int Player_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Player, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Player, type_),
@@ -173,6 +192,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ItemDrop_descriptor_, &ItemDrop::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ItemPickup_descriptor_, &ItemPickup::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Player_descriptor_, &Player::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Player_Pet_descriptor_, &Player_Pet::default_instance());
@@ -189,6 +210,8 @@ void protobuf_ShutdownFile_network_2eproto() {
   delete Item_reflection_;
   delete ItemDrop::default_instance_;
   delete ItemDrop_reflection_;
+  delete ItemPickup::default_instance_;
+  delete ItemPickup_reflection_;
   delete Player::default_instance_;
   delete Player_reflection_;
   delete Player_Pet::default_instance_;
@@ -212,25 +235,28 @@ void protobuf_AddDesc_network_2eproto() {
     "id\030\002 \002(\003\022\r\n\005level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n"
     "\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010p"
     "osition\030\002 \003(\0132\036.TLMP.NetworkMessages.Pos"
-    "ition\022\014\n\004unk0\030\003 \002(\010\"\367\001\n\006Player\022\n\n\002id\030\001 \002"
+    "ition\022\014\n\004unk0\030\003 \002(\010\"&\n\nItemPickup\022\n\n\002id\030"
+    "\001 \002(\005\022\014\n\004slot\030\002 \002(\005\"\367\001\n\006Player\022\n\n\002id\030\001 \002"
     "(\003\0224\n\004type\030\002 \002(\0162&.TLMP.NetworkMessages."
     "Player.ClassType\022\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n"
     "\002id\030\001 \002(\003\0222\n\004type\030\002 \002(\0162$.TLMP.NetworkMe"
     "ssages.Player.PetType\"9\n\tClassType\022\r\n\tAL"
     "CHEMIST\020\000\022\016\n\nVANQUISHER\020\001\022\r\n\tDESTROYER\020\002"
-    "\"\033\n\007PetType\022\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 669);
+    "\"\033\n\007PetType\022\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 709);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
   Entity::default_instance_ = new Entity();
   Item::default_instance_ = new Item();
   ItemDrop::default_instance_ = new ItemDrop();
+  ItemPickup::default_instance_ = new ItemPickup();
   Player::default_instance_ = new Player();
   Player_Pet::default_instance_ = new Player_Pet();
   Position::default_instance_->InitAsDefaultInstance();
   Entity::default_instance_->InitAsDefaultInstance();
   Item::default_instance_->InitAsDefaultInstance();
   ItemDrop::default_instance_->InitAsDefaultInstance();
+  ItemPickup::default_instance_->InitAsDefaultInstance();
   Player::default_instance_->InitAsDefaultInstance();
   Player_Pet::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_network_2eproto);
@@ -1553,6 +1579,247 @@ void ItemDrop::Swap(ItemDrop* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = ItemDrop_descriptor_;
   metadata.reflection = ItemDrop_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ItemPickup::kIdFieldNumber;
+const int ItemPickup::kSlotFieldNumber;
+#endif  // !_MSC_VER
+
+ItemPickup::ItemPickup() {
+  SharedCtor();
+}
+
+void ItemPickup::InitAsDefaultInstance() {
+}
+
+ItemPickup::ItemPickup(const ItemPickup& from) {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void ItemPickup::SharedCtor() {
+  _cached_size_ = 0;
+  id_ = 0;
+  slot_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ItemPickup::~ItemPickup() {
+  SharedDtor();
+}
+
+void ItemPickup::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+const ::google::protobuf::Descriptor* ItemPickup::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ItemPickup_descriptor_;
+}
+
+const ItemPickup& ItemPickup::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_network_2eproto();  return *default_instance_;
+}
+
+ItemPickup* ItemPickup::default_instance_ = NULL;
+
+ItemPickup* ItemPickup::New() const {
+  return new ItemPickup;
+}
+
+void ItemPickup::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    id_ = 0;
+    slot_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ItemPickup::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 id = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &id_));
+        _set_bit(0);
+        if (input->ExpectTag(16)) goto parse_slot;
+        break;
+      }
+      
+      // required int32 slot = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+       parse_slot:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &slot_));
+        _set_bit(1);
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void ItemPickup::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
+  if (raw_buffer != NULL) {
+    ItemPickup::SerializeWithCachedSizesToArray(raw_buffer);
+    return;
+  }
+  
+  // required int32 id = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
+  }
+  
+  // required int32 slot = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->slot(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* ItemPickup::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 id = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
+  }
+  
+  // required int32 slot = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->slot(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int ItemPickup::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 id = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->id());
+    }
+    
+    // required int32 slot = 2;
+    if (has_slot()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->slot());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  _cached_size_ = total_size;
+  return total_size;
+}
+
+void ItemPickup::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ItemPickup* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ItemPickup*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ItemPickup::MergeFrom(const ItemPickup& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_id(from.id());
+    }
+    if (from._has_bit(1)) {
+      set_slot(from.slot());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ItemPickup::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ItemPickup::CopyFrom(const ItemPickup& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ItemPickup::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  
+  return true;
+}
+
+void ItemPickup::Swap(ItemPickup* other) {
+  if (other != this) {
+    std::swap(id_, other->id_);
+    std::swap(slot_, other->slot_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ItemPickup::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ItemPickup_descriptor_;
+  metadata.reflection = ItemPickup_reflection_;
   return metadata;
 }
 

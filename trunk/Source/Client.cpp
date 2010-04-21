@@ -178,24 +178,34 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   case S_SPAWN_MONSTER:
     {
       NetworkMessages::Entity *entity = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
+      Vector3 position;
+      
+      position.x = entity->position().Get(0).x();
+      position.y = entity->position().Get(0).y();
+      position.z = entity->position().Get(0).z();
 
       log("[CLIENT] Received Monster Spawn");
       log("         Level = %i", entity->level());
       log("         GUID  = %016I64X", entity->guid());
       log("         NoItems = %i", entity->noitems());
       log("         CommonId = %i", entity->id());
+      log("         Position = %f %f %f", position.x, position.y, position.z);
 
       // Unlock suppressed entity creation and create the monster
       ClientAllowSpawn = true;
-      PVOID newEntity = SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
+      PVOID newEntity = SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
       ClientAllowSpawn = false;
 
+      log("New entity: (pre-Init) %p\n", newEntity);
+      newEntity = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), newEntity, &position, entity->level());
+      log("New entity: %p\n", newEntity);
+
       // Store the monster ptr in our shared network list
-      NetworkEntity *networkItem = new NetworkEntity(newEntity, entity->id());
+      NetworkEntity *networkEntity = new NetworkEntity(newEntity, entity->id());
 
       if (!NetworkSharedEntities)
         NetworkSharedEntities = new vector<NetworkEntity*>();
-      NetworkSharedEntities->push_back(networkItem);
+      NetworkSharedEntities->push_back(networkEntity);
     }
     break;
 
@@ -310,5 +320,18 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       }
     }
     break;
+
+  case S_ITEM_PICKUP:
+    {
+      log("[TODO] Handle S_ITEM_PICKUP");
+    }
+    break;
+
+  case S_ITEM_EQUIP:
+    {
+      log("[TODO] Handle S_ITEM_EQUIP");
+    }
+    break;
+
   }     
 }

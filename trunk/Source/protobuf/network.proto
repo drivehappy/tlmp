@@ -29,6 +29,11 @@ message ItemDrop {
   required bool unk0 = 3;
 }
 
+message ItemPickup {
+  required int32 id = 1;
+  required int32 slot = 2;
+}
+
 message Player {
   enum ClassType {
     ALCHEMIST = 0;
