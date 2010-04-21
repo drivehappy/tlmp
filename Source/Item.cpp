@@ -135,26 +135,6 @@ void TLMP::_item_drop_pre STDARG
   log("     GUID: %016I64X", itemDropped->guid);
   log("     GUID Real: %016I64X", itemDropped->getCEquipmentGUID());
 
-  /* OLD NETWORK STUFF
-  if (no_netsend) return;
-  index_t*id;
-  if (host.is_active) {
-    if (item_map.inuse_get((void*)Pz[0],id)) {
-      CItem&i = net_items[*id];
-
-      sendbuf.reset();
-      sendbuf.pui(-1);
-      sendbuf.pus(id_item_drop);
-      sendbuf.pui(*id);
-      sendbuf.put<XZY>(*(XZY*)Pz[1]);
-      sendbuf.put<bool>(*(bool*)&Pz[2]);
-      send();
-    } else {
-      log("Couldn't find item: %p", Pz[0]);
-    }
-  }
-  */
-
   if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
     NetworkEntity* netItemDropped = NULL;
     bool isItemCreated = false;
@@ -202,7 +182,8 @@ void TLMP::_item_pick_up_pre STDARG
 void TLMP::_item_pick_up_post STDARG
 {
   //log("pick up, retval is %d",e->retval);
-  void *pitem = (void*)Pz[0];
+  void *itemPickup = (void*)Pz[0];
+  int slot = 0;
 
   log("==== ItemPickup (this: %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], e->retval);
 
@@ -213,8 +194,43 @@ void TLMP::_item_pick_up_post STDARG
   log("---- inv = %p", inv);
 
   if (inv) {
-    int slot = inv->get_item_slot(pitem);
+    slot = inv->get_item_slot(itemPickup);
     log("---- Slot = %i", slot);
+  }
+
+  if (slot >= 0) {
+    // If we're the server send it off
+    if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+      NetworkEntity* netItemPickup = NULL;
+      bool isItemPickup = false;
+
+      // Search the server's item list for the same ptr
+      log("[SERVER] Searching for item in network list...");
+      vector<NetworkEntity *>::iterator itr;
+      for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+        log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemPickup);
+        if ((*itr)->getInternalId() == (int)itemPickup) {
+          isItemPickup = true;
+          netItemPickup = (*itr);
+          break;
+        }
+      }
+
+      // Send off the common network id 
+      if (isItemPickup) {
+        NetworkMessages::ItemPickup message;
+        message.set_id(netItemPickup->getCommonId());
+        message.set_slot(slot);
+
+        Server::getSingleton().SendMessage<NetworkMessages::ItemPickup>(S_ITEM_PICKUP, &message);
+
+        log("[SERVER] Sent ItemPickup to client:");
+        log("         id: %p", message.id());
+        log("         slot: %i", message.slot());
+      } else {
+        log("[ERROR] Could not find pickup item in network item list (id = %p)", itemPickup);
+      }
+    }
   }
 
   /* NETWORK STUFF

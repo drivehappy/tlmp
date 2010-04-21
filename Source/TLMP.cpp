@@ -180,7 +180,7 @@ void TLMP::HookFunctions()
   log("Monster Done");
 
   // Entity
-  Hook(EntityInitialize, _entity_initialize_pre, 0, HOOK_THISCALL, 3);
+  Hook(EntityInitialize, _entity_initialize_pre, _entity_initialize_post, HOOK_THISCALL, 3);
 
   // Player
   Hook(PlayerCtor, 0, _player_ctor_post, HOOK_THISCALL, 1);

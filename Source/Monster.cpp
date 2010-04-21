@@ -50,35 +50,7 @@ void TLMP::_spider_some_create_post STDARG
   }
   */
 
-  if (NetworkState::getSingleton().GetState() == SERVER && ServerAllowSpawn) {
-    c_entity o;
-    o.e = (PVOID)e->retval;
-    o.guid = guid;
-    o.level = level;
-    o.noitems = noItems;
-    o.init();
-
-    // Store this Monster in our shared entity's list
-    NetworkEntity* entity = new NetworkEntity((PVOID)e->retval);
-
-    if (!NetworkSharedEntities)
-      NetworkSharedEntities = new vector<NetworkEntity*>();
-    NetworkSharedEntities->push_back(entity);
-
-    // Create the network message to the client
-    NetworkMessages::Entity message;
-    message.set_id(entity->getCommonId());
-    message.set_level(level);
-    message.set_guid(guid);
-    message.set_noitems(noItems);
-
-    ///*
-    Server::getSingleton().SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &message);
-
-    log("[SERVER] Sent Monster Spawn to Client");
-    //*/
-    //log("[SERVER] Todo Send Monster Spawn to Client");
-  }
+  
 }
 
 void TLMP::_spider_process_ai_pre STDARG

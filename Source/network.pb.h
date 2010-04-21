@@ -35,6 +35,7 @@ class Position;
 class Entity;
 class Item;
 class ItemDrop;
+class ItemPickup;
 class Player;
 class Player_Pet;
 
@@ -532,6 +533,101 @@ class ItemDrop : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static ItemDrop* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ItemPickup : public ::google::protobuf::Message {
+ public:
+  ItemPickup();
+  virtual ~ItemPickup();
+  
+  ItemPickup(const ItemPickup& from);
+  
+  inline ItemPickup& operator=(const ItemPickup& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ItemPickup& default_instance();
+  void Swap(ItemPickup* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ItemPickup* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ItemPickup& from);
+  void MergeFrom(const ItemPickup& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int32 slot = 2;
+  inline bool has_slot() const;
+  inline void clear_slot();
+  static const int kSlotFieldNumber = 2;
+  inline ::google::protobuf::int32 slot() const;
+  inline void set_slot(::google::protobuf::int32 value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 slot_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ItemPickup* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1093,6 +1189,42 @@ inline bool ItemDrop::unk0() const {
 inline void ItemDrop::set_unk0(bool value) {
   _set_bit(2);
   unk0_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ItemPickup
+
+// required int32 id = 1;
+inline bool ItemPickup::has_id() const {
+  return _has_bit(0);
+}
+inline void ItemPickup::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 ItemPickup::id() const {
+  return id_;
+}
+inline void ItemPickup::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int32 slot = 2;
+inline bool ItemPickup::has_slot() const {
+  return _has_bit(1);
+}
+inline void ItemPickup::clear_slot() {
+  slot_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 ItemPickup::slot() const {
+  return slot_;
+}
+inline void ItemPickup::set_slot(::google::protobuf::int32 value) {
+  _set_bit(1);
+  slot_ = value;
 }
 
 // -------------------------------------------------------------------

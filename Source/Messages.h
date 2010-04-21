@@ -10,6 +10,7 @@ namespace TLMP {
       S_PLAYER_INFO,
       S_PLAYER_SETDEST,
       S_GAME_JOIN,
+      S_SPAWN_PLAYER,
       S_SPAWN_MONSTER,
       S_ENTITY_SETDEST,
       S_ITEM_CREATE,
