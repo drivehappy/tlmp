@@ -123,5 +123,11 @@ void TLMP::test9_pre STDARG
     log(L"         Name: %s", &pCCharacterSaveState->name.string);
   }
 
+  if (pCCharacterSaveState->unk91.length > 7) {
+    log(L"         Skill0: %s", pCCharacterSaveState->unk91.stringPtr[0]);
+  } else {
+    log(L"         Skill0: %s", &pCCharacterSaveState->unk91.string);
+  }
+
   log("");
 }
