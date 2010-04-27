@@ -3,7 +3,7 @@
 // Size?: 180h
 // Note: Similar name structure to CItemSaveState
 // Inheritance: CBaseUnit
-struct CItem
+struct _CItem
 {
   PVOID vtable;
   PVOID unk0;
@@ -39,12 +39,13 @@ struct CItem
   PVOID pOctree0;
   u32 unk4;             // 0
 
-  // ---- Possible inheritance breakoff ---
-
   PVOID pCResourceManager;
   u32 unk5;             // 0
 
   PVOID pOctree1;
+
+  // ---- Possible inheritance breakoff: CPositionableObject ---
+
   u32 unk6;             // 0   another - 10000
 
   /// ----

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "_CString.h"
-
+#include "CBaseUnit.h"
 
 // Size?: 160h
 // Inheritance: CBaseUnit
 struct CCharacter
 {
   // CBaseUnit stuff here
+  CBaseUnit baseUnit;
 
   PVOID vtableIInventoryListener;
   PVOID vtableIMissle;

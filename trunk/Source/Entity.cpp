@@ -32,7 +32,7 @@ void TLMP::_entity_initialize_post STDARG
     o.noitems = false;
     o.init();
 
-#error This function gets the wrong offset for the GUID I think
+    // This function gets the wrong offset for the GUID I think
     u64 guid = o.GetGUID();
 
 

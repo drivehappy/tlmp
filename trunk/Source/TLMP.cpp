@@ -257,4 +257,13 @@ void TLMP::HookFunctions()
   
   // CCharacterSaveSlot ctor
   Hook((PVOID)EXEOFFSET(0x4AE350), test9_pre, NULL, HOOK_THISCALL, 1);
+  
+  // CCharacter ctor
+  Hook((PVOID)EXEOFFSET(0x4A8CE0), test10_pre, NULL, HOOK_THISCALL, 1);
+  
+  // CItemGold ctor
+  Hook((PVOID)EXEOFFSET(0x4D0730), testItemGold_pre, NULL, HOOK_THISCALL, 1);
+  
+  // CItem ctor
+  Hook((PVOID)EXEOFFSET(0x4CFC20), testItem_pre, NULL, HOOK_THISCALL, 1);
 }
