@@ -9,6 +9,9 @@ using namespace TLMP::Network;
 
 // Test Headers
 #include "CCharacterSaveState.h"
+#include "CCharacter.h"
+#include "CItemGold.h"
+#include "CItem.h"
 
 //
 // File designed to hold unknown/testing functions
@@ -45,4 +48,14 @@ namespace TLMP {
 
   void test9_pre  STDARG;
   void test9_post STDARG;
+  
+  void test10_pre  STDARG;
+  void test10_post STDARG;
+
+    
+  void testItemGold_pre  STDARG;
+  void testItemGold_post STDARG;
+
+  void testItem_pre  STDARG;
+  void testItem_post STDARG;
 };

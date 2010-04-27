@@ -113,6 +113,7 @@ void TLMP::test8_post STDARG
 
 void TLMP::test9_pre STDARG
 {
+  /* Works
   CCharacterSaveState *pCCharacterSaveState = (CCharacterSaveState*)e->_this;
   log("*** CCharacterSaveState Created: %p", pCCharacterSaveState);
   log("        Guid2: %016I64X", pCCharacterSaveState->guid2);
@@ -130,4 +131,42 @@ void TLMP::test9_pre STDARG
   }
 
   log("");
+  */
 }
+
+void TLMP::test10_pre STDARG
+{
+  CCharacter *pCCharacter = (CCharacter*)e->_this;
+  log("*** CCharacter Created: %p", pCCharacter);
+  log("        Guid2: %016I64X", pCCharacter->baseUnit.positionableObject.guid2);
+
+  log("");
+}
+
+void TLMP::testItemGold_pre STDARG
+{
+  CItemGold *pItemGold = (CItemGold *)e->_this;
+
+  log("");
+  log("*** CItemGold Created: %p", pItemGold);
+  log("    guid0: %016I64X", pItemGold->guid0);
+  log("    guid1: %016I64X", pItemGold->guid1);
+  log("    guid2: %016I64X", pItemGold->guid2);
+
+  log("");
+}
+
+void TLMP::testItem_pre STDARG
+{
+  _CItem *pItem = (_CItem *)e->_this;
+
+  log("");
+  log("*** CItem Created: %p", pItem);
+  log("    guid0: %016I64X", pItem->guid0);
+  log("    guid1: %016I64X", pItem->guid1);
+  log("    guid2: %016I64X", pItem->guid2);
+
+  log("");
+}
+
+

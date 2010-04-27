@@ -1,9 +1,13 @@
 #pragma once
 
+#include "CPositionableObject.h"
+
 // Size?: 60h
 // Inheritance: CPositionableObject
 struct CBaseUnit
 {
+  CPositionableObject positionableObject;
+
   // Check out CCharacter for base data
 
   float unk0[31];     // -25.59, 0.8,  33.61
