@@ -149,6 +149,7 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       // Spawn the player on the server, but suppress sending the redundant msg to the client
       ServerAllowSpawn = false;
       otherPlayer = SpawnPlayer(message->guid(), message->level(), position);
+      SendItemListToPlayer();
       ServerAllowSpawn = true;
     }
     break;
@@ -212,10 +213,25 @@ void Server::SendClientEntities()
   if (me) {
     unsigned long long guid = *((unsigned long long*)me + 0x2d); //(0x168 / 8));
     unsigned int level = *((unsigned int*)me + 0x3c);
+    int commonId = 0;
 
     em.e = me;
     em.init();
 
+    // Search for me in my network entities to find the common id
+    if (NetworkSharedEntities) {
+      vector<NetworkEntity*>::iterator itr;
+      for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+        if ((*itr)->getInternalObject() == me) {
+          commonId = (*itr)->getCommonId();
+          break;
+        }
+      }
+    } else {
+      log("[ERROR] NetworkSharedEntities is NULL!");
+    }
+
+    entity.set_id(commonId);
     entity.set_level(level);
     entity.set_guid(guid);
     entity.set_noitems(true);

@@ -5,6 +5,7 @@ PVOID                    TLMP::drop_item_this = NULL;
 PVOID                    TLMP::ItemManager = NULL;
 bool                     TLMP::allowItemSpawn = true;
 vector<NetworkEntity *> *TLMP::NetworkSharedItems    = NULL;
+vector<EquippedItem>    *TLMP::EquippedItems = NULL;
 
 void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
 {
@@ -120,6 +121,26 @@ void TLMP::_item_create_post STDARG
   }
 }
 
+void TLMP::SendItemListToPlayer()
+{
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+    if (NetworkSharedItems) {
+      log("[SERVER] Sending created items to client...");
+
+      /* These GUIDs are bad... maybe they're trashed after item is created?
+      vector<NetworkEntity *>::iterator itr;
+      for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+        _CItem *citem = (_CItem*)((*itr)->getInternalObject());
+        log("guid0 = %016I64X", citem->guid0);
+        log("guid1 = %016I64X", citem->guid1);
+        log("guid2 = %016I64X", citem->guid2);
+        log("guid3 = %016I64X", citem->guid3);
+      }
+      */
+    }
+  }
+}
+
 void TLMP::_item_drop_pre STDARG
 {
   drop_item_this = e->_this;
@@ -140,14 +161,16 @@ void TLMP::_item_drop_pre STDARG
     bool isItemCreated = false;
 
     // Search the server's item list for the same ptr
-    log("[SERVER] Searching for item in network list...");
-    vector<NetworkEntity *>::iterator itr;
-    for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
-      log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemDropped);
-      if ((*itr)->getInternalId() == (int)itemDropped) {
-        isItemCreated = true;
-        netItemDropped = (*itr);
-        break;
+    if (NetworkSharedItems) {
+      log("[SERVER] Searching for item in network list...");
+      vector<NetworkEntity *>::iterator itr;
+      for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+        log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemDropped);
+        if ((*itr)->getInternalId() == (int)itemDropped) {
+          isItemCreated = true;
+          netItemDropped = (*itr);
+          break;
+        }
       }
     }
 
@@ -304,9 +327,74 @@ void TLMP::_item_equip_post STDARG
   }
 
   void *pinv = e->_this;
-  void *pitem = (void*)Pz[0];
+  void *itemEquip = (void*)Pz[0];
   int slot = Pz[1];
   index_t entity_id = -1;
+
+  // Retain equipped items for anyone that joins late
+  if (!EquippedItems)
+    EquippedItems = new vector<EquippedItem>();
+  EquippedItem newEquippedItem;
+  newEquippedItem.item = (PVOID)Pz[0];
+  newEquippedItem.slot = Pz[1];
+  EquippedItems->push_back(newEquippedItem);
+
+
+  // If we're the server send it off
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+    NetworkEntity* netItemEquip = NULL;
+    NetworkEntity* netEntityEquip = NULL;
+
+    log("[SERVER] Searching for item in network list...");
+    vector<NetworkEntity *>::iterator itr;
+    for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+      log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemEquip);
+      if ((*itr)->getInternalId() == (int)itemEquip) {
+        netItemEquip = (*itr);
+        break;
+      }
+    }
+
+    // Search the server's entity list for the owner id
+    if (NetworkSharedEntities) {
+      log("[SERVER] Searching for entity in network list...");
+      for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+        log("[SERVER] Checking %p == %p ?", (*itr)->getInternalObject(), (int)pinv);
+
+        if ((*itr)->getInternalObject() == me) {
+          c_entity em;
+          em.e = me;
+          em.init();
+
+          log("[SERVER] Found me");
+          if ( (PVOID)(em.inventory()) == pinv ) {
+            log("[SERVER] Found inventory of entity: %p", (*itr)->getInternalObject());
+            netEntityEquip = (*itr);
+            break;
+          }
+        }
+      }
+    } else {
+      log("[ERROR] NetworkSharedEntities is NULL!");
+    }
+
+    // Send off the common network id 
+    if (netItemEquip && netEntityEquip) {
+      NetworkMessages::ItemEquip message;
+      message.set_id(netItemEquip->getCommonId());
+      message.set_slot(slot);
+      message.set_ownerid(netEntityEquip->getCommonId());
+
+      Server::getSingleton().SendMessage<NetworkMessages::ItemEquip>(S_ITEM_EQUIP, &message);
+
+      log("[SERVER] Sent ItemEquip to client:");
+      log("         id: %p", message.id());
+      log("         slot: %i", message.slot());
+      log("         ownerid: %i", message.ownerid());
+    } else {
+      log("[ERROR] Could not find equip item in network item list (id = %p)", itemEquip);
+    }
+  }
 
   /* NETWORK STUFF
   NL_ITERATE(i,c_entity,net_entities) {
@@ -334,10 +422,94 @@ void TLMP::_item_equip_post STDARG
 void TLMP::_item_unequip_pre STDARG
 {
   void *pinv = e->_this;
-  void *pitem = (void*)Pz[0];
+  void *itemUnequip = (void*)Pz[0];
   index_t entity_id = -1;
 
   log("========= ItemUnequip (this: %p, item: %p) retVal = %i", e->_this, Pz[0], e->retval);
+
+  // Retain equipped items for anyone that joins late
+  if (EquippedItems) {
+    vector<EquippedItem>::iterator itr;
+    bool found = false;
+
+    for (itr = EquippedItems->begin(); itr != EquippedItems->end(); itr++) {
+      if ((*itr).item == itemUnequip) {
+        found = true;
+        EquippedItems->erase(itr);
+        break;
+      }
+    }
+
+    if (!found) {
+      log("!!! ERROR Unequipped item that wasn't in the equip list!");
+    }
+  }
+
+  //
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+    NetworkEntity* netItemUnequip = NULL;
+    NetworkEntity* netEntityUnequip = NULL;
+    bool isItemUnequip = false;
+
+    // Search the server's item list for the same ptr
+    if (NetworkSharedItems) {
+      log("[SERVER] Searching for item in network list...");
+      vector<NetworkEntity *>::iterator itr;
+      for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+        log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemUnequip);
+        if ((*itr)->getInternalId() == (int)itemUnequip) {
+          isItemUnequip = true;
+          netItemUnequip = (*itr);
+          break;
+        }
+      }
+
+      // Search the server's entity list for the owner id
+      if (NetworkSharedEntities) {
+        log("[SERVER] Searching for entity in network list...");
+        for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+          log("[SERVER] Checking %p == %p ?", (*itr)->getInternalObject(), (int)pinv);
+
+          if ((*itr)->getInternalObject() == me) {
+            c_entity em;
+            em.e = me;
+            em.init();
+
+            log("[SERVER] Found me");
+            if ( (PVOID)(em.inventory()) == pinv ) {
+              log("[SERVER] Found inventory of entity: %p", (*itr)->getInternalObject());
+              netEntityUnequip = (*itr);
+              break;
+            }
+          }
+        }
+      } else {
+        log("[ERROR] NetworkSharedEntities is NULL!");
+      }
+    }
+
+    // Send off the common network id 
+    if (isItemUnequip) {
+      NetworkMessages::ItemUnequip message;
+      message.set_id(netItemUnequip->getCommonId());
+      message.set_ownerid(netEntityUnequip->getCommonId());
+
+      log("");
+      log("[DEBUG] netEntityUnequip->getCommonId() = %p", netEntityUnequip->getCommonId());
+      log("[DEBUG] netEntityUnequip->getInternalId() = %p", netEntityUnequip->getInternalId());
+      log("[DEBUG] netEntityUnequip->getInternalObject() = %p", netEntityUnequip->getInternalObject());
+      log("[DEBUG] me = %p", me);
+      log("");
+
+      Server::getSingleton().SendMessage<NetworkMessages::ItemUnequip>(S_ITEM_UNEQUIP, &message);
+
+      log("[SERVER] Sent ItemUnequip to client:");
+      log("         id: %p", message.id());
+      log("         ownerid: %p", message.ownerid());
+    } else {
+      log("[ERROR] Could not find unequip item in network item list (id = %p)", itemUnequip);
+    }
+  }
 
   /* NETWORK STUFF
   NL_ITERATE(i,c_entity,net_entities) {

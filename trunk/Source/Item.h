@@ -7,12 +7,21 @@
 
 #include "network.pb.h"
 
+#include "CItem.h"
 
 namespace TLMP {
 
   extern PVOID  drop_item_this;
   extern PVOID  ItemManager;
   extern bool   allowItemSpawn;
+
+  // Hold the equipped items here
+  struct EquippedItem {
+    PVOID         item;
+    int           slot;
+    NetworkEntity owner;
+  };
+  extern vector<EquippedItem> *EquippedItems;
 
   // New item structure
   class CItem {
@@ -32,6 +41,8 @@ namespace TLMP {
       return *guidptr;
     }
   };
+
+  //
 
   /*
   // Item Structure
@@ -71,4 +82,6 @@ namespace TLMP {
   void _item_equip_post STDARG;
 
   void _item_unequip_pre STDARG;
+
+  void SendItemListToPlayer();
 };
