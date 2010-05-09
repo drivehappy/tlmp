@@ -36,6 +36,8 @@ class Entity;
 class Item;
 class ItemDrop;
 class ItemPickup;
+class ItemEquip;
+class ItemUnequip;
 class Player;
 class Player_Pet;
 
@@ -603,12 +605,218 @@ class ItemPickup : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 slot() const;
   inline void set_slot(::google::protobuf::int32 value);
   
+  // required int32 ownerId = 3;
+  inline bool has_ownerid() const;
+  inline void clear_ownerid();
+  static const int kOwnerIdFieldNumber = 3;
+  inline ::google::protobuf::int32 ownerid() const;
+  inline void set_ownerid(::google::protobuf::int32 value);
+  
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
   ::google::protobuf::int32 id_;
   ::google::protobuf::int32 slot_;
+  ::google::protobuf::int32 ownerid_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ItemPickup* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ItemEquip : public ::google::protobuf::Message {
+ public:
+  ItemEquip();
+  virtual ~ItemEquip();
+  
+  ItemEquip(const ItemEquip& from);
+  
+  inline ItemEquip& operator=(const ItemEquip& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ItemEquip& default_instance();
+  void Swap(ItemEquip* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ItemEquip* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ItemEquip& from);
+  void MergeFrom(const ItemEquip& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int32 slot = 2;
+  inline bool has_slot() const;
+  inline void clear_slot();
+  static const int kSlotFieldNumber = 2;
+  inline ::google::protobuf::int32 slot() const;
+  inline void set_slot(::google::protobuf::int32 value);
+  
+  // required int32 ownerId = 3;
+  inline bool has_ownerid() const;
+  inline void clear_ownerid();
+  static const int kOwnerIdFieldNumber = 3;
+  inline ::google::protobuf::int32 ownerid() const;
+  inline void set_ownerid(::google::protobuf::int32 value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 slot_;
+  ::google::protobuf::int32 ownerid_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ItemEquip* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ItemUnequip : public ::google::protobuf::Message {
+ public:
+  ItemUnequip();
+  virtual ~ItemUnequip();
+  
+  ItemUnequip(const ItemUnequip& from);
+  
+  inline ItemUnequip& operator=(const ItemUnequip& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ItemUnequip& default_instance();
+  void Swap(ItemUnequip* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ItemUnequip* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ItemUnequip& from);
+  void MergeFrom(const ItemUnequip& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int32 ownerid = 2;
+  inline bool has_ownerid() const;
+  inline void clear_ownerid();
+  static const int kOwneridFieldNumber = 2;
+  inline ::google::protobuf::int32 ownerid() const;
+  inline void set_ownerid(::google::protobuf::int32 value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 ownerid_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
@@ -627,7 +835,7 @@ class ItemPickup : public ::google::protobuf::Message {
   }
   
   void InitAsDefaultInstance();
-  static ItemPickup* default_instance_;
+  static ItemUnequip* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1225,6 +1433,110 @@ inline ::google::protobuf::int32 ItemPickup::slot() const {
 inline void ItemPickup::set_slot(::google::protobuf::int32 value) {
   _set_bit(1);
   slot_ = value;
+}
+
+// required int32 ownerId = 3;
+inline bool ItemPickup::has_ownerid() const {
+  return _has_bit(2);
+}
+inline void ItemPickup::clear_ownerid() {
+  ownerid_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 ItemPickup::ownerid() const {
+  return ownerid_;
+}
+inline void ItemPickup::set_ownerid(::google::protobuf::int32 value) {
+  _set_bit(2);
+  ownerid_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ItemEquip
+
+// required int32 id = 1;
+inline bool ItemEquip::has_id() const {
+  return _has_bit(0);
+}
+inline void ItemEquip::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 ItemEquip::id() const {
+  return id_;
+}
+inline void ItemEquip::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int32 slot = 2;
+inline bool ItemEquip::has_slot() const {
+  return _has_bit(1);
+}
+inline void ItemEquip::clear_slot() {
+  slot_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 ItemEquip::slot() const {
+  return slot_;
+}
+inline void ItemEquip::set_slot(::google::protobuf::int32 value) {
+  _set_bit(1);
+  slot_ = value;
+}
+
+// required int32 ownerId = 3;
+inline bool ItemEquip::has_ownerid() const {
+  return _has_bit(2);
+}
+inline void ItemEquip::clear_ownerid() {
+  ownerid_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 ItemEquip::ownerid() const {
+  return ownerid_;
+}
+inline void ItemEquip::set_ownerid(::google::protobuf::int32 value) {
+  _set_bit(2);
+  ownerid_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ItemUnequip
+
+// required int32 id = 1;
+inline bool ItemUnequip::has_id() const {
+  return _has_bit(0);
+}
+inline void ItemUnequip::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 ItemUnequip::id() const {
+  return id_;
+}
+inline void ItemUnequip::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int32 ownerid = 2;
+inline bool ItemUnequip::has_ownerid() const {
+  return _has_bit(1);
+}
+inline void ItemUnequip::clear_ownerid() {
+  ownerid_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 ItemUnequip::ownerid() const {
+  return ownerid_;
+}
+inline void ItemUnequip::set_ownerid(::google::protobuf::int32 value) {
+  _set_bit(1);
+  ownerid_ = value;
 }
 
 // -------------------------------------------------------------------

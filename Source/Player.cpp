@@ -10,7 +10,8 @@ PVOID TLMP::UnitManager = NULL;
 
 void TLMP::_player_ctor_post STDARG
 {
-  me = (void *)e->retval;
+  if (!me)
+    me = (PVOID)e->retval;
 }
 
 void TLMP::_player_set_action_pre STDARG

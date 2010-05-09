@@ -59,6 +59,8 @@ void TLMP::_entity_initialize_post STDARG
     Server::getSingleton().SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &message);
 
     log("[SERVER] Sent Monster Spawn to Client at Position(%f, %f, %f)", position->x, position->y, position->z);
+    log("[SERVER]   GUID = %016I64X    commonId = %i", guid, entity->getCommonId());
+
     //*/
     //log("[SERVER] Todo Send Monster Spawn to Client");
   }
@@ -148,23 +150,23 @@ unsigned int& c_entity::GetLevel() const
   return offset<unsigned int>(0x3C);
 }
 
-unsigned long long& c_entity::GetGUID() const
+u64& c_entity::GetGUID() const
 {
-  return offset<unsigned long long>(0x2D);
+  return offset<u64>(0x2d);
 }
 
 // get_dst
 PVOID TLMP::GetDestination(PVOID player)
 {
-  log("GetDestination: %p", player);
+  //log("GetDestination: %p", player);
 
   char *c = *(char **)((char *)player + 0x60);
   
-  log("  c = %p", c);
+  //log("  c = %p", c);
 
   if (c) {
     c = *(char **)(c + 0xc);
-    log("  c = %p", c);
+    //log("  c = %p", c);
   }
 
   return c;
