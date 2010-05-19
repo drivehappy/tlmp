@@ -24,6 +24,7 @@ namespace TLMP {
       C_PLAYER_INFO,
       C_PLAYER_SETDEST,
       C_GAME_JOIN,
+      C_ITEM_CREATE,
       C_ITEM_DROP,
       C_ITEM_PICKUP,
       C_ITEM_EQUIP,

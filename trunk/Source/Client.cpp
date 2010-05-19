@@ -257,17 +257,21 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         id = %i", item->id());
 
       if (UnitManager) {
-        ClientAllowSpawn = true;
-        PVOID itemCreated = ItemCreate(UnitManager, item->guid(), item->level(), item->unk0(), item->unk1());
-        //ItemInitialize(itemCreated, 
-        log("Created: %p", itemCreated);
-        ClientAllowSpawn = false;
-
-        NetworkEntity *networkItem = new NetworkEntity(itemCreated, item->id());
-
         if (!NetworkSharedItems)
           NetworkSharedItems = new vector<NetworkEntity *>();
-        NetworkSharedItems->push_back(networkItem);
+
+        if (CheckNetworkList_HasExisting(NetworkSharedItems, item->id())) {
+          log("\n\nCLIENT RECEIVED SERVER ITEM CREATION BACK!!!\n\n");
+        } else {
+          ClientSendServerItemSpawn = false;
+          PVOID itemCreated = ItemCreate(UnitManager, item->guid(), item->level(), item->unk0(), item->unk1());
+          log("Created: %p", itemCreated);
+          ClientSendServerItemSpawn = true;
+
+          NetworkEntity *networkItem = new NetworkEntity(itemCreated, item->id());
+
+          NetworkSharedItems->push_back(networkItem);
+        }
       } else {
         log("[ERROR] Could not create item: UnitManager is null!");
       }
@@ -309,7 +313,9 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
                 ItemUnequip(inv, item);
                 */
+                ClientSendServerItemSpawn = false;
                 ItemDrop(drop_item_this, item, *itemPosition, 1);
+                ClientSendServerItemSpawn = true;
               } else {
                 log("[ERROR] drop_item_this is null (drivehappy - This is a ptr to a CLevel object)");
               }
@@ -355,15 +361,19 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
             if ((*itr)->getCommonId() == itemPickup->ownerid()) {
               owner = (*itr)->getInternalObject();
               log("[CLIENT] Found owner of equip (commonId = %i): %p", itemPickup->ownerid(), owner);
+              break;
+            }
           }
 
+          //
           if (item && owner) {
             // Pickup the item
+            ClientSendServerItemSpawn = false;
             ItemPickup(owner, item, drop_item_this);
+            ClientSendServerItemSpawn = true;
           } else {
-            log("[ERROR] owner or item is null (drop_item_this = CLevel object");
+            log("[ERROR] owner or item is null (owner = %p, item = %p)", owner, item); // drop_item_this = CLevel object
           }
-        }
         } else {
           log("[ERROR] NetworkSharedItems is null.");
         }

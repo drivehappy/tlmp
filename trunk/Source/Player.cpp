@@ -10,8 +10,29 @@ PVOID TLMP::UnitManager = NULL;
 
 void TLMP::_player_ctor_post STDARG
 {
-  if (!me)
-    me = (PVOID)e->retval;
+  log("_player_ctor_post");
+
+  if (Network::NetworkState::getSingleton().GetState() == Network::SERVER ||
+      Network::NetworkState::getSingleton().GetState() == Network::CLIENT) 
+  {
+    if (!me) {
+      me = (PVOID)e->retval;
+      log("Setting me = %p\n\n", me);
+    /*
+      if (!NetworkSharedEntities)
+        NetworkSharedEntities = new vector<NetworkEntity*>();
+
+      NetworkEntity* entity;
+      if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+        entity = new NetworkEntity(me);
+      } else if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT) {
+        entity = new NetworkEntity(me, CLIENT_COMMON_BASE_ID, NetworkSharedEntities);
+      }
+      log("Added me as commonId = %i\n\n", entity->getCommonId());
+      NetworkSharedEntities->push_back(entity);
+      */
+    }
+  }
 }
 
 void TLMP::_player_set_action_pre STDARG
@@ -68,8 +89,16 @@ void TLMP::_initialize_player_post STDARG
   u64 guid = *((u64 *)me + (0x168 / 8));
   u32 level = *((u32 *)me + 0x3c);
 
-	log("post- Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
+	log("Post-Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
   UnitManager = e->_this;
+
+  /*
+  NetworkEntity* entity = new NetworkEntity((PVOID)e->retval);
+
+  if (!NetworkSharedEntities)
+    NetworkSharedEntities = new vector<NetworkEntity*>();
+  NetworkSharedEntities->push_back(entity);
+  */
 
   /* NETWORK STUFF
   // Level isn't init'd by now, where is it?
