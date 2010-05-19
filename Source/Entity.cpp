@@ -4,6 +4,7 @@
 using namespace TLMP;
 
 bool                  TLMP::ClientAllowSpawn = false;
+bool                  TLMP::ClientAllowEquip = true;
 bool                  TLMP::ServerAllowSpawn = true;
 PVOID                 TLMP::EntityManager = NULL;
 //vector<c_entity *>   *TLMP::ServerEntities = NULL;

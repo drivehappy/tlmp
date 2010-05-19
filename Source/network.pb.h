@@ -598,17 +598,10 @@ class ItemPickup : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 id() const;
   inline void set_id(::google::protobuf::int32 value);
   
-  // required int32 slot = 2;
-  inline bool has_slot() const;
-  inline void clear_slot();
-  static const int kSlotFieldNumber = 2;
-  inline ::google::protobuf::int32 slot() const;
-  inline void set_slot(::google::protobuf::int32 value);
-  
-  // required int32 ownerId = 3;
+  // required int32 ownerId = 2;
   inline bool has_ownerid() const;
   inline void clear_ownerid();
-  static const int kOwnerIdFieldNumber = 3;
+  static const int kOwnerIdFieldNumber = 2;
   inline ::google::protobuf::int32 ownerid() const;
   inline void set_ownerid(::google::protobuf::int32 value);
   
@@ -617,13 +610,12 @@ class ItemPickup : public ::google::protobuf::Message {
   mutable int _cached_size_;
   
   ::google::protobuf::int32 id_;
-  ::google::protobuf::int32 slot_;
   ::google::protobuf::int32 ownerid_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1419,35 +1411,19 @@ inline void ItemPickup::set_id(::google::protobuf::int32 value) {
   id_ = value;
 }
 
-// required int32 slot = 2;
-inline bool ItemPickup::has_slot() const {
-  return _has_bit(1);
-}
-inline void ItemPickup::clear_slot() {
-  slot_ = 0;
-  _clear_bit(1);
-}
-inline ::google::protobuf::int32 ItemPickup::slot() const {
-  return slot_;
-}
-inline void ItemPickup::set_slot(::google::protobuf::int32 value) {
-  _set_bit(1);
-  slot_ = value;
-}
-
-// required int32 ownerId = 3;
+// required int32 ownerId = 2;
 inline bool ItemPickup::has_ownerid() const {
-  return _has_bit(2);
+  return _has_bit(1);
 }
 inline void ItemPickup::clear_ownerid() {
   ownerid_ = 0;
-  _clear_bit(2);
+  _clear_bit(1);
 }
 inline ::google::protobuf::int32 ItemPickup::ownerid() const {
   return ownerid_;
 }
 inline void ItemPickup::set_ownerid(::google::protobuf::int32 value) {
-  _set_bit(2);
+  _set_bit(1);
   ownerid_ = value;
 }
 

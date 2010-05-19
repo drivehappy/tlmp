@@ -311,7 +311,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
                 */
                 ItemDrop(drop_item_this, item, *itemPosition, 1);
               } else {
-                log("[ERROR] drop_item_this is null (drivehappy - I think this is the world ptr, but we need a nice loc to set it up)");
+                log("[ERROR] drop_item_this is null (drivehappy - This is a ptr to a CLevel object)");
               }
 
               break;
@@ -328,7 +328,48 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case S_ITEM_PICKUP:
     {
-      log("[TODO] Handle S_ITEM_PICKUP");
+      NetworkMessages::ItemPickup *itemPickup = ParseMessage<NetworkMessages::ItemPickup>(m_pBitStream);
+
+      log("[CLIENT] Received ItemPickup:");
+      log("         id: %p", itemPickup->id());
+      log("         owner: %i", itemPickup->ownerid());
+
+      if (UnitManager) {
+        PVOID item = NULL;
+        PVOID owner = NULL;
+        vector<NetworkEntity *>::iterator itr;
+
+        if (NetworkSharedItems) {
+          // Ensure that the item has been created before we attempt to pick it up
+          for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+            if ((*itr)->getCommonId() == itemPickup->id()) {
+              item = (*itr)->getInternalObject();
+              log("[CLIENT] Found item to pickup (commonId = %x): %p", itemPickup->id(), item);
+              break;
+            }
+          }
+
+          // Ensure that the entity picking up the item has been created before we use it
+          for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+            log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemPickup->ownerid());
+            if ((*itr)->getCommonId() == itemPickup->ownerid()) {
+              owner = (*itr)->getInternalObject();
+              log("[CLIENT] Found owner of equip (commonId = %i): %p", itemPickup->ownerid(), owner);
+          }
+
+          if (item && owner) {
+            // Pickup the item
+            ItemPickup(owner, item, drop_item_this);
+          } else {
+            log("[ERROR] owner or item is null (drop_item_this = CLevel object");
+          }
+        }
+        } else {
+          log("[ERROR] NetworkSharedItems is null.");
+        }
+      } else {
+        log("[ERROR] Could not pickup item: UnitManager is null!");
+      }
     }
     break;
 
@@ -364,8 +405,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
         // If the owner and item are valid, unequip
         if (owner && item) {
-          log("Equipping item...");
-          ItemEquip(owner, item, slot, 0);
+          log("[SUPRESSED] Equipping item...");
+          //ItemEquip(owner, item, slot, 0);
         }
       }
     }
