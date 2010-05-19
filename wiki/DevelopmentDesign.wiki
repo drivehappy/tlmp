@@ -40,3 +40,29 @@ Item handling
   * Client needs to be initially forced to load into host level.
   * Object interaction needs a sync check (perhaps through a GUID - can we rely on level loads to be deterministic?).
   * Stability problems on level transfers.
+
+Updated list of current issues to get v0.1 working:
+  * Pets are broken
+   * Server spawns both pets, however they're not tied to characters (monster AI off?)
+   * Client only receives hosts' pet
+   * Client needs to send host it's pet information
+   * Pet information isn't sync'd
+
+  * Fix in-place attack - other player sees running (just pass the flag over)
+
+  * Items that are created are the base type
+   * Items across network don't share enchants or gems
+   
+  * Other Player is created naked
+   * Look at equips/unequips at startup
+
+  * Look into:
+   * Possible stash issues
+   * Crash on exit to main menu
+   * Saved game (strip other player and pet)
+   * Crash on new player when loading game
+   * Force move to town
+   * Crash on loading player
+   * Create Multiplayer State:
+    * Ensure server and client are connected before entering game,
+     * This solves design issue of how to handle late entrance clients for now
