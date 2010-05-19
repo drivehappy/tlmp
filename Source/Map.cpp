@@ -8,6 +8,9 @@ void TLMP::_load_map_pre STDARG
   log("LoadMap (pre) this = %p, unk0 = %i", e->_this, Pz[0]);
 
   load_map_this = e->_this;
+
+  if (!NetworkSharedEntities)
+    NetworkSharedEntities = new vector<NetworkEntity*>();
 }
 
 void TLMP::_load_map_post STDARG
@@ -27,13 +30,19 @@ void TLMP::_load_map_post STDARG
   //
   // Testing character spawn code location
   //
-  unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
-  unsigned int level = *((unsigned int*)me + 0x3c);
-  
-
-  log("~~~ guid = %016I64X, level = %i", guid, level);
-
   if (NetworkState::getSingleton().GetState() == CLIENT) {
+    unsigned long long guid = *((unsigned long long*)me + (0x168 / 8));
+    unsigned int level = *((unsigned int*)me + 0x3c);
+    log("~~~ guid = %016I64X, level = %i", guid, level);
+
+    // Force this, not sure why it's not getting set in _initialize_player_post
+    NetworkEntity* entity = new NetworkEntity(me, CLIENT_COMMON_BASE_ID);
+
+    if (!NetworkSharedEntities)
+      NetworkSharedEntities = new vector<NetworkEntity*>();
+    NetworkSharedEntities->push_back(entity);
+
+    //
     ClientAllowSpawn = false;
 
     log("[CLIENT] Sending join...");
@@ -43,19 +52,20 @@ void TLMP::_load_map_post STDARG
     t.level = level;
     t.guid = guid;
 
-    NetworkMessages::Entity entity;
+    NetworkMessages::Entity netEntity;
 
-    entity.set_guid(guid);
-    entity.set_level(level);
-    entity.set_noitems(true);
+    netEntity.set_id(entity->getCommonId());
+    netEntity.set_guid(guid);
+    netEntity.set_level(level);
+    netEntity.set_noitems(true);
 
-    NetworkMessages::Position *position = entity.add_position();
+    NetworkMessages::Position *position = netEntity.add_position();
 
     position->set_x(t.GetPosition()->x);
     position->set_y(t.GetPosition()->y);
     position->set_z(t.GetPosition()->z);
 
-    Client::getSingleton().SendMessage<NetworkMessages::Entity>(C_GAME_JOIN, &entity);
+    Client::getSingleton().SendMessage<NetworkMessages::Entity>(C_GAME_JOIN, &netEntity);
 
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
     log("[SERVER] Sending spawn entity... TODO");

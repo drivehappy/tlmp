@@ -151,6 +151,13 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       otherPlayer = SpawnPlayer(message->guid(), message->level(), position);
       SendItemListToPlayer();
       ServerAllowSpawn = true;
+
+      // Store the monster ptr in our shared network list
+      NetworkEntity *networkItem = new NetworkEntity(otherPlayer, message->id());
+
+      if (!NetworkSharedEntities)
+        NetworkSharedEntities = new vector<NetworkEntity*>();
+      NetworkSharedEntities->push_back(networkItem);
     }
     break;
   case C_PLAYER_INFO:
@@ -198,9 +205,137 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         */
       }
     }
-
     break;
-  }     
+
+  case C_ITEM_CREATE:
+    {
+      NetworkMessages::Item *item = ParseMessage<NetworkMessages::Item>(m_pBitStream);
+
+      log("[SERVER] Received item creation:");
+      log("         guid = %016I64X", item->guid());
+      log("         id = %i", item->id());
+
+      if (UnitManager) {
+        ServerSendClientItemSpawn = false;
+        PVOID itemCreated = ItemCreate(UnitManager, item->guid(), item->level(), item->unk0(), item->unk1());
+        log("Created: %p", itemCreated);
+        ServerSendClientItemSpawn = true;
+
+        NetworkEntity *networkItem = new NetworkEntity(itemCreated, item->id());
+
+        if (!NetworkSharedItems)
+          NetworkSharedItems = new vector<NetworkEntity *>();
+        NetworkSharedItems->push_back(networkItem);
+      } else {
+        log("[ERROR] Could not create item: UnitManager is null!");
+      }
+    }
+    break;
+
+  case C_ITEM_DROP:
+    {
+      NetworkMessages::ItemDrop *itemDropped = ParseMessage<NetworkMessages::ItemDrop>(m_pBitStream);
+      Vector3 *itemPosition = new Vector3();
+      itemPosition->x = itemDropped->position().Get(0).x();
+      itemPosition->y = itemDropped->position().Get(0).y();
+      itemPosition->z = itemDropped->position().Get(0).z();
+
+      log("[SERVER] Received ItemDrop:");
+      log("         id: %p", itemDropped->id());
+      log("         pos: %f, %f, %f", itemPosition->x, itemPosition->y, itemPosition->z);
+      log("         unk: %i", itemDropped->unk0());
+
+      if (UnitManager) {
+        PVOID item = NULL;
+        vector<NetworkEntity *>::iterator itr;
+
+        if (NetworkSharedItems) {
+          // Ensure that the item has been created before we attempt to drop it
+          for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+            if ((*itr)->getCommonId() == itemDropped->id()) {
+              item = (*itr)->getInternalObject();
+              log("[SERVER] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
+
+              // Drop the item
+              // SUPPRESSED for now, it's not quite working right and causes crash
+              if (drop_item_this) {
+                /* We don't know who's inventory this was dropped from
+                c_entity ne;
+                ne.e = me;
+                ne.init();
+                c_inventory *inv = ne.inventory();
+
+                ItemUnequip(inv, item);
+                */
+
+                ServerSendClientItemSpawn = false;
+                ItemDrop(drop_item_this, item, *itemPosition, 1);
+                ServerSendClientItemSpawn = true;
+              } else {
+                log("[ERROR] drop_item_this is null (drivehappy - This is a ptr to a CLevel object)");
+              }
+
+              break;
+            }
+          }
+        } else {
+          log("[ERROR] NetworkSharedItems is null.");
+        }
+      } else {
+        log("[ERROR] Could not drop item: UnitManager is null!");
+      }
+    }
+    break;
+
+  case C_ITEM_PICKUP:
+    {
+      NetworkMessages::ItemPickup *itemPickup = ParseMessage<NetworkMessages::ItemPickup>(m_pBitStream);
+
+      log("[SERVER] Received ItemPickup:");
+      log("         id: %p", itemPickup->id());
+      log("         owner: %i", itemPickup->ownerid());
+
+      if (UnitManager) {
+        PVOID item = NULL;
+        PVOID owner = NULL;
+        vector<NetworkEntity *>::iterator itr;
+
+        if (NetworkSharedItems) {
+          // Ensure that the item has been created before we attempt to pick it up
+          for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+            if ((*itr)->getCommonId() == itemPickup->id()) {
+              item = (*itr)->getInternalObject();
+              log("[SERVER] Found item to pickup (commonId = %x): %p", itemPickup->id(), item);
+              break;
+            }
+          }
+
+          // Ensure that the entity picking up the item has been created before we use it
+          for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+            //log("[SERVER] Searching %p == %p  ?", (*itr)->getCommonId(), itemPickup->ownerid());
+            if ((*itr)->getCommonId() == itemPickup->ownerid()) {
+              owner = (*itr)->getInternalObject();
+              log("[SERVER] Found owner of equip (commonId = %i): %p", itemPickup->ownerid(), owner);
+            }
+          }
+
+          if (item && owner) {
+            // Pickup the item
+            ServerSendClientItemSpawn = false;
+            ItemPickup(owner, item, drop_item_this);
+            ServerSendClientItemSpawn = true;
+          } else {
+            log("[ERROR] owner or item is null (owner = %p, item = %p)", owner, item); // drop_item_this = CLevel object
+          }
+        } else {
+          log("[ERROR] NetworkSharedItems is null.");
+        }
+      } else {
+        log("[ERROR] Could not pickup item: UnitManager is null!");
+      }
+    }
+    break;
+  }
 }
 
 void Server::SendClientEntities()

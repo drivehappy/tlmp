@@ -13,7 +13,10 @@ namespace TLMP {
 
   extern PVOID  drop_item_this;
   extern PVOID  ItemManager;
-  extern bool   allowItemSpawn;
+  extern bool   ServerSendClientItemSpawn;
+  extern bool   ClientSendServerItemSpawn;
+
+  const int     CLIENT_COMMON_BASE_ID = 0x1000;
 
   // Hold the equipped items here
   struct EquippedItem {
@@ -84,4 +87,6 @@ namespace TLMP {
   void _item_unequip_pre STDARG;
 
   void SendItemListToPlayer();
+
+  bool CheckNetworkList_HasExisting(vector<NetworkEntity *> *list, int commonId);
 };

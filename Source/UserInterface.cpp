@@ -4,6 +4,7 @@ using namespace TLMP;
 
 void UI::init()
 {
+  log("Initializing CEGUI");
   g_pWm = CEGUI::WindowManager::getSingletonPtr();
 }
 
@@ -33,6 +34,7 @@ void UI::createWindow()
   if (!g_pWm)
     return;
 
+  log("Creating window");
   CEGUI::Window *windowHost, *windowConnect, *windowParent;
 
   windowHost = g_pWm->createWindow(CEGUI::String("GuiLook/StandardButton"), CEGUI::String("Multiplayer_Host"), CEGUI::String("25_"));
@@ -192,6 +194,8 @@ void UI::createWindow()
       }
     }
   }
+
+  log("Done creating window");
 }
 
 void UI::updateChatHistory(const char* message)
