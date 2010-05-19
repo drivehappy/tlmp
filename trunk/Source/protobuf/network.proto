@@ -31,8 +31,7 @@ message ItemDrop {
 
 message ItemPickup {
   required int32 id = 1;
-  required int32 slot = 2;
-  required int32 ownerId = 3;
+  required int32 ownerId = 2;
 }
 
 message ItemEquip {

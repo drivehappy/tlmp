@@ -200,11 +200,85 @@ void TLMP::_item_drop_pre STDARG
 void TLMP::_item_pick_up_pre STDARG
 {
   //log(" %p :: pick up item %p",e->_this,Pz[0]);
+
+  log("==== ItemPickup (this: %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], e->retval);
+
+  PVOID itemPickup = (void*)Pz[0];
+  PVOID owner = e->_this;
+  int slot = 0;
+  int ownerId = 0;
+
+  c_entity ne;
+	ne.e = owner;
+	ne.init();
+	c_inventory *inv = ne.inventory();
+  log("---- inv = %p", inv);
+
+  if (inv) {
+    slot = inv->get_item_slot(itemPickup);
+    log("---- Slot = %i", slot);
+  }
+
+  /*if (slot >= 0) */
+  {
+    // If we're the server send it off
+    if (Network::NetworkState::getSingleton().GetState() == Network::SERVER) {
+      NetworkEntity* netItemPickup = NULL;
+      bool isItemPickup = false;
+      bool ownerFound = false;
+
+      // Search the server's item list for the same ptr
+      log("[SERVER] Searching for item in network list...");
+      vector<NetworkEntity *>::iterator itr;
+      for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
+        log("[SERVER] Checking %p == %p ?", (*itr)->getInternalId(), (int)itemPickup);
+        if ((*itr)->getInternalId() == (int)itemPickup) {
+          isItemPickup = true;
+          netItemPickup = (*itr);
+          break;
+        }
+      }
+
+      // Search the server's entity list for the owner id
+      if (NetworkSharedEntities) {
+        log("[SERVER] Searching for entity in network list...");
+        for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+          log("[SERVER] Checking %p == %p ?", (*itr)->getInternalObject(), owner);
+
+          if ((*itr)->getInternalObject() == owner) {
+            ownerId = (*itr)->getCommonId();
+            ownerFound = true;
+            log("[SERVER] Found shared owner id: %x", ownerId);
+            break;
+          }
+        }
+      } else {
+        log("[ERROR] NetworkSharedEntities is NULL!");
+      }
+
+      // Send off the common network id 
+      if (isItemPickup && ownerFound) {
+        NetworkMessages::ItemPickup message;
+        message.set_id(netItemPickup->getCommonId());
+        message.set_ownerid(ownerId);
+
+        Server::getSingleton().SendMessage<NetworkMessages::ItemPickup>(S_ITEM_PICKUP, &message);
+
+        log("[SERVER] Sent ItemPickup to client:");
+        log("         id: %p", message.id());
+        log("         ownerId: %i", message.ownerid());
+      } else {
+        log("[ERROR] Could not find pickup item in network item list (id = %p)", itemPickup);
+      }
+    }
+  }
 }
 
 void TLMP::_item_pick_up_post STDARG
 {
   //log("pick up, retval is %d",e->retval);
+
+  /*
   void *itemPickup = (void*)Pz[0];
   int slot = 0;
 
@@ -255,7 +329,8 @@ void TLMP::_item_pick_up_post STDARG
       }
     }
   }
-
+  */
+  
   /* NETWORK STUFF
   index_t*id;
   if (item_map.inuse_get(pitem,id)) {
@@ -298,6 +373,14 @@ void TLMP::_item_equip_pre STDARG
   CItem c = *(CItem*)Pz[0];
 
   u64 guid = c.guid;
+
+  if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT) {
+    if (!ClientAllowEquip) {
+      log("[CLIENT] Suppressing item equip.");
+      e->calloriginal = false;
+      e->retval = 0;
+    }
+  }
 
   /* NETWORK STUFF
   if (peer.is_active && !peer_allow_equip) {

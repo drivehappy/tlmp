@@ -127,9 +127,8 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ItemDrop));
   ItemPickup_descriptor_ = file->message_type(4);
-  static const int ItemPickup_offsets_[3] = {
+  static const int ItemPickup_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, slot_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, ownerid_),
   };
   ItemPickup_reflection_ =
@@ -283,17 +282,17 @@ void protobuf_AddDesc_network_2eproto() {
     "id\030\002 \002(\003\022\r\n\005level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n"
     "\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010p"
     "osition\030\002 \003(\0132\036.TLMP.NetworkMessages.Pos"
-    "ition\022\014\n\004unk0\030\003 \002(\010\"7\n\nItemPickup\022\n\n\002id\030"
-    "\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\"6\n\t"
-    "ItemEquip\022\n\n\002id\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007o"
-    "wnerId\030\003 \002(\005\"*\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022"
-    "\017\n\007ownerid\030\002 \002(\005\"\367\001\n\006Player\022\n\n\002id\030\001 \002(\003\022"
-    "4\n\004type\030\002 \002(\0162&.TLMP.NetworkMessages.Pla"
-    "yer.ClassType\022\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n\002id"
-    "\030\001 \002(\003\0222\n\004type\030\002 \002(\0162$.TLMP.NetworkMessa"
-    "ges.Player.PetType\"9\n\tClassType\022\r\n\tALCHE"
-    "MIST\020\000\022\016\n\nVANQUISHER\020\001\022\r\n\tDESTROYER\020\002\"\033\n"
-    "\007PetType\022\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 826);
+    "ition\022\014\n\004unk0\030\003 \002(\010\")\n\nItemPickup\022\n\n\002id\030"
+    "\001 \002(\005\022\017\n\007ownerId\030\002 \002(\005\"6\n\tItemEquip\022\n\n\002i"
+    "d\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\"*"
+    "\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerid\030\002 \002"
+    "(\005\"\367\001\n\006Player\022\n\n\002id\030\001 \002(\003\0224\n\004type\030\002 \002(\0162"
+    "&.TLMP.NetworkMessages.Player.ClassType\022"
+    "\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n\002id\030\001 \002(\003\0222\n\004type"
+    "\030\002 \002(\0162$.TLMP.NetworkMessages.Player.Pet"
+    "Type\"9\n\tClassType\022\r\n\tALCHEMIST\020\000\022\016\n\nVANQ"
+    "UISHER\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007PetType\022\007\n\003DO"
+    "G\020\000\022\007\n\003CAT\020\001", 812);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
@@ -1642,7 +1641,6 @@ void ItemDrop::Swap(ItemDrop* other) {
 
 #ifndef _MSC_VER
 const int ItemPickup::kIdFieldNumber;
-const int ItemPickup::kSlotFieldNumber;
 const int ItemPickup::kOwnerIdFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1661,7 +1659,6 @@ ItemPickup::ItemPickup(const ItemPickup& from) {
 void ItemPickup::SharedCtor() {
   _cached_size_ = 0;
   id_ = 0;
-  slot_ = 0;
   ownerid_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1693,7 +1690,6 @@ ItemPickup* ItemPickup::New() const {
 void ItemPickup::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     id_ = 0;
-    slot_ = 0;
     ownerid_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1715,26 +1711,12 @@ bool ItemPickup::MergePartialFromCodedStream(
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
               input, &id_));
         _set_bit(0);
-        if (input->ExpectTag(16)) goto parse_slot;
+        if (input->ExpectTag(16)) goto parse_ownerId;
         break;
       }
       
-      // required int32 slot = 2;
+      // required int32 ownerId = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-          goto handle_uninterpreted;
-        }
-       parse_slot:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
-              input, &slot_));
-        _set_bit(1);
-        if (input->ExpectTag(24)) goto parse_ownerId;
-        break;
-      }
-      
-      // required int32 ownerId = 3;
-      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           goto handle_uninterpreted;
@@ -1742,7 +1724,7 @@ bool ItemPickup::MergePartialFromCodedStream(
        parse_ownerId:
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
               input, &ownerid_));
-        _set_bit(2);
+        _set_bit(1);
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1776,14 +1758,9 @@ void ItemPickup::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
   }
   
-  // required int32 slot = 2;
+  // required int32 ownerId = 2;
   if (_has_bit(1)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->slot(), output);
-  }
-  
-  // required int32 ownerId = 3;
-  if (_has_bit(2)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->ownerid(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->ownerid(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -1799,14 +1776,9 @@ void ItemPickup::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
   }
   
-  // required int32 slot = 2;
+  // required int32 ownerId = 2;
   if (_has_bit(1)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->slot(), target);
-  }
-  
-  // required int32 ownerId = 3;
-  if (_has_bit(2)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->ownerid(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->ownerid(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1827,14 +1799,7 @@ int ItemPickup::ByteSize() const {
           this->id());
     }
     
-    // required int32 slot = 2;
-    if (has_slot()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(
-          this->slot());
-    }
-    
-    // required int32 ownerId = 3;
+    // required int32 ownerId = 2;
     if (has_ownerid()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
@@ -1870,9 +1835,6 @@ void ItemPickup::MergeFrom(const ItemPickup& from) {
       set_id(from.id());
     }
     if (from._has_bit(1)) {
-      set_slot(from.slot());
-    }
-    if (from._has_bit(2)) {
       set_ownerid(from.ownerid());
     }
   }
@@ -1892,7 +1854,7 @@ void ItemPickup::CopyFrom(const ItemPickup& from) {
 }
 
 bool ItemPickup::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
   
   return true;
 }
@@ -1900,7 +1862,6 @@ bool ItemPickup::IsInitialized() const {
 void ItemPickup::Swap(ItemPickup* other) {
   if (other != this) {
     std::swap(id_, other->id_);
-    std::swap(slot_, other->slot_);
     std::swap(ownerid_, other->ownerid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

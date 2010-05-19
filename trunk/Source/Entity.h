@@ -11,6 +11,7 @@ namespace TLMP {
 
   extern PVOID EntityManager;
   extern bool ClientAllowSpawn;
+  extern bool ClientAllowEquip;
   extern bool ServerAllowSpawn;
 
   void _entity_initialize_pre STDARG;
