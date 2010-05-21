@@ -6,27 +6,28 @@
 v0.1 Contains a list of expected working items for an initial release.
 
 == v0.1 ==
-  * Basic network play
+  * *Done* Basic network play
    * Limited to 2 players (host and client), maybe push this limit up if it scales correctly.
-  * Basic GUI
+  * *Done* Items can be picked up and dropped
+   * Basic trading system
+  * *Done* No PvP
+  * *Done* Player movement
+  * *Done* NPCs can be interacted with
+   * NPC's inventory sync'd
+  
+  * *InProgress* Basic GUI
    * Host game, Join game
    * Intuitively this should probably be in the game itself, not the main menu
     * This way we can force a level change right away to the Town level
    * Basic GUI text descriptions of the players in the game
    * Basic chat functionality
-  * Limited to the Town level
+  * *InProgress* Limited to the Town level
    * This foregos dealing with a lot of the monster's path planning and level syncs
-  * Items can be picked up and dropped
-   * i.e. Basic trading system
-  * Skills work
-  * Pets work
-  * No PvP
-  * Player movement
-  * NPCs can be interacted with
-   * NPC's inventory sync'd
-  * Player stashes should be separate
+  * *InProgress* Skills work
+  * *InProgress* Pets work
+  * *InProgress* Player stashes should be separate
    * Functionally, not visually
-  * Deal with shutting down nicely
+  * *InProgress* Deal with shutting down nicely
    * Multiplayer games should translate back into Singleplayer games smoothly
    * Both server and client need to flush other players before saving
     * Hook the save routine and clear those entities out
