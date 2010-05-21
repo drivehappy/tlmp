@@ -199,25 +199,21 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
 
   if (UnitManager) {
     player = SpiderSomeCreate(UnitManager, guid, level, true);
+
+    log("\n\n\nUnitManager = %p\nEntityManager = %p\n\n\n", UnitManager, EntityManager);
   
     //ServerAllowSpawn = true;
     log("  Player is %p", player);
 
     if (player) {
       //otherPlayer = r;
+      ServerAllowSpawn = false;
       SetAlignment(player, 1);
       player = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), player, &position, 0);
+      ServerAllowSpawn = true;
       log("  Player Initialized: %p", player);
 
-      /* NETWORK STUFF
-      host.sendbuf.reset();
-      host.sendbuf.pui(-1);
-      host.sendbuf.pus(id_join);
-      host.sendbuf.pui(entity_map[r]);
-      s->net.send_message(host.sendbuf);
-      s->entity_id = entity_map[r];
-      */
-
+      /*
       log("  Creating pet...");
       pet = CreateUnitByName(UnitManager, L"MONSTERS", L"Dog", 1, 0);
       if (pet) {
@@ -231,6 +227,7 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
       } else {
         log("[ERROR] Could not spawn pet!");
       }
+      */
     } else {
       log("[ERROR] Could not spawn player!");
     }

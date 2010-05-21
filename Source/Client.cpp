@@ -232,33 +232,78 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       position.y = entity->position().Get(0).y();
       position.z = entity->position().Get(0).z();
 
-      log("[CLIENT] Received Monster Spawn");
-      log("         Level = %i", entity->level());
-      log("         GUID  = %016I64X", entity->guid());
-      log("         NoItems = %i", entity->noitems());
-      log("         CommonId = %i", entity->id());
-      log("         Position = %f %f %f", position.x, position.y, position.z);
+      logColor(B_RED, "[CLIENT] Received Monster Spawn");
+      logColor(B_RED, "         Level = %i", entity->level());
+      logColor(B_RED, "         GUID  = %016I64X", entity->guid());
+      logColor(B_RED, "         NoItems = %i", entity->noitems());
+      logColor(B_RED, "         CommonId = %i", entity->id());
+      logColor(B_RED, "         Position = %f %f %f", position.x, position.y, position.z);
 
       // Unlock suppressed entity creation and create the monster
       if (EntityManager) {
-        ClientAllowSpawn = true;
-        PVOID newEntity = SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
+        // Store the monster ptr in our shared network list if it doesn't already exist
+        if (!NetworkSharedEntities)
+          NetworkSharedEntities = new vector<NetworkEntity*>();
 
+        NetworkEntity *networkEntity = NULL;
+        vector<NetworkEntity *>::iterator itr;
+
+        for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+          if ((*itr)->getCommonId() == entity->id()) {
+            networkEntity = (*itr);
+            break;
+          }
+        }
+
+        PVOID newEntity = NULL;
+
+        // If we couldn't find an existing one with the same id...
+        if (!networkEntity) {
+          ClientAllowSpawn = true;
+          newEntity = SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
+          ClientAllowSpawn = false;
+        } else {
+          // We already have this object setup, just initialize
+          newEntity = networkEntity->getInternalObject();
+        }
+
+        // And finally initialize (again if needed)
         if (newEntity) {
+          ClientAllowSpawn = true;
           log("New entity: (pre-Init) %p\n", newEntity);
           newEntity = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), newEntity, &position, entity->level());
           log("New entity: %p\n", newEntity);
           ClientAllowSpawn = false;
 
-          // Store the monster ptr in our shared network list
-          NetworkEntity *networkEntity = new NetworkEntity(newEntity, entity->id());
-
-          if (!NetworkSharedEntities)
-            NetworkSharedEntities = new vector<NetworkEntity*>();
-          NetworkSharedEntities->push_back(networkEntity);
+          // And.. finally store the new entity
+          if (!networkEntity) {
+            networkEntity = new NetworkEntity(newEntity, entity->id());
+            NetworkSharedEntities->push_back(networkEntity);
+          }
         }
       } else {
         log("[CLIENT] Error: EntityManager is null, cannot create monster");
+        log("[CLIENT] Attempting to use UnitManager (%p)", UnitManager);
+        if (UnitManager) {
+          ClientAllowSpawn = true;
+          PVOID newEntity = SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
+
+          if (newEntity) {
+            log("New entity: (pre-Init) %p\n", newEntity);
+            newEntity = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), newEntity, &position, entity->level());
+            log("New entity: %p\n", newEntity);
+            ClientAllowSpawn = false;
+
+            // Store the monster ptr in our shared network list
+            NetworkEntity *networkEntity = new NetworkEntity(newEntity, entity->id());
+
+            if (!NetworkSharedEntities)
+              NetworkSharedEntities = new vector<NetworkEntity*>();
+            NetworkSharedEntities->push_back(networkEntity);
+          }
+        } else {
+          log("     Nope, UnitManager is null");
+        }
       }
     }
     break;
@@ -441,11 +486,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       int unk = itemEquipped->unk();
       vector<NetworkEntity *>::iterator itr;
 
-      log("[CLIENT] Received item equip:");
-      log("         id: %i", itemEquipped->id());
-      log("         slot %i", itemEquipped->slot());
-      log("         ownerid: %i", itemEquipped->ownerid());
-      log("         unk: %i", itemEquipped->unk());
+      logColor(B_GREEN, "[CLIENT] Received item equip:");
+      logColor(B_GREEN, "         id: %i", itemEquipped->id());
+      logColor(B_GREEN, "         slot %i", itemEquipped->slot());
+      logColor(B_GREEN, "         ownerid: %i", itemEquipped->ownerid());
+      logColor(B_GREEN, "         unk: %i", itemEquipped->unk());
 
       if (NetworkSharedItems) {
         // Ensure that the item has been created before we attempt to unequip it
