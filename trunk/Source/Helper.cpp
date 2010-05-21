@@ -1,6 +1,7 @@
 #include "Helper.h"
 
-void xcept(const char *fmt, ...) {
+void xcept(const char *fmt, ...)
+{
   static char xcept_str[0x100];
 
   va_list args;
@@ -11,12 +12,30 @@ void xcept(const char *fmt, ...) {
   throw (const char*)xcept_str;
 }
 
-double getLogTimer() {
+double getLogTimer()
+{
   static Timer logTimer;
   return logTimer.getTime();
 }
 
-void log(const char *fmt, ...) {
+void log(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args,fmt);
+  string s = vformat(fmt,args);
+  double t = getLogTimer();
+  s = format("%4.3f  %s\n",t,s.c_str());
+  printf("%s",s.c_str());
+};
+
+void logColor(const WORD colorFMT, const char *fmt, ...)
+{
+  static HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hstdout, &csbi);
+
+  SetConsoleTextAttribute(hstdout, colorFMT);
+
   va_list args;
   va_start(args,fmt);
   string s = vformat(fmt,args);
@@ -24,16 +43,11 @@ void log(const char *fmt, ...) {
   s = format("%4.3f  %s\n",t,s.c_str());
   printf("%s",s.c_str());
 
-  //printf("log_exit\n");
-  /*
-  for (int i=0;i<10 && h_log_file == INVALID_HANDLE_VALUE;i++)
-    h_log_file = CreateFile(format("log%d.txt",i).c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_DELETE,0,CREATE_ALWAYS,0,0);
-  DWORD written;
-  WriteFile(h_log_file,s.c_str(),s.size(),&written,0);
-  */
-};
+  SetConsoleTextAttribute(hstdout, csbi.wAttributes);
+}
 
-void log(const wchar_t* fmt, ...) {
+void log(const wchar_t* fmt, ...)
+{
   va_list args;
   va_start(args,fmt);
   wstring s = vwformat(fmt, args);
@@ -42,7 +56,8 @@ void log(const wchar_t* fmt, ...) {
   wprintf(L"%s", s.c_str());
 }
 
-string format(const char *format, ...) {
+string format(const char *format, ...)
+{
   string res("");
   va_list args;
   va_start(args,format);
@@ -54,7 +69,8 @@ string format(const char *format, ...) {
   return res.c_str();
 }
 
-wstring wformat(const wchar_t *format, ...) {
+wstring wformat(const wchar_t *format, ...)
+{
   wstring res(L"");
   va_list args;
   va_start(args, format);
@@ -66,7 +82,8 @@ wstring wformat(const wchar_t *format, ...) {
   return res.c_str();
 }
 
-string vformat(const char *format, va_list args) {
+string vformat(const char *format, va_list args)
+{
   string res("");
   size_t len = _vscprintf(format,args);
   res.resize(len+1);
@@ -76,7 +93,8 @@ string vformat(const char *format, va_list args) {
   return res.c_str();
 }
 
-wstring vwformat(const wchar_t *format, va_list args) {
+wstring vwformat(const wchar_t *format, va_list args)
+{
   wstring res(L"");
   size_t len = _vscwprintf(format, args);
   res.resize(len+2);

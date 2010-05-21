@@ -44,6 +44,16 @@ void TLMP::_entity_initialize_post STDARG
   Vector3* position = (Vector3*)Pz[1];
 
   if (NetworkState::getSingleton().GetState() == SERVER && ServerAllowSpawn) {
+    const u32 CPLAYER_BASE = 0x00A80064;
+    const u32 CMONSTER_BASE = 0x00A7F97C;
+
+    u32 ptr_base = *((u32*)pCPlayer);
+
+    if (ptr_base == CPLAYER_BASE) {
+      log("[SERVER] Not sending redundant player data");
+      return;
+    }
+
     c_entity o;
     o.e = (PVOID)e->retval;
     o.level = level;
@@ -58,11 +68,29 @@ void TLMP::_entity_initialize_post STDARG
       return;
 
     // Store this Monster in our shared entity's list
-    NetworkEntity* entity = new NetworkEntity((PVOID)e->retval);
-
+    // This function is called at least twice for entities,
+    // initially they're set to position (0,0,0) then the position
+    // is updated, and this is recalled
     if (!NetworkSharedEntities)
       NetworkSharedEntities = new vector<NetworkEntity*>();
-    NetworkSharedEntities->push_back(entity);
+
+    // So, search the list for the internalObject, if it already exists
+    // set entity to it
+    NetworkEntity* entity = NULL;
+    vector<NetworkEntity *>::iterator itr;
+
+    for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
+      if ((*itr)->getInternalObject() == (PVOID)e->retval) {
+        entity = (*itr);
+        break;
+      }
+    }
+
+    // If we didn't find it, just add it
+    if (!entity) {
+      entity = new NetworkEntity((PVOID)e->retval);
+      NetworkSharedEntities->push_back(entity);
+    }
 
     // Create the network message to the client
     NetworkMessages::Entity message;
@@ -79,9 +107,9 @@ void TLMP::_entity_initialize_post STDARG
     ///*
     Server::getSingleton().SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &message);
 
-    log("[SERVER] Sent Monster Spawn to Client at Position(%f, %f, %f)", position->x, position->y, position->z);
-    log("[SERVER]   GUID = %016I64X    commonId = %i", guid, entity->getCommonId());
-    log("[SERVER]   base_ptr = %i", *((u32*)pCPlayer));
+    logColor(B_RED, "[SERVER] Sent Monster Spawn to Client at Position(%f, %f, %f)", position->x, position->y, position->z);
+    logColor(B_RED, "[SERVER]   GUID = %016I64X    commonId = %i", guid, entity->getCommonId());
+    logColor(B_RED, "[SERVER]   base_ptr = %i", *((u32*)pCPlayer));
 
     //*/
     //log("[SERVER] Todo Send Monster Spawn to Client");

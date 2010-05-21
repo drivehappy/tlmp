@@ -346,11 +346,11 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       int unk = itemEquipped->unk();
       vector<NetworkEntity *>::iterator itr;
 
-      log("[SERVER] Received item equip:");
-      log("         id: %i", itemEquipped->id());
-      log("         slot %i", itemEquipped->slot());
-      log("         ownerid: %i", itemEquipped->ownerid());
-      log("         unk: %i", itemEquipped->unk());
+      logColor(B_GREEN, "[SERVER] Received item equip:");
+      logColor(B_GREEN, "         id: %i", itemEquipped->id());
+      logColor(B_GREEN, "         slot %i", itemEquipped->slot());
+      logColor(B_GREEN, "         ownerid: %i", itemEquipped->ownerid());
+      logColor(B_GREEN, "         unk: %i", itemEquipped->unk());
 
       if (NetworkSharedItems) {
         // Ensure that the item has been created before we attempt to unequip it
