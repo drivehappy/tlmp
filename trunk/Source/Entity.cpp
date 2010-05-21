@@ -13,16 +13,33 @@ vector<NetworkEntity*>* TLMP::NetworkSharedEntities = NULL;
 void TLMP::_entity_initialize_pre STDARG
 {
   //log("Entity Initialize: %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2]);
+  PVOID pCPlayer = (PVOID)Pz[0];    // Also a CMonster
 
-  //u64 guid = *(u64*)&Pz[0];
-  u32 level = Pz[2];
+  if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
+    // Dirty hack, check if the base is CPlayer or CMonster
+    const u32 CPLAYER_BASE = 0x00A80064;
+    const u32 CMONSTER_BASE = 0x00A7F97C;
+
+    u32 ptr_base = *((u32*)pCPlayer);
+
+    if (ptr_base == CPLAYER_BASE) {
+      log("[CLIENT] Detected CPlayer addition to CLevel, not suppressing load");
+    } else if (ptr_base == CMONSTER_BASE) {
+      log("[CLIENT] Suppressing Monster load into level");
+      e->calloriginal = false;
+      e->retval = 0;
+    } else {
+      log("[ERROR] Couldn't determine type of entity: %i", ptr_base);
+    }
+  }
 }
 
 void TLMP::_entity_initialize_post STDARG
 {
   log("Entity Initialize: %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2]);
 
-  //u64 guid = *(u64*)&Pz[0];
+  PVOID pCLevel = (PVOID)e->_this;
+  PVOID pCPlayer = (PVOID)Pz[0];    // Also a CMonster
   u32 level = Pz[2];
   Vector3* position = (Vector3*)Pz[1];
 
@@ -33,9 +50,12 @@ void TLMP::_entity_initialize_post STDARG
     o.noitems = false;
     o.init();
 
-    // This function gets the wrong offset for the GUID I think
-    u64 guid = o.GetGUID();
+    // Get the GUID of the CPlayer/CMonster
+    u64 guid = *(u64*)(((char *)pCPlayer) + 0x168);
 
+    // Bad GUID? Suppress sending to client to check this
+    if (guid == 0xFFFFFFFFFFFFFFFF)
+      return;
 
     // Store this Monster in our shared entity's list
     NetworkEntity* entity = new NetworkEntity((PVOID)e->retval);
@@ -61,6 +81,7 @@ void TLMP::_entity_initialize_post STDARG
 
     log("[SERVER] Sent Monster Spawn to Client at Position(%f, %f, %f)", position->x, position->y, position->z);
     log("[SERVER]   GUID = %016I64X    commonId = %i", guid, entity->getCommonId());
+    log("[SERVER]   base_ptr = %i", *((u32*)pCPlayer));
 
     //*/
     //log("[SERVER] Todo Send Monster Spawn to Client");

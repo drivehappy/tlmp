@@ -52,6 +52,8 @@ namespace TLMP {
   void test10_pre  STDARG;
   void test10_post STDARG;
 
+  void test11_pre  STDARG;
+
     
   void testItemGold_pre  STDARG;
   void testItemGold_post STDARG;

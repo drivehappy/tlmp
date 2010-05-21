@@ -20,9 +20,9 @@ MemoryManager* MemoryManager::getSingletonPtr()
 
 
 
-void MemoryManager::addBlock(PVOID addr, u32 size)
+void MemoryManager::addBlock(PVOID addr, u32 size, PVOID retInst)
 {
-  m_vBlocks->push_back(MemoryBlock(addr, size));
+  m_vBlocks->push_back(MemoryBlock(addr, size, retInst));
 }
 
 void MemoryManager::removeBlock(PVOID addr)
@@ -48,6 +48,19 @@ u32 MemoryManager::getMemorySize(PVOID addr)
   }
 
   return -1;
+}
+
+PVOID MemoryManager::getMemoryAllocationAddress(PVOID addr)
+{
+  vector<MemoryBlock>::iterator itr;
+
+  for (itr = m_vBlocks->begin(); itr != m_vBlocks->end(); itr++) {
+    if ((*itr).pMemory == addr) {
+      return (*itr).pRetInst;
+    }
+  }
+
+  return NULL;
 }
 
 void MemoryManager::reportMemory()

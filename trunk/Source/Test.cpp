@@ -93,9 +93,10 @@ void TLMP::test7_post STDARG
 {
   PVOID addr = (PVOID)e->retval;
   u32 size = Pz[0];
+  PVOID retInst = (PVOID)(*(u32*)e->retaddress);
 
   //if (Pz[0] > 200)
-  MemoryManager::getSingleton().addBlock(addr, size);
+  MemoryManager::getSingleton().addBlock(addr, size, retInst);
 
   //if (Pz[0] > 96)
   //  log("============== TEST (new) 7 PRE: %i, retval = %p", Pz[0], e->retval);
@@ -141,6 +142,14 @@ void TLMP::test10_pre STDARG
   log("        Guid2: %016I64X", pCCharacter->baseUnit.positionableObject.guid2);
 
   log("");
+}
+
+void TLMP::test11_pre STDARG
+{
+  PVOID pCResourceManager = (PVOID)e->_this;
+  //log("*** CResourceManager Created: %p", pCResourceManager);
+
+  //log("");
 }
 
 void TLMP::testItemGold_pre STDARG

@@ -18,7 +18,7 @@ void TLMP::_player_ctor_post STDARG
     if (!me) {
       me = (PVOID)e->retval;
       log("Setting me = %p\n\n", me);
-    /*
+    //*
       if (!NetworkSharedEntities)
         NetworkSharedEntities = new vector<NetworkEntity*>();
 
@@ -30,7 +30,7 @@ void TLMP::_player_ctor_post STDARG
       }
       log("Added me as commonId = %i\n\n", entity->getCommonId());
       NetworkSharedEntities->push_back(entity);
-      */
+      //*/
     }
   }
 }
@@ -71,26 +71,36 @@ void TLMP::_add_goldtoplayer STDARG
 
 void TLMP::_initialize_player_pre STDARG
 {
-  u64 guid = *((u64 *)me + (0x168 / 8));
-  u32 level = *((u32 *)me + 0x3c);
+  log("this = %p, me = %p", e->_this, me);
 
-	log("pre- Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
-  log("     Memory size (%p) = %i\n", me, MemoryManager::getSingleton().getMemorySize(me));
-  log("     Structure Test:\n");
-  CEditorBaseObject coreMe = *(CEditorBaseObject*)me;
-  log("         guid0: %016I64X\n", coreMe.guid0);
-  log("         guid1: %016I64X\n", coreMe.guid1);
+  if (me) {
+    u64 guid = *(u64*)((char *)me + 0x168);
+    //u32 level = *((u32 *)me + 0x3c);
 
-  UnitManager = e->_this;
+	  log("pre- Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
+    PVOID pCResourceManager = e->_this;
+
+    /*
+    log("     Memory size (%p) = %i\n", me, MemoryManager::getSingleton().getMemorySize(me));
+    log("     Structure Test:\n");
+    CEditorBaseObject coreMe = *(CEditorBaseObject*)me;
+    log("         guid0: %016I64X\n", coreMe.guid0);
+    log("         guid1: %016I64X\n", coreMe.guid1);
+    */
+
+    UnitManager = e->_this;
+  }
 }
 
 void TLMP::_initialize_player_post STDARG
 {
-  u64 guid = *((u64 *)me + (0x168 / 8));
-  u32 level = *((u32 *)me + 0x3c);
+  if (me) {
+    u64 guid = *((u64 *)me + (0x168 / 8));
+    u32 level = *((u32 *)me + 0x3c);
 
-	log("Post-Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
-  UnitManager = e->_this;
+	  log("Post-Player initialized: guid = %016I64X (this = %p)", guid, e->_this);
+    UnitManager = e->_this;
+  }
 
   /*
   NetworkEntity* entity = new NetworkEntity((PVOID)e->retval);

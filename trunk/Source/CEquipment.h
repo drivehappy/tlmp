@@ -1,17 +1,17 @@
 #pragma once
 
 // Size?: 3E0h
+// Inherits: CItem
 struct CEquipment
 {
-  PVOID vtable;
-  PVOID pUnknownStruct;     // ptr to unk struct
-  u64 guid0;                // 9E29352249B011DFh
-  u64 guid1;                // 9E29352249B011DFh
-  u64 guid2;                // 9E29352249B011DFh
+  // CItem STRUCTURE HERE
 
-  u32 unk0[4];              // 0,0,0,0
+  u32 unk1000[23];  //
 
-  PVOID unk1;               // ptr to unknown struct
+  PVOID pCGenericModel;
 
-  // ... a bunch more
+  PVOID unk1001;
+  PVOID unk1002;
+
+  PVOID pCEGUIPropertySheet;
 };
