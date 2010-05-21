@@ -8,5 +8,7 @@ struct CPlayer
 
   u32 unk0[2];    //
 
-  u64 guidPlayer;
+  u64 guid0;
+  u64 guid1;
+  u64 guid2;
 };

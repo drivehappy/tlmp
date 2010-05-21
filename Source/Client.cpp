@@ -161,6 +161,54 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       if (!NetworkSharedEntities)
         NetworkSharedEntities = new vector<NetworkEntity*>();
       NetworkSharedEntities->push_back(networkItem);
+
+      // Reply with equipped item list
+      log("[CLIENT] Replying to server with already equipped item list of size %i...", EquippedItems->size());
+      vector<EquippedItem>::iterator itr;
+      vector<NetworkEntity *>::iterator itr2, itr3;
+      for (itr = EquippedItems->begin(); itr != EquippedItems->end(); itr++) {
+        NetworkEntity *entity = NULL;
+        NetworkEntity *owner = NULL;
+
+        // Search for the item ptr in our shared list
+        log("\n\n\nSearching the shared items to retrieve the commonID... (equippedItem = (item: %p, slot: %i, pinv: %p))", (*itr).item, (*itr).slot, (*itr).pinv);
+        for (itr2 = NetworkSharedItems->begin(); itr2 != NetworkSharedItems->end(); itr2++) {
+          if ((*itr2)->getInternalId() == (int)(*itr).item) {
+            entity = (*itr2);
+            break;
+          }
+        }
+
+        // Search the server's entity list for the owner id
+        log("Searching for entity with same inventory ptr...");
+        for (itr3 = NetworkSharedEntities->begin(); itr3 != NetworkSharedEntities->end(); itr3++) {
+          c_entity em;
+          em.e = (*itr3)->getInternalObject();
+          em.init();
+
+          if ( (PVOID)(em.inventory()) == (*itr).pinv ) {
+            log("[CLIENT] Found inventory of entity: %p", (*itr3)->getInternalObject());
+            owner = (*itr3);
+            break;
+          }
+        }
+
+        // If we found the shared list object, send it out
+        log("Sending list of already equipped items...\n");
+        if (entity && owner) {
+          NetworkMessages::ItemEquip message;
+          message.set_id(entity->getCommonId());
+          message.set_slot((*itr).slot);
+          message.set_ownerid(owner->getCommonId());
+
+          log("  Sending item (commonId = %x) in slot %i of ownerID = %i", entity->getCommonId(), (*itr).slot, owner->getCommonId());
+
+          Client::getSingleton().SendMessage<NetworkMessages::ItemEquip>(C_ITEM_EQUIP, &message);
+        } else {
+          log("  Error: Could not send out equipped entity (entity = %p, owner = %p)", entity, owner);
+        }
+      }
+      log("Complete");
     }
     break;
 
@@ -177,10 +225,6 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case S_SPAWN_MONSTER:
     {
-      // !!!!!!
-      // Skip this for now, GUID looks bad
-      /*
-
       NetworkMessages::Entity *entity = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
       Vector3 position;
       
@@ -196,21 +240,26 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         Position = %f %f %f", position.x, position.y, position.z);
 
       // Unlock suppressed entity creation and create the monster
-      ClientAllowSpawn = true;
-      PVOID newEntity = SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
-      ClientAllowSpawn = false;
+      if (EntityManager) {
+        ClientAllowSpawn = true;
+        PVOID newEntity = SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
 
-      log("New entity: (pre-Init) %p\n", newEntity);
-      newEntity = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), newEntity, &position, entity->level());
-      log("New entity: %p\n", newEntity);
+        if (newEntity) {
+          log("New entity: (pre-Init) %p\n", newEntity);
+          newEntity = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), newEntity, &position, entity->level());
+          log("New entity: %p\n", newEntity);
+          ClientAllowSpawn = false;
 
-      // Store the monster ptr in our shared network list
-      NetworkEntity *networkEntity = new NetworkEntity(newEntity, entity->id());
+          // Store the monster ptr in our shared network list
+          NetworkEntity *networkEntity = new NetworkEntity(newEntity, entity->id());
 
-      if (!NetworkSharedEntities)
-        NetworkSharedEntities = new vector<NetworkEntity*>();
-      NetworkSharedEntities->push_back(networkEntity);
-      */
+          if (!NetworkSharedEntities)
+            NetworkSharedEntities = new vector<NetworkEntity*>();
+          NetworkSharedEntities->push_back(networkEntity);
+        }
+      } else {
+        log("[CLIENT] Error: EntityManager is null, cannot create monster");
+      }
     }
     break;
 
@@ -357,7 +406,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
           // Ensure that the entity picking up the item has been created before we use it
           for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-            log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemPickup->ownerid());
+            //log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemPickup->ownerid());
             if ((*itr)->getCommonId() == itemPickup->ownerid()) {
               owner = (*itr)->getInternalObject();
               log("[CLIENT] Found owner of equip (commonId = %i): %p", itemPickup->ownerid(), owner);
@@ -389,11 +438,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       PVOID item = NULL;
       PVOID owner = NULL;
       int slot = itemEquipped->slot();
+      int unk = itemEquipped->unk();
       vector<NetworkEntity *>::iterator itr;
 
       log("[CLIENT] Received item equip:");
       log("         id: %i", itemEquipped->id());
+      log("         slot %i", itemEquipped->slot());
       log("         ownerid: %i", itemEquipped->ownerid());
+      log("         unk: %i", itemEquipped->unk());
 
       if (NetworkSharedItems) {
         // Ensure that the item has been created before we attempt to unequip it
@@ -406,7 +458,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
         // Ensure that the entity unequipping the item has been created before we use it
         for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-          log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemEquipped->ownerid());
+          //log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemEquipped->ownerid());
           if ((*itr)->getCommonId() == itemEquipped->ownerid()) {
             owner = (*itr)->getInternalObject();
             log("[CLIENT] Found owner of equip (commonId = %i): %p", itemEquipped->ownerid(), owner);
@@ -415,8 +467,17 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
         // If the owner and item are valid, unequip
         if (owner && item) {
-          log("[SUPRESSED] Equipping item...");
-          //ItemEquip(owner, item, slot, 0);
+          log("[CLIENT] Received Equipping item...");
+          log("[CLIENT] me = %p, otherPlayer = %p", me, otherPlayer);
+
+          c_entity ce;
+          ce.e = owner;
+          ce.init();
+          PVOID pinv = ce.inventory();
+
+          ClientSendServerItemSpawn = false;
+          ItemEquip(pinv, item, slot, unk);
+          ClientSendServerItemSpawn = true;
         }
       }
     }
@@ -445,16 +506,27 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
         // Ensure that the entity unequipping the item has been created before we use it
         for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-          log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemUnequipped->ownerid());
+          //log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemUnequipped->ownerid());
           if ((*itr)->getCommonId() == itemUnequipped->ownerid()) {
             owner = (*itr)->getInternalObject();
             log("[CLIENT] Found owner of unequip (commonId = %i): %p", itemUnequipped->ownerid(), owner);
+            break;
           }
         }
 
         // If the owner and item are valid, unequip
         if (owner && item) {
-          ItemUnequip(owner, item);
+          log("[CLIENT] Received Unequip");
+          log("[CLIENT] me = %p, otherPlayer = %p", me, otherPlayer);
+
+          c_entity ce;
+          ce.e = owner;
+          ce.init();
+          PVOID pinv = ce.inventory();
+
+          ClientSendServerItemSpawn = false;
+          ItemUnequip(pinv, item);
+          ClientSendServerItemSpawn = true;
         }
       }
 

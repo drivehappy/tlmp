@@ -251,6 +251,7 @@ void TLMP::HookFunctions()
 
   // new(void*)
   Hook((PVOID)EXEOFFSET(0x605B54), test7_pre, test7_post, HOOK_CDECL, 1);
+  //Hook((PVOID)EXEOFFSET(0x605954), test7_pre, test7_post, HOOK_CDECL, 1);
   
   // Player ctor?
   Hook((PVOID)EXEOFFSET(0x4DB820), test8_pre, test8_post, HOOK_THISCALL, 1);

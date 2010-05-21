@@ -2,24 +2,16 @@
 
 void TLMP::_spider_some_create_pre STDARG
 {
-  log("!!!!! %p -- %p :: spider_some_create %08X %08X %d %d", e->retaddress, e->_this, Pz[0], Pz[1], Pz[2], Pz[3]);
+  u64 guid = *(u64 *)&Pz[0];
+  log("!!!!! %p spider_some_create (%p %016I64X %d %d)", e->retaddress, e->_this, guid, Pz[2], Pz[3]);
   EntityManager = e->_this;
 
-  u64 guid = *(u64 *)&Pz[0];
+  //log("\n\n\n\n\nCResourceManager alloc addr: %p %i\n\n\n\n\n", 
+  //  MemoryManager::getSingleton().getMemoryAllocationAddress(EntityManager),
+  //  MemoryManager::getSingleton().getMemorySize(EntityManager)
+  //  );
 
-  /* NETWORK STUFF
-  if (peer.is_active && !allow_spawn) {
-//     if (guid==0xD3A8F9832FA111DE) {
-//       log("stop da dog from spawning <.<");
-//       e->calloriginal = false;
-//       e->retval = 0;
-//     }
-
-    log("peer, stopping spawn");
-    e->calloriginal = false;
-    e->retval = 0;
-  }
-  */
+  PVOID pCResourceManager = e->_this;
 
   //* TESTING - MOVED TO TEST0_PRE (Parent function call)
   if (NetworkState::getSingleton().GetState() == CLIENT && !ClientAllowSpawn) {
@@ -37,20 +29,11 @@ void TLMP::_spider_some_create_post STDARG
 
   log("!!!!!!! spider_some_create_post guid: %016I64X (level = %i)", guid, level);
 
-  /* NETWORK STUFF
-  if (host.is_active && e->retval && !no_netspawn) {
-    c_entity o;
-    o.e = (void*)e->retval;
-    o.guid = guid;
-    o.level = Pz[2];
-    o.noitems = *(bool*)&Pz[3];
-    o.init();
-    host_spawn_entity(o);
-    log("host, spawn %016I64X",guid);
-  }
-  */
-
-  
+  //log("\n\n\n\n\n(retval = %p) CMonster alloc addr: %p %i\n\n\n\n\n", 
+  //  (PVOID)e->retval,
+  //  MemoryManager::getSingleton().getMemoryAllocationAddress((PVOID)e->retval),
+  //  MemoryManager::getSingleton().getMemorySize((PVOID)e->retval)
+  //  );
 }
 
 void TLMP::_spider_process_ai_pre STDARG

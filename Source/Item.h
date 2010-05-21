@@ -22,7 +22,7 @@ namespace TLMP {
   struct EquippedItem {
     PVOID         item;
     int           slot;
-    NetworkEntity owner;
+    PVOID         pinv;
   };
   extern vector<EquippedItem> *EquippedItems;
 

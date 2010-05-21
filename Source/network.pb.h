@@ -707,6 +707,13 @@ class ItemEquip : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 ownerid() const;
   inline void set_ownerid(::google::protobuf::int32 value);
   
+  // required int32 unk = 4;
+  inline bool has_unk() const;
+  inline void clear_unk();
+  static const int kUnkFieldNumber = 4;
+  inline ::google::protobuf::int32 unk() const;
+  inline void set_unk(::google::protobuf::int32 value);
+  
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
@@ -714,11 +721,12 @@ class ItemEquip : public ::google::protobuf::Message {
   ::google::protobuf::int32 id_;
   ::google::protobuf::int32 slot_;
   ::google::protobuf::int32 ownerid_;
+  ::google::protobuf::int32 unk_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1477,6 +1485,22 @@ inline ::google::protobuf::int32 ItemEquip::ownerid() const {
 inline void ItemEquip::set_ownerid(::google::protobuf::int32 value) {
   _set_bit(2);
   ownerid_ = value;
+}
+
+// required int32 unk = 4;
+inline bool ItemEquip::has_unk() const {
+  return _has_bit(3);
+}
+inline void ItemEquip::clear_unk() {
+  unk_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 ItemEquip::unk() const {
+  return unk_;
+}
+inline void ItemEquip::set_unk(::google::protobuf::int32 value) {
+  _set_bit(3);
+  unk_ = value;
 }
 
 // -------------------------------------------------------------------

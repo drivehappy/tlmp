@@ -143,10 +143,11 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ItemPickup));
   ItemEquip_descriptor_ = file->message_type(5);
-  static const int ItemEquip_offsets_[3] = {
+  static const int ItemEquip_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemEquip, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemEquip, slot_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemEquip, ownerid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemEquip, unk_),
   };
   ItemEquip_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -283,16 +284,16 @@ void protobuf_AddDesc_network_2eproto() {
     "\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010p"
     "osition\030\002 \003(\0132\036.TLMP.NetworkMessages.Pos"
     "ition\022\014\n\004unk0\030\003 \002(\010\")\n\nItemPickup\022\n\n\002id\030"
-    "\001 \002(\005\022\017\n\007ownerId\030\002 \002(\005\"6\n\tItemEquip\022\n\n\002i"
-    "d\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\"*"
-    "\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerid\030\002 \002"
-    "(\005\"\367\001\n\006Player\022\n\n\002id\030\001 \002(\003\0224\n\004type\030\002 \002(\0162"
-    "&.TLMP.NetworkMessages.Player.ClassType\022"
-    "\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n\002id\030\001 \002(\003\0222\n\004type"
-    "\030\002 \002(\0162$.TLMP.NetworkMessages.Player.Pet"
-    "Type\"9\n\tClassType\022\r\n\tALCHEMIST\020\000\022\016\n\nVANQ"
-    "UISHER\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007PetType\022\007\n\003DO"
-    "G\020\000\022\007\n\003CAT\020\001", 812);
+    "\001 \002(\005\022\017\n\007ownerId\030\002 \002(\005\"C\n\tItemEquip\022\n\n\002i"
+    "d\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\022\013"
+    "\n\003unk\030\004 \002(\005\"*\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022\017"
+    "\n\007ownerid\030\002 \002(\005\"\367\001\n\006Player\022\n\n\002id\030\001 \002(\003\0224"
+    "\n\004type\030\002 \002(\0162&.TLMP.NetworkMessages.Play"
+    "er.ClassType\022\014\n\004name\030\003 \002(\t\032E\n\003Pet\022\n\n\002id\030"
+    "\001 \002(\003\0222\n\004type\030\002 \002(\0162$.TLMP.NetworkMessag"
+    "es.Player.PetType\"9\n\tClassType\022\r\n\tALCHEM"
+    "IST\020\000\022\016\n\nVANQUISHER\020\001\022\r\n\tDESTROYER\020\002\"\033\n\007"
+    "PetType\022\007\n\003DOG\020\000\022\007\n\003CAT\020\001", 825);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
@@ -1884,6 +1885,7 @@ void ItemPickup::Swap(ItemPickup* other) {
 const int ItemEquip::kIdFieldNumber;
 const int ItemEquip::kSlotFieldNumber;
 const int ItemEquip::kOwnerIdFieldNumber;
+const int ItemEquip::kUnkFieldNumber;
 #endif  // !_MSC_VER
 
 ItemEquip::ItemEquip() {
@@ -1903,6 +1905,7 @@ void ItemEquip::SharedCtor() {
   id_ = 0;
   slot_ = 0;
   ownerid_ = 0;
+  unk_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1935,6 +1938,7 @@ void ItemEquip::Clear() {
     id_ = 0;
     slot_ = 0;
     ownerid_ = 0;
+    unk_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1983,6 +1987,20 @@ bool ItemEquip::MergePartialFromCodedStream(
         DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
               input, &ownerid_));
         _set_bit(2);
+        if (input->ExpectTag(32)) goto parse_unk;
+        break;
+      }
+      
+      // required int32 unk = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+       parse_unk:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &unk_));
+        _set_bit(3);
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -2026,6 +2044,11 @@ void ItemEquip::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->ownerid(), output);
   }
   
+  // required int32 unk = 4;
+  if (_has_bit(3)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->unk(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2047,6 +2070,11 @@ void ItemEquip::SerializeWithCachedSizes(
   // required int32 ownerId = 3;
   if (_has_bit(2)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->ownerid(), target);
+  }
+  
+  // required int32 unk = 4;
+  if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->unk(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -2079,6 +2107,13 @@ int ItemEquip::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->ownerid());
+    }
+    
+    // required int32 unk = 4;
+    if (has_unk()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->unk());
     }
     
   }
@@ -2115,6 +2150,9 @@ void ItemEquip::MergeFrom(const ItemEquip& from) {
     if (from._has_bit(2)) {
       set_ownerid(from.ownerid());
     }
+    if (from._has_bit(3)) {
+      set_unk(from.unk());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2132,7 +2170,7 @@ void ItemEquip::CopyFrom(const ItemEquip& from) {
 }
 
 bool ItemEquip::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
   
   return true;
 }
@@ -2142,6 +2180,7 @@ void ItemEquip::Swap(ItemEquip* other) {
     std::swap(id_, other->id_);
     std::swap(slot_, other->slot_);
     std::swap(ownerid_, other->ownerid_);
+    std::swap(unk_, other->unk_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

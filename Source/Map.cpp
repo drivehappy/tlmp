@@ -35,12 +35,15 @@ void TLMP::_load_map_post STDARG
     unsigned int level = *((unsigned int*)me + 0x3c);
     log("~~~ guid = %016I64X, level = %i", guid, level);
 
+    /*
     // Force this, not sure why it's not getting set in _initialize_player_post
-    NetworkEntity* entity = new NetworkEntity(me, CLIENT_COMMON_BASE_ID);
-
     if (!NetworkSharedEntities)
       NetworkSharedEntities = new vector<NetworkEntity*>();
+    NetworkEntity* entity = new NetworkEntity(me, CLIENT_COMMON_BASE_ID);
     NetworkSharedEntities->push_back(entity);
+    */
+
+    NetworkEntity* entity = NetworkSharedEntities->front();
 
     //
     ClientAllowSpawn = false;
@@ -166,6 +169,7 @@ void TLMP::_on_load_area_post STDARG
 
   log("~~~ _on_load_area_post: guid = %016I64X, level = %i", guid, level);
 
+  /*
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     ClientAllowSpawn = false;
 
@@ -186,7 +190,7 @@ void TLMP::_on_load_area_post STDARG
 
 
   }
-
+  */
 
   /* NETWORK STUFF
   if (peer.is_active) {

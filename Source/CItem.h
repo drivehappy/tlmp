@@ -75,4 +75,19 @@ struct _CItem
   PVOID pCCullingBounds;
   PVOID pCSkillManager;
   
+  PVOID unk100;
+  u32 unk101;
+
+  PVOID pSoundBank;
+
+  u32 unk102[9];
+
+  // These two look like it might be the usual string structure
+  PVOID pStringName;    // "Grand Mana Potion"
+  u32 stringPart[5];
+
+  u32 unk103[5];        //
+
+
+  // CUTOFF THE ABOVE STRUCTURE SIZE SHOULD BE CORRECT
 };
