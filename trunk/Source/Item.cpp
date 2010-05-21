@@ -21,6 +21,11 @@ void TLMP::_item_initialize_pre STDARG
 {
   log(" %p :: item initialize %p", e->_this, Pz[0]);
   ItemManager = (PVOID)Pz[0];
+
+  u32 &stackSize = *(u32*)(((char*)e->_this) + 0x1E4);
+  u32 &stackSizeMax = *(u32*)(((char*)e->_this) + 0x1E8);
+
+  logColor(B_BLUE, "Stacksize: %i  Max: %i", stackSize, stackSizeMax);
 }
 
 void TLMP::_item_create_pre STDARG
@@ -50,7 +55,12 @@ void TLMP::_item_create_post STDARG
   u64 guid = *(u64 *)&Pz[0];
   UnitManager = e->_this;
 
-  log("%p :: Item created: %p, GUID: %016I64X", e->retval, e->_this, guid);
+  logColor(B_BLUE, "Ret: %p | Item created(%p, GUID: %016I64X)", e->retval, e->_this, guid);
+
+  u32 &stackSize = *(u32*)(((char*)e->retval) + 0x1E4);
+  u32 &stackSizeMax = *(u32*)(((char*)e->retval) + 0x1E8);
+
+  logColor(B_BLUE, "Stacksize: %i  Max: %i", stackSize, stackSizeMax);
 
   CItem* newItem = new CItem();
   newItem->e = (PVOID)e->retval;
@@ -621,6 +631,13 @@ void TLMP::_item_unequip_pre STDARG
   index_t entity_id = -1;
 
   log("========= ItemUnequip (this: %p, item: %p) retVal = %i", e->_this, Pz[0], e->retval);
+
+  u32 &stackSize = *(u32*)(((char*)itemUnequip) + 0x1E4);
+  u32 &stackSizeMax = *(u32*)(((char*)itemUnequip) + 0x1E8);
+
+  logColor(B_BLUE, "Stacksize: %i, MaxSize: %i", stackSize, stackSizeMax);
+
+  //stackSize = 2;
 
   // Retain equipped items for anyone that joins late
   if (EquippedItems) {
