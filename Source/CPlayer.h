@@ -1,8 +1,10 @@
 #pragma once
 
+#include "CCharacter.h"
+
 // Size: Unknown
 // Inheritance: CCharacter
-struct CPlayer
+struct CPlayer: CCharacter
 {
   // Base Class Members: CCharacter
 

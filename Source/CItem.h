@@ -3,7 +3,7 @@
 // Size?: 180h
 // Note: Similar name structure to CItemSaveState
 // Inheritance: CBaseUnit
-struct _CItem
+struct _CItem: CBaseUnit
 {
   PVOID vtable;
   PVOID unk0;
