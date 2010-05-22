@@ -4,9 +4,9 @@
 
 // Size?: 60h
 // Inheritance: CPositionableObject
-struct CBaseUnit
+struct CBaseUnit: CPositionableObject
 {
-  CPositionableObject positionableObject;
+  //CPositionableObject positionableObject;
 
   // Check out CCharacter for base data
 

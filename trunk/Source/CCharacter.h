@@ -5,10 +5,10 @@
 
 // Size?: 160h
 // Inheritance: CBaseUnit
-struct CCharacter
+struct CCharacter: CBaseUnit
 {
   // CBaseUnit stuff here
-  CBaseUnit baseUnit;
+  //CBaseUnit baseUnit;
 
   PVOID vtableIInventoryListener;
   PVOID vtableIMissle;

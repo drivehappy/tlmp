@@ -1,8 +1,10 @@
 #pragma once
 
+#include "CCharacter.h"
+
 // Size?: 6D4h
 // Inheritance: CCharacter, CBaseUnit
-struct CMonster
+struct CMonster: CCharacter
 {
   PVOID vtable;
   PVOID unk_struct; // ptr to unknown struct
