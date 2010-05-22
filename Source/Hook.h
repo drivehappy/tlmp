@@ -72,6 +72,7 @@ namespace TLMP {
     PVOID         entry;
     size_t        entry_size;
     PVOID         patch_address;
+	DWORD         user[16];
   };
 
   //

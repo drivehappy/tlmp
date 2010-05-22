@@ -24,7 +24,7 @@ PVOID TLMP::HookGenerateEntry(PVOID address, PVOID out_ins, size_t* out_size)
       xcept("hook entry %p; failed to decode instruction at %p",address,(void*)u.insn_offset);
     }
     ud_operand&op = u.operand[0];
-    if (u.br_near && op.type==UD_OP_JIMM) {
+    if (u.mnemonic==UD_Ijmp) {
       ret_addr = (uint8_t*)(u.pc + (op.size==32?op.lval.sdword:op.size==16?op.lval.sword:op.lval.sbyte));
       ud_set_input_buffer(&u,(uint8_t*)ret_addr,0x100);
       ud_set_pc(&u,(uint64_t)ret_addr);
@@ -81,7 +81,7 @@ PVOID TLMP::HookGenerateEntry(PVOID address, PVOID out_ins, size_t* out_size)
     out += size;
 
     if (total_size<5) {
-      if (u.mnemonic==UD_Iret || u.mnemonic==UD_Iiretw || u.br_near) {
+      if (u.mnemonic==UD_Iret || u.mnemonic==UD_Iiretw || u.mnemonic==UD_Ijmp) {
         // function end, but let's not give up quite yet... there should be some padding
         uint8_t*p = (uint8_t*)u.pc;
         while ((*p==0xcc||*p==0x00) && total_size<5) {
