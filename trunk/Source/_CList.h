@@ -14,7 +14,7 @@ struct CList
   u32   capacity;
   u32   growth;
 
-  T* operator[](int index) {
+  T operator[](int index) {
     return list[index];
   };
 };

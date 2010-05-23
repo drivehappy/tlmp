@@ -1,6 +1,7 @@
 #pragma once
 
 #include "_CString.h"
+#include "CDynamicPropertyFile.h"
 
 struct CSettings : CDynamicPropertyFile
 {
@@ -9,5 +10,5 @@ struct CSettings : CDynamicPropertyFile
   PVOID unk0;
   PVOID unk1;
   CString pStringUserDirectory;
-  *?
+  */
 };

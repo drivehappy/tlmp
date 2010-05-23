@@ -358,6 +358,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="RunicHelper"
+				>
+				<File
+					RelativePath=".\Source\_UUID_Helper.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -756,6 +764,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CDynamicPropertyFile.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CEditorBaseObject.h"
 					>
 				</File>
@@ -960,6 +972,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CQuestManager.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CRandomGroup.h"
 					>
 				</File>
@@ -1105,6 +1121,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\CWaypointActivator.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="RunicHelper"
+				>
+				<File
+					RelativePath=".\Source\_UUID_Helper.h"
 					>
 				</File>
 			</Filter>

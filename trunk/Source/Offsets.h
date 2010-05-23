@@ -2,6 +2,8 @@
 
 #include "DataTypes.h"
 
+#include "CGameClient.h"
+
 namespace TLMP {
 
   TLFUNC(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool));
@@ -61,7 +63,8 @@ namespace TLMP {
   // -------------------------------------------------------------------------------- //
   // In-place definitions
 
-  TLFUNC(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
+  //TLFUNC(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
+  TLFUNC(ProcessObjects,     void,     __thiscall, (CGameClient*, PVOID, PVOID, PVOID));
 
   TLFUNC(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID));
   TLFUNC(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32));

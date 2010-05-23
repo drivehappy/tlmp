@@ -1,13 +1,18 @@
 #pragma once
 
 #include "CCameraControl.h"
+#include "CSoundManager.h"
+#include "CSettings.h"
+#include "CPlayer.h"
+#include "CMonster.h"
+#include "CQuestManager.h"
+#include "CLevel.h"
+#include "CGameUI.h"
 
 // Size?: 
 // 
 struct CGameClient : CRunicCore
 {
-  PVOID unk0;
-
   PVOID vtableOgre_RenderTargetListener;
   PVOID vtableOgre_RenderQueue_RenderableListener;
 
@@ -22,8 +27,7 @@ struct CGameClient : CRunicCore
   CSoundManager      *pCSoundManager;
   CSettings          *pCSettings;
   CPlayer            *pCPlayer;
-
-  PVOID unk1;       // NULL
+  CMonster           *pPet;
 
   CQuestManager      *pCQuestManager;
   CLevel             *pCLevel;

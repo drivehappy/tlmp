@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CRunicCore.h"
+
 struct CSoundManager : CRunicCore
 {
   u32 unk1;   // 1

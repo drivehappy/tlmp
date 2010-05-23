@@ -16,6 +16,8 @@
 
 #include "Test.h"
 
+#include "CGameClient.h"
+
 u32 exeBaseReal = (u32)GetModuleHandle("Torchlight.exe");
 
 // Define the offset locations
@@ -80,7 +82,8 @@ TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (PVOID, u32),               
 // -------------------------------------------------------------------------------- //
 // In-place definitions
 
-TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A790);     // 1.15  CGameClient
+//TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A790);     // 1.15  CGameClient
+TLFUNCPTR(ProcessObjects,     void,     __thiscall, (CGameClient*, PVOID, PVOID, PVOID),               0x41A790);     // 1.15  CGameClient
 
 TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D4450);     // 1.15  CMonster, float (0.002)
 TLFUNCPTR(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32),                                      0x498670);     // 1.15  CMonster, u32 unk (0)

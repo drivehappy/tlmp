@@ -1,5 +1,9 @@
 #pragma once
 
+#include "_CList.h"
+
+#include "CLayout.h"
+#include "CQuadTree.h"
 #include "CCollisionList.h"
 
 // Size?: 17Ch
@@ -22,7 +26,7 @@ struct CLevel : CRunicCore
 
   u32 unk10[3];       // 195h, 186h, 3C81h
 
-  CQuadTree          *pCQuadTree;       // ptr to CQuadTree
+  CQuadtree          *pCQuadTree;       // ptr to CQuadTree
   CCollisionList     *pCCollisionList;  // ptr to CCollisionList
   u32 unk11;          // Cylic ptr to itself
 

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "CLayoutScene.h"
+
 // Size?: F0h
-// Inheritance: CPositionalObject
 struct CAllDescriptorsScene : CLayoutScene
 {
   u32 unk6[27];

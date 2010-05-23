@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CRunicCore.h"
+
 struct CCameraControl : CRunicCore
 {
   PVOID unk0;
