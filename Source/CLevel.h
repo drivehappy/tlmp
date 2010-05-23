@@ -7,8 +7,7 @@ struct CLevel : CRunicCore
 {
   u32 unk0;
   
-  // Make sure the vector type here matches how the structure is
-  vector<CLayout*>   *pCLayouts;
+  CList<CLayout*>    CLayoutsList;
 
   u32 unk1;           // 3
   u32 unk2;           // 0Ah

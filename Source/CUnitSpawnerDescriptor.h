@@ -20,12 +20,12 @@ struct CUnitSpawnerDescriptor : CShapeDescriptor
   u32 unk6[14];
   PVOID unk7;               // ptr to some cyclic structure nodes
   u32 unk8;
-  PVOID pCDescriptorProps;  // Probably: vector<CDescriptorProp*>*
+  PVOID pCDescriptorProps;  // Probably: CList<CDescriptorProp*>
   PVOID* ppCUnitSpawner;    // ptr ptr to CUnitSpawner
   u32 unk9[7];
   PVOID pStringWeird0;      // ptr string to weird hardcode
   u32 unk10[3];             // values: 6, 6, 2
-  PVOID pCLogicWrappers;    // Probably: vector<CLogicWrapper*>*
+  PVOID pCLogicWrappers;    // Probably: CList<CLogicWrapper*>
   u32 unk11[3];             // values: 7, 8, 2
   PVOID pStringWeird1;      // ptr string to weird hardcode
   u32 unk12[5];

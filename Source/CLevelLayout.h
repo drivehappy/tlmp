@@ -4,5 +4,5 @@
 struct CLevelLayout : CRunicCore
 {
   u32 unk0;
-  PVOID pChunkList;   // Probably: vector<CChunk*>*
+  PVOID pChunkList;   // Probably: CList<CChunk*>
 };
