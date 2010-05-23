@@ -2,5 +2,11 @@
 
 struct CDungeonManager : CRunicCore
 {
-  // TODO
+  PVOID unk0;
+  PVOID unk1;
+
+  CString location;   // "MEDIA/DUNGEONS/"
+
+  vector<Dungeon *>   *pCDungeonList;
+
 };
