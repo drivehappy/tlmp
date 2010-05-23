@@ -20,7 +20,7 @@ namespace TLMP {
 
   TLFUNC(OnStrike,           PVOID,    __thiscall, (PVOID, PVOID, PVOID, PVOID, u32, float, float, u32));
 
-  TLFUNC(SpiderProcessAI,    PVOID,    __thiscall, (PVOID, PVOID, float));
+  TLFUNC(SpiderProcessAI,    PVOID,    __thiscall, (PVOID, float, PVOID));
   TLFUNC(SetAnimation,       PVOID,    __thiscall, (PVOID, u32, bool, float, float, u32));
 
   TLFUNC(DoAttack,           PVOID,    __thiscall, (PVOID));
@@ -40,7 +40,7 @@ namespace TLMP {
   TLFUNC(LevelUp,            PVOID,    __thiscall, (PVOID));
   TLFUNC(LevelUpSilent,      PVOID,    __thiscall, (PVOID));
 
-  TLFUNC(PetawayTimer,       PVOID,    __thiscall, (PVOID, u32, u32));
+  TLFUNC(PetawayTimer,       PVOID,    __thiscall, (PVOID, u32, PVOID));
 
   TLFUNC(InteractWithObject, PVOID,    __thiscall, (PVOID, PVOID));
   TLFUNC(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64));
@@ -56,7 +56,7 @@ namespace TLMP {
 
   TLFUNC(GetPlayer,          PVOID,    __thiscall, (void));
   TLFUNC(PlayerDied,         void,     __thiscall, (void));
-  TLFUNC(PlayerResurrect,    void,     __thiscall, (void));
+  TLFUNC(PlayerResurrect,    void,     __thiscall, (PVOID, u32));
 
   // -------------------------------------------------------------------------------- //
   // In-place definitions
@@ -72,7 +72,7 @@ namespace TLMP {
 
   TLFUNC(PlayerSetAction,    void,     __thiscall, (PVOID));
   
-  TLFUNC(TitleScreenProcess, void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
+  TLFUNC(TitleScreenProcess, void,     __thiscall, (PVOID, float, PVOID, float, u32));
 
   TLFUNC(LoadMap,            void,     __thiscall, (PVOID, u32));
 
@@ -81,6 +81,8 @@ namespace TLMP {
   TLFUNC(Destroy,            void,     __thiscall, (PVOID));
 
   TLFUNC(EntityReadProp,     void,     __thiscall, (PVOID));
+
+  TLFUNC(UseEquipment,       void,     __thiscall, (PVOID, PVOID, PVOID));
 
   //TLFUNCPTR(LoadArea,           void,     __thiscall, (/* 18 */),                                        0x40CF40);
 

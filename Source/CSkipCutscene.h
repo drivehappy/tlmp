@@ -4,5 +4,10 @@
 struct CSkipCutscene : CEditorBaseObject
 {
   PVOID unk1;
-  PVOID pCSkipCutsceneDescriptor;
+
+  CSkipCutsceneDescriptor   *pCSkipCutsceneDescriptor;
+
+  CString *name;      // "skipCutscene"
+
+
 };

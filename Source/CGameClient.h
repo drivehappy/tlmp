@@ -13,4 +13,21 @@ struct CGameClient : CRunicCore
 
   CCameraControl     *pCCameraControl;
 
+  PVOID               pOctreeSM0;
+  PVOID               pOctreeSM1;
+  PVOID               pOctreeSM2;
+  PVOID               pOctreeSM3;
+  PVOID               pOctreeSM4;
+
+  CSoundManager      *pCSoundManager;
+  CSettings          *pCSettings;
+  CPlayer            *pCPlayer;
+
+  PVOID unk1;       // NULL
+
+  CQuestManager      *pCQuestManager;
+  CLevel             *pCLevel;
+  CGameUI            *pCGameUI;
+
+  
 };

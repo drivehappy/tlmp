@@ -4,5 +4,7 @@
 // 
 struct CHierarchy : CRunicCore
 {
-  // TODO
+  PVOID unk0;
+
+  PVOID *ptrtomyself;     // Cyclic ptr to point to myself
 };

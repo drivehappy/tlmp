@@ -800,6 +800,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CGraphManager.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CHierarchy.h"
 					>
 				</File>
@@ -860,6 +864,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CLogicTimer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CLogicTrigger.h"
 					>
 				</File>
@@ -881,6 +889,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CMonster.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CMonsterDescriptor.h"
 					>
 				</File>
 				<File
@@ -932,7 +944,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CQuest.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CQuestController.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CQuestDialog.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CRandomGroup.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CRandomizer.h"
 					>
 				</File>
 				<File
