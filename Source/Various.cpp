@@ -130,6 +130,33 @@ void TLMP::_process_objects_pre STDARG
   } else if (NetworkState::getSingleton().GetState() == CLIENT) {
     Network::Client::getSingleton().ReceiveMessages();
   }
+
+  // Testing structure out
+  CGameClient *gameClient = (CGameClient*)e->_this;
+  CPlayer *player = gameClient->pCPlayer;
+  CLevel *level = gameClient->pCLevel;
+  CLayout *layout = NULL;
+  CMonster *pet = gameClient->pPet;
+
+  if (level->CLayoutsList.size) {
+    layout = level->CLayoutsList[0];
+  }
+
+  logColor(B_RED, "PROCESSOBJECTS: CGameClient = %p", gameClient);
+  logColor(B_RED, "     CPlayer = %p", player);
+  logColor(B_RED, "         GUID = %016I64X", player->GUIDUnk);
+  logColor(B_RED, "     Pet = %p", pet);
+  if (pet)
+    logColor(B_RED, "         GUID = %016I64X", pet->GUIDUnk);
+  logColor(B_RED, "     CLevel = %p", level);
+  logColor(B_RED, "         Layout List: %p", &level->CLayoutsList);
+  logColor(B_RED, "         Layout Count: %i", level->CLayoutsList.size);
+  if (layout) {
+    logColor(B_RED, "         Layout GUID0: %016I64X", layout->guid0);
+    logColor(B_RED, "         Layout GUID1: %016I64X", layout->guid1);
+    logColor(B_RED, "         Layout GUID2: %016I64X", layout->guid2);
+    logColor(B_RED, "         Layout GUID3: %016I64X", layout->guid3);
+  }
 }
 
 void TLMP::_process_objects_post STDARG

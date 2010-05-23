@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CAllDescriptorsScene.h"
+
 // Size?: 1A8h, base class data: 168h
 struct CLayout : CAllDescriptorsScene
 {
