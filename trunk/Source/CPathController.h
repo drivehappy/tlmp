@@ -1,8 +1,11 @@
 #pragma once
 
 // Size?: 144h
-struct CPathController
+struct CPathController : CPositionableObject
 {
+  // TODO - Use below, mostly CPosObj struct though
+
+  /*
   PVOID vtable;
   u32 unk0;
 
@@ -51,4 +54,5 @@ struct CPathController
   PVOID pStringMonsters;    // ptr string = "MONSTERS"
 
   float unk10[14];  //
+  */
 };

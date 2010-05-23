@@ -2,7 +2,7 @@
 
 // Copied from CLogicSphere for now
 // 
-struct CLogicTrigger
+struct CLogicTrigger : CPositionableObject
 {
   u32 unk0;
   u64 guid0;  // 0C27D31B549C711DFh

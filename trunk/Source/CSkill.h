@@ -1,9 +1,9 @@
 #pragma once
 
 // Size?: 68h   - base 0Ch
-struct CSkill
+// Inherits: CRunicCore
+struct CSkill : CRunicCore
 {
-  PVOID vtable;
   PVOID unk0;
 
   // ----------- End Base Data members -----

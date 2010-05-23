@@ -1,8 +1,9 @@
 #pragma once
 
-struct CConsole
+// Size?:
+// 
+struct CConsole : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   PVOID pGUISheet;    // ptr to CEGUI GUISheet
 };

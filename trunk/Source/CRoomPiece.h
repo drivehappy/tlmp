@@ -1,8 +1,11 @@
 #pragma once
 
 // Size?: 120h
-struct CRoomPiece
+struct CRoomPiece : CPositionableObject
 {
+  // TODO use below
+
+  /*
   PVOID vtable;
   PVOID unk0;
   
@@ -52,4 +55,5 @@ struct CRoomPiece
   PVOID pStringMediaLevelset; // ptr string = "media/levelsets/props/mine_props/mine_pulley_support/mine_pulley_support.mesh"
 
   u32 unk12[5];
+  */
 };

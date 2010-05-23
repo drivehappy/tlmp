@@ -139,7 +139,7 @@ void TLMP::test10_pre STDARG
 {
   CCharacter *pCCharacter = (CCharacter*)e->_this;
   log("*** CCharacter Created: %p", pCCharacter);
-  log("        Guid2: %016I64X", pCCharacter->baseUnit.positionableObject.guid2);
+  log("        Guid2: %016I64X", pCCharacter->guid2);
 
   log("");
 }
@@ -167,7 +167,7 @@ void TLMP::testItemGold_pre STDARG
 
 void TLMP::testItem_pre STDARG
 {
-  _CItem *pItem = (_CItem *)e->_this;
+  CItem *pItem = (CItem*)e->_this;
 
   log("");
   log("*** CItem Created: %p", pItem);

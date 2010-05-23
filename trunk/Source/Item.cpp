@@ -62,7 +62,7 @@ void TLMP::_item_create_post STDARG
 
   logColor(B_BLUE, "Stacksize: %i  Max: %i", stackSize, stackSizeMax);
 
-  CItem* newItem = new CItem();
+  CItemOld* newItem = new CItemOld();
   newItem->e = (PVOID)e->retval;
   newItem->guid = guid;
   newItem->level = Pz[2];
@@ -133,14 +133,14 @@ void TLMP::_item_drop_pre STDARG
   // Update our world ptr
   //world = e->_this;
 
-  CItem *itemDropped = (CItem*)Pz[0];
+  CItemOld *itemDropped = (CItemOld*)Pz[0];
   Vector3 *position = (Vector3 *)Pz[1];
   bool unk0 = *(bool *)&Pz[2];
 
   log(" %p :: drop item %p %p %d",e->_this, Pz[0], Pz[1], Pz[2]);
   log("     pos: %f, %f, %f", position->x, position->y, position->z);
   log("     GUID: %016I64X", itemDropped->guid);
-  log("     GUID Real: %016I64X", itemDropped->getCEquipmentGUID());
+  //log("     GUID Real: %016I64X", itemDropped->getCEquipmentGUID());
 
   if (Network::NetworkState::getSingleton().GetState() == Network::SERVER && ServerSendClientItemSpawn) {
     NetworkEntity* netItemDropped = NULL;
@@ -453,7 +453,7 @@ void TLMP::_item_equip_pre STDARG
   log("      Unk        = %i", Pz[2]);
 
   //log(" %p :: item equip pre %p %d %d",e->_this,Pz[0],Pz[1],Pz[2]);
-  CItem c = *(CItem*)Pz[0];
+  CItemOld c = *(CItemOld*)Pz[0];
 
   u64 guid = c.guid;
 

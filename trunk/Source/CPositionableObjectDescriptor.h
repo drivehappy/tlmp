@@ -2,7 +2,7 @@
 
 // Size: Unknown
 // Inheritance: CBaseObjectDescriptor
-struct CPositionableObjectDescriptor
+struct CPositionableObjectDescriptor : CBaseObjectDescriptor
 {
 
 };

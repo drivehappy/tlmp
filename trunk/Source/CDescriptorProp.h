@@ -1,6 +1,8 @@
 #pragma once
 
-struct CDescriptorProp
+// Size? :
+// 
+struct CDescriptorProp : CRunicCore
 {
   
 };

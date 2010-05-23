@@ -2,11 +2,11 @@
 
 #include "CCharacter.h"
 
-// Size: Unknown
-// Inheritance: CCharacter
+// Size?:
+//
 struct CPlayer: CCharacter
 {
-  // Base Class Members: CCharacter
+  // TODO
 
   u32 unk0[2];    //
 

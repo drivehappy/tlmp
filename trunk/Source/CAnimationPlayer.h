@@ -1,7 +1,7 @@
 #pragma once
 
 // Size?: 88h
-struct CAnimationPlayer
+struct CAnimationPlayer : CEditorBaseObject
 {
   
 };

@@ -3,9 +3,10 @@
 #include "CCharacter.h"
 
 // Size?: 6D4h
-// Inheritance: CCharacter, CBaseUnit
+//
 struct CMonster: CCharacter
 {
+  /*
   PVOID vtable;
   PVOID unk_struct; // ptr to unknown struct
   u64 guid0;
@@ -15,5 +16,5 @@ struct CMonster: CCharacter
   PVOID pOgreAnimationListener; // ptr to Listener@AnimationTrack
   u32 unk2[2];
   PVOID pString;                // ptr to string "Flaming Sword"
-
+  */
 };

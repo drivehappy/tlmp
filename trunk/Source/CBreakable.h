@@ -1,12 +1,8 @@
 #pragma once
 
-// Size: Unknown
-// Inheritance: CItem, CBaseUnit, CPositionableObject, CSceneNodeObject, CEditorBaseObject
-struct CBreakable
+// Size?: 
+// Inheritance: CItem
+struct CBreakable : CItem
 {
-  PVOID vtable;
-  PVOID unk0;
-  u64 guid0;
-  u64 guid1;
-  u64 guid2;
+  // TODO
 };

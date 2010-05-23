@@ -72,8 +72,8 @@ void TLMP::_interact_with_object STDARG {
 
 void TLMP::_object_create_pre STDARG {
   log("\n");
-  log("Object pre-create: (this=%p, unk0=%#x) (GUID = %016I64X)", e->_this, Pz[0], ((CItem*)Pz[0])->guid);
-  log("       Unk0: %#x, Unk1: %016I64X", ((CItem*)Pz[0])->unk0, ((CItem*)Pz[0])->unk1);
+  log("Object pre-create: (this=%p, unk0=%#x) (GUID = %016I64X)", e->_this, Pz[0], ((CItemOld*)Pz[0])->guid);
+  log("       Unk0: %#x, Unk1: %016I64X", ((CItemOld*)Pz[0])->unk0, ((CItemOld*)Pz[0])->unk1);
 
   /*
   // Suppress object creation, get this from the host
@@ -87,9 +87,9 @@ void TLMP::_object_create_pre STDARG {
 
 void TLMP::_object_create_post STDARG {
   if (e->retval) {
-    CItem o;
+    CItemOld o;
     o.e = (PVOID)e->retval;
-    o.guid = ((CItem*)e->retval)->guid;
+    o.guid = ((CItemOld*)e->retval)->guid;
 
     /* NETWORK STUFF
     o.id = net_objects.add(o);

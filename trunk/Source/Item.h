@@ -27,7 +27,7 @@ namespace TLMP {
   extern vector<EquippedItem> *EquippedItems;
 
   // New item structure
-  class CItem {
+  class CItemOld {
   public:
     u32 id;
     u64 guid;
@@ -38,11 +38,12 @@ namespace TLMP {
       char*ce;
     };
 
+    /*
     u64 getCEquipmentGUID() {
       char *ce = (char*)this;
       u64* guidptr = (u64*)(ce + 0x168);
       return *guidptr;
-    }
+    }*/
   };
 
   //

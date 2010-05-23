@@ -1,7 +1,8 @@
 #pragma once
 
-struct CUnitTriggerDescriptor
+struct CUnitTriggerDescriptor : CPositionableObjectDescriptor
 {
+  /*
   PVOID vtable;
   u32 unk0;
   u64 guid0;
@@ -11,5 +12,5 @@ struct CUnitTriggerDescriptor
   PVOID pStringRater;     // ptr string "RATER.LAYOUT"
   u32 unk2[5];            // values: 0,0,0,0,7
   PVOID pCEditorScene;    // ptr to CEditorScene
-
+  */
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-struct CPetMenu
+struct CPetMenu : CSubMenu
 {
   PVOID vtable;
   PVOID unk0;

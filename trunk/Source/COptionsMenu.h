@@ -1,6 +1,6 @@
 #pragma once
 
-struct COptionsMenu
+struct COptionsMenu : CDropDownMenu
 {
-
+  // TODO
 };

@@ -2,7 +2,7 @@
 
 // Size?: 
 // Inheritance: CDescriptor
-struct CBaseObjectDescriptor
+struct CBaseObjectDescriptor : CDescriptor
 {
 
 };

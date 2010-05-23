@@ -1,9 +1,8 @@
 #pragma once
 
 // Size?: 0E8h (Base?)  + some
-struct CLevelTemplateData
+struct CLevelTemplateData : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   PVOID unk1;
 

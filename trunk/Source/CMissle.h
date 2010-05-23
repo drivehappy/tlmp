@@ -1,8 +1,9 @@
 #pragma once
 
 // Size?: 218h
-struct CMissle
+struct CMissle : CPositionableObject
 {
+  /*
   PVOID vtable;
   u32 unk0;
 
@@ -33,4 +34,5 @@ struct CMissle
   u32 unk8[7];    // 0,0,0,0,0,531h,0
 
   PVOID pCParticle[3];  // 3 ptrs to CParticle
+  */
 };

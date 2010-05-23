@@ -1,7 +1,7 @@
 #pragma once
 
 // Size?: 0Ch
-struct CAIManager
+struct CAIManager : CRunicCore
 {
   PVOID vtable;
   u32 unk0;

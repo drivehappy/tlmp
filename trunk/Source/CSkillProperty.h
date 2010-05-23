@@ -1,10 +1,8 @@
 #pragma once
 
 // Size?: 38h
-struct CSkillProperty
+struct CSkillProperty : CRunicCore
 {
-  PVOID vtable;
-
   float unk0[5];
 
   PVOID pCResourceManager;

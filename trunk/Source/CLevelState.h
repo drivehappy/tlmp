@@ -1,9 +1,8 @@
 #pragma once
 
 // Size?: A4h
-struct CLevelState
+struct CLevelState : CRunicCore
 {
-  PVOID vtable;
   u32 unk0[3];    // 0,1,0
 
   // Probably same old UNICODE union...

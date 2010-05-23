@@ -8,14 +8,8 @@
 
 // Size: 200h
 // Inheritance: CRunicCore
-
-struct CCharacterSaveState
+struct CCharacterSaveState : CRunicCore
 {
-  // This is similar to CEditorBaseObject, however I think it's
-  // implemented again since RTTI didn't pick it up, also it doesn't make sense to be in
-  // CEditorBaseObject
-
-  PVOID vtable;
   u32 unk0;
   u64 guid0;  // 51D9A040C33711DEh
   u64 guid1;  // 81065BD0B793A300h
