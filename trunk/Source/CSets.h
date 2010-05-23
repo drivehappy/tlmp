@@ -9,8 +9,7 @@ struct CSets : CRunicCore
 
   CString location;   // "media/sets/"
 
-  // vector< unk * >  ptr to unknown structure
-  vector<PVOID>   *pSets;
+  CList<PVOID>   SetsList;
 
   // Unk rest
 };

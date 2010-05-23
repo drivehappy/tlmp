@@ -38,17 +38,16 @@ struct CMonsterDescriptor : CPositionableObjectDescriptor
 
   u32 unk10;
 
-  // Again, not sure of the vector layout, but it looks close
-  vector<CDescriptorProp *>   *ppCDescriptorPropList;
+  CList<CDescriptorProp *>    CDescriptorPropList;
 
   u32 unk11[4];       // 0, 0, 0, 0Ah
 
-  vector<CMonster *>          *ppCMonsterList;
+  CList<CMonster *>           CMonsterList;
   
   u32 unk12[4];       // 0, 0, 0, 0Ah
 
-  vector<CLogicWrapper *>     *ppCLogicWrapper0;
-  vector<CLogicWrapper *>     *ppCLogicWrapper1;
+  CList<CLogicWrapper *>      CLogicWrapper0;
+  CList<CLogicWrapper *>      CLogicWrapper1;
 
   PVOID   *ptrtomyself2;   // Cyclic ptr to myself
 };

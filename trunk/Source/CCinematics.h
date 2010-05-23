@@ -1,6 +1,7 @@
 #pragma once
 
 #include "_CString.h"
+#include "_CList.h"
 
 struct CCinematics : CRunicCore
 {
@@ -9,8 +10,7 @@ struct CCinematics : CRunicCore
 
   CString location;   // "media/cinematics/"
 
-  // vector< unk * >   ptr to unk structure
-  vector<PVOID>     *pCinematics;
+  CList<PVOID>     CinematicsList;
 
   // Unk rest
 };

@@ -7,6 +7,6 @@ struct CDungeonManager : CRunicCore
 
   CString location;   // "MEDIA/DUNGEONS/"
 
-  vector<Dungeon *>   *pCDungeonList;
+  CList<Dungeon *>   CDungeonList;
 
 };

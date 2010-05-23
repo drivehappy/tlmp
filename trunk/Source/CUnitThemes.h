@@ -11,8 +11,5 @@ struct CUnitThemes : CRunicCore
   CUnitTheme   *pUnitTheme0;
   CString       pathLocation;
 
-  // vector<CUnitTheme *> ??
-  // ptr to list of CUnitTheme*, after ptr is size?
-  // check this, I don't know how vector types look in layout
-  vector<CUnitTheme *>  *pThemes;
+  CList<CUnitTheme *>  ThemesList;
 };

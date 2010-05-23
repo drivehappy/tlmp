@@ -580,6 +580,10 @@
 				Name="RunicStructures"
 				>
 				<File
+					RelativePath=".\Source\_CList.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\_CString.h"
 					>
 				</File>

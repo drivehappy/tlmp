@@ -17,8 +17,8 @@ struct CQuest : CRunicCore
   CString             name1;    // "ANOTHERPIECECAVES"
   CString             name2;    // "|cFFFFBA00Another Piece|u"
 
-  vector<CQuestDialog *>    *pCQuestDialogList0;
-  vector<CQuestDialog *>    *pCQuestDialogList1;
+  CList<CQuestDialog *>    CQuestDialogList0;
+  CList<CQuestDialog *>    CQuestDialogList1;
 
   // And some more...
 

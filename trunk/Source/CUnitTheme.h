@@ -6,11 +6,7 @@ struct CUnitTheme : CRunicCore
 {
   PVOID     unk0;
 
-  // vector<CUnitThemePartcle *> ??
-  // ptr to list of CUnitThemeParticle*, and size afterwards?
-  // check this
-  vector<CUnitThemeParticle *>  *pParticles;
-  // --
+  CList<CUnitThemeParticle *>  ParticlesList;
 
   _CString  name;     // "ARMORDEBUFF"
   u32       unk1;
