@@ -1,8 +1,10 @@
 #pragma once
 
 // Size?: 0A8h
-struct CQuestController
+struct CQuestController : CEditorBaseObject
 {
+  // TODO - Use below
+  /*
   PVOID vtable;
   PVOID unk0;
   
@@ -36,4 +38,5 @@ struct CQuestController
   float unk6[11];
 
   u32 unk7;
+  */
 };

@@ -1,11 +1,14 @@
 #pragma once
 
+#include "CCollisionList.h"
+
 // Size?: 17Ch
-struct CLevel
+struct CLevel : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
-  PVOID pStringWeird;
+  
+  // Make sure the vector type here matches how the structure is
+  vector<CLayout*>   *pCLayouts;
 
   u32 unk1;           // 3
   u32 unk2;           // 0Ah
@@ -20,9 +23,9 @@ struct CLevel
 
   u32 unk10[3];       // 195h, 186h, 3C81h
 
-  PVOID pCQuadTree;       // ptr to CQuadTree
-  PVOID pCCollisionList;  // ptr to CCollisionList
-  u32 unk11;
+  CQuadTree          *pCQuadTree;       // ptr to CQuadTree
+  CCollisionList     *pCCollisionList;  // ptr to CCollisionList
+  u32 unk11;          // Cylic ptr to itself
 
   float unk12[2];     // 1, 1
 

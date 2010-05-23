@@ -1,8 +1,9 @@
 #pragma once
 
 // Size?: 60h
-struct CParticle
+struct CParticle : CPositionableObject
 {
+  /*
   PVOID vtable;
   u32 unk0;
 
@@ -27,4 +28,5 @@ struct CParticle
   PVOID pOctree0;
 
   u32 unk5;       // 0
+  */
 };

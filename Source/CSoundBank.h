@@ -1,8 +1,7 @@
 #pragma once
 
-struct CSoundBank
+struct CSoundBank : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   PVOID pCSoundManager;   // ptr to CSoundManager
 };

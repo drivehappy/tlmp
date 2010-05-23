@@ -1,6 +1,8 @@
 #pragma once
 
-struct CGenericModel
+// Size: Unknown
+// 
+struct CGenericModel : CPositionableObject
 {
-  
+  // TODO
 };

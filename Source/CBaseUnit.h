@@ -57,12 +57,12 @@ struct CBaseUnit: CPositionableObject
   float unk8;         // 0.11084
 
   u32 unk9;           // 68h
-  PVOID pCDataGroup;  
 
-  u32 unk10;          // 0
+  PVOID pCDataGroup;
+  PVOID pCEffectManager;  // NULL
   PVOID pCCullingBounds;
+  PVOID pCSkillManager;
 
-  u32 unk11;          // 0
   float unk12;        // 0.5
   u32 unk13;          // 1
 

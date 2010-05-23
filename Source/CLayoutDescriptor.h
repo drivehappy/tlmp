@@ -1,6 +1,8 @@
 #pragma once
 
-struct CLayoutDescriptor
+// Size?:
+// 
+struct CLayoutDescriptor : CPositionableObjectDescriptor
 {
-  
+  // TODO
 };

@@ -1,7 +1,10 @@
 #pragma once
 
-struct CUnitSpawnerDescriptor
+struct CUnitSpawnerDescriptor : CShapeDescriptor
 {
+  // TODO use below
+
+  /*
   PVOID vtable;
   u32 unk0;
   u64 guid0;
@@ -27,4 +30,5 @@ struct CUnitSpawnerDescriptor
   PVOID pStringWeird1;      // ptr string to weird hardcode
   u32 unk12[5];
   PVOID unk13;              // points to a structure that had 3 elements points to itself...
+  */
 };

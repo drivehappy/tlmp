@@ -3,8 +3,11 @@
 // Size?: 60h
 // Node: Same base as CItem
 // 
-struct CPropertyNode
+struct CPropertyNode : CPositionableObject
 {
+  // TODO - Use below
+
+  /*
   PVOID vtable;
   u32 unk0;
   u64 guid0;      // 88F1C7449B211DFh
@@ -37,4 +40,5 @@ struct CPropertyNode
 
   PVOID pOctree0;
   u32 unk4;             // 0
+  */
 };

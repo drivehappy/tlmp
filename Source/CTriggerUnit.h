@@ -1,9 +1,10 @@
 #pragma once
 
-
 // Inherits CItem
-struct CTriggerUnit
+struct CTriggerUnit : CItem
 {
+  // TODO use below
+  /*
   u32 unk0;
   u64 guid0;  // 0D5CFD648499D11DFh
   u64 guid1;  // 0D5CFD648499D11DFh
@@ -13,4 +14,5 @@ struct CTriggerUnit
   PVOID pCLayoutDescriptor; // ptr to CLayoutDescriptor
   u32 unk2;
   PVOID pStringEntranceNode;  // ptr to string "EntranceNode"
+  */
 };

@@ -1,10 +1,8 @@
 #pragma once
 
 // Size?: 9Ch
-struct CSkillEvent
+struct CSkillEvent : CRunicCore
 {
-  PVOID vtable;
-
   u32 unk0;
 
   // ---------- Base type cutoff -----

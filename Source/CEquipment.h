@@ -2,9 +2,8 @@
 
 // Size?: 3E0h
 // Inherits: CItem
-struct CEquipment
+struct CEquipment : CItem
 {
-  // CItem STRUCTURE HERE
   u32 stackSize;    // 13h = 19 pots
   u32 stackSizeMax; // 14h = 20 max size pots
 

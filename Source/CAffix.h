@@ -2,10 +2,8 @@
 
 // Size?: B0h
 // Inheritance: CRunicCore
-struct CAffix
+struct CAffix : CRunicCore
 {
-  PVOID vtable;
-
   u32 unk0;
 
   PVOID pCAffixNext;    // Linked list struct?

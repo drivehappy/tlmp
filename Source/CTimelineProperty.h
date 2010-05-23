@@ -1,10 +1,8 @@
 #pragma once
 
 // Size?: 34h
-struct CTimelineProperty
+struct CTimelineProperty : CRunicCore
 {
-  PVOID vtable;
-
   u32 unk0;
 
   u64 guid0;      // 0A59E390749D811DFh

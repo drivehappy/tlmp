@@ -3,8 +3,11 @@
 // Size?: 1FCh
 // Note: Similar structure to CItem
 //
-struct CUnitSpawner
+struct CUnitSpawner : CShape
 {
+  // TODO use below
+
+  /*
   PVOID vtable;
   u32 unk0;
 
@@ -82,4 +85,5 @@ struct CUnitSpawner
   float unk11[7];
 
   u32 unk12[15];
+  */
 };

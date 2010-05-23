@@ -596,6 +596,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CAchievement.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CAchievements.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CActiveAnimation.h"
 					>
 				</File>
@@ -624,7 +632,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CAISkill.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CAISkillManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CAIStatWatcher.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CAllDescriptorsScene.h"
 					>
 				</File>
 				<File
@@ -633,6 +653,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CAStarPathFinder.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CAutomap.h"
 					>
 				</File>
 				<File
@@ -645,6 +669,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CBreakable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CCameraControl.h"
 					>
 				</File>
 				<File
@@ -668,11 +696,27 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CCinematicObject.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CCinematics.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CCollisionList.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CCollisionModel.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\CConsole.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CCounter.h"
 					>
 				</File>
 				<File
@@ -696,6 +740,18 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CDungeon.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CDungeonManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CDungeonObject.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CEditorBaseObject.h"
 					>
 				</File>
@@ -716,11 +772,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CEquipmentTooltip.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CGameClient.h"
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CGameGlobals.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CGameSpeed.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CGameStateController.h"
 					>
 				</File>
 				<File
@@ -729,6 +797,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CGenericModel.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CHierarchy.h"
 					>
 				</File>
 				<File
@@ -756,6 +828,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CLayoutScene.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CLevel.h"
 					>
 				</File>
@@ -772,6 +848,18 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CLogicGroup.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CLogicLink.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CLogicObject.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CLogicTrigger.h"
 					>
 				</File>
@@ -780,7 +868,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CMasterResourceManager.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CMissle.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CMoneyTaker.h"
 					>
 				</File>
 				<File
@@ -824,6 +920,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CPuzzleRandomizer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CQuadtree.h"
 					>
 				</File>
@@ -836,7 +936,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CRecipes.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CResourceManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CResourceSettings.h"
 					>
 				</File>
 				<File
@@ -848,11 +956,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CRoomPieceDataInformation.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CRunicCore.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\CSceneNodeObject.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CSets.h"
 					>
 				</File>
 				<File
@@ -900,6 +1016,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CStringTranslate.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CTimeline.h"
 					>
 				</File>
@@ -925,6 +1045,18 @@
 				</File>
 				<File
 					RelativePath=".\Source\CUnitSpawnerDescriptor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CUnitTheme.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CUnitThemeParticle.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CUnitThemes.h"
 					>
 				</File>
 				<File

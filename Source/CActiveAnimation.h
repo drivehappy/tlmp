@@ -1,7 +1,7 @@
 #pragma once
 
 // Inherits from CRunicCore
-struct CActiveAnimation
+struct CActiveAnimation : CRunicCore
 {
 
 };

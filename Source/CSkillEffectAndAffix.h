@@ -1,9 +1,8 @@
 #pragma once
 
 // Size?: 2Ch
-struct CSkillEffectAndAffix
+struct CSkillEffectAndAffix : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
 
   PVOID pCSkill;

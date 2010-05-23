@@ -1,8 +1,11 @@
 #pragma once
 
 // Size?: 118h
-struct CWarper
+struct CWarper : CPositionableObject
 {
+  // TODO use below
+
+  /*
   PVOID vtable;
   u32 unk0;
 
@@ -48,5 +51,5 @@ struct CWarper
 
   u32 nameLength;
   u32 maxNameLength;    // Guess, double check this
-
+  */
 };

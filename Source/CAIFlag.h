@@ -1,15 +1,9 @@
 #pragma once
 
-/*
-  FIXME:
-    Unsure of the exact size of this
-    Define functions
-**/
-
+// Size: ?
 // Inheritance: CRunicCore
-struct CAIFlag
+struct CAIFlag : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   u32 unk1;
   PVOID pCAIFlagManager;  // Ptr to CAIFlagManager

@@ -1,18 +1,11 @@
 #pragma once
 
+#include "CEditorBaseObject.h"
+
 // Size?: 5Ch
 // Inheritance: CEditorBaseObject
-struct CSceneNodeObject
+struct CSceneNodeObject : CEditorBaseObject
 {
-  // Base Class Members: CEditorBaseObject
-  PVOID vtable;
-  u32 unk0;
-  u64 guid0;
-  u64 guid1;
-  u64 guid2;
-  u64 guid3;
-
-  // My data members
   PVOID pAnimationTrack;        // ptr to Ogre Animation Track
   PVOID pCParticleTechWrapper;  // ptr to Particle Tech Wrapper
   u32 unk3;
@@ -20,8 +13,11 @@ struct CSceneNodeObject
   
   u32 unk4[5];
 
-  PVOID pCLayout;               // ptr to CLayout
-  PVOID pCLayout;               // ptr to CLayout (same layout as above)
+  //PVOID pCLayout;               // ptr to CLayout
+  //PVOID pCLayout;               // ptr to CLayout (same layout as above)
+  PVOID pCEditorScene0;
+  PVOID pCEditorScene1;
+
   PVOID pSharedMaterialPtr;     // ptr to Ogre shared mat ptr
 
   PVOID pOctreeNode0;

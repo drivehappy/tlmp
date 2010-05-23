@@ -1,9 +1,8 @@
 #pragma once
 
 // Size?: B0h
-struct CPath
+struct CPath : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   PVOID unk1;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-struct CDataValue
+// Size?: 
+struct CDataValue : CRunicCore
 {
-  PVOID vtable;
   u32 unk0[6];
   PVOID unk1;     // unk structure
   u32 unk2[10];   //

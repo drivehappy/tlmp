@@ -1,8 +1,10 @@
 #pragma once
 
 // Size?: 120h
-struct CShape
+struct CShape : CPositionableObject
 {
+  // TODO use below
+  /*
   PVOID vtable;
   u32 unk0;
 
@@ -48,5 +50,5 @@ struct CShape
   PVOID pDynamicParticleAttr[4];    // ParticleUniverse
 
   float unk11[5];     // -26.884277, 0, 10, 1, 10
-
+  */
 };

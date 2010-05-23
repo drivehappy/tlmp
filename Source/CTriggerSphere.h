@@ -1,8 +1,11 @@
 #pragma once
 
 // Inherits CLogicTrigger
-struct CTriggerSphere
+struct CTriggerSphere : CLogicTrigger
 {
+  // TODO use below
+
+  /*
   u32 unk0;
   u64 guid0;  // 0C27D31B549C711DFh
   u64 guid1;  // 0FFFFFFFFFFFFFFFFh
@@ -31,4 +34,5 @@ struct CTriggerSphere
   PVOID pOctree0;
 
   float unk8;     // 512.0
+  */
 };

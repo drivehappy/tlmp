@@ -7,9 +7,6 @@
 // Inheritance: CBaseUnit
 struct CCharacter: CBaseUnit
 {
-  // CBaseUnit stuff here
-  //CBaseUnit baseUnit;
-
   PVOID vtableIInventoryListener;
   PVOID vtableIMissle;
 

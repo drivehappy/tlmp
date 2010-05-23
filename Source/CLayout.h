@@ -1,8 +1,10 @@
 #pragma once
 
 // Size?: 1A8h, base class data: 168h
-struct CLayout
+struct CLayout : CAllDescriptorsScene
 {
+  // Below unknown, probably inheritanted from CAllDesc...
+  /*
   PVOID vtable;
   u32 unk0;
   u64 guid0;      // 98E21BE849C411DFh
@@ -29,4 +31,5 @@ struct CLayout
   PVOID pOctree1;
 
   // .. bunch of floats...
+  */
 };

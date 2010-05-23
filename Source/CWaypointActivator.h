@@ -1,9 +1,12 @@
 #pragma once
 
 // Size?: 0F0h
-// Note: Struct similar to CItem
-struct CWaypointActivator
+//
+struct CWaypointActivator : CPositionableObject
 {
+  // TODO use below
+
+  /*
   PVOID vtable;
   u32 unk0;
   u64 guid0;      // 88F1C7449B211DFh
@@ -43,4 +46,5 @@ struct CWaypointActivator
   // --
 
   u32 unk6[4];
+  */
 };

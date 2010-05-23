@@ -2,8 +2,10 @@
 
 // Size: Unknown
 // Inheritance: CPositionableObjectDescriptor
-struct CAffectorDescriptor
+struct CAffectorDescriptor : CPositionableObjectDescriptor
 {
+  // TODO FIX INHERITANCE MEMBERS
+
   PVOID vtable;
   u32 unk0;
   u64 guid0;                // 88F20B649B211DFh

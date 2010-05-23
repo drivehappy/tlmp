@@ -1,9 +1,8 @@
 #pragma once
 
 // Size?: unk
-struct CLevelLayout
+struct CLevelLayout : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   PVOID pChunkList;   // Probably: vector<CChunk*>*
 };

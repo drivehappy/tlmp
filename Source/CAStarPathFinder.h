@@ -2,10 +2,8 @@
 
 // Size?: 34h
 // Inheritance: CRunicCore
-struct CAstarPathfinder
+struct CAstarPathfinder : CRunicCore
 {
-  PVOID vtable;
-
   u32 unk0[5];
 
   PVOID unk1;

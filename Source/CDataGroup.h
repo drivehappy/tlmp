@@ -2,9 +2,8 @@
 
 #include "CDataValue.h"
 
-struct CDataGroup
+struct CDataGroup : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
   u32 unk1;             // 3211h
   PVOID unk2;

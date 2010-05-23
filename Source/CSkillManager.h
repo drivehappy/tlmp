@@ -1,9 +1,8 @@
 #pragma once
 
 // Size?: 30h
-struct CSkillManager
+struct CSkillManager : CRunicCore
 {
-  PVOID vtable;
   u32 unk0;
 
   PVOID pCResourceManager;
