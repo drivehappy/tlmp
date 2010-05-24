@@ -358,14 +358,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="RunicHelper"
-				>
-				<File
-					RelativePath=".\Source\_UUID_Helper.cpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1121,14 +1113,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\CWaypointActivator.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="RunicHelper"
-				>
-				<File
-					RelativePath=".\Source\_UUID_Helper.h"
 					>
 				</File>
 			</Filter>
