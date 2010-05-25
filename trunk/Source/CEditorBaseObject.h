@@ -1,5 +1,8 @@
 #pragma once
 
+#include "_CUnknownStruct3.h"
+#include "_CList.h"
+
 #include "CRunicCore.h"
 
 // Size?: 30h
@@ -8,7 +11,8 @@
 // Inheritance: CRunicCore
 struct CEditorBaseObject : CRunicCore
 {
-  PVOID unk0;
+  CList<CUnknownStruct3>    *pListUnk;
+
   u64 guid0;
   u64 guid1;
   u64 guid2;

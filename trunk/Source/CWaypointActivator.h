@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CPositionableObject.h"
+
 // Size?: 0F0h
 //
 struct CWaypointActivator : CPositionableObject

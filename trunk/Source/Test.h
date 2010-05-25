@@ -8,10 +8,10 @@ using namespace TLMP::Network;
 #include "MemoryManager.h"
 
 // Test Headers
-#include "CCharacterSaveState.h"
-#include "CCharacter.h"
-#include "CItemGold.h"
 #include "CItem.h"
+#include "CItemGold.h"
+#include "CCharacter.h"
+#include "CCharacterSaveState.h"
 
 //
 // File designed to hold unknown/testing functions
@@ -60,4 +60,6 @@ namespace TLMP {
 
   void testItem_pre  STDARG;
   void testItem_post STDARG;
+
+  void testFireMessage_pre STDARG;
 };

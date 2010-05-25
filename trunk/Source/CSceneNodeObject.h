@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CEditorBaseObject.h"
+#include "_CString.h"
 
 // Size?: 5Ch
 // Inheritance: CEditorBaseObject
@@ -8,10 +9,12 @@ struct CSceneNodeObject : CEditorBaseObject
 {
   PVOID pAnimationTrack;        // ptr to Ogre Animation Track
   PVOID pCParticleTechWrapper;  // ptr to Particle Tech Wrapper
-  u32 unk3;
-  PVOID pStringBaseGlow;        // ptr string "Base Glow", Also contains CPlayer's class name
+
+  PVOID unk0;
+
+  CString name;        // ptr string "Base Glow", Also contains CPlayer's class name
   
-  u32 unk4[5];
+  //u32 unk4[5];
 
   //PVOID pCLayout;               // ptr to CLayout
   //PVOID pCLayout;               // ptr to CLayout (same layout as above)

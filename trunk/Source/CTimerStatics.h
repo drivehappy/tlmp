@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CRunicCore.h"
+
 // Size?: 20h
 struct CTimerStatics : CRunicCore
 {

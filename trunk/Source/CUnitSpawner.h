@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CShape.h"
+
 // Size?: 1FCh
 // Note: Similar structure to CItem
 //

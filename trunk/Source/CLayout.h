@@ -1,37 +1,36 @@
 #pragma once
 
+#include "_CString.h"
+#include "_CList.h"
+
 #include "CAllDescriptorsScene.h"
+#include "CDescriptorManager.h"
+#include "CSettings.h"
 
 // Size?: 1A8h, base class data: 168h
 struct CLayout : CAllDescriptorsScene
 {
-  // Below unknown, probably inheritanted from CAllDesc...
-  /*
-  PVOID vtable;
-  u32 unk0;
-  u64 guid0;      // 98E21BE849C411DFh
-  u64 guid1;      // 0FFFFFFFFFFFFFFFFh
-  u64 guid2;      // 98E21BE849C411DFh
-  u64 guid3;      // 0h
+  // These may be in base object or derived
+  CDescriptorManager      *pCDescriptorManager;
+  
+  CList<PVOID>            UnkList0;
 
-  PVOID unk1;     // ptr to unk struct
-  u32 unk2;       // 0
-  u32 unk3;       // 94916B4Eh
+  PVOID unk12;
+  PVOID unk13;
 
-  wchar_t name[8];     // Unicode "Layout"
+  CList<PVOID>            UnkList1;
 
-  u32 nameLength;
-  u32 nameMaxLength;  // maybe
+  u32 unk14[7];
 
-  u32 unk4[2];
+  CString                 location;   // "MEDIA/PARTICLES/MISSILES/CORRUPTION.LAYOUT"
 
-  u64 unk5;
-  u32 unk6;
+  CSettings*             *pCSettings;
+  PVOID                   pOctreeSM;
 
-  PVOID pCResourceManager;
-  PVOID pOctree0;
-  PVOID pOctree1;
+  PVOID unk15[4];         // NULLs
 
-  // .. bunch of floats...
-  */
+  PVOID vtable_iRandomWeight;
+  PVOID vtable_iHighlight;
+
+  u32 unk16[36];          // 2 dup(   1),0Ah dup(   0), 0Ah,17h dup(   0)
 };

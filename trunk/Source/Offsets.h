@@ -81,11 +81,12 @@ namespace TLMP {
 
   TLFUNC(Random,             void,     __thiscall, ());
 
-  TLFUNC(Destroy,            void,     __thiscall, (PVOID));
+  TLFUNC(Destroy,            void,     __thiscall, (PVOID, PVOID));
 
   TLFUNC(EntityReadProp,     void,     __thiscall, (PVOID));
 
   TLFUNC(UseEquipment,       void,     __thiscall, (PVOID, PVOID, PVOID));
+  TLFUNC(IdentifyEquipment,  void,     __thiscall, (PVOID));
 
   //TLFUNCPTR(LoadArea,           void,     __thiscall, (/* 18 */),                                        0x40CF40);
 

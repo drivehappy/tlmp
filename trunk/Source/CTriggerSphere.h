@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CLogicTrigger.h"
+
 // Inherits CLogicTrigger
 struct CTriggerSphere : CLogicTrigger
 {

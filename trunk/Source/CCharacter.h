@@ -5,7 +5,7 @@
 
 // Size?: 160h
 // Inheritance: CBaseUnit
-struct CCharacter: CBaseUnit
+struct CCharacter : CBaseUnit
 {
   PVOID vtableIInventoryListener;
   PVOID vtableIMissle;

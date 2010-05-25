@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CItem.h"
+
 // Inherits CItem
 struct CTriggerUnit : CItem
 {

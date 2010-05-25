@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CRunicCore.h"
+
 // Size?: 34h
 struct CTimelineProperty : CRunicCore
 {
