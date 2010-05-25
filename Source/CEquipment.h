@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CItem.h"
+
 // Size?: 3E0h
 // Inherits: CItem
 struct CEquipment : CItem

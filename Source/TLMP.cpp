@@ -100,11 +100,12 @@ TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, u32),               
 
 TLFUNCPTR(Random,             void,     __thiscall, (),                                                0x5BA660);     // 1.15
 
-TLFUNCPTR(Destroy,            void,     __thiscall, (PVOID),                                           0x4F5AA0);     // 1.15
+TLFUNCPTR(Destroy,            void,     __thiscall, (PVOID, PVOID),                                    0x4F5AA0);     // 1.15  CLevel, CMonster
 
 TLFUNCPTR(EntityReadProp,     void,     __thiscall, (PVOID),                                           0x47EAF0);     // 1.15  CMonster
 
 TLFUNCPTR(UseEquipment,       void,     __thiscall, (PVOID, PVOID, PVOID),                             0x4B4FB0);     // 1.15  CEquipment, CPlayer, CPlayer
+TLFUNCPTR(IdentifyEquipment,  void,     __thiscall, (PVOID),                                           0x4B0200);     // 1.15  CEquipment
 
 //TLFUNCPTR(LoadArea,           void,     __thiscall, (/* 18 */),                                        0x40CF20);
 // ... and add more later
@@ -252,11 +253,10 @@ void TLMP::HookFunctions()
   Hook((PVOID)EXEOFFSET(0x5B1DA0), test5_pre, test5_post, HOOK_THISCALL, 5);
 
   // delete(void*)
-  Hook((PVOID)EXEOFFSET(0x6059B8), test6_pre, test6_post, HOOK_CDECL, 1);
+  //Hook((PVOID)EXEOFFSET(0x6059B8), test6_pre, test6_post, HOOK_CDECL, 1);
 
   // new(void*)
-  Hook((PVOID)EXEOFFSET(0x605B54), test7_pre, test7_post, HOOK_CDECL, 1);
-  //Hook((PVOID)EXEOFFSET(0x605954), test7_pre, test7_post, HOOK_CDECL, 1);
+  //Hook((PVOID)EXEOFFSET(0x605B54), test7_pre, test7_post, HOOK_CDECL, 1);
   
   // Player ctor?
   Hook((PVOID)EXEOFFSET(0x4DB820), test8_pre, test8_post, HOOK_THISCALL, 1);
@@ -272,4 +272,7 @@ void TLMP::HookFunctions()
   
   // CItem ctor
   Hook((PVOID)EXEOFFSET(0x4CFC20), testItem_pre, NULL, HOOK_THISCALL, 1);
+
+  // FireMessage
+  Hook((PVOID)EXEOFFSET(0x44F960), testFireMessage_pre, NULL, HOOK_THISCALL, 2);
 }

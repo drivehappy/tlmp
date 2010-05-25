@@ -7,7 +7,7 @@ struct CItemSaveState : CRunicCore
 {
   u32 unk0;
 
-  PVOID pCItemSaveState;    // Linked list node? ptr to another CItemSaveState
+  CItemSaveState *pCItemSaveState;    // Linked list node? ptr to another CItemSaveState
 
   CString name;
 

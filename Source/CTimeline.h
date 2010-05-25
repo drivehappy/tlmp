@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CEditorBaseObject.h"
+
 // Size?: 30h
 struct CTimeline : CEditorBaseObject
 {

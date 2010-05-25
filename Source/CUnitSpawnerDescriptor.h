@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CShapeDescriptor.h"
+
 struct CUnitSpawnerDescriptor : CShapeDescriptor
 {
   // TODO use below

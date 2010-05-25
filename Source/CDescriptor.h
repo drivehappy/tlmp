@@ -1,7 +1,8 @@
 #pragma once
 
+#include "CEditorBaseObject.h"
+
 // Size?: 168h
-// Inheritance: CEditorBaseObject
 struct CDescriptor : CEditorBaseObject
 {
   // Todo

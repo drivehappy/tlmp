@@ -4,18 +4,8 @@
 
 // Size?: 60h
 // Inheritance: CPositionableObject
-struct CBaseUnit: CPositionableObject
+struct CBaseUnit : CPositionableObject
 {
-  //CPositionableObject positionableObject;
-
-  // Check out CCharacter for base data
-
-  float unk0[31];     // -25.59, 0.8,  33.61
-                      // 1.1,    1.1,  1.1,
-                      // 0.0,    1.0,  0.0
-
-  PVOID pSharedPtrMaterial;     // ogre
-
   u32 unk1[9];        //
 
   PVOID pCUnknownStruct2;     // ptr to CUnknownStruct2

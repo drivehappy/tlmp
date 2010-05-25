@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CPositionableObjectDescriptor.h"
+
 struct CUnitTriggerDescriptor : CPositionableObjectDescriptor
 {
   /*

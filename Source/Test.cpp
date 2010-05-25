@@ -156,26 +156,41 @@ void TLMP::testItemGold_pre STDARG
 {
   CItemGold *pItemGold = (CItemGold *)e->_this;
 
+  /*
   log("");
   log("*** CItemGold Created: %p", pItemGold);
   log("    guid0: %016I64X", pItemGold->guid0);
   log("    guid1: %016I64X", pItemGold->guid1);
   log("    guid2: %016I64X", pItemGold->guid2);
-
   log("");
+  */
 }
 
 void TLMP::testItem_pre STDARG
 {
   CItem *pItem = (CItem*)e->_this;
 
+  /*
   log("");
   log("*** CItem Created: %p", pItem);
   log("    guid0: %016I64X", pItem->guid0);
   log("    guid1: %016I64X", pItem->guid1);
   log("    guid2: %016I64X", pItem->guid2);
-
   log("");
+  */
 }
 
+void TLMP::testFireMessage_pre STDARG
+{
+  CSettings *settings = (CSettings*)e->_this;
+  const u32 index = 0x3C;
 
+  /*
+  logColor(B_GREEN, "FireMessage (%p, %p)", settings, Pz[0]);
+  logColor(B_GREEN, "  CSettings: %p", settings);
+  logColor(B_GREEN, "    Index High: %p", settings->MessageIndexHigh);
+  logColor(B_GREEN, "    Index Low:  %p", settings->MessageIndexLow);
+  logColor(B_GREEN, "    Index Low:  %p", settings->MessageIndexLow);
+  logColor(B_GREEN, "    Index Value:%i", ((u32*)settings->MessageIndexLow)[index]);
+  */
+}

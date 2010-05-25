@@ -156,6 +156,7 @@ void TLMP::_process_objects_pre STDARG
     logColor(B_RED, "         Layout GUID1: %016I64X", layout->guid1);
     logColor(B_RED, "         Layout GUID2: %016I64X", layout->guid2);
     logColor(B_RED, "         Layout GUID3: %016I64X", layout->guid3);
+    log(L"         Layout Name: %s", layout->name.getString());
   }
 }
 
