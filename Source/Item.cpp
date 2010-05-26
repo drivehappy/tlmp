@@ -447,15 +447,18 @@ void TLMP::_item_equip_pre STDARG
 {
   log("===== ItemEquip (this: %p, %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], Pz[2], e->retval);
 
-  log("      CInventory = %p", e->_this);
-  log("      CEquipment = %p", Pz[0]);
-  log("      Slot       = %i", Pz[1]);
-  log("      Unk        = %i", Pz[2]);
+  CInventory *inventory = (CInventory*)e->_this;
+  CEquipment *equipment = (CEquipment*)Pz[0];
+  u32 slot = Pz[1];
+  u32 unk = Pz[2];
 
-  //log(" %p :: item equip pre %p %d %d",e->_this,Pz[0],Pz[1],Pz[2]);
-  CItemOld c = *(CItemOld*)Pz[0];
+  log("      CInventory = %p", inventory);
+  log("      CEquipment = %p", equipment);
+  log("      Slot       = %i", slot);
+  log("      Unk        = %i", unk);
 
-  u64 guid = c.guid;
+  inventory->dumpInventory();
+  equipment->dumpEquipment();
 
   if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT) {
     if (!ClientAllowEquip) {
@@ -465,38 +468,19 @@ void TLMP::_item_equip_pre STDARG
       e->retval = 0;
     }
   }
-
-  /* NETWORK STUFF
-  if (peer.is_active && !peer_allow_equip) {
-    if (peer_items_created.getbyval(guid)) {
-      peer_items_equipped.add(guid);
-      log2("peer_items_equipped added buffer GUID = %016I64X", guid);
-    } else {
-      log2("Peer Error: Couldn't find equip requested item in our item list (guid = %016I64X)", guid);
-      log2(" Available GUIDs:");
-      NL_ITERATE(i, unsigned long long, peer_items_created) {
-        log2("  %016I64X", (*i));
-      }
-    }
-
-    e->calloriginal = false;
-    e->retval = 0;
-  }
-  */
 }
 
 void TLMP::_item_equip_post STDARG
 {
   log("===== ItemEquip (this: %p, %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], Pz[2], e->retval);
 
-  //if (!e->retval) {
-  //  return;
-  //}
+  CInventory *inventory = (CInventory*)e->_this;
+  CEquipment *equipment = (CEquipment*)Pz[0];
+  u32 slot = Pz[1];
+  u32 unk = Pz[2];
 
   void *pinv = e->_this;
   void *itemEquip = (PVOID)Pz[0];
-  int slot = Pz[1];
-  int unk = Pz[2];
   index_t entity_id = -1;
 
   // Retain equipped items as we load into the game on our character

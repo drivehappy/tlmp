@@ -15,8 +15,8 @@ struct _CUnknownStructureFloatContainer {
 };
 
 struct _CUnknownStructureStringContainer {
-  CString value;
   float   unk;
+  CString value;
 };
 
 struct CSettings : CDynamicPropertyFile
@@ -65,26 +65,55 @@ struct CSettings : CDynamicPropertyFile
 
   // WHERE"S THE LOCAL_SETTING.TXT String Keys + SETTINGS.TXT String keys for floats???
 
-  float    *unk15;    // Pointer to time val float?
+  float    *unk15;        // Pointer to time val float?
 
   PVOID     unk16;
 
+  u32       unk17[95];    // Unsure
 
+  u32       fileMaxSize;
 
+  // This appears to be garbage data, oh well
+  u32       unk18[2];
 
+  wchar_t   fileContents[8192];
 
+  // Appears to be using garbage data, not useable anyways
+  void dumpSettingsFile()
+  {
+    logColor(B_BLUE, "CSettings Dump FileContents:");
+    logColor(B_BLUE, L"%s", fileContents);
+  }
 
-
+  // Dump what setting information we have
   void dumpSettings()
   {
-    u32 *index = (u32*)SettingIntIndexLow;
-    
-    logColor(B_RED, "CSettings Dump: %p %p", SettingIntIndexLow, SettingIntIndexHigh);
-    //log("Test: %i %i %p %p", unk6[2], unk6[3], unk7[0], unk7[1]);
-    
+    u32 *index = SettingIntIndexLow;
+    logColor(B_RED, "CSettings Dump Ints: %p %p", SettingIntIndexLow, SettingIntIndexHigh);
     while (index < SettingIntIndexHigh) {
-      logColor(B_RED, "  %#2x: %#x", index, *index);
+      logColor(B_RED, "  %#2x: %i", index, *index);
       index++;
+    }
+
+    float *indexFloat = SettingFloatIndexLow;
+    logColor(B_RED, "CSettings Dump Floats: %p %p", SettingFloatIndexLow, SettingFloatIndexHigh);
+    while (indexFloat < SettingFloatIndexHigh) {
+      logColor(B_RED, "  %#2x: %f", indexFloat, *indexFloat);
+      indexFloat++;
+    }
+
+    _CUnknownStructureStringContainer *indexStringValues = StringSettingValueMin;
+    logColor(B_RED, "String Values:", indexStringValues, StringSettingValueMax);
+    while (indexStringValues < StringSettingValueMax) {
+      logColor(B_RED, L"   %s", indexStringValues->value.getString());
+      indexStringValues++;
+    }
+
+    _CUnknownStructureStringContainer *indexStringIntValues = StringSettingIntMin;
+    logColor(B_RED, "String Int Values:", indexStringIntValues, StringSettingIntMax);
+    while (indexStringIntValues < StringSettingIntMax) {
+      logColor(B_RED, L"   %s", indexStringIntValues->value.getString());
+      indexStringIntValues++;
     }
   }
 };

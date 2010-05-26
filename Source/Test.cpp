@@ -186,6 +186,7 @@ void TLMP::testFireMessage_pre STDARG
   u32 index = Pz[0];
   u32 &value = ((u32*)settings->SettingIntIndexLow)[index];
 
+  /*
   logColor(B_GREEN, "FireMessage (%p, %p)", settings, Pz[0]);
   logColor(B_GREEN, "  CSettings: %p", settings);
   logColor(B_GREEN, L"    LocalDirectory: %s", settings->LocalSettingsDirectory.getString());
@@ -194,12 +195,12 @@ void TLMP::testFireMessage_pre STDARG
   logColor(B_GREEN, "    Index Low:  %p", settings->SettingIntIndexLow);
   logColor(B_GREEN, "    Index Value:%i", value);
   logColor(B_GREEN, "  index: %#x", index);
+  */
 
+  // Turns on internal logging
   //if ((index == 0x3c) && !value)
-  //  value = index;
+  //  value = 1;
 
-  if ((index == 0xf))
-    value = 0;
-
-  settings->dumpSettings();
+  //settings->dumpSettings();
+  //settings->dumpSettingsFile();
 }
