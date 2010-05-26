@@ -193,4 +193,6 @@ void TLMP::testFireMessage_pre STDARG
   logColor(B_GREEN, "    Index Low:  %p", settings->MessageIndexLow);
   logColor(B_GREEN, "    Index Value:%i", ((u32*)settings->MessageIndexLow)[index]);
   */
+
+  settings->dumpSettings();
 }
