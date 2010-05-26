@@ -225,10 +225,6 @@
 			<Filter
 				Name="UI"
 				>
-				<File
-					RelativePath=".\Source\UserInterface.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Kernel"
@@ -1129,6 +1125,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CWaypointActivator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\UserInterface.cpp"
 					>
 				</File>
 			</Filter>

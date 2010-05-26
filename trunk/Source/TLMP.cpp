@@ -274,5 +274,5 @@ void TLMP::HookFunctions()
   Hook((PVOID)EXEOFFSET(0x4CFC20), testItem_pre, NULL, HOOK_THISCALL, 1);
 
   // FireMessage
-  Hook((PVOID)EXEOFFSET(0x44F960), testFireMessage_pre, NULL, HOOK_THISCALL, 2);
+  Hook((PVOID)EXEOFFSET(0x5BF870), testFireMessage_pre, NULL, HOOK_THISCALL, 1);
 }
