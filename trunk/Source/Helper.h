@@ -29,6 +29,7 @@ void log(const char *fmt, ...);
 void log(const wchar_t *fmt, ...);
 
 void logColor(const WORD colorFMT, const char *fmt, ...);
+void logColor(const WORD colorFMT, const wchar_t *fmt, ...);
 
 #define NL_ITERATE(var,type,list) for (slist_table<type>::iterator var(list);var.i!=list.size();++var)
 string format(const char *format, ...);

@@ -28,6 +28,16 @@ void log(const char *fmt, ...)
   printf("%s",s.c_str());
 };
 
+void log(const wchar_t* fmt, ...)
+{
+  va_list args;
+  va_start(args,fmt);
+  wstring s = vwformat(fmt, args);
+  double t = getLogTimer();
+  s = wformat(L"%4.3f  %s\n", t, s.c_str());
+  wprintf(L"%s", s.c_str());
+}
+
 void logColor(const WORD colorFMT, const char *fmt, ...)
 {
   static HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -46,14 +56,22 @@ void logColor(const WORD colorFMT, const char *fmt, ...)
   SetConsoleTextAttribute(hstdout, csbi.wAttributes);
 }
 
-void log(const wchar_t* fmt, ...)
+void logColor(const WORD colorFMT, const wchar_t *fmt, ...)
 {
+  static HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hstdout, &csbi);
+
+  SetConsoleTextAttribute(hstdout, colorFMT);
+
   va_list args;
   va_start(args,fmt);
   wstring s = vwformat(fmt, args);
   double t = getLogTimer();
   s = wformat(L"%4.3f  %s\n", t, s.c_str());
   wprintf(L"%s", s.c_str());
+
+  SetConsoleTextAttribute(hstdout, csbi.wAttributes);
 }
 
 string format(const char *format, ...)
