@@ -183,16 +183,23 @@ void TLMP::testItem_pre STDARG
 void TLMP::testFireMessage_pre STDARG
 {
   CSettings *settings = (CSettings*)e->_this;
-  const u32 index = 0x3C;
+  u32 index = Pz[0];
+  u32 &value = ((u32*)settings->SettingIntIndexLow)[index];
 
-  /*
   logColor(B_GREEN, "FireMessage (%p, %p)", settings, Pz[0]);
   logColor(B_GREEN, "  CSettings: %p", settings);
-  logColor(B_GREEN, "    Index High: %p", settings->MessageIndexHigh);
-  logColor(B_GREEN, "    Index Low:  %p", settings->MessageIndexLow);
-  logColor(B_GREEN, "    Index Low:  %p", settings->MessageIndexLow);
-  logColor(B_GREEN, "    Index Value:%i", ((u32*)settings->MessageIndexLow)[index]);
-  */
+  logColor(B_GREEN, L"    LocalDirectory: %s", settings->LocalSettingsDirectory.getString());
+  logColor(B_GREEN, L"    SettingsFile: %s", settings->SettingsFile.getString());
+  logColor(B_GREEN, "    Index High: %p", settings->SettingIntIndexHigh);
+  logColor(B_GREEN, "    Index Low:  %p", settings->SettingIntIndexLow);
+  logColor(B_GREEN, "    Index Value:%i", value);
+  logColor(B_GREEN, "  index: %#x", index);
+
+  //if ((index == 0x3c) && !value)
+  //  value = index;
+
+  if ((index == 0xf))
+    value = 0;
 
   settings->dumpSettings();
 }
