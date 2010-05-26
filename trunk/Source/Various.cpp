@@ -142,6 +142,7 @@ void TLMP::_process_objects_pre STDARG
     layout = level->CLayoutsList[0];
   }
 
+  /*
   logColor(B_RED, "PROCESSOBJECTS: CGameClient = %p", gameClient);
   logColor(B_RED, "     CPlayer = %p", player);
   logColor(B_RED, "         GUID = %016I64X", player->GUIDUnk);
@@ -158,6 +159,7 @@ void TLMP::_process_objects_pre STDARG
     logColor(B_RED, "         Layout GUID3: %016I64X", layout->guid3);
     log(L"         Layout Name: %s", layout->name.getString());
   }
+  */
 }
 
 void TLMP::_process_objects_post STDARG

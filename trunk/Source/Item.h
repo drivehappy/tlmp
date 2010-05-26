@@ -8,6 +8,8 @@
 #include "network.pb.h"
 
 #include "CItem.h"
+#include "CInventory.h"
+#include "CEquipment.h"
 
 namespace TLMP {
 
