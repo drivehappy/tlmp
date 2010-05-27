@@ -60,7 +60,7 @@ struct CInventory : CRunicCore
     logColor(B_RED, "  Equipment:");
 
     for (int i = 0; i < (int)equipmentList.size; i++) {
-      logColor(B_RED, L"  Equipment Name: %s", equipmentList[i]->pCEquipment->name.getString());
+      logColor(B_RED, L"  Equipment Name: %s", equipmentList[i]->pCEquipment->nameReal.getString());
       logColor(B_RED, L"  Equipment AttackDesc:");
       CAttackDescription *attackLeftHand = equipmentList[i]->pCEquipment->pCAttackDescriptor0;
       CAttackDescription *attackRightHand = equipmentList[i]->pCEquipment->pCAttackDescriptor0;
