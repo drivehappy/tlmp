@@ -4,49 +4,30 @@
 
 // Size?: 60h
 // Inheritance: CPositionableObject
+#pragma pack(1)
 struct CBaseUnit : CPositionableObject
 {
-  u32 unk1[9];        //
-
-  PVOID pCUnknownStruct2;     // ptr to CUnknownStruct2
-
-
-  u32 unk2[8];        // See below
-  /*
-    1,   0,   0,   0
-    1,   0,   0,   0
-    1,   0,   0,   0
-    0,   0,   0,   0
-    0,   0,   0,   0
-    0,   0,   0,   0
-    1,   0,   0,   0
-    0,   0,   0,   0
-  */
-
+  u32 unk1[18];
 
   u32 unk3[6];        // See below
-  /*
-    0FFFFFFFFh
-    0FFFFFFFFh
-    0FFFFFFFFh
-    0
-    0FFFFFFFFh
-    0FFFFFFFFh
-  */
-
-  u32 unk4[2];        // 0, 1000101
-
-  float unk5[2];      // -1.460968, 0.8
+                    /*
+                      0FFFFFFFFh
+                      0FFFFFFFFh
+                      0FFFFFFFFh
+                      0
+                      0FFFFFFFFh
+                      0FFFFFFFFh
+                    */
 
   u32 unk6;           // 1010101
 
-  u32 unk7;           // 340D5401h
+  u32 unk7[5];        // 340D5401h
 
-  u64 GUIDUnk;        // 0F59522DA8B7A11DEh
+  u64 GUID;        // 0F59522DA8B7A11DEh
 
-  float unk8;         // 0.11084
+  u32 unk8;         
 
-  u32 unk9;           // 68h
+  u32 unk9;           // 68h    || 2ah
 
   PVOID pCDataGroup;
   PVOID pCEffectManager;  // NULL
@@ -56,4 +37,16 @@ struct CBaseUnit : CPositionableObject
   float unk12;        // 0.5
   u32 unk13;          // 1
 
+
+  //
+  void dumpBaseUnit()
+  {
+    log("CBaseUnit Dump: %p (size: %i)", this, sizeof(CBaseUnit));
+    log("  GUID: %016I64X", GUID);
+    log("  CDataGroup: %p", pCDataGroup);
+    log("  CEffectManager: %p", pCEffectManager);
+    log("  CCullingBounds: %p", pCCullingBounds);
+    log("  CSkillManager: %p", pCSkillManager);
+  }
 };
+#pragma pack()

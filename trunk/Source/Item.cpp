@@ -452,14 +452,6 @@ void TLMP::_item_equip_pre STDARG
   u32 slot = Pz[1];
   u32 unk = Pz[2];
 
-  log("      CInventory = %p", inventory);
-  log("      CEquipment = %p", equipment);
-  log("      Slot       = %i", slot);
-  log("      Unk        = %i", unk);
-
-  inventory->dumpInventory();
-  equipment->dumpEquipment();
-
   if (Network::NetworkState::getSingleton().GetState() == Network::CLIENT) {
     if (!ClientAllowEquip) {
       log("[CLIENT] Suppressing item equip.");
@@ -478,6 +470,13 @@ void TLMP::_item_equip_post STDARG
   CEquipment *equipment = (CEquipment*)Pz[0];
   u32 slot = Pz[1];
   u32 unk = Pz[2];
+
+  log("      CInventory = %p", inventory);
+  log("      CEquipment = %p", equipment);
+  log("      Slot       = %i", slot);
+  log("      Unk        = %i", unk);
+  inventory->dumpInventory();
+  equipment->dumpEquipment();
 
   void *pinv = e->_this;
   void *itemEquip = (PVOID)Pz[0];
