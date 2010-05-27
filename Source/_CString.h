@@ -14,7 +14,9 @@ struct CString
   wchar_t* getString() {
     if (length > 7)
       return stringPtr[0];
-    else
+    else if (length > 0)
       return string;
+    else
+      return L"";
   };
 };

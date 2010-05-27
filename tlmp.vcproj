@@ -660,6 +660,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CAttackDescription.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CAutomap.h"
 					>
 				</File>
@@ -777,6 +781,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CEffect.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CEffectManager.h"
 					>
 				</File>
 				<File
