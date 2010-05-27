@@ -184,7 +184,9 @@ void TLMP::testFireMessage_pre STDARG
 {
   CSettings *settings = (CSettings*)e->_this;
   u32 index = Pz[0];
-  u32 &value = ((u32*)settings->SettingIntIndexLow)[index];
+  u32 &value = settings->SettingIntIndexLow[index];
+
+  settings->enableInternalLogging();
 
   /*
   logColor(B_GREEN, "FireMessage (%p, %p)", settings, Pz[0]);

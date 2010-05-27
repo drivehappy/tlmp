@@ -78,6 +78,12 @@ struct CSettings : CDynamicPropertyFile
 
   wchar_t   fileContents[8192];
 
+  // Toggle the internal logging
+  void enableInternalLogging()
+  {
+    SettingIntIndexLow[0x3c] = 1;
+  }
+
   // Appears to be using garbage data, not useable anyways
   void dumpSettingsFile()
   {

@@ -192,7 +192,7 @@ void TLMP::_add_minion_pre STDARG
 
 PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
 {
-  PVOID player, pet;
+  PVOID player;//, pet;
 
   log("Spawning Player %016I64X w/ level: %i, at: %f %f %f", guid, level, position.x, position.y, position.z);
   //ServerAllowSpawn = false;
