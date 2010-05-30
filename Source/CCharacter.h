@@ -31,6 +31,15 @@ struct CCharacter : CBaseUnit
   PVOID pCPath;
 
   float unk8[7];      // 100, 100, 95.69, 95.69, 10, 0,0
+                      /*
+                        debug230:126D04A4 dd 10.0
+                        debug230:126D04A8 dd 10.0
+                        debug230:126D04AC dd 0.0
+                        debug230:126D04B0 dd 100.0
+                        debug230:126D04B4 dd 20.0
+                        debug230:126D04B8 dd 2.5
+                        debug230:126D04BC dd 6.2
+                      */
 
   PVOID pCSoundBank0;
   PVOID pCSoundBank1; // Diff from above
@@ -58,7 +67,7 @@ struct CCharacter : CBaseUnit
 
   float unk13[4];     // 2.0, 0, 0, 1
 
-  u32 unk14[6];
+  u32 unk14[6];       // Last one ptr to CItemGold??
 
   // hmm getting into some weird values that appear to be garbage... is this size correct?
 

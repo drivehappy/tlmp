@@ -800,6 +800,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CGame.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CGameClient.h"
 					>
 				</File>

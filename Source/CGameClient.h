@@ -9,7 +9,6 @@
 #include "CLevel.h"
 #include "CGameUI.h"
 
-// Size?: 
 // 
 struct CGameClient : CRunicCore
 {
@@ -33,5 +32,6 @@ struct CGameClient : CRunicCore
   CLevel             *pCLevel;
   CGameUI            *pCGameUI;
 
-  
+  u32                 unkChunk[997];
+  s32                 level;
 };

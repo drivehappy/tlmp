@@ -225,9 +225,13 @@ void TLMP::_item_drop_pre STDARG
 
 void TLMP::_item_pick_up_pre STDARG
 {
-  //log(" %p :: pick up item %p",e->_this,Pz[0]);
+  CPlayer     *player     = (CPlayer*)e->_this;
+  CInventory  *inventory  = (CInventory*)Pz[0];
+  CLevel      *level      = (CLevel*)Pz[1];
 
-  log("==== ItemPickup (this: %p, %p, %p) retVal = %i", e->_this, Pz[0], Pz[1], e->retval);
+  log("==== ItemPickup (CPlayer: %p, CInventory: %p, CLevel: %p) retVal = %p", player, inventory, level, e->retval);
+
+  player->dumpPlayer();
 
   PVOID itemPickup = (void*)Pz[0];
   PVOID owner = e->_this;

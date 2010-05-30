@@ -1,8 +1,10 @@
 #pragma once
 
-// Size?:
+#include "CRunicCore.h"
+
+
 //
-struct CGameSpeed : CSpeedInstance
+struct CGameSpeed : CRunicCore
 {
   // Todo probably part of CSpeedInstance structure
   /*

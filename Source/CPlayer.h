@@ -1,16 +1,36 @@
 #pragma once
 
 #include "CCharacter.h"
+#include "CSkill.h"
 
-// Size?:
 //
 struct CPlayer: CCharacter
 {
-  // TODO
+  float unk0[8];
 
-  u32 unk0[2];    //
+  u32   unk1[2];
+  PVOID unk2;
+  u64   unkGUID;
 
-  u64 guid0;
-  u64 guid1;
-  u64 guid2;
+  CSkill  *pCSkill;
+
+  u32   unk3[3];
+
+  u64   unkGUID2[3];
+
+  float unk4;
+
+  CString  Skill1;        // "Heal All I"
+  CString  UnkString0;     // This is actually non-wide string
+  u32   unk5;
+  CString  Skill2;        // "Summon Zombies III"
+  CString  UnkString1;     // This is actually non-wide string
+
+
+
+  void dumpPlayer()
+  {
+    log("CPlayer dump: %p (sizeof CPlayer: %i)", this, sizeof(CPlayer));
+    log("  CPlayer dump: (sizeof CCharacter: %i)", sizeof(CCharacter));
+  }
 };
