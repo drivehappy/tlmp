@@ -206,3 +206,22 @@ void TLMP::testFireMessage_pre STDARG
   //settings->dumpSettings();
   //settings->dumpSettingsFile();
 }
+
+void TLMP::testSaveGame_pre STDARG
+{
+  CGameClient *gameClient = (CGameClient*)e->_this;
+  u32 unk0 = Pz[0];
+  u32 unk1 = Pz[1];
+
+  logColor(B_RED, "Pre Game Save: CGameClient: %p (%i, %i)", gameClient, unk0, unk1);
+}
+
+void TLMP::testSaveGame_post STDARG
+{
+  CGameClient *gameClient = (CGameClient*)e->_this;
+  u32 unk0 = Pz[0];
+  u32 unk1 = Pz[1];
+
+  logColor(B_RED, "Post Game Save: CGameClient: %p (%i, %i)", gameClient, unk0, unk1);
+}
+

@@ -20,7 +20,7 @@ struct CGenericModel : CPositionableObject
   PVOID         pSkeletonInstance;    // Ogre
   PVOID         unk7;
   PVOID         pOctreeSM0;           // Ogre
-  CLIst<PVOID>  AnimationStateList;   // Ogre animation state
+  CList<PVOID>  AnimationStateList;   // Ogre animation state
 
   PVOID         *ptrtomyself;         // Cyclic ptr to myself
 
