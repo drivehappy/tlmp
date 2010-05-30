@@ -275,4 +275,7 @@ void TLMP::HookFunctions()
 
   // FireMessage
   Hook((PVOID)EXEOFFSET(0x5BF870), testFireMessage_pre, NULL, HOOK_THISCALL, 1);
+
+  // Save Game
+  Hook((PVOID)EXEOFFSET(0x417110), testSaveGame_pre, testSaveGame_post, HOOK_THISCALL, 2);
 }

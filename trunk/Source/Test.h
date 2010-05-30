@@ -62,4 +62,7 @@ namespace TLMP {
   void testItem_post STDARG;
 
   void testFireMessage_pre STDARG;
+
+  void testSaveGame_pre  STDARG;
+  void testSaveGame_post STDARG;
 };
