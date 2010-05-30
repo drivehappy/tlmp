@@ -152,7 +152,7 @@ void TLMP::HookFunctions()
   // Map
   Hook(LoadMap, _load_map_pre, _load_map_post, HOOK_THISCALL, 2);
   Hook(ChangeLevel, _change_level_pre, _change_level_post, HOOK_THISCALL, 18);
-  Hook((void*)EXEOFFSET(0x4197E0), _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);    // v1.15
+  //Hook((PVOID)EXEOFFSET(0x4197E0), _on_load_area_pre, _on_load_area_post, HOOK_THISCALL, 0);    // v1.15
 
   log("Map Done");
 
@@ -278,4 +278,21 @@ void TLMP::HookFunctions()
 
   // Save Game
   Hook((PVOID)EXEOFFSET(0x417110), testSaveGame_pre, testSaveGame_post, HOOK_THISCALL, 2);
+
+  // Save Shared Stash
+  Hook((PVOID)EXEOFFSET(0x52A8C0), testSaveSharedStash_pre, testSaveSharedStash_post, HOOK_THISCALL, 0);
+  // Load Shared Stash
+  Hook((PVOID)EXEOFFSET(0x52A5D0), NULL, NULL, HOOK_THISCALL, 2);
+
+  // CGame Initialize
+  Hook((PVOID)EXEOFFSET(0x407320), testCGameLoad_pre, testCGameLoad_post, HOOK_THISCALL, 1);
+
+  // CGameClient LoadGame
+  Hook((PVOID)EXEOFFSET(0x417E00), testCGameClient_LoadGame_pre, testCGameClient_LoadGame_post, HOOK_THISCALL, 4);
+
+  // CGameClient CreateLevel
+  Hook((PVOID)EXEOFFSET(0x415820), testCGameClient_CreateLevel_pre, testCGameClient_CreateLevel_post, HOOK_THISCALL, 24);
+
+  // CGameClient LoadLevel
+  Hook((PVOID)EXEOFFSET(0x4197E0), testCGameClient_LoadLevel_pre, testCGameClient_LoadLevel_post, HOOK_THISCALL, 0);
 }

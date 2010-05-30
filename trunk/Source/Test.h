@@ -65,4 +65,19 @@ namespace TLMP {
 
   void testSaveGame_pre  STDARG;
   void testSaveGame_post STDARG;
+
+  void testSaveSharedStash_pre  STDARG;
+  void testSaveSharedStash_post STDARG;
+
+  void testCGameLoad_pre  STDARG;
+  void testCGameLoad_post STDARG;
+
+  void testCGameClient_LoadGame_pre  STDARG;
+  void testCGameClient_LoadGame_post STDARG;
+
+  void testCGameClient_CreateLevel_pre  STDARG;
+  void testCGameClient_CreateLevel_post STDARG;
+
+  void testCGameClient_LoadLevel_pre  STDARG;
+  void testCGameClient_LoadLevel_post STDARG;
 };

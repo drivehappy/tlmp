@@ -225,3 +225,73 @@ void TLMP::testSaveGame_post STDARG
   logColor(B_RED, "Post Game Save: CGameClient: %p (%i, %i)", gameClient, unk0, unk1);
 }
 
+void TLMP::testSaveSharedStash_pre STDARG
+{
+  logColor(B_RED, "Save Shared Stash Pre: %p", e->_this);
+}
+
+void TLMP::testSaveSharedStash_post STDARG
+{
+  logColor(B_RED, "Save Shared Stash Post: %p", e->_this);
+}
+
+void TLMP::testCGameLoad_pre STDARG
+{
+  logColor(B_RED, "CGame Load pre: %p, %i", e->_this, Pz[0]);
+}
+
+void TLMP::testCGameLoad_post STDARG
+{
+  logColor(B_RED, "CGame Load post: %p, %i", e->_this, Pz[0]);
+}
+
+void TLMP::testCGameClient_LoadGame_pre STDARG
+{
+  logColor(B_RED, "CGameClient LoadGame pre: %p, %p %p %p %p", e->_this, Pz[0], Pz[1], Pz[2], Pz[3]);
+}
+
+void TLMP::testCGameClient_LoadGame_post STDARG
+{
+  CPlayer *player = (CPlayer*)e->retval;
+
+  logColor(B_RED, "CGameClient LoadGame post: %p, %p %p %p %p (Player: %p)", e->_this, Pz[0], Pz[1], Pz[2], Pz[3], player);
+}
+
+void TLMP::testCGameClient_CreateLevel_pre STDARG
+{
+  CGameClient *gameClient = (CGameClient*)e->_this;
+  
+  logColor(B_RED, "CGameClient CreateLevel pre: (CGameClient: %p) (%p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p)", 
+    gameClient,
+    Pz[0], Pz[1], Pz[2], Pz[3], Pz[4], Pz[5], Pz[6], Pz[7], Pz[8], Pz[9], Pz[10], Pz[11], Pz[12], 
+    Pz[13], Pz[14], Pz[15], Pz[16], Pz[17], Pz[18], Pz[19], Pz[20], Pz[21], Pz[22], Pz[23]);
+}
+
+void TLMP::testCGameClient_CreateLevel_post STDARG
+{
+  CGameClient *gameClient = (CGameClient*)e->_this;
+  
+  logColor(B_RED, "CGameClient CreateLevel post: (CGameClient: %p) (%p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p)", 
+    gameClient,
+    Pz[0], Pz[1], Pz[2], Pz[3], Pz[4], Pz[5], Pz[6], Pz[7], Pz[8], Pz[9], Pz[10], Pz[11], Pz[12], 
+    Pz[13], Pz[14], Pz[15], Pz[16], Pz[17], Pz[18], Pz[19], Pz[20], Pz[21], Pz[22], Pz[23]);
+}
+
+void TLMP::testCGameClient_LoadLevel_pre STDARG
+{
+  CGameClient *gameClient = (CGameClient*)e->_this;
+
+  logColor(B_RED, "CGameClient LoadLevel pre: %p", gameClient);
+  logColor(B_RED, "Previous level transfer: %i", gameClient->level);
+
+  // -99 acts like a TP
+  //gameClient->level = -99;
+}
+
+void TLMP::testCGameClient_LoadLevel_post STDARG
+{
+  CGameClient *gameClient = (CGameClient*)e->_this;
+
+  logColor(B_RED, "CGameClient LoadLevel post: %p", gameClient);
+  logColor(B_RED, "Previous level transfer: %i", gameClient->level);
+}
