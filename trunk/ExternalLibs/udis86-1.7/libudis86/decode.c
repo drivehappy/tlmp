@@ -1140,7 +1140,7 @@ static int gen_hex( struct ud *u )
   src_hex = ( char* ) u->insn_hexcode;
   /* for each byte used to decode instruction */
   for ( i = 0; i < u->inp_ctr; ++i, ++src_ptr) {
-    sprintf( src_hex, "%02x", *src_ptr & 0xFF );
+    sprintf_s( src_hex, 32, "%02x", *src_ptr & 0xFF );
     src_hex += 2;
   }
   return 0;
