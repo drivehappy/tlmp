@@ -198,7 +198,8 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
   //ServerAllowSpawn = false;
 
   if (UnitManager) {
-    player = SpiderSomeCreate(UnitManager, guid, level, true);
+    CResourceManager* resourceManager = (CResourceManager*)UnitManager;
+    player = SpiderSomeCreate(resourceManager, guid, level, true);
 
     log("\n\n\nUnitManager = %p\nEntityManager = %p\n\n\n", UnitManager, EntityManager);
   
