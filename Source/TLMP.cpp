@@ -21,7 +21,7 @@
 u32 exeBaseReal = (u32)GetModuleHandle("Torchlight.exe");
 
 // Define the offset locations
-TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool),                           0x5FBB70);     // 1.15  CResourceManager, u64 guid, u32 level, bool noitems?
+TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (CResourceManager*, u64, u32, bool),                           0x5FBB70);     // 1.15  CResourceManager, u64 guid, u32 level, bool noitems?
 TLFUNCPTR(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3*, u32),                     0x4F2EF0);     // 1.15  CLevel, CMonster, vector3*, u32 unk
 TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t*, const wchar_t*, u32, u32), 0x5FC600);     // 1.15  CResourceManager, ...
 TLFUNCPTR(SetAlignment,       PVOID,    __thiscall, (PVOID, u32),                                      0x4839E0);     // 1.15  CMonster, u32 alignment (2 = badguy, 0 = goodguy)

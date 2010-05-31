@@ -260,7 +260,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         // If we couldn't find an existing one with the same id...
         if (!networkEntity) {
           ClientAllowSpawn = true;
-          newEntity = SpiderSomeCreate(EntityManager, entity->guid(), entity->level(), entity->noitems());
+          CResourceManager* resourceManager = (CResourceManager*)UnitManager;
+          newEntity = SpiderSomeCreate(resourceManager, entity->guid(), entity->level(), entity->noitems());
           ClientAllowSpawn = false;
         } else {
           // We already have this object setup, just initialize
@@ -286,7 +287,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         log("[CLIENT] Attempting to use UnitManager (%p)", UnitManager);
         if (UnitManager) {
           ClientAllowSpawn = true;
-          PVOID newEntity = SpiderSomeCreate(UnitManager, entity->guid(), entity->level(), entity->noitems());
+          CResourceManager* resourceManager = (CResourceManager*)UnitManager;
+          PVOID newEntity = SpiderSomeCreate(resourceManager, entity->guid(), entity->level(), entity->noitems());
 
           if (newEntity) {
             log("New entity: (pre-Init) %p\n", newEntity);

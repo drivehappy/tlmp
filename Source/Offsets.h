@@ -3,10 +3,11 @@
 #include "DataTypes.h"
 
 #include "CGameClient.h"
+#include "CResourceManager.h"
 
 namespace TLMP {
 
-  TLFUNC(SpiderSomeCreate,   PVOID,    __thiscall, (PVOID, u64, u32, bool));
+  TLFUNC(SpiderSomeCreate,   PVOID,    __thiscall, (CResourceManager*, u64, u32, bool));
   TLFUNC(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3*, u32));
   TLFUNC(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t*, const wchar_t*, u32, u32));
   TLFUNC(SetAlignment,       PVOID,    __thiscall, (PVOID, u32));

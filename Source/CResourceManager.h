@@ -1,6 +1,9 @@
 #pragma once
 
-// Size?:
+#include "CLevel.h"
+#include "CHierarchy.h"
+#include "CGameClient.h"
+
 // 
 struct CResourceManager : CRunicCore
 {
