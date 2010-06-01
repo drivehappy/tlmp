@@ -732,6 +732,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CDamageShape.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CDataGroup.h"
 					>
 				</File>
@@ -749,6 +753,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CDescriptorProp.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CDieMenu.h"
 					>
 				</File>
 				<File
