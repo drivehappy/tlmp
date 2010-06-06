@@ -8,6 +8,9 @@
 #include "CEquipment.h"
 #include "CItemSaveState.h"
 #include "CTriggerUnit.h"
+#include "CBreakable.h"
+#include "CDamageShape.h"
+#include "CDieMenu.h"
 
 namespace TLMP {
 
@@ -52,18 +55,18 @@ namespace TLMP {
   TLFUNC(InteractWithObject, PVOID,    __thiscall, (CTriggerUnit*, CPlayer*));
   TLFUNC(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64));
 
-  TLFUNC(BarrelDestroy,      PVOID,    __thiscall, (PVOID, PVOID));
-  TLFUNC(BarrelKnockback,    PVOID,    __thiscall, (PVOID));
+  TLFUNC(BarrelDestroy,      PVOID,    __thiscall, (CBreakable*, CPlayer*));
+  TLFUNC(BarrelKnockback,    PVOID,    __thiscall, (CDamageShape*));
 
-  TLFUNC(CheckgamePaused,    void,     __thiscall, (PVOID));
+  TLFUNC(CheckgamePaused,    void,     __thiscall, (CGameClient*));
 
-  TLFUNC(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32));
+  TLFUNC(PlayerInitialize,   void,     __thiscall, (CResourceManager*, u32, u32));
 
   TLFUNC(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM));
 
   TLFUNC(GetPlayer,          PVOID,    __thiscall, (void));
   TLFUNC(PlayerDied,         void,     __thiscall, (void));
-  TLFUNC(PlayerResurrect,    void,     __thiscall, (PVOID, u32));
+  TLFUNC(PlayerResurrect,    void,     __thiscall, (CDieMenu*, u32));
 
   // -------------------------------------------------------------------------------- //
   // In-place definitions
@@ -71,27 +74,27 @@ namespace TLMP {
   //TLFUNC(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID));
   TLFUNC(ProcessObjects,     void,     __thiscall, (CGameClient*, PVOID, PVOID, PVOID));
 
-  TLFUNC(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID));
-  TLFUNC(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32));
-  TLFUNC(MonsterIdle,        void,     __thiscall, (PVOID, PVOID));
-  TLFUNC(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID));
+  TLFUNC(MonsterProcessAI2,  void,     __thiscall, (CMonster*, float));
+  TLFUNC(MonsterProcessAI3,  void,     __thiscall, (CMonster*, u32));
+  TLFUNC(MonsterIdle,        void,     __thiscall, (CMonster*, float));
+  TLFUNC(MonsterOnHit,       void,     __thiscall, (CMonster*, CMonster*));
     
   TLFUNC(PlayerCtor,         void,     __thiscall, (PVOID));
 
-  TLFUNC(PlayerSetAction,    void,     __thiscall, (PVOID));
+  TLFUNC(PlayerSetAction,    void,     __thiscall, (CPlayer*));
   
-  TLFUNC(TitleScreenProcess, void,     __thiscall, (PVOID, float, PVOID, float, u32));
+  TLFUNC(TitleScreenProcess, void,     __thiscall, (CGameClient*, float, PVOID, float, u32));
 
-  TLFUNC(LoadMap,            void,     __thiscall, (PVOID, u32));
+  TLFUNC(LoadMap,            void,     __thiscall, (CGameClient*, u32));
 
   TLFUNC(Random,             void,     __thiscall, ());
 
-  TLFUNC(Destroy,            void,     __thiscall, (PVOID, PVOID));
+  TLFUNC(Destroy,            void,     __thiscall, (CLevel*, CMonster*));
 
-  TLFUNC(EntityReadProp,     void,     __thiscall, (PVOID));
+  TLFUNC(EntityReadProp,     void,     __thiscall, (CMonster*));
 
-  TLFUNC(UseEquipment,       void,     __thiscall, (PVOID, PVOID, PVOID));
-  TLFUNC(IdentifyEquipment,  void,     __thiscall, (PVOID));
+  TLFUNC(UseEquipment,       void,     __thiscall, (CEquipment*, CPlayer*, CPlayer*));
+  TLFUNC(IdentifyEquipment,  void,     __thiscall, (CEquipment*));
 
   //TLFUNCPTR(LoadArea,           void,     __thiscall, (/* 18 */),                                        0x40CF40);
 

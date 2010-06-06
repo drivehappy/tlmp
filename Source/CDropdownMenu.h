@@ -1,12 +1,14 @@
 #pragma once
 
+#include "CRunicCore.h"
+
 // Inherits from COptionsMenu
 struct CDropdownMenu : CRunicCore
 {
   u32 unk0;
   PVOID pGUISheet;
-  PVOID pGUISheet;
-  PVOID pGUISheet;
+  PVOID pGUISheet1;
+  PVOID pGUISheet2;
   u32 unk1;                 // 0
   u32 unk2;                 // 100h
   PVOID pCSettings;         // ptr to CSettings

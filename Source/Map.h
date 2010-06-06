@@ -9,7 +9,7 @@ using namespace TLMP::Network;
 
 namespace TLMP {
 
-  extern PVOID load_map_this;
+  extern CGameClient* load_map_this;
   extern PVOID load_area_this;
 
   void _load_map_pre STDARG;

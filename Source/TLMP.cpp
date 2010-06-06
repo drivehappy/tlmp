@@ -64,20 +64,20 @@ TLFUNCPTR(PetawayTimer,       PVOID,    __thiscall, (CCharacter*, float, CLevel*
 TLFUNCPTR(InteractWithObject, PVOID,    __thiscall, (CTriggerUnit*, CPlayer*),                                          0x4DE6C0);     // 1.15  CTriggerUnit, CPlayer
 
 // !!! THIS COULD BE WRONG, THERE'S A BUNCH MATCHING -- I NEED TO DOUBLE CHECK THIS FUNC ANYWAYS - drivehappy
-TLFUNCPTR(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64),                                      0x446390);     // 1.15
+TLFUNCPTR(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64),                                                       0x446390);     // 1.15
 
-TLFUNCPTR(BarrelDestroy,      PVOID,    __thiscall, (PVOID, PVOID),                                    0x482600);     // 1.15  CBreakable, CPlayer
-TLFUNCPTR(BarrelKnockback,    PVOID,    __thiscall, (PVOID),                                           0x50ACF0);     // 1.15  CDamageShape, 
+TLFUNCPTR(BarrelDestroy,      PVOID,    __thiscall, (CBreakable*, CPlayer*),                                            0x482600);     // 1.15  CBreakable, CPlayer
+TLFUNCPTR(BarrelKnockback,    PVOID,    __thiscall, (CDamageShape*),                                                    0x50ACF0);     // 1.15  CDamageShape, 
 
-TLFUNCPTR(CheckgamePaused,    void,     __thiscall, (PVOID),                                           0x40DD70);     // 1.15  CGameClient
+TLFUNCPTR(CheckgamePaused,    void,     __thiscall, (CGameClient*),                                                     0x40DD70);     // 1.15  CGameClient
 
-TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (PVOID, u32, u32),                                 0x5FB5F0);     // 1.15  CResourceManager, 
+TLFUNCPTR(PlayerInitialize,   void,     __thiscall, (CResourceManager*, u32, u32),                                      0x5FB5F0);     // 1.15  CResourceManager, 
 
-TLFUNCPTR(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM),                      0x4016B0);     // 1.15
+TLFUNCPTR(WndProc,            LRESULT,  __thiscall, (HWND, UINT, WPARAM, LPARAM),                                       0x4016B0);     // 1.15
 
-TLFUNCPTR(GetPlayer,          PVOID,    __thiscall, (void),                                            0x5FB330);     // 1.15  Name misnomer - returns a ptr to CUnitResourceList
-TLFUNCPTR(PlayerDied,         void,     __thiscall, (void),                                            0x548270);     // 1.15
-TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (PVOID, u32),                                      0x56E000);     // 1.15  CDieMenu, u32 (0xF = @level, 0x10 = @town, 0xe = @body)
+TLFUNCPTR(GetPlayer,          PVOID,    __thiscall, (void),                                                             0x5FB330);     // 1.15  Name misnomer - returns a ptr to CUnitResourceList
+TLFUNCPTR(PlayerDied,         void,     __thiscall, (void),                                                             0x548270);     // 1.15
+TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (CDieMenu*, u32),                                                   0x56E000);     // 1.15  CDieMenu, u32 (0xF = @level, 0x10 = @town, 0xe = @body)
 
 // -------------------------------------------------------------------------------- //
 // In-place definitions
@@ -85,27 +85,27 @@ TLFUNCPTR(PlayerResurrect,    void,     __thiscall, (PVOID, u32),               
 //TLFUNCPTR(ProcessObjects,     void,     __thiscall, (PVOID, PVOID, PVOID, PVOID),                      0x41A790);     // 1.15  CGameClient
 TLFUNCPTR(ProcessObjects,     void,     __thiscall, (CGameClient*, PVOID, PVOID, PVOID),               0x41A790);     // 1.15  CGameClient
 
-TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (PVOID, PVOID),                                    0x4D4450);     // 1.15  CMonster, float (0.002)
-TLFUNCPTR(MonsterProcessAI3,  void,     __thiscall, (PVOID, u32),                                      0x498670);     // 1.15  CMonster, u32 unk (0)
-TLFUNCPTR(MonsterIdle,        void,     __thiscall, (PVOID, PVOID),                                    0x4D4950);     // 1.15  CMonster, float dtime (0.02)
-TLFUNCPTR(MonsterOnHit,       void,     __thiscall, (PVOID, PVOID),                                    0x4D29E0);     // 1.15  CMonster, CMonster
+TLFUNCPTR(MonsterProcessAI2,  void,     __thiscall, (CMonster*, float),                                0x4D4450);     // 1.15  CMonster, float (0.002)
+TLFUNCPTR(MonsterProcessAI3,  void,     __thiscall, (CMonster*, u32),                                  0x498670);     // 1.15  CMonster, u32 unk (0)
+TLFUNCPTR(MonsterIdle,        void,     __thiscall, (CMonster*, float),                                0x4D4950);     // 1.15  CMonster, float dtime (0.02)
+TLFUNCPTR(MonsterOnHit,       void,     __thiscall, (CMonster*, CMonster*),                            0x4D29E0);     // 1.15  CMonster, CMonster
   
 TLFUNCPTR(PlayerCtor,         void,     __thiscall, (PVOID),                                           0x4DA160);     // 1.15
 
-TLFUNCPTR(PlayerSetAction,    void,     __thiscall, (PVOID),                                           0x4D5D00);     // 1.15  CPlayer
+TLFUNCPTR(PlayerSetAction,    void,     __thiscall, (CPlayer*),                                        0x4D5D00);     // 1.15  CPlayer
 
-TLFUNCPTR(TitleScreenProcess, void,     __thiscall, (PVOID, float, PVOID, float, u32),                 0x40DF70);     // 1.15  CGameClient, float (0.005) / (0.1), u32 unk, float (0), u32 unk(0)
+TLFUNCPTR(TitleScreenProcess, void,     __thiscall, (CGameClient*, float, PVOID, float, u32),          0x40DF70);     // 1.15  CGameClient, float (0.005) / (0.1), u32 unk, float (0), u32 unk(0)
 
-TLFUNCPTR(LoadMap,            void,     __thiscall, (PVOID, u32),                                      0x4188E0);     // 1.15  CGameClient, u32 unk (0)
+TLFUNCPTR(LoadMap,            void,     __thiscall, (CGameClient*, u32),                               0x4188E0);     // 1.15  CGameClient, u32 unk (0)
 
 TLFUNCPTR(Random,             void,     __thiscall, (),                                                0x5BA660);     // 1.15
 
-TLFUNCPTR(Destroy,            void,     __thiscall, (PVOID, PVOID),                                    0x4F5AA0);     // 1.15  CLevel, CMonster
+TLFUNCPTR(Destroy,            void,     __thiscall, (CLevel*, CMonster*),                              0x4F5AA0);     // 1.15  CLevel, CMonster
 
-TLFUNCPTR(EntityReadProp,     void,     __thiscall, (PVOID),                                           0x47EAF0);     // 1.15  CMonster
+TLFUNCPTR(EntityReadProp,     void,     __thiscall, (CMonster*),                                       0x47EAF0);     // 1.15  CMonster
 
-TLFUNCPTR(UseEquipment,       void,     __thiscall, (PVOID, PVOID, PVOID),                             0x4B4FB0);     // 1.15  CEquipment, CPlayer, CPlayer
-TLFUNCPTR(IdentifyEquipment,  void,     __thiscall, (PVOID),                                           0x4B0200);     // 1.15  CEquipment
+TLFUNCPTR(UseEquipment,       void,     __thiscall, (CEquipment*, CPlayer*, CPlayer*),                 0x4B4FB0);     // 1.15  CEquipment, CPlayer, CPlayer
+TLFUNCPTR(IdentifyEquipment,  void,     __thiscall, (CEquipment*),                                     0x4B0200);     // 1.15  CEquipment
 
 //TLFUNCPTR(LoadArea,           void,     __thiscall, (/* 18 */),                                        0x40CF20);
 // ... and add more later

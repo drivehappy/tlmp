@@ -1,13 +1,13 @@
 #include "Map.h"
 
-PVOID TLMP::load_map_this = NULL;
+CGameClient* TLMP::load_map_this = NULL;
 PVOID TLMP::load_area_this = NULL;
 
 void TLMP::_load_map_pre STDARG
 {
   log("LoadMap (pre) this = %p, unk0 = %i", e->_this, Pz[0]);
 
-  load_map_this = e->_this;
+  load_map_this = (CGameClient*)e->_this;
 
   if (!NetworkSharedEntities)
     NetworkSharedEntities = new vector<NetworkEntity*>();
