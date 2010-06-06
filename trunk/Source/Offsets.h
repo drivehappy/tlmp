@@ -4,48 +4,52 @@
 
 #include "CGameClient.h"
 #include "CResourceManager.h"
+#include "CGenericModel.h"
+#include "CEquipment.h"
+#include "CItemSaveState.h"
+#include "CTriggerUnit.h"
 
 namespace TLMP {
 
-  TLFUNC(SpiderSomeCreate,   PVOID,    __thiscall, (CResourceManager*, u64, u32, bool));
-  TLFUNC(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3*, u32));
-  TLFUNC(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t*, const wchar_t*, u32, u32));
-  TLFUNC(SetAlignment,       PVOID,    __thiscall, (PVOID, u32));
-  TLFUNC(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float));
-  TLFUNC(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32));
-  TLFUNC(SetAction,          PVOID,    __thiscall, (PVOID, u32));
-  TLFUNC(UseSkill,           PVOID,    __thiscall, (PVOID, u64));
-  TLFUNC(SetPosition,        PVOID,    __thiscall, (PVOID, const Vector3));
-  TLFUNC(AddMinion,          PVOID,    __thiscall, (PVOID, PVOID));
-  TLFUNC(CreateSomething,    PVOID,    __thiscall, (PVOID, u64, u32, u32, u32));
+  TLFUNC(SpiderSomeCreate,   CCharacter*, __thiscall, (CResourceManager*, u64, u32, bool));
+  TLFUNC(EntityInitialize,   CCharacter*, __thiscall, (CLevel*, CCharacter*, Vector3*, u32));
+  TLFUNC(CreateUnitByName,   CCharacter*, __thiscall, (CResourceManager*, const wchar_t*, const wchar_t*, u32, u32));
+  TLFUNC(SetAlignment,       PVOID,       __thiscall, (CCharacter*, u32));
+  TLFUNC(SetDestination,     PVOID,       __thiscall, (CCharacter*, CLevel*, float, float));
+  TLFUNC(GetPosition,        PVOID,       __thiscall, (CGenericModel*, Vector3, u32));
+  TLFUNC(SetAction,          PVOID,       __thiscall, (CCharacter*, u32));
+  TLFUNC(UseSkill,           PVOID,       __thiscall, (CPlayer*, u64));
+  TLFUNC(SetPosition,        PVOID,       __thiscall, (CLayout*, const Vector3));
+  TLFUNC(AddMinion,          PVOID,       __thiscall, (CCharacter*, CCharacter*));
+  TLFUNC(CreateSomething,    PVOID,       __thiscall, (CResourceManager*, u64, u32, u32, u32));
 
-  TLFUNC(SetAttack,          PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(SetAttack,          PVOID,       __thiscall, (CCharacter*, PVOID));
 
-  TLFUNC(OnStrike,           PVOID,    __thiscall, (PVOID, PVOID, PVOID, PVOID, u32, float, float, u32));
+  TLFUNC(OnStrike,           PVOID,       __thiscall, (CCharacter*, CLevel*, CCharacter*, PVOID, u32, float, float, u32));
 
-  TLFUNC(SpiderProcessAI,    PVOID,    __thiscall, (PVOID, float, PVOID));
-  TLFUNC(SetAnimation,       PVOID,    __thiscall, (PVOID, u32, bool, float, float, u32));
+  TLFUNC(SpiderProcessAI,    PVOID,       __thiscall, (CMonster*, float, PVOID));
+  TLFUNC(SetAnimation,       PVOID,       __thiscall, (CPlayer*, u32, bool, float, float, u32));
 
-  TLFUNC(DoAttack,           PVOID,    __thiscall, (PVOID));
+  TLFUNC(DoAttack,           PVOID,       __thiscall, (CPlayer*));
 
-  TLFUNC(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID));
-  TLFUNC(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3 &, bool));
-  TLFUNC(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32));
-  TLFUNC(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID));
-  TLFUNC(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32));
-  TLFUNC(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID));
-  TLFUNC(ItemHide,           PVOID,    __thiscall, (PVOID, PVOID, u32));
+  TLFUNC(ItemInitialize,     PVOID,    __thiscall, (CEquipment*, CItemSaveState*));
+  TLFUNC(ItemDrop,           PVOID,    __thiscall, (CLevel*, CEquipment*, Vector3 &, bool));
+  TLFUNC(ItemCreate,         PVOID,    __thiscall, (CResourceManager*, u64, u32, u32, u32));
+  TLFUNC(ItemPickup,         PVOID,    __thiscall, (CPlayer*, CEquipment*, CLevel*));
+  TLFUNC(ItemEquip,          PVOID,    __thiscall, (CInventory*, CEquipment*, u32, u32));
+  TLFUNC(ItemUnequip,        PVOID,    __thiscall, (CInventory*, CEquipment*));
+  TLFUNC(ItemHide,           PVOID,    __thiscall, (CLevel*, CEquipment*, u32));
 
-  TLFUNC(ChangeLevel,        PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32));
+  TLFUNC(ChangeLevel,        PVOID,    __thiscall, (CGameClient*, wstring, u32, u32, u32, wstring, u32));
 
-  TLFUNC(AddGoldToPlayer,    PVOID,    __thiscall, (PVOID, u32));
+  TLFUNC(AddGoldToPlayer,    PVOID,    __thiscall, (CPlayer*, u32));
 
-  TLFUNC(LevelUp,            PVOID,    __thiscall, (PVOID));
-  TLFUNC(LevelUpSilent,      PVOID,    __thiscall, (PVOID));
+  TLFUNC(LevelUp,            PVOID,    __thiscall, (CPlayer*));
+  TLFUNC(LevelUpSilent,      PVOID,    __thiscall, (CPlayer*));
 
-  TLFUNC(PetawayTimer,       PVOID,    __thiscall, (PVOID, u32, PVOID));
+  TLFUNC(PetawayTimer,       PVOID,    __thiscall, (CCharacter*, float, CLevel*));
 
-  TLFUNC(InteractWithObject, PVOID,    __thiscall, (PVOID, PVOID));
+  TLFUNC(InteractWithObject, PVOID,    __thiscall, (CTriggerUnit*, CPlayer*));
   TLFUNC(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64));
 
   TLFUNC(BarrelDestroy,      PVOID,    __thiscall, (PVOID, PVOID));

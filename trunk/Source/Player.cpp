@@ -3,9 +3,9 @@
 // Testing
 #include "CEditorBaseObject.h"
 
-PVOID TLMP::me = NULL;
-PVOID TLMP::otherPlayer = NULL;
-PVOID TLMP::otherPlayerPet = NULL;
+CPlayer* TLMP::me = NULL;
+CCharacter* TLMP::otherPlayer = NULL;
+CCharacter* TLMP::otherPlayerPet = NULL;
 PVOID TLMP::UnitManager = NULL;
 
 void TLMP::_player_ctor_post STDARG
@@ -16,7 +16,7 @@ void TLMP::_player_ctor_post STDARG
       Network::NetworkState::getSingleton().GetState() == Network::CLIENT) 
   {
     if (!me) {
-      me = (PVOID)e->retval;
+      me = (CPlayer*)e->retval;
       log("Setting me = %p\n\n", me);
     //*
       if (!NetworkSharedEntities)
@@ -190,9 +190,9 @@ void TLMP::_add_minion_pre STDARG
   */
 }
 
-PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
+CCharacter* TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
 {
-  PVOID player;//, pet;
+  CCharacter *player;//, pet;
 
   log("Spawning Player %016I64X w/ level: %i, at: %f %f %f", guid, level, position.x, position.y, position.z);
   //ServerAllowSpawn = false;
@@ -210,7 +210,7 @@ PVOID TLMP::SpawnPlayer(u64 guid, u32 level, Vector3 position)
       //otherPlayer = r;
       ServerAllowSpawn = false;
       SetAlignment(player, 1);
-      player = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), player, &position, 0);
+      player = EntityInitialize(EntityManager->pCLevel, player, &position, 0);
       ServerAllowSpawn = true;
       log("  Player Initialized: %p", player);
 

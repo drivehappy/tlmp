@@ -32,6 +32,8 @@
   61-81: Fish       Tab
 */
 
+struct CPlayer;
+
 // 
 struct CInventory : CRunicCore
 {

@@ -255,7 +255,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           }
         }
 
-        PVOID newEntity = NULL;
+        CCharacter* newEntity = NULL;
 
         // If we couldn't find an existing one with the same id...
         if (!networkEntity) {
@@ -265,14 +265,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           ClientAllowSpawn = false;
         } else {
           // We already have this object setup, just initialize
-          newEntity = networkEntity->getInternalObject();
+          newEntity = (CCharacter*)networkEntity->getInternalObject();
         }
 
         // And finally initialize (again if needed)
         if (newEntity) {
           ClientAllowSpawn = true;
           log("New entity: (pre-Init) %p\n", newEntity);
-          newEntity = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), newEntity, &position, entity->level());
+          newEntity = EntityInitialize(EntityManager->pCLevel, newEntity, &position, entity->level());
           log("New entity: %p\n", newEntity);
           ClientAllowSpawn = false;
 
@@ -288,11 +288,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         if (UnitManager) {
           ClientAllowSpawn = true;
           CResourceManager* resourceManager = (CResourceManager*)UnitManager;
-          PVOID newEntity = SpiderSomeCreate(resourceManager, entity->guid(), entity->level(), entity->noitems());
+          CCharacter* newEntity = SpiderSomeCreate(resourceManager, entity->guid(), entity->level(), entity->noitems());
 
           if (newEntity) {
             log("New entity: (pre-Init) %p\n", newEntity);
-            newEntity = EntityInitialize(*(void**)(((char*)UnitManager)+0x0c), newEntity, &position, entity->level());
+            newEntity = EntityInitialize(EntityManager->pCLevel, newEntity, &position, entity->level());
             log("New entity: %p\n", newEntity);
             ClientAllowSpawn = false;
 
@@ -325,13 +325,13 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         otherPlayerEntity.e = otherPlayer;
         otherPlayerEntity.init();
 
-        Vector3* otherDest = (Vector3*)GetDestination(otherPlayer);
+        //Vector3* otherDest = (Vector3*)GetDestination(otherPlayer);
 
         //log("  Retrieved destination");
         //log("  Dest ptr = %p", otherDest);
         //log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
         //log("  Setting destination...");
-        SetDestination(otherPlayer, otherDest, destination->x(), destination->z());
+        SetDestination(otherPlayer, EntityManager->pCLevel, destination->x(), destination->z());
         //log("  Done.");
 
         /*
@@ -360,7 +360,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           log("\n\nCLIENT RECEIVED SERVER ITEM CREATION BACK!!!\n\n");
         } else {
           ClientSendServerItemSpawn = false;
-          PVOID itemCreated = ItemCreate(UnitManager, item->guid(), item->level(), item->unk0(), item->unk1());
+          PVOID itemCreated = ItemCreate(EntityManager, item->guid(), item->level(), item->unk0(), item->unk1());
           log("Created: %p", itemCreated);
           ClientSendServerItemSpawn = true;
 
@@ -388,19 +388,19 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         unk: %i", itemDropped->unk0());
 
       if (UnitManager) {
-        PVOID item = NULL;
+        CEquipment *item = NULL;
         vector<NetworkEntity *>::iterator itr;
 
         if (NetworkSharedItems) {
           // Ensure that the item has been created before we attempt to drop it
           for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
             if ((*itr)->getCommonId() == itemDropped->id()) {
-              item = (*itr)->getInternalObject();
+              item = (CEquipment*)(*itr)->getInternalObject();
               log("[CLIENT] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
 
               // Drop the item
               // SUPPRESSED for now, it's not quite working right and causes crash
-              if (drop_item_this) {
+              if (Level) {
                 /* We don't know who's inventory this was dropped from
                 c_entity ne;
                 ne.e = me;
@@ -410,7 +410,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
                 ItemUnequip(inv, item);
                 */
                 ClientSendServerItemSpawn = false;
-                ItemDrop(drop_item_this, item, *itemPosition, 1);
+                ItemDrop(Level, item, *itemPosition, 1);
                 ClientSendServerItemSpawn = true;
               } else {
                 log("[ERROR] drop_item_this is null (drivehappy - This is a ptr to a CLevel object)");
@@ -437,15 +437,15 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       log("         owner: %i", itemPickup->ownerid());
 
       if (UnitManager) {
-        PVOID item = NULL;
-        PVOID owner = NULL;
+        CEquipment *item = NULL;
+        CPlayer *owner = NULL;
         vector<NetworkEntity *>::iterator itr;
 
         if (NetworkSharedItems) {
           // Ensure that the item has been created before we attempt to pick it up
           for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
             if ((*itr)->getCommonId() == itemPickup->id()) {
-              item = (*itr)->getInternalObject();
+              item = (CEquipment*)(*itr)->getInternalObject();
               log("[CLIENT] Found item to pickup (commonId = %x): %p", itemPickup->id(), item);
               break;
             }
@@ -455,7 +455,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
             //log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemPickup->ownerid());
             if ((*itr)->getCommonId() == itemPickup->ownerid()) {
-              owner = (*itr)->getInternalObject();
+              owner = (CPlayer*)(*itr)->getInternalObject();
               log("[CLIENT] Found owner of equip (commonId = %i): %p", itemPickup->ownerid(), owner);
               break;
             }
@@ -465,7 +465,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           if (item && owner) {
             // Pickup the item
             ClientSendServerItemSpawn = false;
-            ItemPickup(owner, item, drop_item_this);
+            ItemPickup(owner, item, Level);
             ClientSendServerItemSpawn = true;
           } else {
             log("[ERROR] owner or item is null (owner = %p, item = %p)", owner, item); // drop_item_this = CLevel object
@@ -482,8 +482,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   case S_ITEM_EQUIP:
     {
       NetworkMessages::ItemEquip *itemEquipped = ParseMessage<NetworkMessages::ItemEquip>(m_pBitStream);
-      PVOID item = NULL;
-      PVOID owner = NULL;
+      CEquipment* item = NULL;
+      CPlayer* owner = NULL;
       int slot = itemEquipped->slot();
       int unk = itemEquipped->unk();
       vector<NetworkEntity *>::iterator itr;
@@ -498,7 +498,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         // Ensure that the item has been created before we attempt to unequip it
         for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
           if ((*itr)->getCommonId() == itemEquipped->id()) {
-            item = (*itr)->getInternalObject();
+            item = (CEquipment*)(*itr)->getInternalObject();
             log("[CLIENT] Found item to equip (commonId = %i): %p", itemEquipped->id(), item);
           }
         }
@@ -507,7 +507,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
           //log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemEquipped->ownerid());
           if ((*itr)->getCommonId() == itemEquipped->ownerid()) {
-            owner = (*itr)->getInternalObject();
+            owner = (CPlayer*)(*itr)->getInternalObject();
             log("[CLIENT] Found owner of equip (commonId = %i): %p", itemEquipped->ownerid(), owner);
           }
         }
@@ -517,6 +517,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           log("[CLIENT] Received Equipping item...");
           log("[CLIENT] me = %p, otherPlayer = %p", me, otherPlayer);
 
+          /*
           c_entity ce;
           ce.e = owner;
           ce.init();
@@ -524,6 +525,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
           ClientSendServerItemSpawn = false;
           ItemEquip(pinv, item, slot, unk);
+          ClientSendServerItemSpawn = true;
+          */
+
+          ClientSendServerItemSpawn = false;
+          ItemEquip(owner->pCInventory, item, slot, unk);
           ClientSendServerItemSpawn = true;
         }
       }
@@ -534,8 +540,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   case S_ITEM_UNEQUIP:
     {
       NetworkMessages::ItemUnequip *itemUnequipped = ParseMessage<NetworkMessages::ItemUnequip>(m_pBitStream);
-      PVOID item = NULL;
-      PVOID owner = NULL;
+      CEquipment* item = NULL;
+      CPlayer* owner = NULL;
       vector<NetworkEntity *>::iterator itr;
 
       log("[CLIENT] Received item unequip:");
@@ -546,7 +552,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         // Ensure that the item has been created before we attempt to unequip it
         for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
           if ((*itr)->getCommonId() == itemUnequipped->id()) {
-            item = (*itr)->getInternalObject();
+            item = (CEquipment*)(*itr)->getInternalObject();
             log("[CLIENT] Found item to unequip (commonId = %i): %p", itemUnequipped->id(), item);
           }
         }
@@ -555,7 +561,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
         for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
           //log("[CLIENT] Searching %p == %p  ?", (*itr)->getCommonId(), itemUnequipped->ownerid());
           if ((*itr)->getCommonId() == itemUnequipped->ownerid()) {
-            owner = (*itr)->getInternalObject();
+            owner = (CPlayer*)(*itr)->getInternalObject();
             log("[CLIENT] Found owner of unequip (commonId = %i): %p", itemUnequipped->ownerid(), owner);
             break;
           }
@@ -566,6 +572,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
           log("[CLIENT] Received Unequip");
           log("[CLIENT] me = %p, otherPlayer = %p", me, otherPlayer);
 
+          /*
           c_entity ce;
           ce.e = owner;
           ce.init();
@@ -573,6 +580,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
           ClientSendServerItemSpawn = false;
           ItemUnequip(pinv, item);
+          ClientSendServerItemSpawn = true;
+          */
+
+          ClientSendServerItemSpawn = false;
+          ItemUnequip(owner->pCInventory, item);
           ClientSendServerItemSpawn = true;
         }
       }

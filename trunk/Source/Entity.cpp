@@ -6,7 +6,7 @@ using namespace TLMP;
 bool                  TLMP::ClientAllowSpawn = false;
 bool                  TLMP::ClientAllowEquip = true;
 bool                  TLMP::ServerAllowSpawn = true;
-PVOID                 TLMP::EntityManager = NULL;
+CResourceManager*     TLMP::EntityManager = NULL;
 //vector<c_entity *>   *TLMP::ServerEntities = NULL;
 vector<NetworkEntity*>* TLMP::NetworkSharedEntities = NULL;
 

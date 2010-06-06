@@ -1,8 +1,7 @@
 #include "Item.h"
 using namespace TLMP;
 
-PVOID                    TLMP::drop_item_this = NULL;
-PVOID                    TLMP::ItemManager = NULL;
+CLevel*                  TLMP::Level = NULL;
 bool                     TLMP::ServerSendClientItemSpawn = true;
 bool                     TLMP::ClientSendServerItemSpawn = true;
 vector<NetworkEntity *> *TLMP::NetworkSharedItems    = NULL;
@@ -13,14 +12,14 @@ void TLMP::NetItem_OnItemCreated(u64 guid, u32 level, u32 unk0, u32 unk1)
   log("NetItem_OnItemCreated");
 
   ClientAllowSpawn = true;
-  void *r = ItemCreate(ItemManager, guid, level, unk0, unk1);
+  void *r = ItemCreate(EntityManager, guid, level, unk0, unk1);
   ClientAllowSpawn = false;
 }
 
 void TLMP::_item_initialize_pre STDARG
 {
   log(" %p :: item initialize %p", e->_this, Pz[0]);
-  ItemManager = (PVOID)Pz[0];
+  EntityManager = (CResourceManager*)Pz[0];
 
   u32 &stackSize = *(u32*)(((char*)e->_this) + 0x1E4);
   u32 &stackSizeMax = *(u32*)(((char*)e->_this) + 0x1E8);
@@ -129,7 +128,7 @@ void TLMP::SendItemListToPlayer()
 
 void TLMP::_item_drop_pre STDARG
 {
-  drop_item_this = e->_this;
+  Level = (CLevel*)e->_this;
   // Update our world ptr
   //world = e->_this;
 

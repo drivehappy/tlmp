@@ -2,6 +2,7 @@
 
 #include "CCharacter.h"
 #include "CSkill.h"
+#include "CInventory.h"
 
 //
 struct CPlayer: CCharacter
@@ -26,6 +27,9 @@ struct CPlayer: CCharacter
   CString  Skill2;        // "Summon Zombies III"
   CString  UnkString1;     // This is actually non-wide string
 
+  u32      unk6[40];
+
+  CInventory  *pCInventory;
 
 
   void dumpPlayer()

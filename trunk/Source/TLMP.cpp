@@ -21,47 +21,47 @@
 u32 exeBaseReal = (u32)GetModuleHandle("Torchlight.exe");
 
 // Define the offset locations
-TLFUNCPTR(SpiderSomeCreate,   PVOID,    __thiscall, (CResourceManager*, u64, u32, bool),                           0x5FBB70);     // 1.15  CResourceManager, u64 guid, u32 level, bool noitems?
-TLFUNCPTR(EntityInitialize,   PVOID,    __thiscall, (PVOID, PVOID, Vector3*, u32),                     0x4F2EF0);     // 1.15  CLevel, CMonster, vector3*, u32 unk
-TLFUNCPTR(CreateUnitByName,   PVOID,    __thiscall, (PVOID, const wchar_t*, const wchar_t*, u32, u32), 0x5FC600);     // 1.15  CResourceManager, ...
-TLFUNCPTR(SetAlignment,       PVOID,    __thiscall, (PVOID, u32),                                      0x4839E0);     // 1.15  CMonster, u32 alignment (2 = badguy, 0 = goodguy)
-TLFUNCPTR(SetDestination,     PVOID,    __thiscall, (PVOID, PVOID, float, float),                      0x492AD0);     // 1.15  CPlayer, CLevel, u32 x, u32 y
-TLFUNCPTR(GetPosition,        PVOID,    __thiscall, (PVOID, Vector3, u32),                             0x50E3F0);     // 1.15  CGenericModel, vector3 &, unk
-TLFUNCPTR(SetAction,          PVOID,    __thiscall, (PVOID, u32),                                      0x489E50);     // 1.15  CMonster, u32 action
-TLFUNCPTR(UseSkill,           PVOID,    __thiscall, (PVOID, u64),                                      0x494E50);     // 1.15  CPlayer, u64 skill
-TLFUNCPTR(SetPosition,        PVOID,    __thiscall, (PVOID, const Vector3),                            0x50E450);     // 1.15  CLayout, 
-TLFUNCPTR(AddMinion,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x4A9B20);     // 1.15  CMonster, CMonster
-TLFUNCPTR(CreateSomething,    PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FC170);     // 1.15  CResourceManager
+TLFUNCPTR(SpiderSomeCreate,   CCharacter*,  __thiscall, (CResourceManager*, u64, u32, bool),                            0x5FBB70);     // CResourceManager, u64 guid, u32 level, bool noitems?
+TLFUNCPTR(EntityInitialize,   CCharacter*,  __thiscall, (CLevel*, CCharacter*, Vector3*, u32),                          0x4F2EF0);     // CLevel, CMonster, vector3*, u32 unk
+TLFUNCPTR(CreateUnitByName,   CCharacter*,  __thiscall, (CResourceManager*, const wchar_t*, const wchar_t*, u32, u32),  0x5FC600);     // CResourceManager, ...
+TLFUNCPTR(SetAlignment,       PVOID,        __thiscall, (CCharacter*, u32),                                             0x4839E0);     // CMonster, u32 alignment (2 = badguy, 0 = goodguy)
+TLFUNCPTR(SetDestination,     PVOID,        __thiscall, (CCharacter*, CLevel*, float, float),                           0x492AD0);     // CPlayer, CLevel, u32 x, u32 y
+TLFUNCPTR(GetPosition,        PVOID,        __thiscall, (CGenericModel*, Vector3, u32),                                 0x50E3F0);     // CGenericModel, vector3 &, unk
+TLFUNCPTR(SetAction,          PVOID,        __thiscall, (CCharacter*, u32),                                             0x489E50);     // CMonster, u32 action
+TLFUNCPTR(UseSkill,           PVOID,        __thiscall, (CPlayer*, u64),                                                0x494E50);     // CPlayer, u64 skill
+TLFUNCPTR(SetPosition,        PVOID,        __thiscall, (CLayout*, const Vector3),                                      0x50E450);     // CLayout, 
+TLFUNCPTR(AddMinion,          PVOID,        __thiscall, (CCharacter*, CCharacter*),                                     0x4A9B20);     // CMonster, CMonster
+TLFUNCPTR(CreateSomething,    PVOID,        __thiscall, (CResourceManager*, u64, u32, u32, u32),                        0x5FC170);     // CResourceManager
 
-TLFUNCPTR(SetAttack,          PVOID,    __thiscall, (PVOID, PVOID),                                    0x492970);     // 1.15  CMonster, NULL
+TLFUNCPTR(SetAttack,          PVOID,        __thiscall, (CCharacter*, PVOID),                                           0x492970);     // CMonster, NULL
 
 
 // !!! CHECK MY ARG COUNT, MAYBE +1/-1
-TLFUNCPTR(OnStrike,           PVOID,    __thiscall, (PVOID, PVOID, PVOID, PVOID, u32, float, float, u32), 0x4A0190);  // 1.15  CMonster src, CLevel, CMonster dst, NULL, 0, 1.0, 1.0, 7
+TLFUNCPTR(OnStrike,           PVOID,    __thiscall, (CCharacter*, CLevel*, CCharacter*, PVOID, u32, float, float, u32), 0x4A0190);  // 1.15  CMonster src, CLevel, CMonster dst, NULL, 0, 1.0, 1.0, 7
 
-TLFUNCPTR(SpiderProcessAI,    PVOID,    __thiscall, (PVOID, float, PVOID),                             0x4D36F0);     // 1.15  CMonster, float unk (0.005), CLevel
-TLFUNCPTR(SetAnimation,       PVOID,    __thiscall, (PVOID, u32, bool, float, float, u32),             0x4841F0);     // 1.15  CPlayer, u32 unk, bool unk, float unk (0.2), float unk (1), u32(
+TLFUNCPTR(SpiderProcessAI,    PVOID,    __thiscall, (CMonster*, float, PVOID),                                          0x4D36F0);     // 1.15  CMonster, float unk (0.005), CLevel
+TLFUNCPTR(SetAnimation,       PVOID,    __thiscall, (CPlayer*, u32, bool, float, float, u32),                           0x4841F0);     // 1.15  CPlayer, u32 unk, bool unk, float unk (0.2), float unk (1), u32(
 
-TLFUNCPTR(DoAttack,           PVOID,    __thiscall, (PVOID),                                           0x48FBD0);     // 1.15  CPlayer
+TLFUNCPTR(DoAttack,           PVOID,    __thiscall, (CPlayer*),                                                         0x48FBD0);     // 1.15  CPlayer
 
-TLFUNCPTR(ItemInitialize,     PVOID,    __thiscall, (PVOID, PVOID),                                    0x4BE250);     // 1.15  CEquipment, CItemSaveState
-TLFUNCPTR(ItemDrop,           PVOID,    __thiscall, (PVOID, PVOID, Vector3 &, bool),                   0x4F3070);     // 1.15  CLevel, CEquipment, vector3 pos, bool unk
-TLFUNCPTR(ItemCreate,         PVOID,    __thiscall, (PVOID, u64, u32, u32, u32),                       0x5FB6D0);     // 1.15  CResourceManager, u64 guid, u32 level, u32 unk, u32 unk
-TLFUNCPTR(ItemPickup,         PVOID,    __thiscall, (PVOID, PVOID, PVOID),                             0x4969B0);     // 1.15  CPlayer, CEquipment, CLevel
-TLFUNCPTR(ItemEquip,          PVOID,    __thiscall, (PVOID, PVOID, u32, u32),                          0x4E6CE0);     // 1.15  CInventory, CEquipment, int slot, int unk
-TLFUNCPTR(ItemUnequip,        PVOID,    __thiscall, (PVOID, PVOID),                                    0x4E7610);     // 1.15  CInventory, CEquipment
-TLFUNCPTR(ItemHide,           PVOID,    __thiscall, (PVOID, PVOID, u32),                               0x4F48C0);     // 1.15  CLevel, CEquipment, int unk
+TLFUNCPTR(ItemInitialize,     PVOID,    __thiscall, (CEquipment*, CItemSaveState*),                                     0x4BE250);     // 1.15  CEquipment, CItemSaveState
+TLFUNCPTR(ItemDrop,           PVOID,    __thiscall, (CLevel*, CEquipment*, Vector3 &, bool),                            0x4F3070);     // 1.15  CLevel, CEquipment, vector3 pos, bool unk
+TLFUNCPTR(ItemCreate,         PVOID,    __thiscall, (CResourceManager*, u64, u32, u32, u32),                            0x5FB6D0);     // 1.15  CResourceManager, u64 guid, u32 level, u32 unk, u32 unk
+TLFUNCPTR(ItemPickup,         PVOID,    __thiscall, (CPlayer*, CEquipment*, CLevel*),                                   0x4969B0);     // 1.15  CPlayer, CEquipment, CLevel
+TLFUNCPTR(ItemEquip,          PVOID,    __thiscall, (CInventory*, CEquipment*, u32, u32),                               0x4E6CE0);     // 1.15  CInventory, CEquipment, int slot, int unk
+TLFUNCPTR(ItemUnequip,        PVOID,    __thiscall, (CInventory*, CEquipment*),                                         0x4E7610);     // 1.15  CInventory, CEquipment
+TLFUNCPTR(ItemHide,           PVOID,    __thiscall, (CLevel*, CEquipment*, u32),                                        0x4F48C0);     // 1.15  CLevel, CEquipment, int unk
 
-TLFUNCPTR(ChangeLevel,        PVOID,    __thiscall, (PVOID, wstring, u32, u32, u32, wstring, u32),     0x40CF60);     // 1.15  CGameClient, 
+TLFUNCPTR(ChangeLevel,        PVOID,    __thiscall, (CGameClient*, wstring, u32, u32, u32, wstring, u32),               0x40CF60);     // 1.15  CGameClient, 
 
-TLFUNCPTR(AddGoldToPlayer,    PVOID,    __thiscall, (PVOID, u32),                                      0x4860B0);     // 1.15  CPlayer, u32 amount
+TLFUNCPTR(AddGoldToPlayer,    PVOID,    __thiscall, (CPlayer*, u32),                                                    0x4860B0);     // 1.15  CPlayer, u32 amount
 
-TLFUNCPTR(LevelUp,            PVOID,    __thiscall, (PVOID),                                           0x4DB840);     // 1.15  CPlayer
-TLFUNCPTR(LevelUpSilent,      PVOID,    __thiscall, (PVOID),                                           0x48E730);     // 1.15  CPlayer
+TLFUNCPTR(LevelUp,            PVOID,    __thiscall, (CPlayer*),                                                         0x4DB840);     // 1.15  CPlayer
+TLFUNCPTR(LevelUpSilent,      PVOID,    __thiscall, (CPlayer*),                                                         0x48E730);     // 1.15  CPlayer
 
-TLFUNCPTR(PetawayTimer,       PVOID,    __thiscall, (PVOID, u32, PVOID),                               0x4924E0);     // 1.15  CMonster, float(0.0181999), CLevel
+TLFUNCPTR(PetawayTimer,       PVOID,    __thiscall, (CCharacter*, float, CLevel*),                                      0x4924E0);     // 1.15  CMonster, float(0.0181999), CLevel
 
-TLFUNCPTR(InteractWithObject, PVOID,    __thiscall, (PVOID, PVOID),                                    0x4DE6C0);     // 1.15  CTriggerUnit, CPlayer
+TLFUNCPTR(InteractWithObject, PVOID,    __thiscall, (CTriggerUnit*, CPlayer*),                                          0x4DE6C0);     // 1.15  CTriggerUnit, CPlayer
 
 // !!! THIS COULD BE WRONG, THERE'S A BUNCH MATCHING -- I NEED TO DOUBLE CHECK THIS FUNC ANYWAYS - drivehappy
 TLFUNCPTR(ObjectCreate,       PVOID,    __thiscall, (PVOID, u64),                                      0x446390);     // 1.15

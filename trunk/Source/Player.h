@@ -7,9 +7,9 @@
 
 namespace TLMP {
 
-  extern PVOID me;
-  extern PVOID otherPlayer;
-  extern PVOID otherPlayerPet;
+  extern CPlayer* me;
+  extern CCharacter* otherPlayer;
+  extern CCharacter* otherPlayerPet;
   extern PVOID UnitManager;
 
   enum ResurrectOptions {
@@ -37,6 +37,6 @@ namespace TLMP {
 
   void _add_minion_pre STDARG;
 
-  PVOID SpawnPlayer(u64 guid, u32 level, Vector3 position);
+  CCharacter* SpawnPlayer(u64 guid, u32 level, Vector3 position);
 
 };
