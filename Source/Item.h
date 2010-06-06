@@ -13,8 +13,7 @@
 
 namespace TLMP {
 
-  extern PVOID  drop_item_this;
-  extern PVOID  ItemManager;
+  extern CLevel *Level;
   extern bool   ServerSendClientItemSpawn;
   extern bool   ClientSendServerItemSpawn;
 

@@ -202,26 +202,30 @@ void TLMP::_wnd_proc_pre STDARG
           log("Forcing item drop commonID = %i", commonID);
 
           if (UnitManager) {
-            PVOID item = NULL;
+            CEquipment *item = NULL;
             vector<NetworkEntity *>::iterator itr;
 
             if (NetworkSharedItems) {
               // Ensure that the item has been created before we attempt to drop it
               for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
                 if ((*itr)->getCommonId() == commonID) {
-                  item = (*itr)->getInternalObject();
+                  item = (CEquipment*)(*itr)->getInternalObject();
                   log("[CLIENT] Found item to drop (commonId = %i): %p", commonID, item);
 
                   // Drop the item
                   // SUPPRESSED for now, it's not quite working right and causes crash
-                  if (drop_item_this) {
+                  if (Level) {
+                    /*
                     c_entity ne;
 	                  ne.e = me;
 	                  ne.init();
 	                  c_inventory *inv = ne.inventory();
 
                     ItemUnequip(inv, item);
-                    ItemDrop(drop_item_this, item, *itemPosition, 1);
+                    */
+
+                    ItemUnequip(me->pCInventory, item);
+                    ItemDrop(Level, item, *itemPosition, 1);
                   } else {
                     log("[ERROR] drop_item_this is null (drivehappy - I think this is the world ptr, but we need a nice loc to set it up)");
                   }
@@ -253,11 +257,11 @@ void TLMP::_wnd_proc_pre STDARG
           }
 
           log("Creating Troll... EntityManager = %p", EntityManager);
-          void *r = CreateUnitByName(EntityManager, L"MONSTERS", L"Troll", 1, 0);
+          CCharacter *r = CreateUnitByName(EntityManager, L"MONSTERS", L"Troll", 1, 0);
           log("Troll Created: %p", r);
 
           Vector3* position = em.GetPosition();
-          r = EntityInitialize(*(void**)(((char*)EntityManager)+0x0c), r, position, 0);
+          r = EntityInitialize(EntityManager->pCLevel, r, position, 0);
           log("Troll Created: %p (at: %f %f %f --- %p)", r, position->x, position->y, position->z, position);
         }
         break;

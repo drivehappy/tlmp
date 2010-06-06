@@ -4,7 +4,7 @@ void TLMP::_spider_some_create_pre STDARG
 {
   u64 guid = *(u64 *)&Pz[0];
   log("!!!!! %p spider_some_create (%p %016I64X %d %d)", e->retaddress, e->_this, guid, Pz[2], Pz[3]);
-  EntityManager = e->_this;
+  EntityManager = (CResourceManager*)e->_this;
 
   //log("\n\n\n\n\nCResourceManager alloc addr: %p %i\n\n\n\n\n", 
   //  MemoryManager::getSingleton().getMemoryAllocationAddress(EntityManager),

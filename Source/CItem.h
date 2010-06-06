@@ -35,4 +35,4 @@ struct CItem : CBaseUnit
     dumpEditorBase();
   };
 };
-#pragma pack(1)
+#pragma pack()

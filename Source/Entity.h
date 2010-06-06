@@ -6,10 +6,12 @@
 
 #include "Network.h"
 
+#include "CResourceManager.h"
+
 
 namespace TLMP {
 
-  extern PVOID EntityManager;
+  extern CResourceManager* EntityManager;
   extern bool ClientAllowSpawn;
   extern bool ClientAllowEquip;
   extern bool ServerAllowSpawn;
