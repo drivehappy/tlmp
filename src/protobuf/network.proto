@@ -1,0 +1,69 @@
+package TLMP.NetworkMessages;
+
+message Position {
+  required float x = 1;
+  required float y = 2;
+  required float z = 3;
+}
+
+message Entity {
+  required int32 id = 1;
+  required int32 level = 2;
+  required int64 guid = 3;
+  required bool noItems = 4;
+  optional Position destination = 5;
+  repeated Position position = 6;
+}
+
+message Item {
+  required int32 id = 1;
+  required int64 guid = 2;
+  required int32 level = 3;
+  required int32 unk0 = 4;
+  required int32 unk1 = 5;
+}
+
+message ItemDrop {
+  required int32 id = 1;
+  repeated Position position = 2;
+  required bool unk0 = 3;
+}
+
+message ItemPickup {
+  required int32 id = 1;
+  required int32 ownerId = 2;
+}
+
+message ItemEquip {
+  required int32 id = 1;
+  required int32 slot = 2;
+  required int32 ownerId = 3;
+  required int32 unk = 4;
+}
+
+message ItemUnequip {
+  required int32 id = 1;
+  required int32 ownerid = 2;
+}
+
+message Player {
+  enum ClassType {
+    ALCHEMIST = 0;
+    VANQUISHER = 1;
+    DESTROYER = 2;
+  }
+  
+  enum PetType {
+	  DOG = 0;
+	  CAT = 1;
+  }
+  
+  message Pet {
+	  required int64    id = 1;
+    required PetType  type = 2;
+  }
+  
+  required int64      id = 1;
+  required ClassType  type = 2;
+  required string     name = 3;
+}
