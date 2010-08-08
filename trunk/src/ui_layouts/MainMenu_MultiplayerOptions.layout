@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+
+<GUILayout>
+
+    <!-- The Multiplayer Options window -->
+    <Window Type="DefaultWindow" Name="MultiplayerOptions">
+      <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+      <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
+
+      <!-- Background Image -->
+      <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_BackgroundImage">
+        <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+      </Window>
+
+      <!-- Title Text -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_TitleText">
+        <Property Name="UnifiedPosition" Value="{{.5,0},{.15,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+        <Property Name="Font" Value="SerifBig"/>
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value="Multiplayer"/>
+      </Window>
+
+      <!-- Host Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_HostButton">
+        <Property Name="UnifiedPosition" Value="{{.35,0},{.40,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+        <Property Name="Text" Value="Host"/>
+      </Window>
+      
+      <!-- Host Description -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_HostDescription">
+        <Property Name="UnifiedPosition" Value="{{.5,0},{.40,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,400},{0,28}}" />
+        <Property Name="Text" Value="Host a new game."/>
+      </Window>
+
+      <!-- Join Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_JoinButton">
+        <Property Name="UnifiedPosition" Value="{{.35,0},{.50,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+        <Property Name="Text" Value="Join"/>
+      </Window>
+
+      <!-- Join Description -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_JoinDescription">
+        <Property Name="UnifiedPosition" Value="{{.5,0},{.50,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,400},{0,28}}" />
+        <Property Name="Text" Value="Join an existing game."/>
+      </Window>
+      
+      <!-- Cancel Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_CancelButton">
+        <Property Name="UnifiedPosition" Value="{{.5,0},{.70,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+        <Property Name="Text" Value="Cancel"/>
+        <Property Name="onClick" Value="guiMultiplayer"/>
+      </Window>
+
+    </Window>
+
+</GUILayout>
