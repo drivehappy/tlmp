@@ -24,3 +24,12 @@
 #include "CEquipment.h"
 #include "CPlayer.h"
 using namespace TLAPI;
+
+#include "Logger.h"
+
+namespace TLMP
+{
+
+  extern Logger multiplayerLogger;
+
+};

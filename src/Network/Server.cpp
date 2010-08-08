@@ -130,16 +130,17 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::Entity *message = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
 
       // Send the client our known entities here on the server
-      log("[SERVER] Sending client entities...");
+      multiplayerLogger.WriteLine(Info, L"[SERVER] Sending client entities...");
+
       // Just the player atm
       SendClientEntities();
-      log("[SERVER] Send entities completed.");
+      multiplayerLogger.WriteLine(Info, L"[SERVER] Send entities completed.");
 
       // Create player on the server instance
-      log("Player Joined Game:");
-      log("  guid: %016I64X", message->guid());
-      log("  level: %i", message->level());
-      log("  position: %f %f %f", message->position().Get(0).x(), message->position().Get(0).y(), message->position().Get(0).z());
+      multiplayerLogger.WriteLine(Info, L"Player Joined Game:");
+      multiplayerLogger.WriteLine(Info, L"  guid: %016I64X", message->guid());
+      multiplayerLogger.WriteLine(Info, L"  level: %i", message->level());
+      multiplayerLogger.WriteLine(Info, L"  position: %f %f %f", message->position().Get(0).x(), message->position().Get(0).y(), message->position().Get(0).z());
 
       Vector3 position;
       position.x = message->position().Get(0).x();
@@ -166,10 +167,10 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(m_pBitStream);
 
-      log("Player Info Received:");
-      log("  id = %016I64X", player->id());
-      log("  name = %s", player->name().c_str());
-      log("  type = %i", player->type());
+      multiplayerLogger.WriteLine(Info, L"Player Info Received:");
+      multiplayerLogger.WriteLine(Info, L"  id = %016I64X", player->id());
+      multiplayerLogger.WriteLine(Info, L"  name = %s", player->name().c_str());
+      multiplayerLogger.WriteLine(Info, L"  type = %i", player->type());
     }
 
     break;
@@ -209,9 +210,9 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::Item *item = ParseMessage<NetworkMessages::Item>(m_pBitStream);
 
-      log("[SERVER] Received item creation:");
-      log("         guid = %016I64X", item->guid());
-      log("         id = %i", item->id());
+      multiplayerLogger.WriteLine(Info, L"[SERVER] Received item creation:");
+      multiplayerLogger.WriteLine(Info, L"         guid = %016I64X", item->guid());
+      multiplayerLogger.WriteLine(Info, L"         id = %i", item->id());
 
       // TODO FIX ME
       /*
@@ -242,10 +243,10 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       itemPosition->y = itemDropped->position().Get(0).y();
       itemPosition->z = itemDropped->position().Get(0).z();
 
-      log("[SERVER] Received ItemDrop:");
-      log("         id: %p", itemDropped->id());
-      log("         pos: %f, %f, %f", itemPosition->x, itemPosition->y, itemPosition->z);
-      log("         unk: %i", itemDropped->unk0());
+      multiplayerLogger.WriteLine(Info, L"[SERVER] Received ItemDrop:");
+      multiplayerLogger.WriteLine(Info, L"         id: %p", itemDropped->id());
+      multiplayerLogger.WriteLine(Info, L"         pos: %f, %f, %f", itemPosition->x, itemPosition->y, itemPosition->z);
+      multiplayerLogger.WriteLine(Info, L"         unk: %i", itemDropped->unk0());
 
       /*
       if (UnitManager) {
@@ -294,9 +295,9 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::ItemPickup *itemPickup = ParseMessage<NetworkMessages::ItemPickup>(m_pBitStream);
 
-      log("[SERVER] Received ItemPickup:");
-      log("         id: %p", itemPickup->id());
-      log("         owner: %i", itemPickup->ownerid());
+      multiplayerLogger.WriteLine(Info, L"[SERVER] Received ItemPickup:");
+      multiplayerLogger.WriteLine(Info, L"         id: %p", itemPickup->id());
+      multiplayerLogger.WriteLine(Info, L"         owner: %i", itemPickup->ownerid());
 
       // TODO FIX ME
       /*

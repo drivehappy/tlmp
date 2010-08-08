@@ -10,18 +10,15 @@
 #include "tlapi.h"
 
 #include "Multiplayer.h"
+using namespace TLMP;
 
-
-//const char*dll = "winmm.dll";
-//const char*dll = "C:\\win32\\system32\\winmm";
-const char*dll = "C:\\windows\\system32\\winmm";
+const char *dll = "C:\\windows\\system32\\winmm";
 HMODULE dll_hm = LoadLibrary(dll);
 
 const char*__str__s_ln = "%s\n";
 const char*__str__failed = "failed";
 
 extern "C" {
-  //if (!__func__##x) __func__##x=win::GetProcAddress(win::GetModuleHandle(dll),#x); \
 
 #define bounce(x)\
   void* __func__##x = 0; \
@@ -275,10 +272,7 @@ uintptr_t _beginthreadex(
                return 0;
 }
 
-void init();
-void deinit();
-
-int cnt=0;
+int cnt = 0;
 bool initialized = false;
 
 HANDLE this_module;
@@ -298,6 +292,8 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
       TLAPI::Initialize();
 
       SetupNetwork();
+
+      initialized = true;
     } else if (dwReason==DLL_THREAD_ATTACH) {
     } else if (dwReason==DLL_PROCESS_DETACH) {
     }

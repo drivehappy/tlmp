@@ -2,7 +2,6 @@
 
 #include "Common.h"
 
-
 namespace TLMP {
 
   namespace Network {
