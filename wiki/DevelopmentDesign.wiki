@@ -4,65 +4,12 @@
 ==Design Doc==
 
 ===Networking===
-(drivehappy)
-Currently the server holds a {{{list<c_entity*>}}} in TLMP::ServerEntities.
-  * c_entity holds an id var
-  * this id var should be common among networked TL instances
-
-Client suppresses all entity actions at this point.
-  * should we attempt to control the actual player spawn by the server as well
-  * in the big-picture aspect this would work better because there's less back and forth communication
-  * but... is it easily handleable by the client if there's no actual player
+Character and Equipment Synchronization
+  * Server dictates unique IDs for everything created.
+  * Since the Client is creating their own player a special Server message needs to be used for setting the IDs of all the Characters and Equipment the Client sent to us.
 
 Item handling
   * Possibly use the CItemSaveState between the CEquipment method's for loading (and assuming there's a save method) to transfer new item info?
-
-===Stability===
-(drivehappy) Resizing the window crashes game (at least on main menu).
-
-
-===Testing===
-(drivehappy) Develop a testing framework. More than likely due to the closed source nature of our target this will need be run in TL itself.
-  * Compiler flag for displaying UI testing suite in game?
-  * Run through a set of unit tests utilizing the hooked functions
+  * Or, extract the GUID, Enchants, Gems, Sockets myself
 
 ===Gameplay===
-(drivehappy)
-  * Look into force level change to Town. I think best bet would be looking into how the TP works, although this probably acts in state: e.g. if the player is in town then goto previous level, else goto town. May need a level state check.
-  * 
-
-(drivehappy) Taken from my last known list of problems (these are from the original prototyped code base)
-  * Clients aren't handing off their inventory items to the host to create.
-  * Gold/HP/Mana potions aren't triggering item pickups.
-  * Bridges aren't updating collision information on the client when triggered on either end.
-  * Client monster models die in the air.
-  * Host doesn't handle client resurrection properly.
-  * Client needs to be initially forced to load into host level.
-  * Object interaction needs a sync check (perhaps through a GUID - can we rely on level loads to be deterministic?).
-  * Stability problems on level transfers.
-
-Updated list of current issues to get v0.1 working:
-  * Pets are broken
-   * Server spawns both pets, however they're not tied to characters (monster AI off?)
-   * Client only receives hosts' pet
-   * Client needs to send host it's pet information
-   * Pet information isn't sync'd
-
-  * Fix in-place attack - other player sees running (just pass the flag over)
-
-  * Items that are created are the base type
-   * Items across network don't share enchants or gems
-   
-  * Other Player is created naked
-   * Look at equips/unequips at startup
-
-  * Look into:
-   * Possible stash issues
-   * Crash on exit to main menu
-   * Saved game (strip other player and pet)
-   * Crash on new player when loading game
-   * Force move to town
-   * Crash on loading player
-   * Create Multiplayer State:
-    * Ensure server and client are connected before entering game,
-     * This solves design issue of how to handle late entrance clients for now
