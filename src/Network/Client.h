@@ -21,6 +21,10 @@ namespace TLMP {
       void SetCallback_OnDisconnected(OnDisconnected callback);
       void SetCallback_OnConnectFailed(OnConnectFailed callback);
 
+      inline void SetGameStarted(bool value)  { m_bGameStarted = value; if (m_bGameStarted) m_bWaitingForGame = true; }
+      inline bool GetGameStarted()            { return m_bGameStarted; }
+      inline bool HasGameStarted()            { return m_bWaitingForGame; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -46,6 +50,9 @@ namespace TLMP {
       OnConnected       m_pOnConnected;
       OnDisconnected    m_pOnDisconnected;
       OnConnectFailed   m_pOnConnectFailed;
+      
+      bool m_bWaitingForGame;
+      bool m_bGameStarted;
     };
 
   };

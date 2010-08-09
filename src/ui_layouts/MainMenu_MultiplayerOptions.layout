@@ -24,6 +24,16 @@
         <Property Name="Text" Value="Multiplayer"/>
       </Window>
 
+      <!-- Multiplayer State Text -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_MultiplayerStateText">
+        <Property Name="UnifiedPosition" Value="{{.5,0},{.25,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,320},{0,56}}" />
+        <Property Name="Font" Value="SerifBig"/>
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value="Currently in SinglePlayer mode. You can join an existing game or host one for Multiplayer."/>
+      </Window>
+
       <!-- Host Button -->
       <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_HostButton">
         <Property Name="UnifiedPosition" Value="{{.35,0},{.40,0}}" />
@@ -57,9 +67,157 @@
         <Property Name="UnifiedPosition" Value="{{.5,0},{.70,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Cancel"/>
-        <Property Name="onClick" Value="guiMultiplayer"/>
       </Window>
 
-    </Window>
+      
+      <!-- New Visible Window -->
+      <!-- Host Window -->
+      <Window Type="DefaultWindow" Name="MultiplayerOptions_Host">
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Visible" Value="False" />
+
+        <!-- Background Image -->
+        <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_Host_BackgroundImage">
+          <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+          <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+          <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        </Window>
+
+        <!-- Title Text -->
+        <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_Host_TitleText">
+          <Property Name="UnifiedPosition" Value="{{.5,0},{.15,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="Font" Value="SerifBig"/>
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="Host Game"/>
+        </Window>
+
+        <!-- Host Port text -->
+        <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_Host_HostPortText">
+          <Property Name="UnifiedPosition" Value="{{.35,0},{.45,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="Host Port:"/>
+        </Window>
+
+        <!-- Host port edit box -->
+        <!-- Editbox's Background -->
+        <Window Type="GuiLook/ItemText" Name="MultiplayerOptions_Host_HostPortEdit_Bkgd">
+          <Property Name="UnifiedPosition" Value="{{.55,0},{.45,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="MousePassThroughEnabled" Value="True" />
+        </Window>
+        <Window Type="GuiLook/Editbox" Name="MultiplayerOptions_Host_HostPortEdit">
+          <Property Name="UnifiedPosition" Value="{{.55,0},{.45,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="5445"/>
+        </Window>
+
+        <!-- Host Button -->
+        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Host_HostButton">
+          <Property Name="UnifiedPosition" Value="{{.40,0},{.70,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+          <Property Name="Text" Value="Host"/>
+        </Window>
+
+        <!-- Cancel Button -->
+        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Host_CancelButton">
+          <Property Name="UnifiedPosition" Value="{{.6,0},{.70,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+          <Property Name="Text" Value="Cancel"/>
+        </Window>
+      </Window>
+      
+      
+      <!-- New Visible Window -->
+      <!-- Join Window -->
+      <Window Type="DefaultWindow" Name="MultiplayerOptions_Join">
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Visible" Value="False" />
+
+        <!-- Background Image -->
+        <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_Join_BackgroundImage">
+          <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+          <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+          <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        </Window>
+
+        <!-- Title Text -->
+        <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_Join_TitleText">
+          <Property Name="UnifiedPosition" Value="{{.5,0},{.15,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="Font" Value="SerifBig"/>
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="Join Game"/>
+        </Window>
+        
+        <!-- Host name text -->
+        <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_Join_HostNameText">
+          <Property Name="UnifiedPosition" Value="{{.35,0},{.35,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,240},{0,28}}" />
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="Host Name (or IP Address):"/>
+        </Window>
+
+        <!-- Host name edit box -->
+        <!-- Editbox's Background -->
+        <Window Type="GuiLook/ItemText" Name="MultiplayerOptions_Join_HostNameEdit_Bkgd">
+          <Property Name="UnifiedPosition" Value="{{.55,0},{.35,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="MousePassThroughEnabled" Value="True" />
+        </Window>
+        <Window Type="GuiLook/Editbox" Name="MultiplayerOptions_Join_HostNameEdit">
+          <Property Name="UnifiedPosition" Value="{{.55,0},{.35,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="localhost"/>
+        </Window>
+        
+        <!-- Host Port text -->
+        <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_Join_HostPortText">
+          <Property Name="UnifiedPosition" Value="{{.35,0},{.45,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="Host Port:"/>
+        </Window>
+
+        <!-- Host port edit box -->
+        <!-- Editbox's Background -->
+        <Window Type="GuiLook/ItemText" Name="MultiplayerOptions_Join_HostPortEdit_Bkgd">
+          <Property Name="UnifiedPosition" Value="{{.55,0},{.45,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="MousePassThroughEnabled" Value="True" />
+        </Window>
+        <Window Type="GuiLook/Editbox" Name="MultiplayerOptions_Join_HostPortEdit">
+          <Property Name="UnifiedPosition" Value="{{.55,0},{.45,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
+          <Property Name="TextColour" Value="FFFFFFFF"/>
+          <Property Name="Text" Value="5445"/>
+        </Window>
+
+        <!-- Join Button -->
+        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Join_JoinButton">
+          <Property Name="UnifiedPosition" Value="{{.40,0},{.70,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+          <Property Name="Text" Value="Join"/>
+        </Window>
+
+        <!-- Cancel Button -->
+        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Join_CancelButton">
+          <Property Name="UnifiedPosition" Value="{{.6,0},{.70,0}}" />
+          <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+          <Property Name="Text" Value="Cancel"/>
+        </Window>
+        
+      </Window>
+        
+
+
+  </Window>
 
 </GUILayout>

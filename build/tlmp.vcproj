@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../ExternalLibs/tlapi/src/UI;../src/UserInterface;../src/protobuf_out;../src;../ExternalLibs/;../ExternalLibs/tlapi/src;../ExternalLibs/tlapi/src/tlclasses;../ExternalLibs/tlapi/src/hook;&quot;../ExternalLibs/udis86-1.7&quot;;../ExternalLibs/cegui/include"
+				AdditionalIncludeDirectories="../src/UserInterface;../src/protobuf_out;../src/Network;../src;../ExternalLibs/;../ExternalLibs/tlapi/src;../ExternalLibs/tlapi/src/UI;../ExternalLibs/tlapi/src/tlclasses;../ExternalLibs/tlapi/src/hook;&quot;../ExternalLibs/udis86-1.7&quot;;../ExternalLibs/cegui/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

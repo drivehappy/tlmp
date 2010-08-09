@@ -21,6 +21,7 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_LevelCharacterInitialize(NULL, Level_CharacterInitialize);
 
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
+  CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -48,4 +49,41 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
 {
   gameClient = client;
+
+  // Set the started flag - don't bother checking, it's just as fast to set it
+  switch (Network::NetworkState::getSingleton().GetState()) {
+    case SERVER:
+      Server::getSingleton().SetGameStarted(true);
+      break;
+
+    case CLIENT:
+      Client::getSingleton().SetGameStarted(true);
+      break;
+  }
+}
+
+void TLMP::GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
+{
+  gameClient = client;
+
+  // Determine if we've exited an existing game in network mode
+  switch (Network::NetworkState::getSingleton().GetState()) {
+    case SERVER:
+      // Shutdown the Server if this is the first iteration out of the game
+      if (Server::getSingleton().GetGameStarted() && Server::getSingleton().HasGameStarted()) {
+        Server::getSingleton().Shutdown();
+      }
+
+      Server::getSingleton().SetGameStarted(false);
+      break;
+
+    case CLIENT:
+      // Shutdown the Client if this is the first iteration out of the game
+      if (Client::getSingleton().GetGameStarted() && Client::getSingleton().HasGameStarted()) {
+        Client::getSingleton().Disconnect();
+      }
+
+      Client::getSingleton().SetGameStarted(false);
+      break;
+  }
 }

@@ -18,7 +18,7 @@ Server::Server()
   m_pOnClientConnect = NULL;
   m_pOnClientDisconnect = NULL;
 
-  //ServerEntities = new vector<c_entity *>();
+  m_bWaitingForGame = true;
 }
 
 Server::~Server()
@@ -28,21 +28,21 @@ Server::~Server()
 
 void Server::Listen(u16 port, u16 maxconnections)
 {
-  log("Starting server...");
+  multiplayerLogger.WriteLine(Info, L"Starting server...");
 
   if (m_pServer) {
-    log("Shutting down server");
+    multiplayerLogger.WriteLine(Info, L"Shutting down server");
     m_pServer->Shutdown(0);
   }
 
   m_pServer = RakNetworkFactory::GetRakPeerInterface();
-  log("Got server: %p", m_pServer);
+  multiplayerLogger.WriteLine(Info, L"Got server: %p", m_pServer);
 
   SocketDescriptor socketDescriptor(port, 0);
   m_pServer->Startup(maxconnections, 30, &socketDescriptor, 1);
   m_pServer->SetMaximumIncomingConnections(maxconnections);
 
-  log("Server listening on port %i (max connections = %i)", port, maxconnections);
+  multiplayerLogger.WriteLine(Info, L"Server listening on port %i (max connections = %i)", port, maxconnections);
   if (m_pOnListening) {
     m_pOnListening(NULL);
   }
@@ -54,8 +54,10 @@ void Server::Shutdown()
     m_pServer->Shutdown(0);
     m_pServer = NULL;
 
-    log("Server shutdown");
-    m_pOnShutdown(NULL);
+    multiplayerLogger.WriteLine(Info, L"Server shutdown");
+
+    if (m_pOnShutdown)
+      m_pOnShutdown(NULL);
   }
 }
 
@@ -125,338 +127,48 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   //log("[NETWORK] Message Received: %x", msg);
 
   switch (msg) {
-  case C_GAME_JOIN:
-    {
-      NetworkMessages::Entity *message = ParseMessage<NetworkMessages::Entity>(m_pBitStream);
-
-      // Send the client our known entities here on the server
-      multiplayerLogger.WriteLine(Info, L"[SERVER] Sending client entities...");
-
-      // Just the player atm
-      SendClientEntities();
-      multiplayerLogger.WriteLine(Info, L"[SERVER] Send entities completed.");
-
-      // Create player on the server instance
-      multiplayerLogger.WriteLine(Info, L"Player Joined Game:");
-      multiplayerLogger.WriteLine(Info, L"  guid: %016I64X", message->guid());
-      multiplayerLogger.WriteLine(Info, L"  level: %i", message->level());
-      multiplayerLogger.WriteLine(Info, L"  position: %f %f %f", message->position().Get(0).x(), message->position().Get(0).y(), message->position().Get(0).z());
-
-      Vector3 position;
-      position.x = message->position().Get(0).x();
-      position.y = message->position().Get(0).y();
-      position.z = message->position().Get(0).z();
-
-      // Spawn the player on the server, but suppress sending the redundant msg to the client
-      /*
-      ServerAllowSpawn = false;
-      otherPlayer = SpawnPlayer(message->guid(), message->level(), position);
-      SendItemListToPlayer();
-      ServerAllowSpawn = true;
-
-      // Store the monster ptr in our shared network list
-      NetworkEntity *networkItem = new NetworkEntity(otherPlayer, message->id());
-
-      if (!NetworkSharedEntities)
-        NetworkSharedEntities = new vector<NetworkEntity*>();
-      NetworkSharedEntities->push_back(networkItem);
-      */
-    }
-    break;
-  case C_PLAYER_INFO:
-    {
-      NetworkMessages::Player *player = ParseMessage<NetworkMessages::Player>(m_pBitStream);
-
-      multiplayerLogger.WriteLine(Info, L"Player Info Received:");
-      multiplayerLogger.WriteLine(Info, L"  id = %016I64X", player->id());
-      multiplayerLogger.WriteLine(Info, L"  name = %s", player->name().c_str());
-      multiplayerLogger.WriteLine(Info, L"  type = %i", player->type());
-    }
-
+  case C_VERSION:
     break;
 
-  case C_PLAYER_SETDEST:
-    {
-      NetworkMessages::Position *destination = ParseMessage<NetworkMessages::Position>(m_pBitStream);
-
-      // TODO FIX ME
-      /*
-      if (otherPlayer) {
-        // Convert otherPlayer into an entity
-        c_entity otherPlayerEntity;
-        if (otherPlayer) {
-          otherPlayerEntity.e = otherPlayer;
-          otherPlayerEntity.init();
-        }
-
-        //Vector3* otherDest = (Vector3*)GetDestination(otherPlayer);
-        //log("  Retrieved destination");
-        //log("  Dest ptr = %p", otherDest);
-        //log("  Dest = %f %f %f", otherDest->x, otherDest->y, otherDest->z);
-        //log("  Setting destination...");
-        SetDestination(otherPlayer, EntityManager->pCLevel, destination->x(), destination->z());
-        //log("  Done.");
-
-        //log("Set Destination Info:");
-        //log("  x: %f", destination->x());
-        //log("  y: %f", destination->y());
-        //log("  z: %f", destination->z());
-      }
-      */
-    }
+  case C_REQUEST_HASGAMESTARTED:
     break;
 
-  case C_ITEM_CREATE:
-    {
-      NetworkMessages::Item *item = ParseMessage<NetworkMessages::Item>(m_pBitStream);
-
-      multiplayerLogger.WriteLine(Info, L"[SERVER] Received item creation:");
-      multiplayerLogger.WriteLine(Info, L"         guid = %016I64X", item->guid());
-      multiplayerLogger.WriteLine(Info, L"         id = %i", item->id());
-
-      // TODO FIX ME
-      /*
-      if (UnitManager) {
-        ServerSendClientItemSpawn = false;
-        PVOID itemCreated = ItemCreate(EntityManager, item->guid(), item->level(), item->unk0(), item->unk1());
-        //ItemInitialize(itemCreated, ItemManager);
-        log("Created and initialized: %p", itemCreated);
-        ServerSendClientItemSpawn = true;
-
-        NetworkEntity *networkItem = new NetworkEntity(itemCreated, item->id());
-
-        if (!NetworkSharedItems)
-          NetworkSharedItems = new vector<NetworkEntity *>();
-        NetworkSharedItems->push_back(networkItem);
-      } else {
-        log("[ERROR] Could not create item: UnitManager is null!");
-      }
-      */
-    }
+  case C_PUSH_GAMEENTER:
     break;
 
-  case C_ITEM_DROP:
-    {
-      NetworkMessages::ItemDrop *itemDropped = ParseMessage<NetworkMessages::ItemDrop>(m_pBitStream);
-      Vector3 *itemPosition = new Vector3();
-      itemPosition->x = itemDropped->position().Get(0).x();
-      itemPosition->y = itemDropped->position().Get(0).y();
-      itemPosition->z = itemDropped->position().Get(0).z();
-
-      multiplayerLogger.WriteLine(Info, L"[SERVER] Received ItemDrop:");
-      multiplayerLogger.WriteLine(Info, L"         id: %p", itemDropped->id());
-      multiplayerLogger.WriteLine(Info, L"         pos: %f, %f, %f", itemPosition->x, itemPosition->y, itemPosition->z);
-      multiplayerLogger.WriteLine(Info, L"         unk: %i", itemDropped->unk0());
-
-      /*
-      if (UnitManager) {
-        CEquipment *item = NULL;
-        vector<NetworkEntity *>::iterator itr;
-
-        if (NetworkSharedItems) {
-          // Ensure that the item has been created before we attempt to drop it
-          for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
-            if ((*itr)->getCommonId() == itemDropped->id()) {
-              item = (CEquipment*)(*itr)->getInternalObject();
-              log("[SERVER] Found item to drop (commonId = %i): %p", itemDropped->id(), item);
-
-              // Drop the item
-              // SUPPRESSED for now, it's not quite working right and causes crash
-              if (Level) {
-                // We don't know who's inventory this was dropped from
-                //c_entity ne;
-                //ne.e = me;
-                //ne.init();
-                //c_inventory *inv = ne.inventory();
-
-                //ItemUnequip(inv, item);
-
-                ServerSendClientItemSpawn = false;
-                ItemDrop(Level, item, *itemPosition, 1);
-                ServerSendClientItemSpawn = true;
-              } else {
-                log("[ERROR] drop_item_this is null (drivehappy - This is a ptr to a CLevel object)");
-              }
-
-              break;
-            }
-          }
-        } else {
-          log("[ERROR] NetworkSharedItems is null.");
-        }
-      } else {
-        log("[ERROR] Could not drop item: UnitManager is null!");
-      }
-      */
-    }
+  case C_PUSH_GAMEEXITED:
     break;
 
-  case C_ITEM_PICKUP:
-    {
-      NetworkMessages::ItemPickup *itemPickup = ParseMessage<NetworkMessages::ItemPickup>(m_pBitStream);
-
-      multiplayerLogger.WriteLine(Info, L"[SERVER] Received ItemPickup:");
-      multiplayerLogger.WriteLine(Info, L"         id: %p", itemPickup->id());
-      multiplayerLogger.WriteLine(Info, L"         owner: %i", itemPickup->ownerid());
-
-      // TODO FIX ME
-      /*
-      if (UnitManager) {
-        CEquipment *item = NULL;
-        CPlayer *owner = NULL;
-        vector<NetworkEntity *>::iterator itr;
-
-        if (NetworkSharedItems) {
-          // Ensure that the item has been created before we attempt to pick it up
-          for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
-            if ((*itr)->getCommonId() == itemPickup->id()) {
-              item = (CEquipment*)(*itr)->getInternalObject();
-              log("[SERVER] Found item to pickup (commonId = %x): %p", itemPickup->id(), item);
-              break;
-            }
-          }
-
-          // Ensure that the entity picking up the item has been created before we use it
-          for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-            //log("[SERVER] Searching %p == %p  ?", (*itr)->getCommonId(), itemPickup->ownerid());
-            if ((*itr)->getCommonId() == itemPickup->ownerid()) {
-              owner = (CPlayer*)(*itr)->getInternalObject();
-              log("[SERVER] Found owner of equip (commonId = %i): %p", itemPickup->ownerid(), owner);
-            }
-          }
-
-          if (item && owner) {
-            // Pickup the item
-            ServerSendClientItemSpawn = false;
-            ItemPickup(owner, item, Level);
-            ServerSendClientItemSpawn = true;
-          } else {
-            log("[ERROR] owner or item is null (owner = %p, item = %p)", owner, item); // drop_item_this = CLevel object
-          }
-        } else {
-          log("[ERROR] NetworkSharedItems is null.");
-        }
-      } else {
-        log("[ERROR] Could not pickup item: UnitManager is null!");
-      }
-      */
-    }
+  case C_REPLY_CHARINFO:
     break;
 
-  case C_ITEM_EQUIP:
-    {
-      NetworkMessages::ItemEquip *itemEquipped = ParseMessage<NetworkMessages::ItemEquip>(m_pBitStream);
-      CEquipment* item = NULL;
-      CPlayer* owner = NULL;
-      int slot = itemEquipped->slot();
-      int unk = itemEquipped->unk();
-      vector<NetworkEntity *>::iterator itr;
-
-      logColor(B_GREEN, "[SERVER] Received item equip:");
-      logColor(B_GREEN, "         id: %i", itemEquipped->id());
-      logColor(B_GREEN, "         slot %i", itemEquipped->slot());
-      logColor(B_GREEN, "         ownerid: %i", itemEquipped->ownerid());
-      logColor(B_GREEN, "         unk: %i", itemEquipped->unk());
-
-      if (NetworkSharedItems) {
-        // Ensure that the item has been created before we attempt to unequip it
-        for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
-          if ((*itr)->getCommonId() == itemEquipped->id()) {
-            item = (CEquipment*)(*itr)->getInternalObject();
-            log("[SERVER] Found item to equip (commonId = %i): %p", itemEquipped->id(), item);
-          }
-        }
-
-        // Ensure that the entity unequipping the item has been created before we use it
-        for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-          //log("[SERVER] Searching %p == %p  ?", (*itr)->getCommonId(), itemEquipped->ownerid());
-          if ((*itr)->getCommonId() == itemEquipped->ownerid()) {
-            owner = (CPlayer*)(*itr)->getInternalObject();
-            log("[SERVER] Found owner of equip (commonId = %i): %p", itemEquipped->ownerid(), owner);
-          }
-        }
-
-        // If the owner and item are valid, unequip
-        if (owner && item) {
-          //log("[SUPPRESSED] Equipping item...");
-          log("[SERVER] Equipping item (owner = %p, item = %p, slot = %i)", owner, item, slot);
-          //log("[SERVER] me = %p, otherPlayer = %p", me, otherPlayer);
-
-          //c_entity ce;
-          //ce.e = owner;
-          //ce.init();
-          //PVOID pinv = ce.inventory();
-
-          //ServerSendClientItemSpawn = false;
-          //ItemEquip(pinv, item, slot, unk);
-          //ServerSendClientItemSpawn = true;
-
-          // TODO FIX ME
-          /*
-          ServerSendClientItemSpawn = false;
-          ItemEquip(owner->pCInventory, item, slot, unk);
-          ServerSendClientItemSpawn = true;
-          */
-        }
-      }
-    }
+  case C_PUSH_EQUIPMENT_DROP:
     break;
 
-  case C_ITEM_UNEQUIP:
-    {
-      NetworkMessages::ItemUnequip *itemUnequipped = ParseMessage<NetworkMessages::ItemUnequip>(m_pBitStream);
-      CEquipment* item = NULL;
-      CPlayer* owner = NULL;
-      vector<NetworkEntity *>::iterator itr;
-
-      log("[SERVER] Received item unequip:");
-      log("         id: %i", itemUnequipped->id());
-      log("         ownerid: %i", itemUnequipped->ownerid());
-
-      if (NetworkSharedItems) {
-        // Ensure that the item has been created before we attempt to unequip it
-        for (itr = NetworkSharedItems->begin(); itr != NetworkSharedItems->end(); itr++) {
-          if ((*itr)->getCommonId() == itemUnequipped->id()) {
-            item = (CEquipment*)(*itr)->getInternalObject();
-            log("[SERVER] Found item to unequip (commonId = %i): %p", itemUnequipped->id(), item);
-          }
-        }
-
-        // Ensure that the entity unequipping the item has been created before we use it
-        for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-          //log("[SERVER] Searching %p == %p  ?", (*itr)->getCommonId(), itemUnequipped->ownerid());
-          if ((*itr)->getCommonId() == itemUnequipped->ownerid()) {
-            owner = (CPlayer*)(*itr)->getInternalObject();
-            log("[SERVER] Found owner of unequip (commonId = %i): %p", itemUnequipped->ownerid(), owner);
-            break;
-          }
-        }
-
-        // If the owner and item are valid, unequip
-        if (owner && item) {
-          log("[SERVER] Received Unequip");
-          //log("[SERVER] me = %p, otherPlayer = %p", me, otherPlayer);
-
-          // ce;
-          //ce.e = owner;
-          //ce.init();
-          //PVOID pinv = ce.inventory();
-
-          //ServerSendClientItemSpawn = false;
-          //ItemUnequip(pinv, item);
-          //ServerSendClientItemSpawn = true;
-
-          // TODO FIX ME
-          /*
-          ServerSendClientItemSpawn = false;
-          ItemUnequip(owner->pCInventory, item);
-          ServerSendClientItemSpawn = true;
-          */
-        }
-      }
-
-    }
+  case C_PUSH_EQUIPMENT_PICKUP:
     break;
+
+  case C_PUSH_EQUIPMENT_EQUIP:
+    break;
+
+  case C_PUSH_EQUIPMENT_UNEQUIP:
+    break;
+
+  case C_PUSH_EQUIPMENT_USE:
+    break;
+
+  case C_PUSH_EQUIPMENT_IDENTIFY:
+    break;
+
+  case C_PUSH_EQUIPMENT_ADDENCHANT:
+    break;
+
+  case C_PUSH_EQUIPMENT_ADDSOCKET:
+    break;
+
+  case C_PUSH_CHARACTER_SETDEST:
+    break;
+
   }
 }
 

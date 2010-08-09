@@ -17,12 +17,6 @@ namespace TLMP {
       void SetState(State state);
       State GetState() const;
 
-      void SetNetworkThread(HANDLE thread);
-      HANDLE GetNetworkThread();
-
-      void SetThreadId(DWORD id);
-      DWORD GetThreadId();
-
     protected:
       NetworkState();
       NetworkState(const NetworkState&);
@@ -31,8 +25,6 @@ namespace TLMP {
 
     private:
       State   m_State;
-      HANDLE  m_NetworkThread;
-      DWORD   m_ThreadID;
     };
 
     void HostGame(u16 port);

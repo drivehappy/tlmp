@@ -11,6 +11,9 @@
 #include "UserInterface.h"
 using namespace TLAPI;
 
+#include "Network.h"
+using namespace TLMP::Network;
+
 namespace TLMP
 {
   extern Logger multiplayerLogger;
@@ -24,5 +27,11 @@ namespace TLMP
   bool ButtonEvent_CloseMultiplayerOptions(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Host(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Join(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerOptions_Join_Cancel(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerOptions_Host_Cancel(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerOptions_Host_Host(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args);
 
+  // Internal "Events"
+  void onNetworkStateChange();
 };

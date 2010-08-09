@@ -24,6 +24,10 @@ namespace TLMP {
       void SetCallback_OnClientConnect(OnClientConnect callback);
       void SetCallback_OnClientDisconnect(OnClientDisconnect callback);
 
+      inline void SetGameStarted(bool value)  { m_bGameStarted = value; if (m_bGameStarted) m_bWaitingForGame = true; }
+      inline bool GetGameStarted()            { return m_bGameStarted; }
+      inline bool HasGameStarted()            { return m_bWaitingForGame; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -50,6 +54,9 @@ namespace TLMP {
       OnShutdown          m_pOnShutdown;
       OnClientConnect     m_pOnClientConnect;
       OnClientDisconnect  m_pOnClientDisconnect;
+
+      bool m_bWaitingForGame;
+      bool m_bGameStarted;
     };
 
   };

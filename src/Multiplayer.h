@@ -31,5 +31,6 @@ namespace TLMP
 
   // Post Event for the main GameClient loop
   void GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
+  void GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
   
 };
