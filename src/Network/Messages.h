@@ -2,10 +2,16 @@
 
 #include "DataTypes.h"
 
+#include <map>
+using std::map;
+
+#define ENUMSTR(enumeration) "##enumeration##"
 
 namespace TLMP {
 
   namespace Network {
+
+    #define stringify(name) #name
 
     /** Version to signify any Messaging ID changes. */
     const u32 MessageVersion = 1;
@@ -69,6 +75,53 @@ namespace TLMP {
 
       C_PUSH_CHARACTER_SETDEST,     // Client Pushes a Character SetDestination to Server
       S_PUSH_CHARACTER_SETDEST,     // Server Pushes a Character SetDestination to Client
+    };
+
+    static const char* MessageString[] = {
+      "S_VERSION",
+      "C_VERSION",
+
+      "C_REQUEST_HASGAMESTARTED",
+      "S_REPLY_HASGAMESTARTED",
+
+      "S_PUSH_GAMESTARTED",
+      "S_PUSH_GAMEENDED",
+
+      "C_PUSH_GAMEENTER",
+      "C_PUSH_GAMEEXITED",
+
+      "S_REQUEST_CHARINFO",
+      "C_REPLY_CHARINFO",
+
+      "S_PUSH_NEWCHAR",
+      "S_PUSH_NEWEQUIPMENT",
+
+      "S_PUSH_ADDCHARMINION",
+      "S_PUSH_SETCHARALIGNMENT",
+
+      "C_PUSH_EQUIPMENT_DROP",
+      "S_PUSH_EQUIPMENT_DROP",
+      
+      "C_PUSH_EQUIPMENT_EQUIP",
+      "S_PUSH_EQUIPMENT_EQUIP",
+      
+      "C_PUSH_EQUIPMENT_UNEQUIP",
+      "S_PUSH_EQUIPMENT_UNEQUIP",
+      
+      "C_PUSH_EQUIPMENT_USE",
+      "S_PUSH_EQUIPMENT_USE",
+            
+      "C_PUSH_EQUIPMENT_IDENTIFY",
+      "S_PUSH_EQUIPMENT_IDENTIFY",
+            
+      "C_PUSH_EQUIPMENT_ADDENCHANT",
+      "S_PUSH_EQUIPMENT_ADDENCHANT",
+                  
+      "C_PUSH_EQUIPMENT_ADDSOCKET",
+      "S_PUSH_EQUIPMENT_ADDSOCKET",
+                  
+      "C_PUSH_CHARACTER_SETDEST",
+      "S_PUSH_CHARACTER_SETDEST",
     };
 
   };

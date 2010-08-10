@@ -91,16 +91,21 @@ void Server::ReceiveMessages()
   while (packet) {
     switch(packet->data[0]) {
     case ID_NEW_INCOMING_CONNECTION:
+      multiplayerLogger.WriteLine(Info, L"Client connected");
       if (m_pOnClientConnect) {
-        m_pOnClientConnect(NULL);
+        SystemAddress *sysAddress = new SystemAddress();
+        *sysAddress = packet->systemAddress;
+        m_pOnClientConnect((void*)sysAddress);
       }
       break;
     case ID_DISCONNECTION_NOTIFICATION:
+      multiplayerLogger.WriteLine(Info, L"Client disconnected");
       if (m_pOnClientDisconnect) {
         m_pOnClientDisconnect(NULL);
       }
       break;
     case ID_CONNECTION_LOST:
+      multiplayerLogger.WriteLine(Info, L"Client disconnected");
       if (m_pOnClientDisconnect) {
         m_pOnClientDisconnect(NULL);
       }
@@ -112,7 +117,7 @@ void Server::ReceiveMessages()
       m_pBitStream->IgnoreBits(8);
       m_pBitStream->Read<u32>(msg);
 
-      WorkMessage((Message)msg, m_pBitStream);
+      WorkMessage(packet->systemAddress, (Message)msg, m_pBitStream);
 
       break;
     }
@@ -122,21 +127,44 @@ void Server::ReceiveMessages()
   }
 }
 
-void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
+void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitStream *bitStream)
 {
-  //log("[NETWORK] Message Received: %x", msg);
+  wstring msgString = convertAcsiiToWide(MessageString[msg]);
+
+  multiplayerLogger.WriteLine(Info, L"Server Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case C_VERSION:
+    {
+      NetworkMessages::Version *msgVersion = ParseMessage<NetworkMessages::Version>(m_pBitStream);
+      u32 version = (u32)(msgVersion->version());
+
+      HandleVersion(address, version);
+    }
     break;
 
   case C_REQUEST_HASGAMESTARTED:
+    {
+      NetworkMessages::GameHasStarted *msgGameHasStarted = ParseMessage<NetworkMessages::GameHasStarted>(m_pBitStream);
+
+      HandleHasGameStarted(address);
+    }
     break;
 
   case C_PUSH_GAMEENTER:
+    {
+      NetworkMessages::GameEnter *msgGameEnter = ParseMessage<NetworkMessages::GameEnter>(m_pBitStream);
+
+      HandleGameEnter(address);
+    }
     break;
 
   case C_PUSH_GAMEEXITED:
+    {
+      NetworkMessages::GameExited *msgGameExited = ParseMessage<NetworkMessages::GameExited>(m_pBitStream);
+
+      HandleGameExited(address);
+    }
     break;
 
   case C_REPLY_CHARINFO:
@@ -172,63 +200,37 @@ void Server::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   }
 }
 
-void Server::SendClientEntities()
+//
+// Below are message handlers
+
+// Server receives a version message from Client.
+void Server::HandleVersion(const SystemAddress clientAddress, u32 version)
 {
-  // TODO FIX ME
-  /*
-  vector<c_entity *>::iterator itr;
-  TLMP::NetworkMessages::Entity entity;
+  multiplayerLogger.WriteLine(Info, L"Server received Client Version: %i", version);
 
-  // Just send the server's player info
-  c_entity em;
-  if (me) {
-    unsigned long long guid = *((unsigned long long*)me + 0x2d); //(0x168 / 8));
-    unsigned int level = *((unsigned int*)me + 0x3c);
-    int commonId = 0;
+  if (version != MessageVersion) {
+    multiplayerLogger.WriteLine(Info, L"Disconnecting the Client: Version Mismatch: (Client = %i  Server = %i)",
+      version, MessageVersion);
 
-    em.e = me;
-    em.init();
-
-    // Search for me in my network entities to find the common id
-    if (NetworkSharedEntities) {
-      vector<NetworkEntity*>::iterator itr;
-      for (itr = NetworkSharedEntities->begin(); itr != NetworkSharedEntities->end(); itr++) {
-        if ((*itr)->getInternalObject() == me) {
-          commonId = (*itr)->getCommonId();
-          break;
-        }
-      }
-    } else {
-      log("[ERROR] NetworkSharedEntities is NULL!");
-    }
-
-    entity.set_id(commonId);
-    entity.set_level(level);
-    entity.set_guid(guid);
-    entity.set_noitems(true);
-
-    NetworkMessages::Position *position = entity.add_position();
-
-    position->set_x(em.GetPosition()->x);
-    position->set_y(em.GetPosition()->y);
-    position->set_z(em.GetPosition()->z);
-
-    SendMessage<NetworkMessages::Entity>(S_GAME_JOIN, &entity);
-    log("[SERVER] Sent player info: level: %i, guid: %16I64X", level, guid);
-  } else {
-    log("[ERROR] Server could not find it's player to send client!");
+    // TODO Disconnect Client
   }
+}
 
-  // Don't send monsters for now
-  //for (itr = ServerEntities->begin(); itr != ServerEntities->end(); itr++) {
-  //  log("[SERVER] Sending entity:");
-  //  log("         level: %i", (*itr)->level);
-  //  log("         guid:  %016I64X", (*itr)->guid);
-  //  
-  //  entity.set_level((*itr)->level);
-  //  entity.set_guid((*itr)->guid);
-  //  entity.set_noitems(true);
-  //  SendMessage<NetworkMessages::Entity>(S_SPAWN_MONSTER, &entity);
-  //}
-  */
+// Server receives game started request from Client upon initial login.
+void Server::HandleHasGameStarted(const SystemAddress clientAddress)
+{
+  NetworkMessages::GameHasStarted msgGameHasStarted;
+  msgGameHasStarted.set_started(m_bGameStarted);
+
+  SendMessage<NetworkMessages::GameHasStarted>(clientAddress, S_REPLY_HASGAMESTARTED, &msgGameHasStarted);
+}
+
+// Server receives game entrance from Client
+void Server::HandleGameEnter(const SystemAddress clientAddress)
+{
+}
+
+// Server receives game exit from client
+void Server::HandleGameExited(const SystemAddress clientAddress)
+{
 }

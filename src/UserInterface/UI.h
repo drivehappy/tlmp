@@ -22,6 +22,9 @@ namespace TLMP
   // Post Event for handling UI creation
   void GameClient_CreateUI(CGame* game);
 
+  // Helper for displaying the mainmenu UI
+  void DisplayWaitForServerWindow();
+
   // Button Events
   bool ButtonEvent_OpenMultiplayerOptions(const CEGUI::EventArgs& args);
   bool ButtonEvent_CloseMultiplayerOptions(const CEGUI::EventArgs& args);
@@ -31,6 +34,7 @@ namespace TLMP
   bool ButtonEvent_MultiplayerOptions_Host_Cancel(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Host_Host(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerOptions_WaitServer_OkButton(const CEGUI::EventArgs& args);
 
   // Internal "Events"
   void onNetworkStateChange();

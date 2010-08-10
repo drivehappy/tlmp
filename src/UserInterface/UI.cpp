@@ -9,7 +9,7 @@ void TLMP::GameClient_CreateUI(CGame* game)
   multiplayerLogger.WriteLine(Info, L"Creating User Interface...");
 
   // Added the main game GUI elements
-  CEGUI::Window *pRoot = NULL, *pMainMenuButton = NULL, *pMainMenuOptions = NULL;
+  CEGUI::Window *pRoot = NULL, *pMainMenuButton = NULL, *pMainMenuOptions = NULL, *pMainMenuDialogs = NULL;
   CEGUI::Window *pSheet = NULL;
   CEGUI::WindowManager* wm = UserInterface::getManager();
 
@@ -42,6 +42,15 @@ void TLMP::GameClient_CreateUI(CGame* game)
   } catch (exception &e) {
     log(e.what());
     multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerOptions.layout");
+    return;
+  }
+  
+  // Load the MainMenu Multiplayer Dialogs
+  try {
+    pMainMenuDialogs = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerDialogs.layout"), CEGUI::String("1003_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerDialogs.layout");
     return;
   }
 
@@ -109,6 +118,16 @@ void TLMP::GameClient_CreateUI(CGame* game)
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_Join_JoinButton");
     return;
   }
+      
+  CEGUI::Window *pWaitServer = pMainMenuDialogs->recursiveChildSearch("1003_MultiplayerOptions_WaitServerLoad_OkButton");
+  if (pWaitServer) {
+    pWaitServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_WaitServer_OkButton));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1003_MultiplayerOptions_WaitServerLoad_OkButton");
+    return;
+  }
+
+  //
 
   onNetworkStateChange();
   
@@ -125,10 +144,43 @@ void TLMP::GameClient_CreateUI(CGame* game)
   // Hookup everything to the existing main menu
   pRoot->addChildWindow(pMainMenuButton);
   pSheet->addChildWindow(pMainMenuOptions);
+  pSheet->addChildWindow(pMainMenuDialogs);
   pMainMenuOptions->setVisible(false);
-  
+  pMainMenuDialogs->setVisible(false);
 
   multiplayerLogger.WriteLine(Info, L"Creating User Interface... Done.");
+}
+
+void TLMP::DisplayWaitForServerWindow()
+{
+  CEGUI::WindowManager* wm = UserInterface::getManager();
+  CEGUI::Window *pWindow = NULL;
+  CEGUI::Window *pWaitServerLoad = NULL;
+  CEGUI::Window *pWindowOptions = NULL;
+
+  // Sanity check on the window manager
+  if (!wm) {
+    multiplayerLogger.WriteLine(Error, L"Error getting WindowManager: NULL");
+    return;
+  }
+
+  // Grab the Sheet window
+  if (wm->isWindowPresent(CEGUI::String("Sheet"))) {
+    CEGUI::Window *pSheet = wm->getWindow(CEGUI::String("Sheet"));
+
+    pWaitServerLoad = pSheet->recursiveChildSearch("1003_MultiplayerOptions_WaitServerLoad");
+
+    if (pWaitServerLoad) {
+      pWaitServerLoad->setVisible(true);
+      pWaitServerLoad->moveToFront();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error finding CEGUI Window \"1003_MultiplayerOptions_WaitServerLoad\"");
+      return;
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error finding CEGUI Window \"Sheet\" - cannot add Multiplayer Options window to MainMenu.");
+    return;
+  }
 }
 
 bool TLMP::ButtonEvent_OpenMultiplayerOptions(const CEGUI::EventArgs& args)
@@ -271,7 +323,8 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Host_Host(const CEGUI::EventArgs& args
 bool TLMP::ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args)
 {
   u16 port = 0;
-  const char* hostName = NULL;
+  wstring hostName;
+  const char *hostNameString;
 
   CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
 
@@ -299,7 +352,15 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args
       }
 
       if (pHostName) {
-        hostName = pHostName->getText().c_str();
+        hostNameString = pHostName->getText().c_str();
+
+        size_t origsize = strlen(hostNameString) + 1;
+        const size_t newsize = 100;
+        size_t convertedChars = 0;
+        wchar_t wcstring[newsize];
+        mbstowcs_s(&convertedChars, wcstring, origsize, hostNameString, _TRUNCATE);
+
+        hostName.append(wcstring);
       } else {
         multiplayerLogger.WriteLine(Error, L"Error could not find MultiplayerOptions_Join_HostNameEdit");
         return false;
@@ -314,14 +375,28 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args
   }
 
   // Finally, attempt to connect
-  multiplayerLogger.WriteLine(Info, L"Joining game at %s on port %i...", hostName, port);
-  Network::JoinGame(hostName, port);
+  multiplayerLogger.WriteLine(Info, L"Joining game at %s on port %i...", hostName.c_str(), port);
+  Network::JoinGame(hostNameString, port);
   onNetworkStateChange();
   multiplayerLogger.WriteLine(Info, L"Joining game completed.");
 
   return true;
 }
 
+bool TLMP::ButtonEvent_MultiplayerOptions_WaitServer_OkButton(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1003_MultiplayerOptions_WaitServerLoad");
+
+  if (pWindowOptions) {
+    pWindowOptions->setVisible(false);
+    pWindowOptions->moveToBack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1003_MultiplayerOptions_WaitServerLoad");
+    return false;
+  }
+
+  return true;
+}
 
 
 

@@ -4,7 +4,7 @@
 // this file should _only_ be used in the header
 
 template<typename T>
-void TLMP::Network::Server::SendMessage(Message msg, ::google::protobuf::Message *message)
+void TLMP::Network::Server::BroadcastMessage(Message msg, ::google::protobuf::Message *message)
 {
   // Write message data to array
   u32 size = sizeof(u8) * message->ByteSize();
@@ -19,7 +19,26 @@ void TLMP::Network::Server::SendMessage(Message msg, ::google::protobuf::Message
   m_pBitStream->Write((const char *)dump, size);
 
   m_pServer->Send(m_pBitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 1, UNASSIGNED_SYSTEM_ADDRESS, true);
-  //log("Server sent message of type: %x", msg);
+
+  delete dump;
+}
+
+template<typename T>
+void TLMP::Network::Server::SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message)
+{
+  // Write message data to array
+  u32 size = sizeof(u8) * message->ByteSize();
+  u8 *dump = new u8[size];
+  message->SerializeToArray(dump, size);
+
+  // Write data and size to raknet
+  m_pBitStream->Reset();
+  m_pBitStream->Write((u8)(ID_USER_PACKET_ENUM+1));
+  m_pBitStream->Write((u32)msg);
+  m_pBitStream->Write(size);
+  m_pBitStream->Write((const char *)dump, size);
+
+  m_pServer->Send(m_pBitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 1, systemIdentifier, false);
 
   delete dump;
 }

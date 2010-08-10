@@ -68,7 +68,6 @@
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Cancel"/>
       </Window>
-
       
       <!-- New Visible Window -->
       <!-- Host Window -->

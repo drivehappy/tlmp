@@ -33,6 +33,12 @@ void  protobuf_AddDesc_network_2eproto();
 void protobuf_AssignDesc_network_2eproto();
 void protobuf_ShutdownFile_network_2eproto();
 
+class Version;
+class GameHasStarted;
+class GameStarted;
+class GameEnded;
+class GameEnter;
+class GameExited;
 class Position;
 class Entity;
 class Item;
@@ -83,6 +89,508 @@ inline bool Player_PetType_Parse(
     Player_PetType_descriptor(), name, value);
 }
 // ===================================================================
+
+class Version : public ::google::protobuf::Message {
+ public:
+  Version();
+  virtual ~Version();
+  
+  Version(const Version& from);
+  
+  inline Version& operator=(const Version& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Version& default_instance();
+  
+  void Swap(Version* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Version* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Version& from);
+  void MergeFrom(const Version& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 version = 1;
+  inline bool has_version() const;
+  inline void clear_version();
+  static const int kVersionFieldNumber = 1;
+  inline ::google::protobuf::int32 version() const;
+  inline void set_version(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Version)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 version_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Version* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameHasStarted : public ::google::protobuf::Message {
+ public:
+  GameHasStarted();
+  virtual ~GameHasStarted();
+  
+  GameHasStarted(const GameHasStarted& from);
+  
+  inline GameHasStarted& operator=(const GameHasStarted& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameHasStarted& default_instance();
+  
+  void Swap(GameHasStarted* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameHasStarted* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameHasStarted& from);
+  void MergeFrom(const GameHasStarted& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required bool started = 1;
+  inline bool has_started() const;
+  inline void clear_started();
+  static const int kStartedFieldNumber = 1;
+  inline bool started() const;
+  inline void set_started(bool value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.GameHasStarted)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  bool started_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameHasStarted* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameStarted : public ::google::protobuf::Message {
+ public:
+  GameStarted();
+  virtual ~GameStarted();
+  
+  GameStarted(const GameStarted& from);
+  
+  inline GameStarted& operator=(const GameStarted& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameStarted& default_instance();
+  
+  void Swap(GameStarted* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameStarted* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameStarted& from);
+  void MergeFrom(const GameStarted& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.GameStarted)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[1];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameStarted* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameEnded : public ::google::protobuf::Message {
+ public:
+  GameEnded();
+  virtual ~GameEnded();
+  
+  GameEnded(const GameEnded& from);
+  
+  inline GameEnded& operator=(const GameEnded& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameEnded& default_instance();
+  
+  void Swap(GameEnded* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameEnded* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameEnded& from);
+  void MergeFrom(const GameEnded& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.GameEnded)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[1];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameEnded* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameEnter : public ::google::protobuf::Message {
+ public:
+  GameEnter();
+  virtual ~GameEnter();
+  
+  GameEnter(const GameEnter& from);
+  
+  inline GameEnter& operator=(const GameEnter& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameEnter& default_instance();
+  
+  void Swap(GameEnter* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameEnter* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameEnter& from);
+  void MergeFrom(const GameEnter& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.GameEnter)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[1];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameEnter* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameExited : public ::google::protobuf::Message {
+ public:
+  GameExited();
+  virtual ~GameExited();
+  
+  GameExited(const GameExited& from);
+  
+  inline GameExited& operator=(const GameExited& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameExited& default_instance();
+  
+  void Swap(GameExited* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameExited* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameExited& from);
+  void MergeFrom(const GameExited& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.GameExited)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[1];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameExited* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class Position : public ::google::protobuf::Message {
  public:
@@ -1120,6 +1628,62 @@ class Player : public ::google::protobuf::Message {
 
 
 // ===================================================================
+
+// Version
+
+// required int32 version = 1;
+inline bool Version::has_version() const {
+  return _has_bit(0);
+}
+inline void Version::clear_version() {
+  version_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Version::version() const {
+  return version_;
+}
+inline void Version::set_version(::google::protobuf::int32 value) {
+  _set_bit(0);
+  version_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// GameHasStarted
+
+// required bool started = 1;
+inline bool GameHasStarted::has_started() const {
+  return _has_bit(0);
+}
+inline void GameHasStarted::clear_started() {
+  started_ = false;
+  _clear_bit(0);
+}
+inline bool GameHasStarted::started() const {
+  return started_;
+}
+inline void GameHasStarted::set_started(bool value) {
+  _set_bit(0);
+  started_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// GameStarted
+
+// -------------------------------------------------------------------
+
+// GameEnded
+
+// -------------------------------------------------------------------
+
+// GameEnter
+
+// -------------------------------------------------------------------
+
+// GameExited
+
+// -------------------------------------------------------------------
 
 // Position
 

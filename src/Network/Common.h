@@ -9,6 +9,7 @@
 #include "DataTypes.h"
 #include "Common.h"
 #include "Messages.h"
+using namespace TLMP::Network;
 
 #include "raknet/include/RakPeerInterface.h"
 #include "raknet/include/RakNetworkFactory.h"

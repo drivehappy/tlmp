@@ -16,6 +16,19 @@ using namespace std;
 
 namespace TLMP
 {
+  static wstring& convertAcsiiToWide(string str) {
+    size_t origsize = strlen(str.c_str()) + 1;
+    const size_t newsize = 1024;
+    size_t convertedChars = 0;
+    wchar_t wcstring[newsize];
+    mbstowcs_s(&convertedChars, wcstring, origsize, str.c_str(), _TRUNCATE);
+
+    wstring *newStr = new wstring();
+    newStr->append(wcstring);
+
+    return *newStr;
+  };
+
   enum LoggingLevel {
     Verbose = 0, 
     Info, 
@@ -32,6 +45,8 @@ namespace TLMP
   class Logger
   {
   private:
+    bool m_bTimeWritten;
+
     wofstream m_outFile;
     Timer m_logTimer;
     LoggingLevel m_logLevel;
