@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+
+<GUILayout>
+
+  <!-- New Visible Window -->
+  <!-- Wait for Server to Load Window -->
+  <Window Type="DefaultWindow" Name="MultiplayerOptions_WaitServerLoad">
+    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+    <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+    <Property Name="MousePassThroughEnabled" Value="True" />
+    <Property Name="Visible" Value="False" />
+
+    <!-- Background Image -->
+    <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_WaitServerLoad_BackgroundImage">
+      <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+      <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+      <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+    </Window>
+
+    <!-- Title Text -->
+    <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_WaitServerLoad_TitleText">
+      <Property Name="UnifiedPosition" Value="{{.5,-120},{.25,0}}" />
+      <Property Name="UnifiedSize" Value="{{0,240},{0,28}}" />
+      <Property Name="HorzTextFormatting" Value="WordWrapCentreAligned" />
+      <Property Name="Font" Value="SerifBig"/>
+      <Property Name="TextColour" Value="FFFFFFFF"/>
+      <Property Name="Text" Value="Waiting for Host"/>
+    </Window>
+
+    <!-- Host name text -->
+    <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_WaitServerLoad_Description">
+      <Property Name="UnifiedPosition" Value="{{.5,-200},{.5,0}}" />
+      <Property Name="UnifiedSize" Value="{{0,400},{0,56}}" />
+      <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+      <Property Name="TextColour" Value="FFFFFFFF"/>
+      <Property Name="Text" Value="You must wait for the Host to start the game before entering."/>
+    </Window>
+
+    <!-- Ok Button -->
+    <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_WaitServerLoad_OkButton">
+      <Property Name="UnifiedPosition" Value="{{.5,-71},{.70,0}}" />
+      <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+      <Property Name="Text" Value="Ok"/>
+    </Window>
+  </Window>
+
+</GUILayout>

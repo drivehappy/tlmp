@@ -31,7 +31,9 @@ namespace TLMP {
       void ReceiveMessages();
 
       template<typename T>
-      void SendMessage(Message msg, ::google::protobuf::Message *message);
+      void BroadcastMessage(Message msg, ::google::protobuf::Message *message);
+      template<typename T>
+      void SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
 
     protected:
       Server();
@@ -43,7 +45,14 @@ namespace TLMP {
       template<typename T>
       T* ParseMessage(RakNet::BitStream *bitStream);
 
-      void WorkMessage(Message msg, RakNet::BitStream *bitStream);
+      /** Work on received packet data. */
+      void WorkMessage(const SystemAddress clientAddress, Message msg, RakNet::BitStream *bitStream);
+
+      /** Functions for handling individual messages. */
+      void HandleVersion(const SystemAddress clientAddress, u32 version);
+      void HandleHasGameStarted(const SystemAddress clientAddress);
+      void HandleGameEnter(const SystemAddress clientAddress);
+      void HandleGameExited(const SystemAddress clientAddress);
 
       void SendClientEntities();
 

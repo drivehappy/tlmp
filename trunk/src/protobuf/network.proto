@@ -1,5 +1,25 @@
 package TLMP.NetworkMessages;
 
+message Version {
+  required int32 version = 1;
+}
+
+message GameHasStarted {
+  required bool started = 1;
+}
+
+message GameStarted {
+}
+
+message GameEnded {
+}
+
+message GameEnter {
+}
+
+message GameExited {
+}
+
 message Position {
   required float x = 1;
   required float y = 2;
@@ -59,7 +79,7 @@ message Player {
   }
   
   message Pet {
-	  required int64    id = 1;
+	required int64    id = 1;
     required PetType  type = 2;
   }
   

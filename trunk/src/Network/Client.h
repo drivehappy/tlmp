@@ -39,7 +39,14 @@ namespace TLMP {
     private:
       void OnConnect(void *);
       
+      /** Work on received packet data. */
       void WorkMessage(Message msg, RakNet::BitStream *bitStream);
+
+      /** Functions for handling individual messages. */
+      void HandleVersion(u32 version);
+      void HandleHasGameStarted(bool gameStarted);
+      void HandleGameStarted();
+      void HandleGameEnded();
 
       template<typename T>
       T* ParseMessage(RakNet::BitStream *bitStream);

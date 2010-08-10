@@ -118,6 +118,7 @@ void Client::ReceiveMessages()
 
 void Client::OnConnect(void *args)
 {
+  /*
   TLMP::NetworkMessages::Player player;
 
   // Init player
@@ -125,26 +126,51 @@ void Client::OnConnect(void *args)
   player.set_name("drivehappy");
   player.set_type(NetworkMessages::Player_ClassType_ALCHEMIST);
 
-  //SendMessage<NetworkMessages::Player>(C_PLAYER_INFO, &player);
+  SendMessage<NetworkMessages::Player>(C_PLAYER_INFO, &player);
+  */
 
   log("[CLIENT] Connected.");
 }
 
 void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 {
-  //log("Message Received: %x", msg);
+  wstring msgString = convertAcsiiToWide(MessageString[msg]);
+
+  multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case S_VERSION:
+    {
+      NetworkMessages::Version *msgVersion = ParseMessage<NetworkMessages::Version>(m_pBitStream);
+      u32 version = (u32)(msgVersion->version());
+
+      HandleVersion(version);
+    }
     break;
 
   case S_REPLY_HASGAMESTARTED:
+    {
+      NetworkMessages::GameHasStarted *msgGameHasStarted = ParseMessage<NetworkMessages::GameHasStarted>(m_pBitStream);
+      bool gameStarted = msgGameHasStarted->started();
+
+      HandleHasGameStarted(gameStarted);
+    }
     break;
 
   case S_PUSH_GAMESTARTED:
+    {
+      NetworkMessages::GameStarted *msgGameStarted = ParseMessage<NetworkMessages::GameStarted>(m_pBitStream);
+
+      HandleGameStarted();
+    }
     break;
 
   case S_PUSH_GAMEENDED:
+    {
+      NetworkMessages::GameEnded *msgGameEnded = ParseMessage<NetworkMessages::GameEnded>(m_pBitStream);
+
+      HandleGameEnded();
+    }
     break;
 
   case S_REQUEST_CHARINFO:
@@ -189,4 +215,48 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   case S_PUSH_CHARACTER_SETDEST:
     break;
   }     
+}
+
+//
+// Below are the message handlers
+
+// Receives a version from the server, replies with it's own version
+void Client::HandleVersion(u32 version)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received Server Version: %i", version);
+
+  NetworkMessages::Version msgVersion;
+  msgVersion.set_version(MessageVersion);
+
+  SendMessage<NetworkMessages::Version>(C_VERSION, &msgVersion);
+
+  // After we send, check if they're the same
+  if (version != MessageVersion) {
+    multiplayerLogger.WriteLine(Info, L"Disconnecting from the Server: Version Mismatch: (Client = %i  Server = %i)",
+      MessageVersion, version);
+
+    Disconnect();
+  } else {
+    // If they're Ok, Request whether the Game has started yet
+    NetworkMessages::GameHasStarted msgGameHasStarted;
+
+    SendMessage<NetworkMessages::GameHasStarted>(C_REQUEST_HASGAMESTARTED, &msgGameHasStarted);
+  }
+}
+
+// Receives from server whether the game has started
+// If it has, it's safe to enter the game, else block player from entering.
+void Client::HandleHasGameStarted(bool gameStarted)
+{
+  // TODO Block or Allow Player from Entering the Game
+}
+
+//
+void Client::HandleGameStarted()
+{
+}
+
+//
+void Client::HandleGameEnded()
+{
 }
