@@ -34,6 +34,9 @@ namespace TLMP {
 
       S_REQUEST_CHARINFO,           // Server Requests Client for Character Information (Name, Inventory, Class, Minions, etc.)
       C_REPLY_CHARINFO,             // Client Respone for Character Information Request
+      S_REPLY_CHARID,               // Server Respone for setting Character Network ID
+
+      C_PUSH_EQUIPMENT,             // Client Pushes it's Suppressed Player's Equipment to server
 
       S_PUSH_NEWCHAR,               // Server Pushes a New Character to the Client
       S_PUSH_NEWEQUIPMENT,          // Server Pushes a New Equipment
@@ -92,6 +95,9 @@ namespace TLMP {
 
       "S_REQUEST_CHARINFO",
       "C_REPLY_CHARINFO",
+      "S_REPLY_CHARID",
+
+      "C_PUSH_EQUIPMENT",
 
       "S_PUSH_NEWCHAR",
       "S_PUSH_NEWEQUIPMENT",
@@ -102,6 +108,9 @@ namespace TLMP {
       "C_PUSH_EQUIPMENT_DROP",
       "S_PUSH_EQUIPMENT_DROP",
       
+      "C_PUSH_EQUIPMENT_PICKUP",
+      "S_PUSH_EQUIPMENT_PICKUP",
+
       "C_PUSH_EQUIPMENT_EQUIP",
       "S_PUSH_EQUIPMENT_EQUIP",
       

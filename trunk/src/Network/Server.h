@@ -28,10 +28,16 @@ namespace TLMP {
       inline bool GetGameStarted()            { return m_bGameStarted; }
       inline bool HasGameStarted()            { return m_bWaitingForGame; }
 
+      inline bool GetSuppressed_SetDestination()            { return m_bSuppressNetwork_SetDestination; }
+      inline void SetSuppressed_SetDestination(bool value)  { m_bSuppressNetwork_SetDestination = value; }
+
+
       void ReceiveMessages();
 
       template<typename T>
       void BroadcastMessage(Message msg, ::google::protobuf::Message *message);
+      template<typename T>
+      void BroadcastMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
       template<typename T>
       void SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
 
@@ -53,6 +59,10 @@ namespace TLMP {
       void HandleHasGameStarted(const SystemAddress clientAddress);
       void HandleGameEnter(const SystemAddress clientAddress);
       void HandleGameExited(const SystemAddress clientAddress);
+      void HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3 posCharacter, u64 guidCharacter, string nameCharacter, u64 guidPet, string namePet);
+
+      void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination);
+
 
       void SendClientEntities();
 
@@ -66,6 +76,8 @@ namespace TLMP {
 
       bool m_bWaitingForGame;
       bool m_bGameStarted;
+
+      bool m_bSuppressNetwork_SetDestination;
     };
 
   };

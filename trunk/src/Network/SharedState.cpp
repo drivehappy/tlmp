@@ -3,7 +3,7 @@
 namespace TLMP
 {
 
-  vector<NetworkEntity*> *TLMP::NetworkSharedItems    = NULL;
-  vector<NetworkEntity*> *TLMP::NetworkSharedEntities = NULL;
+  vector<NetworkEntity*> *TLMP::NetworkSharedEquipment  = new vector<NetworkEntity*>();
+  vector<NetworkEntity*> *TLMP::NetworkSharedCharacters = new vector<NetworkEntity*>();
 
 };

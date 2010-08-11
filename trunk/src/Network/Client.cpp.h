@@ -35,8 +35,6 @@ T* TLMP::Network::Client::ParseMessage(RakNet::BitStream *bitStream)
   bitStream->ReadPtr<u32>(&size);
   data = new u8[size];
   bitStream->ReadAlignedBytes(data, size);
-  //log("Received serialized of size: %i", size);
-
   message->ParseFromArray(data, size);
 
   delete data;

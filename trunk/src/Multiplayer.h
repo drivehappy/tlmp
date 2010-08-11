@@ -1,10 +1,6 @@
 #pragma once
 
-#include "Events.h"
-#include "Common.h"
-
-#include "CPlayer.h"
-#include "Globals.h"
+#include "tlapi.h"
 
 #include "Logger.h"
 using namespace TLAPI;
@@ -15,26 +11,38 @@ using namespace TLAPI;
 namespace TLMP
 {
 
-  extern Logger            multiplayerLogger;
-  extern CGameClient      *gameClient;
-
   void SetupNetwork();
 
   // Server Events
   void ServerOnClientConnected(void *);
   // --
 
+  // Direct Hook function for handling rendering the window without focus
+  static void OgreIsActive STDARG
+  {
+    e->calloriginal = false;
+    e->retval = 1;
+  };
+
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
-  // Post Event for character initialization
-  void CreateCharacter(CCharacter* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0);
+  // Pre Event for character initialization
+  void CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
+
+  // Pre Event for Monster AI and Idle
+  void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);
+  void Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal);
+
+  // Pre Event for Character SetDestination
+  void Character_SetDestination(CCharacter*, CLevel*, float, float);
 
   // Post Event for equipment initialization
   void CreateEquipment(CEquipment*, CResourceManager*, u64, u32, u32, u32);
+  void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
   
-  // Post Event for player initialization
-  void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32);
+  // Pre Event for player initialization
+  void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
 
   // Pre Event for MainMenu Event
   void MainMenuEventPre(CMainMenu*, u32, wstring, bool&);
