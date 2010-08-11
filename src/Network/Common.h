@@ -32,5 +32,6 @@ namespace TLMP
 {
 
   extern Logger multiplayerLogger;
+  extern CGameClient      *gameClient;
 
 };

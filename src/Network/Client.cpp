@@ -13,6 +13,11 @@ Client::Client()
   m_pClient = NULL;
   m_pBitStream = new RakNet::BitStream(1024);
 
+  m_bWaitingForGame = false;
+  m_bGameStarted = false;
+  m_bServerGameStarted = false;
+  m_bSuppressNetwork_SetDestination = false;
+
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
   m_pOnConnectFailed = NULL;
@@ -137,6 +142,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   wstring msgString = convertAcsiiToWide(MessageString[msg]);
 
   multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
+  log(L"Client Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case S_VERSION:
@@ -174,6 +180,20 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_REQUEST_CHARINFO:
+    {
+      NetworkMessages::RequestCharacterInfo *msgRequestCharacterInfo = ParseMessage<NetworkMessages::RequestCharacterInfo>(m_pBitStream);
+
+      HandleRequestCharacterInfo();
+    }
+    break;
+
+  case S_REPLY_CHARID:
+    {
+      NetworkMessages::ReplyCharacterId *msgReplyCharacterId = ParseMessage<NetworkMessages::ReplyCharacterId>(m_pBitStream);
+      u32 id = msgReplyCharacterId->id();
+
+      HandleReplyCharacterId(id);
+    }
     break;
 
   case S_PUSH_NEWCHAR:
@@ -213,6 +233,18 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_CHARACTER_SETDEST:
+    {
+      NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
+      NetworkMessages::Position msgDestination = msgCharacterDestination->destination().Get(0);
+
+      u32 id = msgCharacterDestination->id();
+
+      Vector3 destination;
+      destination.x = msgDestination.x();
+      destination.z = msgDestination.z();
+
+      HandleCharacterDestination(id, destination);
+    }
     break;
   }     
 }
@@ -248,15 +280,86 @@ void Client::HandleVersion(u32 version)
 // If it has, it's safe to enter the game, else block player from entering.
 void Client::HandleHasGameStarted(bool gameStarted)
 {
-  // TODO Block or Allow Player from Entering the Game
+  Client::getSingleton().SetServerGameStarted(gameStarted);
 }
 
-//
+// Receives a push from the server when it finally starts the game.
 void Client::HandleGameStarted()
 {
+  Client::getSingleton().SetServerGameStarted(true);
+
+  // TODO Show Window Dialog informing user the server has started and they can enter.
 }
 
-//
+// Receives a push from server when the game has been stopped (Exited to MainMenu)
 void Client::HandleGameEnded()
 {
+  Client::getSingleton().SetServerGameStarted(false);
+  
+  // TODO Exit Player to MainMenu
+}
+
+// Receives a request from the Server for Character Info
+void Client::HandleRequestCharacterInfo()
+{
+  NetworkMessages::ReplyCharacterInfo msgReplyCharacterInfo;
+
+  NetworkMessages::Character *msgPlayer         = msgReplyCharacterInfo.add_player();
+  NetworkMessages::Character *msgPet            = msgPlayer->add_minion();
+  NetworkMessages::Position  *msgPlayerPosition = msgPlayer->add_position();
+
+  // Add the player information
+  CPlayer *player = gameClient->pCPlayer;
+  string playerName(player->characterName.begin(), player->characterName.end());
+  playerName.assign(player->characterName.begin(), player->characterName.end());
+
+  msgPet->set_guid(player->GUID);
+  msgPet->set_name(playerName);
+
+  msgPlayer->set_guid(player->GUID);
+  msgPlayer->set_name(playerName);
+  
+  msgPlayerPosition->set_x(player->position.x);
+  msgPlayerPosition->set_y(player->position.y);
+  msgPlayerPosition->set_z(player->position.z);
+
+  Client::getSingleton().SendMessage<NetworkMessages::ReplyCharacterInfo>(C_REPLY_CHARINFO, &msgReplyCharacterInfo);
+}
+
+// Receives a Character Network ID from the server to apply to our character
+// This is really a special message since the Client creates the player without the server
+// telling it to
+void Client::HandleReplyCharacterId(u32 id)
+{
+  CPlayer *player = gameClient->pCPlayer;
+
+  NetworkEntity *newEntity = new NetworkEntity(player, id);
+  NetworkSharedCharacters->push_back(newEntity);
+}
+
+// Pushes player inventory equipment list to the server to create
+void Client::PushEquipment()
+{
+}
+
+// Handles Character Set Destination
+void Client::HandleCharacterDestination(u32 commonId, Vector3 destination)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received character setDestination (CommonID = %x), Position = %f, %f",
+    commonId, destination.x, destination.z);
+
+  // Search for our Character given the CommonID
+  NetworkEntity *entity = searchCharacterByCommonID(commonId);
+
+  if (!entity) {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter *)entity->getInternalObject();
+
+  // Lock the Client from sending a network message back out when setting the Character Destination
+  Client::getSingleton().SetSuppressed_SetDestination(true);
+  character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
+  Client::getSingleton().SetSuppressed_SetDestination(false);
 }

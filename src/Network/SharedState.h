@@ -14,7 +14,29 @@ using std::vector;
 
 namespace TLMP {
 
-  extern vector<NetworkEntity*>* NetworkSharedItems;
-  extern vector<NetworkEntity*>* NetworkSharedEntities;
+  extern vector<NetworkEntity*>* NetworkSharedEquipment;
+  extern vector<NetworkEntity*>* NetworkSharedCharacters;
+
+  static NetworkEntity* searchCharacterByInternalObject(PVOID internalObject) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+      if ((*itr)->getInternalObject() == internalObject) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static NetworkEntity* searchCharacterByCommonID(u32 commondId) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+      if ((*itr)->getCommonId() == commondId) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
 
 };

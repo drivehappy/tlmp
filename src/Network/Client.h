@@ -21,9 +21,15 @@ namespace TLMP {
       void SetCallback_OnDisconnected(OnDisconnected callback);
       void SetCallback_OnConnectFailed(OnConnectFailed callback);
 
-      inline void SetGameStarted(bool value)  { m_bGameStarted = value; if (m_bGameStarted) m_bWaitingForGame = true; }
-      inline bool GetGameStarted()            { return m_bGameStarted; }
-      inline bool HasGameStarted()            { return m_bWaitingForGame; }
+      inline void SetGameStarted(bool value)                { m_bGameStarted = value; if (m_bGameStarted) m_bWaitingForGame = true; }
+      inline bool GetGameStarted()                          { return m_bGameStarted; }
+      inline bool HasGameStarted()                          { return m_bWaitingForGame; }
+
+      inline bool GetServerGameStarted()                    { return m_bServerGameStarted; }
+      inline void SetServerGameStarted(bool value)          { m_bServerGameStarted = value; }
+
+      inline bool GetSuppressed_SetDestination()            { return m_bSuppressNetwork_SetDestination; }
+      inline void SetSuppressed_SetDestination(bool value)  { m_bSuppressNetwork_SetDestination = value; }
 
       void ReceiveMessages();
 
@@ -47,6 +53,11 @@ namespace TLMP {
       void HandleHasGameStarted(bool gameStarted);
       void HandleGameStarted();
       void HandleGameEnded();
+      void HandleRequestCharacterInfo();
+      void HandleReplyCharacterId(u32 id);
+      void HandleCharacterDestination(u32 commonId, Vector3 destination);
+
+      void PushEquipment();
 
       template<typename T>
       T* ParseMessage(RakNet::BitStream *bitStream);
@@ -60,6 +71,9 @@ namespace TLMP {
       
       bool m_bWaitingForGame;
       bool m_bGameStarted;
+      bool m_bServerGameStarted;
+
+      bool m_bSuppressNetwork_SetDestination;
     };
 
   };
