@@ -7,16 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tlapi", "..\ExternalLibs\tl
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1B7AE725-6AD4-4015-ADCC-05CFC69689BE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{1B7AE725-6AD4-4015-ADCC-05CFC69689BE}.Debug|Win32.Build.0 = Debug|Win32
 		{1B7AE725-6AD4-4015-ADCC-05CFC69689BE}.Release|Win32.ActiveCfg = Release|Win32
 		{1B7AE725-6AD4-4015-ADCC-05CFC69689BE}.Release|Win32.Build.0 = Release|Win32
-		{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}.Debug|Win32.Build.0 = Debug|Win32
 		{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}.Release|Win32.ActiveCfg = Release|Win32
 		{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection

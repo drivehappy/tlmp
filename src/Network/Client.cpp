@@ -17,6 +17,7 @@ Client::Client()
   m_bGameStarted = false;
   m_bServerGameStarted = false;
   m_bSuppressNetwork_SetDestination = false;
+  m_bSuppressNetwork_CharacterCreation = true;
 
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
@@ -197,6 +198,25 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_NEWCHAR:
+    {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
+      NetworkMessages::Character *msgCharacter = ParseMessage<NetworkMessages::Character>(m_pBitStream);
+
+      NetworkMessages::Position msgCharacterPosition = msgCharacter->position(0);
+
+      Vector3 posCharacter;
+      posCharacter.x = msgCharacterPosition.x();
+      posCharacter.y = msgCharacterPosition.y();
+      posCharacter.z = msgCharacterPosition.z();
+
+      u32 commonId = msgCharacter->id();
+
+      HandleCharacterCreation(posCharacter, msgCharacter->guid(), msgCharacter->name(), commonId);
+    }
     break;
 
   case S_PUSH_NEWEQUIPMENT:
@@ -353,13 +373,37 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination)
 
   if (!entity) {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
+    log(L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
     return;
   }
 
   CCharacter *character = (CCharacter *)entity->getInternalObject();
 
-  // Lock the Client from sending a network message back out when setting the Character Destination
-  Client::getSingleton().SetSuppressed_SetDestination(true);
-  character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
-  Client::getSingleton().SetSuppressed_SetDestination(false);
+  if (character) {
+    // Lock the Client from sending a network message back out when setting the Character Destination
+    Client::getSingleton().SetSuppressed_SetDestination(true);
+    character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
+    Client::getSingleton().SetSuppressed_SetDestination(false);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Character is NULL");
+    log(L"Error: Character is NULL");
+  }
+}
+
+// Handles Character Creation
+void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
+    commonId, guidCharacter, TLMP::convertAcsiiToWide(characterName).c_str());
+
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+  CLevel *level = gameClient->pCLevel;
+
+  Client::getSingleton().SetSuppressed_CharacterCreation(false);
+  CMonster* monster = resourceManager->CreateMonster(guidCharacter, 1, false);
+  level->CharacterInitialize(monster, &posCharacter, 0);
+  Client::getSingleton().SetSuppressed_CharacterCreation(true);
+
+  // Create a network ID to identify this monster later
+  NetworkEntity *newEntity = addCharacter(monster, commonId);
 }

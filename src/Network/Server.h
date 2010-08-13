@@ -31,6 +31,9 @@ namespace TLMP {
       inline bool GetSuppressed_SetDestination()            { return m_bSuppressNetwork_SetDestination; }
       inline void SetSuppressed_SetDestination(bool value)  { m_bSuppressNetwork_SetDestination = value; }
 
+      inline bool GetSuppressed_SendCharacterCreation()            { return m_bSuppressNetwork_SendCharacterCreation; }
+      inline void SetSuppressed_SendCharacterCreation(bool value)  { m_bSuppressNetwork_SendCharacterCreation = value; }
+
 
       void ReceiveMessages();
 
@@ -78,6 +81,7 @@ namespace TLMP {
       bool m_bGameStarted;
 
       bool m_bSuppressNetwork_SetDestination;
+      bool m_bSuppressNetwork_SendCharacterCreation;
     };
 
   };

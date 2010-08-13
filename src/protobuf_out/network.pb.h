@@ -255,6 +255,13 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
       mutable_position();
   
+  // optional int32 id = 5;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 5;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Character)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -265,11 +272,12 @@ class Character : public ::google::protobuf::Message {
   static const ::std::string _default_name_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character > minion_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position > position_;
+  ::google::protobuf::int32 id_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -2100,6 +2108,22 @@ Character::position() const {
 inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
 Character::mutable_position() {
   return &position_;
+}
+
+// optional int32 id = 5;
+inline bool Character::has_id() const {
+  return _has_bit(4);
+}
+inline void Character::clear_id() {
+  id_ = 0;
+  _clear_bit(4);
+}
+inline ::google::protobuf::int32 Character::id() const {
+  return id_;
+}
+inline void Character::set_id(::google::protobuf::int32 value) {
+  _set_bit(4);
+  id_ = value;
 }
 
 // -------------------------------------------------------------------

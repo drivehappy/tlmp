@@ -11,7 +11,6 @@ using std::vector;
   This file contains global variables that store state information used
   across both the server and clients.
 **/
-
 namespace TLMP {
 
   extern vector<NetworkEntity*>* NetworkSharedEquipment;
@@ -38,5 +37,31 @@ namespace TLMP {
 
     return NULL;
   };
+
+  // Create a network ID to identify this character later
+  static NetworkEntity* addCharacter(PVOID character) {
+    NetworkEntity *entity = searchCharacterByInternalObject(character);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(character);
+      NetworkSharedCharacters->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
+  }
+
+  // Create a network ID to identify this character later
+  static NetworkEntity* addCharacter(PVOID character, u32 commonId) {
+    NetworkEntity *entity = searchCharacterByInternalObject(character);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(character, commonId);
+      NetworkSharedCharacters->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
+  }
 
 };

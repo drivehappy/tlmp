@@ -31,6 +31,9 @@ namespace TLMP {
       inline bool GetSuppressed_SetDestination()            { return m_bSuppressNetwork_SetDestination; }
       inline void SetSuppressed_SetDestination(bool value)  { m_bSuppressNetwork_SetDestination = value; }
 
+      inline bool GetSuppressed_CharacterCreation()            { return m_bSuppressNetwork_CharacterCreation; }
+      inline void SetSuppressed_CharacterCreation(bool value)  { m_bSuppressNetwork_CharacterCreation = value; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -56,6 +59,7 @@ namespace TLMP {
       void HandleRequestCharacterInfo();
       void HandleReplyCharacterId(u32 id);
       void HandleCharacterDestination(u32 commonId, Vector3 destination);
+      void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId);
 
       void PushEquipment();
 
@@ -74,6 +78,7 @@ namespace TLMP {
       bool m_bServerGameStarted;
 
       bool m_bSuppressNetwork_SetDestination;
+      bool m_bSuppressNetwork_CharacterCreation;
     };
 
   };

@@ -96,25 +96,18 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal)
 {
-  log("Created character");
-  //log("Created character: %s", character->characterName.c_str());
-  log(" Network state: %i", Network::NetworkState::getSingleton().GetState());
+  log(L"Creating character: %016I64X", guid);
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    //multiplayerLogger.WriteLine(Info, L"Client suppressed create character with guid of: %016I64X (%p, %s)",
-    //  guid, character, character->characterName.c_str());
-    //multiplayerLogger.WriteLine(Info, L"Client suppressed create character with guid of: %016I64X (%p)",
-    //  guid, character);
-
-    calloriginal = false;
-    character = NULL;
+    if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
+      calloriginal = false;
+      character = NULL;
+    }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    //log("Created character: %s", character->characterName.c_str());
-
-    //multiplayerLogger.WriteLine(Info, L"Created character with guid of: %016I64X (%p, %s)",
-    //  guid, character, character->characterName.c_str());
     multiplayerLogger.WriteLine(Info, L"Created character with guid of: %016I64X (%p)",
+      guid, character);
+    log(L"Created character with guid of: %016I64X (%p)",
       guid, character);
   }
 }
@@ -143,17 +136,67 @@ void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveSt
 
 void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharacter* character, Vector3* position, u32 unk0, bool & calloriginal)
 {
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    // This suppresses the Player creation too, causing a crash on Client
-    //multiplayerLogger.WriteLine(Info, L"Client suppressed Level Character Initialized: %p %s (%f %f %f) unk0: %x",
-    //  character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+  const u32 CPLAYER_BASE = 0xA80064;
+  const u32 CMONSTER_BASE = 0xA7F97C;
 
-    //calloriginal = false;
-    //retval = NULL;
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    //log(L"Client::Level::CharacterInit - %i", Client::getSingleton().GetSuppressed_CharacterCreation());
+
+    // True, attempt to suppress the character initialization
+    if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
+      // If we're in the game, attempt to suppress the char init
+      //if (gameClient->inGame) {
+        // Check if the base is CPlayer or CMonster
+        u32 ptr_base = *((u32*)character);
+
+        if (ptr_base == CPLAYER_BASE) {
+          log("[CLIENT] Detected CPlayer addition to CLevel, not suppressing load");
+        } else if (ptr_base == CMONSTER_BASE) {
+          log("[CLIENT] Suppressing Monster load into level");
+          calloriginal = false;
+          retval = NULL;
+        } else {
+          log("[ERROR] Couldn't determine type of entity: %x", ptr_base);
+        }
+      //}
+    }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    multiplayerLogger.WriteLine(Info, L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
-      character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+    if (gameClient->inGame) {
+      multiplayerLogger.WriteLine(Info, L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
+        character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+
+      // Create a network ID to identify this character later
+      NetworkEntity *newEntity = addCharacter(character);
+
+      if (!newEntity) {
+        log(L"NetworkEntity is NULL");
+        return;
+      }
+
+      // Send this character to be created on the clients if it isn't suppressed
+      if (!Server::getSingleton().GetSuppressed_SendCharacterCreation()) {
+        multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
+
+        string characterName(character->characterName.begin(), character->characterName.end());
+        characterName.assign(character->characterName.begin(), character->characterName.end());
+
+        // Create a new network message for all clients to create this character
+        NetworkMessages::Character msgNewCharacter;
+        msgNewCharacter.set_guid(character->GUID);
+        msgNewCharacter.set_name(characterName);
+
+        NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.add_position();
+        msgPlayerPosition->set_x(character->position.x);
+        msgPlayerPosition->set_y(character->position.y);
+        msgPlayerPosition->set_z(character->position.z);
+
+        msgNewCharacter.set_id(newEntity->getCommonId());
+
+        // This will broadcast to all clients except the one we received it from
+        Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
+      }
+    }
   }
   
 }
@@ -305,12 +348,15 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   // Find the CommonID for the Character
   u32 commonId;
   NetworkEntity* entity = searchCharacterByInternalObject((PVOID)character);
+
   if (entity) {
     commonId = entity->getCommonId();
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Common ID for Character ptr: %p in SetDestination", character);
     return;
   }
+
+  msgCharacterDestination.set_id(commonId);
 
   // Send a Network message off to the server if we're a client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
