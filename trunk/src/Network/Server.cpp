@@ -14,6 +14,7 @@ Server::Server()
   m_pBitStream = new RakNet::BitStream(1024);
 
   m_bSuppressNetwork_SetDestination = false;
+  m_bSuppressNetwork_SendCharacterCreation = false;
 
   m_pOnListening = NULL;
   m_pOnShutdown = NULL;
@@ -270,9 +271,37 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 {
   multiplayerLogger.WriteLine(Info, L"Client has Entered the Game");
 
+  // Send all of the existing characters in the game to the client
+  vector<NetworkEntity*>::iterator itr;
+  for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+    CCharacter* character = (CCharacter*)((*itr)->getInternalObject());
+
+    multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i) out to client that just joined...",
+      character->GUID, (*itr)->getCommonId());
+    log(L"Server: Pushing existing Character (%016I64X %i) out to client that just joined...",
+      character->GUID, (*itr)->getCommonId());
+
+    string characterName(character->characterName.begin(), character->characterName.end());
+    characterName.assign(character->characterName.begin(), character->characterName.end());
+
+    // Create a new network message for all clients to create this character
+    NetworkMessages::Character msgNewCharacter;
+    msgNewCharacter.set_guid(character->GUID);
+    msgNewCharacter.set_name(characterName);
+
+    NetworkMessages::Position  *msgPlayerPosition = msgNewCharacter.add_position();
+    msgPlayerPosition->set_x(character->position.x);
+    msgPlayerPosition->set_y(character->position.y);
+    msgPlayerPosition->set_z(character->position.z);
+
+    msgNewCharacter.set_id((*itr)->getCommonId());
+
+    // This will broadcast to all clients except the one we received it from
+    Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
+  }
+
   // Send a request for character info
   NetworkMessages::RequestCharacterInfo msgRequestCharacterInfo;
-
   SendMessage<NetworkMessages::RequestCharacterInfo>(clientAddress, S_REQUEST_CHARINFO, &msgRequestCharacterInfo);
 }
 
@@ -291,6 +320,8 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
   multiplayerLogger.WriteLine(Info, L"  GUID: %016I64X", guidPet);
   multiplayerLogger.WriteLine(Info, L"  Name: %s", convertAcsiiToWide(namePet).c_str());
 
+  log(L"Server Received Client Character Info");
+
   //
   // Create a new network message for other clients to create this character
   NetworkMessages::Character msgNewCharacter;
@@ -306,10 +337,6 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
   Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
 
   // Create this character on this instance
-  log("Creating character... gameClient = %p", gameClient);
-  log("                      player = %p", gameClient->pCPlayer);
-  log("                      resourceManager = %p", gameClient->pCPlayer->pCResourceManager);
-  log("                      guid = %016I64X", guidCharacter);
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
   CMonster *clientCharacter = resourceManager->CreateMonster(guidCharacter, 1, false);
 
@@ -323,21 +350,24 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
     multiplayerLogger.WriteLine(Info, L"Error: clientCharacter is null!");
   }
 
-  log("HandleReplyCharacterInfo: gameClient = %p", gameClient);
-  log("                          level = %p", gameClient->pCLevel);
+  // Lock the creation so we don't resend to all the clients
+  Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
   gameClient->pCLevel->CharacterInitialize(clientCharacter, &posCharacter, 0);
-
-  // Create a network ID to identify this character later
-  NetworkEntity *newEntity = new NetworkEntity(clientCharacter);
-  multiplayerLogger.WriteLine(Info, L"Created NetworkEntity for Client's Character: internalID = %x, networkID = %x",
-    newEntity->getInternalId(), newEntity->getCommonId());
-  NetworkSharedCharacters->push_back(newEntity);
+  Server::getSingleton().SetSuppressed_SendCharacterCreation(false);
 
   // Send this ID to the Client that created the character
-  NetworkMessages::ReplyCharacterId msgReplyCharacterId;
-  msgReplyCharacterId.set_id(newEntity->getCommonId());
+  NetworkEntity *entityCharacter = searchCharacterByInternalObject(clientCharacter);
 
-  Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+  if (!entityCharacter) {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Shared NetworkEntity for the Client Character.");
+  } else {
+    multiplayerLogger.WriteLine(Info, L"Server sending client character ID reply: %i", entityCharacter->getCommonId());
+
+    NetworkMessages::ReplyCharacterId msgReplyCharacterId;
+    msgReplyCharacterId.set_id(entityCharacter->getCommonId());
+
+    Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+  }
 }
 
 

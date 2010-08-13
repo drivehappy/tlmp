@@ -11,6 +11,7 @@ message Character {
   required string    name = 2;
   repeated Character minion  = 3;
   repeated Position  position = 4;
+  optional int32     id = 5;
 }
 
 message Equipment {
