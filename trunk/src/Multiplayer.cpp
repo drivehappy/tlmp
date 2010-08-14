@@ -18,9 +18,10 @@ void TLMP::SetupNetwork()
   CGame::RegisterEvent_Game_CreateUI(NULL, GameClient_CreateUI);
 
   CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
-  CResourceManager::RegisterEvent_ResourceManagerCreateEquipment(NULL, CreateEquipment);
+  CResourceManager::RegisterEvent_ResourceManagerCreateEquipment(CreateEquipmentPre, CreateEquipmentPost);
 
   CLevel::RegisterEvent_LevelCharacterInitialize(Level_CharacterInitialize, NULL);
+  CLevel::RegisterEvent_LevelDropEquipment(Level_DropEquipmentPre, Level_DropEquipmentPost);
 
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
@@ -36,6 +37,10 @@ void TLMP::SetupNetwork()
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
 
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
+  CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipment, NULL);
+
+  CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipment, NULL);
+  CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipment, NULL);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -96,8 +101,6 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal)
 {
-  log(L"Creating character: %016I64X", guid);
-
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
       calloriginal = false;
@@ -107,31 +110,84 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     multiplayerLogger.WriteLine(Info, L"Created character with guid of: %016I64X (%p)",
       guid, character);
-    log(L"Created character with guid of: %016I64X (%p)",
-      guid, character);
+  }
+
+
+  if (calloriginal) {
+    log(L"Creating character: %016I64X", guid);
   }
 }
 
-void TLMP::CreateEquipment(CEquipment* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1)
+void TLMP::CreateEquipmentPre(CEquipment* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
-    guid, level, equipment, equipment->nameReal.c_str());
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
+      //calloriginal = false;
+      //equipment = NULL; 
+    }
+  }
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    //
+  }
+
+
+  if (calloriginal) {
+    multiplayerLogger.WriteLine(Info, L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
+      guid, level, equipment, unk0, unk1);
+
+    log(L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
+      guid, level, equipment, unk0, unk1);
+  } else {
+    multiplayerLogger.WriteLine(Info, L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
+      guid, level, equipment, unk0, unk1);
+    log(L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
+      guid, level, equipment, unk0, unk1);
+  }
+}
+
+void TLMP::CreateEquipmentPost(CEquipment* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
+{
+  if (equipment) {
+    log(L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
+      guid, level, equipment, equipment->nameReal.c_str());
+
+    multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
+      guid, level, equipment, equipment->nameReal.c_str());
+
+    // --
+    if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      NetworkEntity *newEntity = addEquipment(equipment);
+
+      NetworkMessages::Equipment msgEquipment;
+      msgEquipment.set_id(newEntity->getCommonId());
+      msgEquipment.set_guid(equipment->GUID);
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
+    }
+  }
 }
 
 void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal)
 {
+  log(L"Equipment initializing: %p", equipment);
+
+  log(L"Equipment Initialized (GUID: %016I64X  %s)",
+    equipment->GUID, equipment->nameReal.c_str());
+
+  log(L"  ItemSaveState: %s %s %s",
+    itemSaveState->name.c_str(), itemSaveState->name2.c_str(), itemSaveState->name3.c_str());
+
+  multiplayerLogger.WriteLine(Info, L"Equipment Initialized (GUID: %016I64X  %s)",
+    equipment->GUID, equipment->nameReal.c_str());
+
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    if (gameClient->inGame) {
+    if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
       multiplayerLogger.WriteLine(Info, L"Suppressing Equipment Initialize (GUID: %016I64X  %s)",
         equipment->GUID, equipment->nameReal.c_str());
 
       calloriginal = false;
-      return;
     }
   }
-
-  multiplayerLogger.WriteLine(Info, L"Equipment Initialized (GUID: %016I64X  %s)",
-    equipment->GUID, equipment->nameReal.c_str());
 }
 
 void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharacter* character, Vector3* position, u32 unk0, bool & calloriginal)
@@ -140,7 +196,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u32 CMONSTER_BASE = 0xA7F97C;
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    //log(L"Client::Level::CharacterInit - %i", Client::getSingleton().GetSuppressed_CharacterCreation());
+    log(L"Client::Level::CharacterInit - %i", Client::getSingleton().GetSuppressed_CharacterCreation());
 
     // True, attempt to suppress the character initialization
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
@@ -370,6 +426,69 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
       Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterDestination>(S_PUSH_CHARACTER_SETDEST, &msgCharacterDestination);
     }
   }
+}
+
+void TLMP::Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
+{
+  log(L"Level dropping EquipmentPre:");
+  multiplayerLogger.WriteLine(Info, L"Level dropping Equipment %s at %f, %f, %f (unk0: %i)",
+    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+  log(L"Level dropping Equipment %s at %f, %f, %f (unk0: %i)",
+    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+}
+
+void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
+{
+  log(L"Level dropping EquipmentPost:");
+  multiplayerLogger.WriteLine(Info, L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
+    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+  log(L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
+    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+}
+
+void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32 slot, bool& calloriginal)
+{
+  if (inventory && equipment) {
+    log(L"Level adding Equipment:");
+
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
+        calloriginal = false;
+        retval = NULL;
+      }
+    }
+    else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      //
+    }
+    
+
+    if (calloriginal) {
+      multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipment(%p) (%p) (%s)",
+        inventory, equipment, equipment->nameReal.c_str());
+      log(L"Inventory::AddEquipment(%p) (%p) (%s)",
+        inventory, equipment, equipment->nameReal.c_str());
+    }
+  }
+}
+
+void TLMP::Inventory_RemoveEquipment(CInventory* inventory, CEquipment* equipment)
+{
+  log(L"Level removing Equipment:");
+
+  multiplayerLogger.WriteLine(Info, L"Inventory::RemoveEquipment(%p) (%s)",
+    inventory, equipment->nameReal.c_str());
+  log(L"Inventory::RemoveEquipment(%p) (%s)",
+    inventory, equipment->nameReal.c_str());
+}
+
+void TLMP::Character_PickupEquipment(CCharacter* character, CEquipment* equipment, CLevel* level)
+{
+  log(L"Level picking up Equipment:");
+
+  multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
+    character, equipment->nameReal.c_str(), level);
+  log(L"Character::PickupEquipment(%p) (%s) (Level: %p)",
+    character, equipment->nameReal.c_str(), level);
 }
 
 // Server Events

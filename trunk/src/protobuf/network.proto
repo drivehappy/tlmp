@@ -16,7 +16,8 @@ message Character {
 
 message Equipment {
   required int64     guid = 1;
-  required int32     slot = 2;
+  optional int32     slot = 2;
+  required int32     id = 3;
 }
 
 

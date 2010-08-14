@@ -36,13 +36,21 @@ namespace TLMP
 
   // Pre Event for Character SetDestination
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
+  void Character_PickupEquipment(CCharacter*, CEquipment*, CLevel*);
 
   // Post Event for equipment initialization
-  void CreateEquipment(CEquipment*, CResourceManager*, u64, u32, u32, u32);
+  void CreateEquipmentPre(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
+  void CreateEquipmentPost(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
   
   // Pre Event for player initialization
   void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
+  void Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal);
+  void Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal);
+
+  // Event for Inventory
+  void Inventory_AddEquipment(CEquipment*, CInventory*, CEquipment*, u32, bool&);
+  void Inventory_RemoveEquipment(CInventory*, CEquipment*);
 
   // Pre Event for MainMenu Event
   void MainMenuEventPre(CMainMenu*, u32, wstring, bool&);
@@ -51,6 +59,7 @@ namespace TLMP
   void GameClient_CreateLevelPre(CGameClient*, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal);
   void GameClient_LoadLevelPre(CGameClient*, bool & calloriginal);
   void GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
+
   // Post Event for the main GameClient loop
   void GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
   void GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);

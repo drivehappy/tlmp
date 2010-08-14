@@ -16,6 +16,57 @@ namespace TLMP {
   extern vector<NetworkEntity*>* NetworkSharedEquipment;
   extern vector<NetworkEntity*>* NetworkSharedCharacters;
 
+  //
+  // Equipment helpers
+  static NetworkEntity* searchEquipmentByInternalObject(PVOID internalObject) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+      if ((*itr)->getInternalObject() == internalObject) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static NetworkEntity* searchEquipmentByCommonID(u32 commondId) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+      if ((*itr)->getCommonId() == commondId) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static NetworkEntity* addEquipment(PVOID equipment) {
+    NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(equipment);
+      NetworkSharedEquipment->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
+  }
+
+  static NetworkEntity* addEquipment(PVOID equipment, u32 commonId) {
+    NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(equipment, commonId);
+      NetworkSharedEquipment->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
+  }
+
+
+  //
+  // Character helpers
   static NetworkEntity* searchCharacterByInternalObject(PVOID internalObject) {
     vector<NetworkEntity*>::iterator itr;
     for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
