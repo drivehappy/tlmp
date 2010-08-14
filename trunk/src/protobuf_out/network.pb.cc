@@ -57,6 +57,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* InventoryAddEquipment_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   InventoryAddEquipment_reflection_ = NULL;
+const ::google::protobuf::Descriptor* InventoryRemoveEquipment_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  InventoryRemoveEquipment_reflection_ = NULL;
+const ::google::protobuf::Descriptor* EquipmentDrop_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  EquipmentDrop_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Entity_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Entity_reflection_ = NULL;
@@ -286,10 +292,11 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CharacterDestination));
   InventoryAddEquipment_descriptor_ = file->message_type(13);
-  static const int InventoryAddEquipment_offsets_[3] = {
+  static const int InventoryAddEquipment_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryAddEquipment, ownerid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryAddEquipment, equipmentid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryAddEquipment, slot_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryAddEquipment, unk0_),
   };
   InventoryAddEquipment_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -302,7 +309,40 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(InventoryAddEquipment));
-  Entity_descriptor_ = file->message_type(14);
+  InventoryRemoveEquipment_descriptor_ = file->message_type(14);
+  static const int InventoryRemoveEquipment_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryRemoveEquipment, ownerid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryRemoveEquipment, equipmentid_),
+  };
+  InventoryRemoveEquipment_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      InventoryRemoveEquipment_descriptor_,
+      InventoryRemoveEquipment::default_instance_,
+      InventoryRemoveEquipment_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryRemoveEquipment, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InventoryRemoveEquipment, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(InventoryRemoveEquipment));
+  EquipmentDrop_descriptor_ = file->message_type(15);
+  static const int EquipmentDrop_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EquipmentDrop, equipmentid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EquipmentDrop, position_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EquipmentDrop, unk0_),
+  };
+  EquipmentDrop_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      EquipmentDrop_descriptor_,
+      EquipmentDrop::default_instance_,
+      EquipmentDrop_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EquipmentDrop, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EquipmentDrop, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(EquipmentDrop));
+  Entity_descriptor_ = file->message_type(16);
   static const int Entity_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, level_),
@@ -322,7 +362,7 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Entity));
-  Item_descriptor_ = file->message_type(15);
+  Item_descriptor_ = file->message_type(17);
   static const int Item_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Item, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Item, guid_),
@@ -341,7 +381,7 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Item));
-  ItemDrop_descriptor_ = file->message_type(16);
+  ItemDrop_descriptor_ = file->message_type(18);
   static const int ItemDrop_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemDrop, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemDrop, position_),
@@ -358,7 +398,7 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ItemDrop));
-  ItemPickup_descriptor_ = file->message_type(17);
+  ItemPickup_descriptor_ = file->message_type(19);
   static const int ItemPickup_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemPickup, ownerid_),
@@ -374,7 +414,7 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ItemPickup));
-  ItemEquip_descriptor_ = file->message_type(18);
+  ItemEquip_descriptor_ = file->message_type(20);
   static const int ItemEquip_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemEquip, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemEquip, slot_),
@@ -392,7 +432,7 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ItemEquip));
-  ItemUnequip_descriptor_ = file->message_type(19);
+  ItemUnequip_descriptor_ = file->message_type(21);
   static const int ItemUnequip_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemUnequip, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ItemUnequip, ownerid_),
@@ -449,6 +489,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     InventoryAddEquipment_descriptor_, &InventoryAddEquipment::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    InventoryRemoveEquipment_descriptor_, &InventoryRemoveEquipment::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    EquipmentDrop_descriptor_, &EquipmentDrop::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Entity_descriptor_, &Entity::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Item_descriptor_, &Item::default_instance());
@@ -493,6 +537,10 @@ void protobuf_ShutdownFile_network_2eproto() {
   delete CharacterDestination_reflection_;
   delete InventoryAddEquipment::default_instance_;
   delete InventoryAddEquipment_reflection_;
+  delete InventoryRemoveEquipment::default_instance_;
+  delete InventoryRemoveEquipment_reflection_;
+  delete EquipmentDrop::default_instance_;
+  delete EquipmentDrop_reflection_;
   delete Entity::default_instance_;
   delete Entity_reflection_;
   delete Item::default_instance_;
@@ -530,22 +578,26 @@ void protobuf_AddDesc_network_2eproto() {
     "d\022\n\n\002id\030\001 \002(\005\"\210\001\n\024CharacterDestination\022\n"
     "\n\002id\030\001 \002(\005\022/\n\007current\030\002 \003(\0132\036.TLMP.Netwo"
     "rkMessages.Position\0223\n\013destination\030\003 \003(\013"
-    "2\036.TLMP.NetworkMessages.Position\"K\n\025Inve"
+    "2\036.TLMP.NetworkMessages.Position\"Y\n\025Inve"
     "ntoryAddEquipment\022\017\n\007ownerId\030\001 \002(\005\022\023\n\013eq"
-    "uipmentId\030\002 \002(\005\022\014\n\004slot\030\003 \002(\005\"\251\001\n\006Entity"
-    "\022\n\n\002id\030\001 \002(\005\022\r\n\005level\030\002 \002(\005\022\014\n\004guid\030\003 \002("
-    "\003\022\017\n\007noItems\030\004 \002(\010\0223\n\013destination\030\005 \001(\0132"
-    "\036.TLMP.NetworkMessages.Position\0220\n\010posit"
-    "ion\030\006 \003(\0132\036.TLMP.NetworkMessages.Positio"
-    "n\"K\n\004Item\022\n\n\002id\030\001 \002(\005\022\014\n\004guid\030\002 \002(\003\022\r\n\005l"
-    "evel\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n\004unk1\030\005 \002(\005\"V"
-    "\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010position\030\002 \003(\013"
-    "2\036.TLMP.NetworkMessages.Position\022\014\n\004unk0"
-    "\030\003 \002(\010\")\n\nItemPickup\022\n\n\002id\030\001 \002(\005\022\017\n\007owne"
-    "rId\030\002 \002(\005\"C\n\tItemEquip\022\n\n\002id\030\001 \002(\005\022\014\n\004sl"
-    "ot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\022\013\n\003unk\030\004 \002(\005\"*"
-    "\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerid\030\002 \002"
-    "(\005", 1242);
+    "uipmentId\030\002 \002(\005\022\014\n\004slot\030\003 \002(\005\022\014\n\004unk0\030\004 "
+    "\002(\005\"@\n\030InventoryRemoveEquipment\022\017\n\007owner"
+    "Id\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002(\005\"d\n\rEquipme"
+    "ntDrop\022\023\n\013equipmentId\030\001 \002(\005\0220\n\010position\030"
+    "\002 \003(\0132\036.TLMP.NetworkMessages.Position\022\014\n"
+    "\004unk0\030\003 \002(\005\"\251\001\n\006Entity\022\n\n\002id\030\001 \002(\005\022\r\n\005le"
+    "vel\030\002 \002(\005\022\014\n\004guid\030\003 \002(\003\022\017\n\007noItems\030\004 \002(\010"
+    "\0223\n\013destination\030\005 \001(\0132\036.TLMP.NetworkMess"
+    "ages.Position\0220\n\010position\030\006 \003(\0132\036.TLMP.N"
+    "etworkMessages.Position\"K\n\004Item\022\n\n\002id\030\001 "
+    "\002(\005\022\014\n\004guid\030\002 \002(\003\022\r\n\005level\030\003 \002(\005\022\014\n\004unk0"
+    "\030\004 \002(\005\022\014\n\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001"
+    " \002(\005\0220\n\010position\030\002 \003(\0132\036.TLMP.NetworkMes"
+    "sages.Position\022\014\n\004unk0\030\003 \002(\010\")\n\nItemPick"
+    "up\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerId\030\002 \002(\005\"C\n\tItemE"
+    "quip\022\n\n\002id\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerI"
+    "d\030\003 \002(\005\022\013\n\003unk\030\004 \002(\005\"*\n\013ItemUnequip\022\n\n\002i"
+    "d\030\001 \002(\005\022\017\n\007ownerid\030\002 \002(\005", 1424);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
@@ -562,6 +614,8 @@ void protobuf_AddDesc_network_2eproto() {
   ReplyCharacterId::default_instance_ = new ReplyCharacterId();
   CharacterDestination::default_instance_ = new CharacterDestination();
   InventoryAddEquipment::default_instance_ = new InventoryAddEquipment();
+  InventoryRemoveEquipment::default_instance_ = new InventoryRemoveEquipment();
+  EquipmentDrop::default_instance_ = new EquipmentDrop();
   Entity::default_instance_ = new Entity();
   Item::default_instance_ = new Item();
   ItemDrop::default_instance_ = new ItemDrop();
@@ -582,6 +636,8 @@ void protobuf_AddDesc_network_2eproto() {
   ReplyCharacterId::default_instance_->InitAsDefaultInstance();
   CharacterDestination::default_instance_->InitAsDefaultInstance();
   InventoryAddEquipment::default_instance_->InitAsDefaultInstance();
+  InventoryRemoveEquipment::default_instance_->InitAsDefaultInstance();
+  EquipmentDrop::default_instance_->InitAsDefaultInstance();
   Entity::default_instance_->InitAsDefaultInstance();
   Item::default_instance_->InitAsDefaultInstance();
   ItemDrop::default_instance_->InitAsDefaultInstance();
@@ -3463,6 +3519,7 @@ void CharacterDestination::Swap(CharacterDestination* other) {
 const int InventoryAddEquipment::kOwnerIdFieldNumber;
 const int InventoryAddEquipment::kEquipmentIdFieldNumber;
 const int InventoryAddEquipment::kSlotFieldNumber;
+const int InventoryAddEquipment::kUnk0FieldNumber;
 #endif  // !_MSC_VER
 
 InventoryAddEquipment::InventoryAddEquipment()
@@ -3484,6 +3541,7 @@ void InventoryAddEquipment::SharedCtor() {
   ownerid_ = 0;
   equipmentid_ = 0;
   slot_ = 0;
+  unk0_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3521,6 +3579,7 @@ void InventoryAddEquipment::Clear() {
     ownerid_ = 0;
     equipmentid_ = 0;
     slot_ = 0;
+    unk0_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -3575,6 +3634,22 @@ bool InventoryAddEquipment::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(32)) goto parse_unk0;
+        break;
+      }
+      
+      // required int32 unk0 = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_unk0:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &unk0_)));
+          _set_bit(3);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -3612,6 +3687,11 @@ void InventoryAddEquipment::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->slot(), output);
   }
   
+  // required int32 unk0 = 4;
+  if (_has_bit(3)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->unk0(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -3633,6 +3713,11 @@ void InventoryAddEquipment::SerializeWithCachedSizes(
   // required int32 slot = 3;
   if (_has_bit(2)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->slot(), target);
+  }
+  
+  // required int32 unk0 = 4;
+  if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->unk0(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -3665,6 +3750,13 @@ int InventoryAddEquipment::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->slot());
+    }
+    
+    // required int32 unk0 = 4;
+    if (has_unk0()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->unk0());
     }
     
   }
@@ -3703,6 +3795,9 @@ void InventoryAddEquipment::MergeFrom(const InventoryAddEquipment& from) {
     if (from._has_bit(2)) {
       set_slot(from.slot());
     }
+    if (from._has_bit(3)) {
+      set_unk0(from.unk0());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -3720,7 +3815,7 @@ void InventoryAddEquipment::CopyFrom(const InventoryAddEquipment& from) {
 }
 
 bool InventoryAddEquipment::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
   
   return true;
 }
@@ -3730,6 +3825,7 @@ void InventoryAddEquipment::Swap(InventoryAddEquipment* other) {
     std::swap(ownerid_, other->ownerid_);
     std::swap(equipmentid_, other->equipmentid_);
     std::swap(slot_, other->slot_);
+    std::swap(unk0_, other->unk0_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -3741,6 +3837,545 @@ void InventoryAddEquipment::Swap(InventoryAddEquipment* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = InventoryAddEquipment_descriptor_;
   metadata.reflection = InventoryAddEquipment_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int InventoryRemoveEquipment::kOwnerIdFieldNumber;
+const int InventoryRemoveEquipment::kEquipmentIdFieldNumber;
+#endif  // !_MSC_VER
+
+InventoryRemoveEquipment::InventoryRemoveEquipment()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void InventoryRemoveEquipment::InitAsDefaultInstance() {
+}
+
+InventoryRemoveEquipment::InventoryRemoveEquipment(const InventoryRemoveEquipment& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void InventoryRemoveEquipment::SharedCtor() {
+  _cached_size_ = 0;
+  ownerid_ = 0;
+  equipmentid_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+InventoryRemoveEquipment::~InventoryRemoveEquipment() {
+  SharedDtor();
+}
+
+void InventoryRemoveEquipment::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void InventoryRemoveEquipment::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* InventoryRemoveEquipment::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return InventoryRemoveEquipment_descriptor_;
+}
+
+const InventoryRemoveEquipment& InventoryRemoveEquipment::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_network_2eproto();  return *default_instance_;
+}
+
+InventoryRemoveEquipment* InventoryRemoveEquipment::default_instance_ = NULL;
+
+InventoryRemoveEquipment* InventoryRemoveEquipment::New() const {
+  return new InventoryRemoveEquipment;
+}
+
+void InventoryRemoveEquipment::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    ownerid_ = 0;
+    equipmentid_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool InventoryRemoveEquipment::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 ownerId = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &ownerid_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_equipmentId;
+        break;
+      }
+      
+      // required int32 equipmentId = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_equipmentId:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &equipmentid_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void InventoryRemoveEquipment::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 ownerId = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->ownerid(), output);
+  }
+  
+  // required int32 equipmentId = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->equipmentid(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* InventoryRemoveEquipment::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 ownerId = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->ownerid(), target);
+  }
+  
+  // required int32 equipmentId = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->equipmentid(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int InventoryRemoveEquipment::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 ownerId = 1;
+    if (has_ownerid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->ownerid());
+    }
+    
+    // required int32 equipmentId = 2;
+    if (has_equipmentid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->equipmentid());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void InventoryRemoveEquipment::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const InventoryRemoveEquipment* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const InventoryRemoveEquipment*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void InventoryRemoveEquipment::MergeFrom(const InventoryRemoveEquipment& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_ownerid(from.ownerid());
+    }
+    if (from._has_bit(1)) {
+      set_equipmentid(from.equipmentid());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void InventoryRemoveEquipment::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void InventoryRemoveEquipment::CopyFrom(const InventoryRemoveEquipment& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool InventoryRemoveEquipment::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  
+  return true;
+}
+
+void InventoryRemoveEquipment::Swap(InventoryRemoveEquipment* other) {
+  if (other != this) {
+    std::swap(ownerid_, other->ownerid_);
+    std::swap(equipmentid_, other->equipmentid_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata InventoryRemoveEquipment::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = InventoryRemoveEquipment_descriptor_;
+  metadata.reflection = InventoryRemoveEquipment_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int EquipmentDrop::kEquipmentIdFieldNumber;
+const int EquipmentDrop::kPositionFieldNumber;
+const int EquipmentDrop::kUnk0FieldNumber;
+#endif  // !_MSC_VER
+
+EquipmentDrop::EquipmentDrop()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void EquipmentDrop::InitAsDefaultInstance() {
+}
+
+EquipmentDrop::EquipmentDrop(const EquipmentDrop& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void EquipmentDrop::SharedCtor() {
+  _cached_size_ = 0;
+  equipmentid_ = 0;
+  unk0_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+EquipmentDrop::~EquipmentDrop() {
+  SharedDtor();
+}
+
+void EquipmentDrop::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void EquipmentDrop::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* EquipmentDrop::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EquipmentDrop_descriptor_;
+}
+
+const EquipmentDrop& EquipmentDrop::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_network_2eproto();  return *default_instance_;
+}
+
+EquipmentDrop* EquipmentDrop::default_instance_ = NULL;
+
+EquipmentDrop* EquipmentDrop::New() const {
+  return new EquipmentDrop;
+}
+
+void EquipmentDrop::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    equipmentid_ = 0;
+    unk0_ = 0;
+  }
+  position_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool EquipmentDrop::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 equipmentId = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &equipmentid_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_position;
+        break;
+      }
+      
+      // repeated .TLMP.NetworkMessages.Position position = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_position:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_position()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_position;
+        if (input->ExpectTag(24)) goto parse_unk0;
+        break;
+      }
+      
+      // required int32 unk0 = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_unk0:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &unk0_)));
+          _set_bit(2);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void EquipmentDrop::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 equipmentId = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->equipmentid(), output);
+  }
+  
+  // repeated .TLMP.NetworkMessages.Position position = 2;
+  for (int i = 0; i < this->position_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->position(i), output);
+  }
+  
+  // required int32 unk0 = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->unk0(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* EquipmentDrop::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 equipmentId = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->equipmentid(), target);
+  }
+  
+  // repeated .TLMP.NetworkMessages.Position position = 2;
+  for (int i = 0; i < this->position_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->position(i), target);
+  }
+  
+  // required int32 unk0 = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->unk0(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int EquipmentDrop::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 equipmentId = 1;
+    if (has_equipmentid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->equipmentid());
+    }
+    
+    // required int32 unk0 = 3;
+    if (has_unk0()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->unk0());
+    }
+    
+  }
+  // repeated .TLMP.NetworkMessages.Position position = 2;
+  total_size += 1 * this->position_size();
+  for (int i = 0; i < this->position_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->position(i));
+  }
+  
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void EquipmentDrop::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const EquipmentDrop* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const EquipmentDrop*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void EquipmentDrop::MergeFrom(const EquipmentDrop& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  position_.MergeFrom(from.position_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_equipmentid(from.equipmentid());
+    }
+    if (from._has_bit(2)) {
+      set_unk0(from.unk0());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void EquipmentDrop::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void EquipmentDrop::CopyFrom(const EquipmentDrop& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool EquipmentDrop::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000005) != 0x00000005) return false;
+  
+  for (int i = 0; i < position_size(); i++) {
+    if (!this->position(i).IsInitialized()) return false;
+  }
+  return true;
+}
+
+void EquipmentDrop::Swap(EquipmentDrop* other) {
+  if (other != this) {
+    std::swap(equipmentid_, other->equipmentid_);
+    position_.Swap(&other->position_);
+    std::swap(unk0_, other->unk0_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata EquipmentDrop::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = EquipmentDrop_descriptor_;
+  metadata.reflection = EquipmentDrop_reflection_;
   return metadata;
 }
 

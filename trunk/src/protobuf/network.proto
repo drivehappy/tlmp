@@ -62,6 +62,18 @@ message InventoryAddEquipment {
   required int32    ownerId = 1;
   required int32    equipmentId = 2;
   required int32    slot = 3;
+  required int32    unk0 = 4;
+}
+
+message InventoryRemoveEquipment {
+  required int32    ownerId = 1;
+  required int32    equipmentId = 2;
+}
+
+message EquipmentDrop {
+  required int32    equipmentId = 1;
+  repeated Position position = 2;
+  required int32    unk0 = 3;
 }
 
 
