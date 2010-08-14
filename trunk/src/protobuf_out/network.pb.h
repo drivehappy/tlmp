@@ -46,6 +46,7 @@ class RequestCharacterInfo;
 class ReplyCharacterInfo;
 class ReplyCharacterId;
 class CharacterDestination;
+class InventoryAddEquipment;
 class Entity;
 class Item;
 class ItemDrop;
@@ -1281,6 +1282,111 @@ class CharacterDestination : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class InventoryAddEquipment : public ::google::protobuf::Message {
+ public:
+  InventoryAddEquipment();
+  virtual ~InventoryAddEquipment();
+  
+  InventoryAddEquipment(const InventoryAddEquipment& from);
+  
+  inline InventoryAddEquipment& operator=(const InventoryAddEquipment& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const InventoryAddEquipment& default_instance();
+  
+  void Swap(InventoryAddEquipment* other);
+  
+  // implements Message ----------------------------------------------
+  
+  InventoryAddEquipment* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const InventoryAddEquipment& from);
+  void MergeFrom(const InventoryAddEquipment& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 ownerId = 1;
+  inline bool has_ownerid() const;
+  inline void clear_ownerid();
+  static const int kOwnerIdFieldNumber = 1;
+  inline ::google::protobuf::int32 ownerid() const;
+  inline void set_ownerid(::google::protobuf::int32 value);
+  
+  // required int32 equipmentId = 2;
+  inline bool has_equipmentid() const;
+  inline void clear_equipmentid();
+  static const int kEquipmentIdFieldNumber = 2;
+  inline ::google::protobuf::int32 equipmentid() const;
+  inline void set_equipmentid(::google::protobuf::int32 value);
+  
+  // required int32 slot = 3;
+  inline bool has_slot() const;
+  inline void clear_slot();
+  static const int kSlotFieldNumber = 3;
+  inline ::google::protobuf::int32 slot() const;
+  inline void set_slot(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.InventoryAddEquipment)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 ownerid_;
+  ::google::protobuf::int32 equipmentid_;
+  ::google::protobuf::int32 slot_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static InventoryAddEquipment* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class Entity : public ::google::protobuf::Message {
  public:
   Entity();
@@ -2363,6 +2469,58 @@ CharacterDestination::destination() const {
 inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
 CharacterDestination::mutable_destination() {
   return &destination_;
+}
+
+// -------------------------------------------------------------------
+
+// InventoryAddEquipment
+
+// required int32 ownerId = 1;
+inline bool InventoryAddEquipment::has_ownerid() const {
+  return _has_bit(0);
+}
+inline void InventoryAddEquipment::clear_ownerid() {
+  ownerid_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 InventoryAddEquipment::ownerid() const {
+  return ownerid_;
+}
+inline void InventoryAddEquipment::set_ownerid(::google::protobuf::int32 value) {
+  _set_bit(0);
+  ownerid_ = value;
+}
+
+// required int32 equipmentId = 2;
+inline bool InventoryAddEquipment::has_equipmentid() const {
+  return _has_bit(1);
+}
+inline void InventoryAddEquipment::clear_equipmentid() {
+  equipmentid_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 InventoryAddEquipment::equipmentid() const {
+  return equipmentid_;
+}
+inline void InventoryAddEquipment::set_equipmentid(::google::protobuf::int32 value) {
+  _set_bit(1);
+  equipmentid_ = value;
+}
+
+// required int32 slot = 3;
+inline bool InventoryAddEquipment::has_slot() const {
+  return _has_bit(2);
+}
+inline void InventoryAddEquipment::clear_slot() {
+  slot_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 InventoryAddEquipment::slot() const {
+  return slot_;
+}
+inline void InventoryAddEquipment::set_slot(::google::protobuf::int32 value) {
+  _set_bit(2);
+  slot_ = value;
 }
 
 // -------------------------------------------------------------------

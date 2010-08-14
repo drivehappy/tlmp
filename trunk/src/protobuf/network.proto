@@ -58,6 +58,15 @@ message CharacterDestination {
   repeated Position destination = 3;
 }
 
+message InventoryAddEquipment {
+  required int32    ownerId = 1;
+  required int32    equipmentId = 2;
+  required int32    slot = 3;
+}
+
+
+
+
 message Entity {
   required int32 id = 1;
   required int32 level = 2;
