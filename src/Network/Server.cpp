@@ -356,7 +356,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
 
   // Create this character on this instance
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
-  CMonster *clientCharacter = resourceManager->CreateMonster(guidCharacter, 1, false);
+  CMonster *clientCharacter = resourceManager->CreateMonster(guidCharacter, 1, true);
 
   log("Character created: %p", clientCharacter);
 

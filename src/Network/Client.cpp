@@ -248,6 +248,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_EQUIPMENT_EQUIP:
+    {
+      NetworkMessages::InventoryAddEquipment *msgInventoryAddEquipment = ParseMessage<NetworkMessages::InventoryAddEquipment>(m_pBitStream);
+      u32 ownerId = msgInventoryAddEquipment->ownerid();
+      u32 equipmentId = msgInventoryAddEquipment->equipmentid();
+      u32 slot = msgInventoryAddEquipment->slot();
+
+      HandleInventoryAddEquipment(ownerId, equipmentId, slot);
+    }
     break;
 
   case S_PUSH_EQUIPMENT_UNEQUIP:
@@ -413,7 +421,7 @@ void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, st
   CLevel *level = gameClient->pCLevel;
 
   Client::getSingleton().SetSuppressed_CharacterCreation(false);
-  CMonster* monster = resourceManager->CreateMonster(guidCharacter, 1, false);
+  CMonster* monster = resourceManager->CreateMonster(guidCharacter, 1, true);
   level->CharacterInitialize(monster, &posCharacter, 0);
   Client::getSingleton().SetSuppressed_CharacterCreation(true);
 
@@ -425,17 +433,46 @@ void Client::HandleEquipmentCreation(u32 id, u64 guid)
 {
   multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
     id, guid);
-  log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
-    id, guid);
+  //log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
+  //  id, guid);
 
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
 
   if (resourceManager) {
-    Client::getSingleton().SetSuppressed_EquipmentCreation(false);
+    //Client::getSingleton().SetSuppressed_EquipmentCreation(false);
     CEquipment *equipment = resourceManager->CreateEquipment(guid, 1, 1, 0);
-    Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+    //Client::getSingleton().SetSuppressed_EquipmentCreation(true);
 
     log(L"Client: Adding equipment to shared network equipment...");
     NetworkEntity *newEntity = addEquipment(equipment, id);
+  }
+}
+
+void Client::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x)",
+    ownerId, equipmentId, slot);
+  log(L"Client received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x)",
+    ownerId, equipmentId, slot);
+
+  NetworkEntity* owner = searchCharacterByCommonID(ownerId);
+  NetworkEntity* equipment = searchEquipmentByCommonID(equipmentId);
+
+  if (owner) {
+    if (equipment) {
+      CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
+      CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
+
+      CInventory *inventory = characterOwner->pCInventory;
+      Client::getSingleton().SetSuppressed_EquipmentCreation(false);
+      inventory->AddEquipment(equipmentReal, slot);
+      Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
+      log(L"Error: Could not find Equipment with ID = %x", equipmentId);
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
+    log(L"Error: Could not find Character with ID = %x", ownerId);
   }
 }

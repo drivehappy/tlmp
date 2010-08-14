@@ -64,6 +64,7 @@ namespace TLMP {
       void HandleCharacterDestination(u32 commonId, Vector3 destination);
       void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId);
       void HandleEquipmentCreation(u32 id, u64 guid);
+      void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot);
 
       void PushEquipment();
 
