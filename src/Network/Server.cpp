@@ -300,6 +300,24 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
   }
 
+  // Send all of the existing equipment in the game to the client
+  for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+    CEquipment* equipment = (CEquipment*)((*itr)->getInternalObject());
+
+    multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
+      equipment->GUID, (*itr)->getCommonId());
+    log(L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
+      equipment->GUID, (*itr)->getCommonId());
+
+    // Create a new network message for all clients to create this character
+    NetworkMessages::Equipment msgEquipment;
+    msgEquipment.set_guid(equipment->GUID);
+    msgEquipment.set_id((*itr)->getCommonId());
+
+    // This will broadcast to all clients except the one we received it from
+    Server::getSingleton().SendMessage<NetworkMessages::Equipment>(clientAddress, S_PUSH_NEWEQUIPMENT, &msgEquipment);
+  }
+
   // Send a request for character info
   NetworkMessages::RequestCharacterInfo msgRequestCharacterInfo;
   SendMessage<NetworkMessages::RequestCharacterInfo>(clientAddress, S_REQUEST_CHARINFO, &msgRequestCharacterInfo);

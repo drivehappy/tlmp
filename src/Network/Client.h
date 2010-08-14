@@ -34,6 +34,9 @@ namespace TLMP {
       inline bool GetSuppressed_CharacterCreation()            { return m_bSuppressNetwork_CharacterCreation; }
       inline void SetSuppressed_CharacterCreation(bool value)  { m_bSuppressNetwork_CharacterCreation = value; }
 
+      inline bool GetSuppressed_EquipmentCreation()            { return m_bSuppressNetwork_EquipmentCreation; }
+      inline void SetSuppressed_EquipmentCreation(bool value)  { m_bSuppressNetwork_EquipmentCreation = value; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -60,6 +63,7 @@ namespace TLMP {
       void HandleReplyCharacterId(u32 id);
       void HandleCharacterDestination(u32 commonId, Vector3 destination);
       void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId);
+      void HandleEquipmentCreation(u32 id, u64 guid);
 
       void PushEquipment();
 
@@ -79,6 +83,7 @@ namespace TLMP {
 
       bool m_bSuppressNetwork_SetDestination;
       bool m_bSuppressNetwork_CharacterCreation;
+      bool m_bSuppressNetwork_EquipmentCreation;
     };
 
   };

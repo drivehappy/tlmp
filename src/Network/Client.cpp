@@ -18,6 +18,7 @@ Client::Client()
   m_bServerGameStarted = false;
   m_bSuppressNetwork_SetDestination = false;
   m_bSuppressNetwork_CharacterCreation = true;
+  m_bSuppressNetwork_EquipmentCreation = true;
 
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
@@ -220,6 +221,18 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_NEWEQUIPMENT:
+    {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
+      NetworkMessages::Equipment *msgEquipment = ParseMessage<NetworkMessages::Equipment>(m_pBitStream);
+      u32 id = msgEquipment->id();
+      u64 guid = msgEquipment->guid();
+
+      HandleEquipmentCreation(id, guid);
+    }
     break;
 
   case S_PUSH_ADDCHARMINION:
@@ -406,4 +419,23 @@ void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, st
 
   // Create a network ID to identify this monster later
   NetworkEntity *newEntity = addCharacter(monster, commonId);
+}
+
+void Client::HandleEquipmentCreation(u32 id, u64 guid)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
+    id, guid);
+  log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
+    id, guid);
+
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+
+  if (resourceManager) {
+    Client::getSingleton().SetSuppressed_EquipmentCreation(false);
+    CEquipment *equipment = resourceManager->CreateEquipment(guid, 1, 1, 0);
+    Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+
+    log(L"Client: Adding equipment to shared network equipment...");
+    NetworkEntity *newEntity = addEquipment(equipment, id);
+  }
 }

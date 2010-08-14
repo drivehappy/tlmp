@@ -356,12 +356,19 @@ class Equipment : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 guid() const;
   inline void set_guid(::google::protobuf::int64 value);
   
-  // required int32 slot = 2;
+  // optional int32 slot = 2;
   inline bool has_slot() const;
   inline void clear_slot();
   static const int kSlotFieldNumber = 2;
   inline ::google::protobuf::int32 slot() const;
   inline void set_slot(::google::protobuf::int32 value);
+  
+  // required int32 id = 3;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 3;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
   
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Equipment)
  private:
@@ -370,11 +377,12 @@ class Equipment : public ::google::protobuf::Message {
   
   ::google::protobuf::int64 guid_;
   ::google::protobuf::int32 slot_;
+  ::google::protobuf::int32 id_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -2146,7 +2154,7 @@ inline void Equipment::set_guid(::google::protobuf::int64 value) {
   guid_ = value;
 }
 
-// required int32 slot = 2;
+// optional int32 slot = 2;
 inline bool Equipment::has_slot() const {
   return _has_bit(1);
 }
@@ -2160,6 +2168,22 @@ inline ::google::protobuf::int32 Equipment::slot() const {
 inline void Equipment::set_slot(::google::protobuf::int32 value) {
   _set_bit(1);
   slot_ = value;
+}
+
+// required int32 id = 3;
+inline bool Equipment::has_id() const {
+  return _has_bit(2);
+}
+inline void Equipment::clear_id() {
+  id_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 Equipment::id() const {
+  return id_;
+}
+inline void Equipment::set_id(::google::protobuf::int32 value) {
+  _set_bit(2);
+  id_ = value;
 }
 
 // -------------------------------------------------------------------
