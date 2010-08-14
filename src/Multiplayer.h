@@ -36,7 +36,8 @@ namespace TLMP
 
   // Pre Event for Character SetDestination
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
-  void Character_PickupEquipment(CCharacter*, CEquipment*, CLevel*);
+  void Character_PickupEquipmentPre(CCharacter*, CEquipment*, CLevel*);
+  void Character_PickupEquipmentPost(CCharacter*, CEquipment*, CLevel*);
 
   // Post Event for equipment initialization
   void CreateEquipmentPre(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
@@ -49,7 +50,7 @@ namespace TLMP
   void Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal);
 
   // Event for Inventory
-  void Inventory_AddEquipment(CEquipment*, CInventory*, CEquipment*, u32, bool&);
+  void Inventory_AddEquipment(CEquipment*, CInventory*, CEquipment*, u32, u32, bool&);
   void Inventory_RemoveEquipment(CInventory*, CEquipment*);
 
   // Pre Event for MainMenu Event

@@ -242,6 +242,20 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_EQUIPMENT_DROP:
+    {
+      NetworkMessages::EquipmentDrop *msgEquipmentDrop = ParseMessage<NetworkMessages::EquipmentDrop>(m_pBitStream);
+      NetworkMessages::Position msgPosition = msgEquipmentDrop->position().Get(0);
+
+      Vector3 position;
+      position.x = msgPosition.x();
+      position.y = msgPosition.y();
+      position.z = msgPosition.z();
+
+      u32 equipmentId = msgEquipmentDrop->equipmentid();
+      bool unk0 = msgEquipmentDrop->unk0();
+
+      HandleEquipmentDrop(equipmentId, position, unk0);
+    }
     break;
 
   case S_PUSH_EQUIPMENT_PICKUP:
@@ -253,12 +267,20 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       u32 ownerId = msgInventoryAddEquipment->ownerid();
       u32 equipmentId = msgInventoryAddEquipment->equipmentid();
       u32 slot = msgInventoryAddEquipment->slot();
+      u32 unk0 = msgInventoryAddEquipment->unk0();
 
-      HandleInventoryAddEquipment(ownerId, equipmentId, slot);
+      HandleInventoryAddEquipment(ownerId, equipmentId, slot, unk0);
     }
     break;
 
   case S_PUSH_EQUIPMENT_UNEQUIP:
+    {
+      NetworkMessages::InventoryRemoveEquipment *msgInventoryRemoveEquipment = ParseMessage<NetworkMessages::InventoryRemoveEquipment>(m_pBitStream);
+      u32 ownerId = msgInventoryRemoveEquipment->ownerid();
+      u32 equipmentId = msgInventoryRemoveEquipment->equipmentid();
+
+      HandleInventoryRemoveEquipment(ownerId, equipmentId);
+    }
     break;
 
   case S_PUSH_EQUIPMENT_USE:
@@ -448,7 +470,7 @@ void Client::HandleEquipmentCreation(u32 id, u64 guid)
   }
 }
 
-void Client::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot)
+void Client::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0)
 {
   multiplayerLogger.WriteLine(Info, L"Client received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x)",
     ownerId, equipmentId, slot);
@@ -462,10 +484,13 @@ void Client::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot)
     if (equipment) {
       CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
       CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
-
       CInventory *inventory = characterOwner->pCInventory;
+
+      log(L"Debug: %p %p %p %x %x",
+        characterOwner, equipmentReal, inventory, slot, unk0);
+
       Client::getSingleton().SetSuppressed_EquipmentCreation(false);
-      inventory->AddEquipment(equipmentReal, slot);
+      inventory->AddEquipment(equipmentReal, slot, unk0);
       Client::getSingleton().SetSuppressed_EquipmentCreation(true);
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
@@ -474,5 +499,56 @@ void Client::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot)
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
     log(L"Error: Could not find Character with ID = %x", ownerId);
+  }
+
+  log(L"HandleInventoryAddEquipment Done.");
+}
+
+void Client::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received inventory remove equipment: (CharacterID = %x, EquipmentID = %x)",
+    ownerId, equipmentId);
+  log(L"Client received inventory remove equipment: (CharacterID = %x, EquipmentID = %x)",
+    ownerId, equipmentId);
+
+  NetworkEntity* owner = searchCharacterByCommonID(ownerId);
+  NetworkEntity* equipment = searchEquipmentByCommonID(equipmentId);
+
+  if (owner) {
+    if (equipment) {
+      CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
+      CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
+
+      CInventory *inventory = characterOwner->pCInventory;
+      inventory->RemoveEquipment(equipmentReal);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
+      log(L"Error: Could not find Equipment with ID = %x", equipmentId);
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
+    log(L"Error: Could not find Character with ID = %x", ownerId);
+  }
+}
+
+void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
+{
+  multiplayerLogger.WriteLine(Info, L"Client received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
+    equipmentId, position.x, position.y, position.z, unk0);
+  log(L"Client received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
+    equipmentId, position.x, position.y, position.z, unk0);
+
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
+
+  if (netEquipment) {
+    CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
+    CLevel *level = gameClient->pCLevel;
+
+    level->EquipmentDrop(equipment, position, unk0);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x",
+      equipmentId);
+    log(L"Error: Could not find Equipment from CommonId: %x",
+      equipmentId);
   }
 }
