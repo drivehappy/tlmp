@@ -64,6 +64,7 @@ namespace TLMP {
       void HandleGameEnter(const SystemAddress clientAddress);
       void HandleGameExited(const SystemAddress clientAddress);
       void HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3 posCharacter, u64 guidCharacter, string nameCharacter, u64 guidPet, string namePet);
+      void HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo);
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid);
       void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination);
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);

@@ -284,7 +284,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         msgNewCharacter.set_guid(character->GUID);
         msgNewCharacter.set_name(characterName);
 
-        NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.add_position();
+        NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
         msgPlayerPosition->set_x(character->position.x);
         msgPlayerPosition->set_y(character->position.y);
         msgPlayerPosition->set_z(character->position.z);
@@ -417,7 +417,18 @@ void TLMP::MainMenuEventPre(CMainMenu* mainMenu, u32 unk0, wstring str, bool & c
 
 void TLMP::Monster_Idle(CMonster* monster, float dTime, bool & calloriginal)
 {
-  calloriginal = false;
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    calloriginal = false;
+  }
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    if (monster->GUID == DESTROYER || monster->GUID == ALCHEMIST || monster->GUID == VANQUISHER) {
+      calloriginal = false;
+    }
+  }
 }
 
 void TLMP::Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal)
@@ -451,6 +462,7 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   }
 
   msgCharacterDestination.set_id(commonId);
+
 
   // Send a Network message off to the server if we're a client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {

@@ -248,17 +248,12 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character >*
       mutable_minion();
   
-  // repeated .TLMP.NetworkMessages.Position position = 4;
-  inline int position_size() const;
+  // required .TLMP.NetworkMessages.Position position = 4;
+  inline bool has_position() const;
   inline void clear_position();
   static const int kPositionFieldNumber = 4;
-  inline const ::TLMP::NetworkMessages::Position& position(int index) const;
-  inline ::TLMP::NetworkMessages::Position* mutable_position(int index);
-  inline ::TLMP::NetworkMessages::Position* add_position();
-  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >&
-      position() const;
-  inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
-      mutable_position();
+  inline const ::TLMP::NetworkMessages::Position& position() const;
+  inline ::TLMP::NetworkMessages::Position* mutable_position();
   
   // optional int32 id = 5;
   inline bool has_id() const;
@@ -276,7 +271,7 @@ class Character : public ::google::protobuf::Message {
   ::std::string* name_;
   static const ::std::string _default_name_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character > minion_;
-  ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position > position_;
+  ::TLMP::NetworkMessages::Position* position_;
   ::google::protobuf::int32 id_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
@@ -1197,24 +1192,19 @@ class ReplyCharacterInfo : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // repeated .TLMP.NetworkMessages.Character player = 1;
-  inline int player_size() const;
+  // required .TLMP.NetworkMessages.Character player = 1;
+  inline bool has_player() const;
   inline void clear_player();
   static const int kPlayerFieldNumber = 1;
-  inline const ::TLMP::NetworkMessages::Character& player(int index) const;
-  inline ::TLMP::NetworkMessages::Character* mutable_player(int index);
-  inline ::TLMP::NetworkMessages::Character* add_player();
-  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character >&
-      player() const;
-  inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character >*
-      mutable_player();
+  inline const ::TLMP::NetworkMessages::Character& player() const;
+  inline ::TLMP::NetworkMessages::Character* mutable_player();
   
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.ReplyCharacterInfo)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character > player_;
+  ::TLMP::NetworkMessages::Character* player_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
@@ -1298,17 +1288,25 @@ class ReplyCharacterId : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 id() const;
   inline void set_id(::google::protobuf::int32 value);
   
+  // required int64 guid = 2;
+  inline bool has_guid() const;
+  inline void clear_guid();
+  static const int kGuidFieldNumber = 2;
+  inline ::google::protobuf::int64 guid() const;
+  inline void set_guid(::google::protobuf::int64 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.ReplyCharacterId)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
   ::google::protobuf::int32 id_;
+  ::google::protobuf::int64 guid_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -2678,29 +2676,21 @@ Character::mutable_minion() {
   return &minion_;
 }
 
-// repeated .TLMP.NetworkMessages.Position position = 4;
-inline int Character::position_size() const {
-  return position_.size();
+// required .TLMP.NetworkMessages.Position position = 4;
+inline bool Character::has_position() const {
+  return _has_bit(3);
 }
 inline void Character::clear_position() {
-  position_.Clear();
+  if (position_ != NULL) position_->::TLMP::NetworkMessages::Position::Clear();
+  _clear_bit(3);
 }
-inline const ::TLMP::NetworkMessages::Position& Character::position(int index) const {
-  return position_.Get(index);
+inline const ::TLMP::NetworkMessages::Position& Character::position() const {
+  return position_ != NULL ? *position_ : *default_instance_->position_;
 }
-inline ::TLMP::NetworkMessages::Position* Character::mutable_position(int index) {
-  return position_.Mutable(index);
-}
-inline ::TLMP::NetworkMessages::Position* Character::add_position() {
-  return position_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >&
-Character::position() const {
+inline ::TLMP::NetworkMessages::Position* Character::mutable_position() {
+  _set_bit(3);
+  if (position_ == NULL) position_ = new ::TLMP::NetworkMessages::Position;
   return position_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
-Character::mutable_position() {
-  return &position_;
 }
 
 // optional int32 id = 5;
@@ -2985,29 +2975,21 @@ inline void GameHasStarted::set_started(bool value) {
 
 // ReplyCharacterInfo
 
-// repeated .TLMP.NetworkMessages.Character player = 1;
-inline int ReplyCharacterInfo::player_size() const {
-  return player_.size();
+// required .TLMP.NetworkMessages.Character player = 1;
+inline bool ReplyCharacterInfo::has_player() const {
+  return _has_bit(0);
 }
 inline void ReplyCharacterInfo::clear_player() {
-  player_.Clear();
+  if (player_ != NULL) player_->::TLMP::NetworkMessages::Character::Clear();
+  _clear_bit(0);
 }
-inline const ::TLMP::NetworkMessages::Character& ReplyCharacterInfo::player(int index) const {
-  return player_.Get(index);
+inline const ::TLMP::NetworkMessages::Character& ReplyCharacterInfo::player() const {
+  return player_ != NULL ? *player_ : *default_instance_->player_;
 }
-inline ::TLMP::NetworkMessages::Character* ReplyCharacterInfo::mutable_player(int index) {
-  return player_.Mutable(index);
-}
-inline ::TLMP::NetworkMessages::Character* ReplyCharacterInfo::add_player() {
-  return player_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character >&
-ReplyCharacterInfo::player() const {
+inline ::TLMP::NetworkMessages::Character* ReplyCharacterInfo::mutable_player() {
+  _set_bit(0);
+  if (player_ == NULL) player_ = new ::TLMP::NetworkMessages::Character;
   return player_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character >*
-ReplyCharacterInfo::mutable_player() {
-  return &player_;
 }
 
 // -------------------------------------------------------------------
@@ -3028,6 +3010,22 @@ inline ::google::protobuf::int32 ReplyCharacterId::id() const {
 inline void ReplyCharacterId::set_id(::google::protobuf::int32 value) {
   _set_bit(0);
   id_ = value;
+}
+
+// required int64 guid = 2;
+inline bool ReplyCharacterId::has_guid() const {
+  return _has_bit(1);
+}
+inline void ReplyCharacterId::clear_guid() {
+  guid_ = GOOGLE_LONGLONG(0);
+  _clear_bit(1);
+}
+inline ::google::protobuf::int64 ReplyCharacterId::guid() const {
+  return guid_;
+}
+inline void ReplyCharacterId::set_guid(::google::protobuf::int64 value) {
+  _set_bit(1);
+  guid_ = value;
 }
 
 // -------------------------------------------------------------------

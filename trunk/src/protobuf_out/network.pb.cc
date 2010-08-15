@@ -288,8 +288,9 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReplyCharacterInfo));
   ReplyCharacterId_descriptor_ = file->message_type(12);
-  static const int ReplyCharacterId_offsets_[1] = {
+  static const int ReplyCharacterId_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReplyCharacterId, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReplyCharacterId, guid_),
   };
   ReplyCharacterId_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -619,7 +620,7 @@ void protobuf_AddDesc_network_2eproto() {
     "\010Position\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002"
     "(\002\"\226\001\n\tCharacter\022\014\n\004guid\030\001 \002(\003\022\014\n\004name\030\002"
     " \002(\t\022/\n\006minion\030\003 \003(\0132\037.TLMP.NetworkMessa"
-    "ges.Character\0220\n\010position\030\004 \003(\0132\036.TLMP.N"
+    "ges.Character\0220\n\010position\030\004 \002(\0132\036.TLMP.N"
     "etworkMessages.Position\022\n\n\002id\030\005 \001(\005\";\n\013E"
     "nchantType\022\014\n\004type\030\001 \002(\005\022\017\n\007subtype\030\002 \002("
     "\005\022\r\n\005value\030\003 \002(\002\"\325\001\n\tEquipment\022\014\n\004guid\030\001"
@@ -632,33 +633,33 @@ void protobuf_AddDesc_network_2eproto() {
     "\n\007started\030\001 \002(\010\"\r\n\013GameStarted\"\013\n\tGameEn"
     "ded\"\013\n\tGameEnter\"\014\n\nGameExited\"\026\n\024Reques"
     "tCharacterInfo\"E\n\022ReplyCharacterInfo\022/\n\006"
-    "player\030\001 \003(\0132\037.TLMP.NetworkMessages.Char"
-    "acter\"\036\n\020ReplyCharacterId\022\n\n\002id\030\001 \002(\005\"\210\001"
-    "\n\024CharacterDestination\022\n\n\002id\030\001 \002(\005\022/\n\007cu"
-    "rrent\030\002 \003(\0132\036.TLMP.NetworkMessages.Posit"
-    "ion\0223\n\013destination\030\003 \003(\0132\036.TLMP.NetworkM"
-    "essages.Position\"g\n\025InventoryAddEquipmen"
-    "t\022\017\n\007ownerId\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002(\005\022"
-    "\014\n\004slot\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n\004guid\030\005 \001("
-    "\003\"@\n\030InventoryRemoveEquipment\022\017\n\007ownerId"
-    "\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002(\005\"d\n\rEquipment"
-    "Drop\022\023\n\013equipmentId\030\001 \002(\005\0220\n\010position\030\002 "
-    "\003(\0132\036.TLMP.NetworkMessages.Position\022\014\n\004u"
-    "nk0\030\003 \002(\005\";\n\017EquipmentPickup\022\023\n\013characte"
-    "rId\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002(\005\"\251\001\n\006Entit"
-    "y\022\n\n\002id\030\001 \002(\005\022\r\n\005level\030\002 \002(\005\022\014\n\004guid\030\003 \002"
-    "(\003\022\017\n\007noItems\030\004 \002(\010\0223\n\013destination\030\005 \001(\013"
-    "2\036.TLMP.NetworkMessages.Position\0220\n\010posi"
-    "tion\030\006 \003(\0132\036.TLMP.NetworkMessages.Positi"
-    "on\"K\n\004Item\022\n\n\002id\030\001 \002(\005\022\014\n\004guid\030\002 \002(\003\022\r\n\005"
-    "level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n\004unk1\030\005 \002(\005\""
-    "V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010position\030\002 \003("
-    "\0132\036.TLMP.NetworkMessages.Position\022\014\n\004unk"
-    "0\030\003 \002(\010\")\n\nItemPickup\022\n\n\002id\030\001 \002(\005\022\017\n\007own"
-    "erId\030\002 \002(\005\"C\n\tItemEquip\022\n\n\002id\030\001 \002(\005\022\014\n\004s"
-    "lot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\022\013\n\003unk\030\004 \002(\005\""
-    "*\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerid\030\002 "
-    "\002(\005", 1723);
+    "player\030\001 \002(\0132\037.TLMP.NetworkMessages.Char"
+    "acter\",\n\020ReplyCharacterId\022\n\n\002id\030\001 \002(\005\022\014\n"
+    "\004guid\030\002 \002(\003\"\210\001\n\024CharacterDestination\022\n\n\002"
+    "id\030\001 \002(\005\022/\n\007current\030\002 \003(\0132\036.TLMP.Network"
+    "Messages.Position\0223\n\013destination\030\003 \003(\0132\036"
+    ".TLMP.NetworkMessages.Position\"g\n\025Invent"
+    "oryAddEquipment\022\017\n\007ownerId\030\001 \002(\005\022\023\n\013equi"
+    "pmentId\030\002 \002(\005\022\014\n\004slot\030\003 \002(\005\022\014\n\004unk0\030\004 \002("
+    "\005\022\014\n\004guid\030\005 \001(\003\"@\n\030InventoryRemoveEquipm"
+    "ent\022\017\n\007ownerId\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002("
+    "\005\"d\n\rEquipmentDrop\022\023\n\013equipmentId\030\001 \002(\005\022"
+    "0\n\010position\030\002 \003(\0132\036.TLMP.NetworkMessages"
+    ".Position\022\014\n\004unk0\030\003 \002(\005\";\n\017EquipmentPick"
+    "up\022\023\n\013characterId\030\001 \002(\005\022\023\n\013equipmentId\030\002"
+    " \002(\005\"\251\001\n\006Entity\022\n\n\002id\030\001 \002(\005\022\r\n\005level\030\002 \002"
+    "(\005\022\014\n\004guid\030\003 \002(\003\022\017\n\007noItems\030\004 \002(\010\0223\n\013des"
+    "tination\030\005 \001(\0132\036.TLMP.NetworkMessages.Po"
+    "sition\0220\n\010position\030\006 \003(\0132\036.TLMP.NetworkM"
+    "essages.Position\"K\n\004Item\022\n\n\002id\030\001 \002(\005\022\014\n\004"
+    "guid\030\002 \002(\003\022\r\n\005level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022"
+    "\014\n\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n"
+    "\010position\030\002 \003(\0132\036.TLMP.NetworkMessages.P"
+    "osition\022\014\n\004unk0\030\003 \002(\010\")\n\nItemPickup\022\n\n\002i"
+    "d\030\001 \002(\005\022\017\n\007ownerId\030\002 \002(\005\"C\n\tItemEquip\022\n\n"
+    "\002id\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005"
+    "\022\013\n\003unk\030\004 \002(\005\"*\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005"
+    "\022\017\n\007ownerid\030\002 \002(\005", 1737);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
@@ -1019,6 +1020,7 @@ Character::Character()
 }
 
 void Character::InitAsDefaultInstance() {
+  position_ = const_cast< ::TLMP::NetworkMessages::Position*>(&::TLMP::NetworkMessages::Position::default_instance());
 }
 
 Character::Character(const Character& from)
@@ -1031,6 +1033,7 @@ void Character::SharedCtor() {
   _cached_size_ = 0;
   guid_ = GOOGLE_LONGLONG(0);
   name_ = const_cast< ::std::string*>(&_default_name_);
+  position_ = NULL;
   id_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1044,6 +1047,7 @@ void Character::SharedDtor() {
     delete name_;
   }
   if (this != default_instance_) {
+    delete position_;
   }
 }
 
@@ -1075,10 +1079,12 @@ void Character::Clear() {
         name_->clear();
       }
     }
+    if (_has_bit(3)) {
+      if (position_ != NULL) position_->::TLMP::NetworkMessages::Position::Clear();
+    }
     id_ = 0;
   }
   minion_.Clear();
-  position_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1136,17 +1142,16 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
       
-      // repeated .TLMP.NetworkMessages.Position position = 4;
+      // required .TLMP.NetworkMessages.Position position = 4;
       case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_position:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_position()));
+               input, mutable_position()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(34)) goto parse_position;
         if (input->ExpectTag(40)) goto parse_id;
         break;
       }
@@ -1205,10 +1210,10 @@ void Character::SerializeWithCachedSizes(
       3, this->minion(i), output);
   }
   
-  // repeated .TLMP.NetworkMessages.Position position = 4;
-  for (int i = 0; i < this->position_size(); i++) {
+  // required .TLMP.NetworkMessages.Position position = 4;
+  if (_has_bit(3)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->position(i), output);
+      4, this->position(), output);
   }
   
   // optional int32 id = 5;
@@ -1246,11 +1251,11 @@ void Character::SerializeWithCachedSizes(
         3, this->minion(i), target);
   }
   
-  // repeated .TLMP.NetworkMessages.Position position = 4;
-  for (int i = 0; i < this->position_size(); i++) {
+  // required .TLMP.NetworkMessages.Position position = 4;
+  if (_has_bit(3)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->position(i), target);
+        4, this->position(), target);
   }
   
   // optional int32 id = 5;
@@ -1283,6 +1288,13 @@ int Character::ByteSize() const {
           this->name());
     }
     
+    // required .TLMP.NetworkMessages.Position position = 4;
+    if (has_position()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->position());
+    }
+    
     // optional int32 id = 5;
     if (has_id()) {
       total_size += 1 +
@@ -1297,14 +1309,6 @@ int Character::ByteSize() const {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         this->minion(i));
-  }
-  
-  // repeated .TLMP.NetworkMessages.Position position = 4;
-  total_size += 1 * this->position_size();
-  for (int i = 0; i < this->position_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->position(i));
   }
   
   if (!unknown_fields().empty()) {
@@ -1333,13 +1337,15 @@ void Character::MergeFrom(const ::google::protobuf::Message& from) {
 void Character::MergeFrom(const Character& from) {
   GOOGLE_CHECK_NE(&from, this);
   minion_.MergeFrom(from.minion_);
-  position_.MergeFrom(from.position_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
       set_guid(from.guid());
     }
     if (from._has_bit(1)) {
       set_name(from.name());
+    }
+    if (from._has_bit(3)) {
+      mutable_position()->::TLMP::NetworkMessages::Position::MergeFrom(from.position());
     }
     if (from._has_bit(4)) {
       set_id(from.id());
@@ -1361,13 +1367,13 @@ void Character::CopyFrom(const Character& from) {
 }
 
 bool Character::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x0000000b) != 0x0000000b) return false;
   
   for (int i = 0; i < minion_size(); i++) {
     if (!this->minion(i).IsInitialized()) return false;
   }
-  for (int i = 0; i < position_size(); i++) {
-    if (!this->position(i).IsInitialized()) return false;
+  if (has_position()) {
+    if (!this->position().IsInitialized()) return false;
   }
   return true;
 }
@@ -1377,7 +1383,7 @@ void Character::Swap(Character* other) {
     std::swap(guid_, other->guid_);
     std::swap(name_, other->name_);
     minion_.Swap(&other->minion_);
-    position_.Swap(&other->position_);
+    std::swap(position_, other->position_);
     std::swap(id_, other->id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -3375,6 +3381,7 @@ ReplyCharacterInfo::ReplyCharacterInfo()
 }
 
 void ReplyCharacterInfo::InitAsDefaultInstance() {
+  player_ = const_cast< ::TLMP::NetworkMessages::Character*>(&::TLMP::NetworkMessages::Character::default_instance());
 }
 
 ReplyCharacterInfo::ReplyCharacterInfo(const ReplyCharacterInfo& from)
@@ -3385,6 +3392,7 @@ ReplyCharacterInfo::ReplyCharacterInfo(const ReplyCharacterInfo& from)
 
 void ReplyCharacterInfo::SharedCtor() {
   _cached_size_ = 0;
+  player_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3394,6 +3402,7 @@ ReplyCharacterInfo::~ReplyCharacterInfo() {
 
 void ReplyCharacterInfo::SharedDtor() {
   if (this != default_instance_) {
+    delete player_;
   }
 }
 
@@ -3418,7 +3427,11 @@ ReplyCharacterInfo* ReplyCharacterInfo::New() const {
 }
 
 void ReplyCharacterInfo::Clear() {
-  player_.Clear();
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (player_ != NULL) player_->::TLMP::NetworkMessages::Character::Clear();
+    }
+  }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -3429,17 +3442,15 @@ bool ReplyCharacterInfo::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .TLMP.NetworkMessages.Character player = 1;
+      // required .TLMP.NetworkMessages.Character player = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_player:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_player()));
+               input, mutable_player()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(10)) goto parse_player;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -3462,10 +3473,10 @@ bool ReplyCharacterInfo::MergePartialFromCodedStream(
 
 void ReplyCharacterInfo::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated .TLMP.NetworkMessages.Character player = 1;
-  for (int i = 0; i < this->player_size(); i++) {
+  // required .TLMP.NetworkMessages.Character player = 1;
+  if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->player(i), output);
+      1, this->player(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -3476,11 +3487,11 @@ void ReplyCharacterInfo::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* ReplyCharacterInfo::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated .TLMP.NetworkMessages.Character player = 1;
-  for (int i = 0; i < this->player_size(); i++) {
+  // required .TLMP.NetworkMessages.Character player = 1;
+  if (_has_bit(0)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        1, this->player(i), target);
+        1, this->player(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -3493,14 +3504,15 @@ void ReplyCharacterInfo::SerializeWithCachedSizes(
 int ReplyCharacterInfo::ByteSize() const {
   int total_size = 0;
   
-  // repeated .TLMP.NetworkMessages.Character player = 1;
-  total_size += 1 * this->player_size();
-  for (int i = 0; i < this->player_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->player(i));
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .TLMP.NetworkMessages.Character player = 1;
+    if (has_player()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->player());
+    }
+    
   }
-  
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -3526,7 +3538,11 @@ void ReplyCharacterInfo::MergeFrom(const ::google::protobuf::Message& from) {
 
 void ReplyCharacterInfo::MergeFrom(const ReplyCharacterInfo& from) {
   GOOGLE_CHECK_NE(&from, this);
-  player_.MergeFrom(from.player_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      mutable_player()->::TLMP::NetworkMessages::Character::MergeFrom(from.player());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -3543,16 +3559,17 @@ void ReplyCharacterInfo::CopyFrom(const ReplyCharacterInfo& from) {
 }
 
 bool ReplyCharacterInfo::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
   
-  for (int i = 0; i < player_size(); i++) {
-    if (!this->player(i).IsInitialized()) return false;
+  if (has_player()) {
+    if (!this->player().IsInitialized()) return false;
   }
   return true;
 }
 
 void ReplyCharacterInfo::Swap(ReplyCharacterInfo* other) {
   if (other != this) {
-    player_.Swap(&other->player_);
+    std::swap(player_, other->player_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -3572,6 +3589,7 @@ void ReplyCharacterInfo::Swap(ReplyCharacterInfo* other) {
 
 #ifndef _MSC_VER
 const int ReplyCharacterId::kIdFieldNumber;
+const int ReplyCharacterId::kGuidFieldNumber;
 #endif  // !_MSC_VER
 
 ReplyCharacterId::ReplyCharacterId()
@@ -3591,6 +3609,7 @@ ReplyCharacterId::ReplyCharacterId(const ReplyCharacterId& from)
 void ReplyCharacterId::SharedCtor() {
   _cached_size_ = 0;
   id_ = 0;
+  guid_ = GOOGLE_LONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3626,6 +3645,7 @@ ReplyCharacterId* ReplyCharacterId::New() const {
 void ReplyCharacterId::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     id_ = 0;
+    guid_ = GOOGLE_LONGLONG(0);
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -3645,6 +3665,22 @@ bool ReplyCharacterId::MergePartialFromCodedStream(
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &id_)));
           _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_guid;
+        break;
+      }
+      
+      // required int64 guid = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_guid:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, &guid_)));
+          _set_bit(1);
         } else {
           goto handle_uninterpreted;
         }
@@ -3675,6 +3711,11 @@ void ReplyCharacterId::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
   }
   
+  // required int64 guid = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->guid(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -3686,6 +3727,11 @@ void ReplyCharacterId::SerializeWithCachedSizes(
   // required int32 id = 1;
   if (_has_bit(0)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
+  }
+  
+  // required int64 guid = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->guid(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -3704,6 +3750,13 @@ int ReplyCharacterId::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->id());
+    }
+    
+    // required int64 guid = 2;
+    if (has_guid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int64Size(
+          this->guid());
     }
     
   }
@@ -3736,6 +3789,9 @@ void ReplyCharacterId::MergeFrom(const ReplyCharacterId& from) {
     if (from._has_bit(0)) {
       set_id(from.id());
     }
+    if (from._has_bit(1)) {
+      set_guid(from.guid());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -3753,7 +3809,7 @@ void ReplyCharacterId::CopyFrom(const ReplyCharacterId& from) {
 }
 
 bool ReplyCharacterId::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
   
   return true;
 }
@@ -3761,6 +3817,7 @@ bool ReplyCharacterId::IsInitialized() const {
 void ReplyCharacterId::Swap(ReplyCharacterId* other) {
   if (other != this) {
     std::swap(id_, other->id_);
+    std::swap(guid_, other->guid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
