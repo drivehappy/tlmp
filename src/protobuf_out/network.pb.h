@@ -35,6 +35,7 @@ void protobuf_ShutdownFile_network_2eproto();
 
 class Position;
 class Character;
+class EnchantType;
 class Equipment;
 class Version;
 class GameHasStarted;
@@ -298,6 +299,111 @@ class Character : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class EnchantType : public ::google::protobuf::Message {
+ public:
+  EnchantType();
+  virtual ~EnchantType();
+  
+  EnchantType(const EnchantType& from);
+  
+  inline EnchantType& operator=(const EnchantType& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EnchantType& default_instance();
+  
+  void Swap(EnchantType* other);
+  
+  // implements Message ----------------------------------------------
+  
+  EnchantType* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EnchantType& from);
+  void MergeFrom(const EnchantType& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 type = 1;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 1;
+  inline ::google::protobuf::int32 type() const;
+  inline void set_type(::google::protobuf::int32 value);
+  
+  // required int32 subtype = 2;
+  inline bool has_subtype() const;
+  inline void clear_subtype();
+  static const int kSubtypeFieldNumber = 2;
+  inline ::google::protobuf::int32 subtype() const;
+  inline void set_subtype(::google::protobuf::int32 value);
+  
+  // required float value = 3;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 3;
+  inline float value() const;
+  inline void set_value(float value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.EnchantType)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 subtype_;
+  float value_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static EnchantType* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class Equipment : public ::google::protobuf::Message {
  public:
   Equipment();
@@ -373,6 +479,51 @@ class Equipment : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 id() const;
   inline void set_id(::google::protobuf::int32 value);
   
+  // required int32 stacksize = 4;
+  inline bool has_stacksize() const;
+  inline void clear_stacksize();
+  static const int kStacksizeFieldNumber = 4;
+  inline ::google::protobuf::int32 stacksize() const;
+  inline void set_stacksize(::google::protobuf::int32 value);
+  
+  // required int32 stacksizemax = 5;
+  inline bool has_stacksizemax() const;
+  inline void clear_stacksizemax();
+  static const int kStacksizemaxFieldNumber = 5;
+  inline ::google::protobuf::int32 stacksizemax() const;
+  inline void set_stacksizemax(::google::protobuf::int32 value);
+  
+  // required int32 socketcount = 6;
+  inline bool has_socketcount() const;
+  inline void clear_socketcount();
+  static const int kSocketcountFieldNumber = 6;
+  inline ::google::protobuf::int32 socketcount() const;
+  inline void set_socketcount(::google::protobuf::int32 value);
+  
+  // repeated .TLMP.NetworkMessages.Equipment gems = 7;
+  inline int gems_size() const;
+  inline void clear_gems();
+  static const int kGemsFieldNumber = 7;
+  inline const ::TLMP::NetworkMessages::Equipment& gems(int index) const;
+  inline ::TLMP::NetworkMessages::Equipment* mutable_gems(int index);
+  inline ::TLMP::NetworkMessages::Equipment* add_gems();
+  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment >&
+      gems() const;
+  inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment >*
+      mutable_gems();
+  
+  // repeated .TLMP.NetworkMessages.EnchantType enchants = 8;
+  inline int enchants_size() const;
+  inline void clear_enchants();
+  static const int kEnchantsFieldNumber = 8;
+  inline const ::TLMP::NetworkMessages::EnchantType& enchants(int index) const;
+  inline ::TLMP::NetworkMessages::EnchantType* mutable_enchants(int index);
+  inline ::TLMP::NetworkMessages::EnchantType* add_enchants();
+  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType >&
+      enchants() const;
+  inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType >*
+      mutable_enchants();
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Equipment)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -381,11 +532,16 @@ class Equipment : public ::google::protobuf::Message {
   ::google::protobuf::int64 guid_;
   ::google::protobuf::int32 slot_;
   ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 stacksize_;
+  ::google::protobuf::int32 stacksizemax_;
+  ::google::protobuf::int32 socketcount_;
+  ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment > gems_;
+  ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType > enchants_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1366,6 +1522,13 @@ class InventoryAddEquipment : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 unk0() const;
   inline void set_unk0(::google::protobuf::int32 value);
   
+  // optional int64 guid = 5;
+  inline bool has_guid() const;
+  inline void clear_guid();
+  static const int kGuidFieldNumber = 5;
+  inline ::google::protobuf::int64 guid() const;
+  inline void set_guid(::google::protobuf::int64 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.InventoryAddEquipment)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -1375,11 +1538,12 @@ class InventoryAddEquipment : public ::google::protobuf::Message {
   ::google::protobuf::int32 equipmentid_;
   ::google::protobuf::int32 slot_;
   ::google::protobuf::int32 unk0_;
+  ::google::protobuf::int64 guid_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -2459,6 +2623,58 @@ inline void Character::set_id(::google::protobuf::int32 value) {
 
 // -------------------------------------------------------------------
 
+// EnchantType
+
+// required int32 type = 1;
+inline bool EnchantType::has_type() const {
+  return _has_bit(0);
+}
+inline void EnchantType::clear_type() {
+  type_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 EnchantType::type() const {
+  return type_;
+}
+inline void EnchantType::set_type(::google::protobuf::int32 value) {
+  _set_bit(0);
+  type_ = value;
+}
+
+// required int32 subtype = 2;
+inline bool EnchantType::has_subtype() const {
+  return _has_bit(1);
+}
+inline void EnchantType::clear_subtype() {
+  subtype_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 EnchantType::subtype() const {
+  return subtype_;
+}
+inline void EnchantType::set_subtype(::google::protobuf::int32 value) {
+  _set_bit(1);
+  subtype_ = value;
+}
+
+// required float value = 3;
+inline bool EnchantType::has_value() const {
+  return _has_bit(2);
+}
+inline void EnchantType::clear_value() {
+  value_ = 0;
+  _clear_bit(2);
+}
+inline float EnchantType::value() const {
+  return value_;
+}
+inline void EnchantType::set_value(float value) {
+  _set_bit(2);
+  value_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // Equipment
 
 // required int64 guid = 1;
@@ -2507,6 +2723,104 @@ inline ::google::protobuf::int32 Equipment::id() const {
 inline void Equipment::set_id(::google::protobuf::int32 value) {
   _set_bit(2);
   id_ = value;
+}
+
+// required int32 stacksize = 4;
+inline bool Equipment::has_stacksize() const {
+  return _has_bit(3);
+}
+inline void Equipment::clear_stacksize() {
+  stacksize_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 Equipment::stacksize() const {
+  return stacksize_;
+}
+inline void Equipment::set_stacksize(::google::protobuf::int32 value) {
+  _set_bit(3);
+  stacksize_ = value;
+}
+
+// required int32 stacksizemax = 5;
+inline bool Equipment::has_stacksizemax() const {
+  return _has_bit(4);
+}
+inline void Equipment::clear_stacksizemax() {
+  stacksizemax_ = 0;
+  _clear_bit(4);
+}
+inline ::google::protobuf::int32 Equipment::stacksizemax() const {
+  return stacksizemax_;
+}
+inline void Equipment::set_stacksizemax(::google::protobuf::int32 value) {
+  _set_bit(4);
+  stacksizemax_ = value;
+}
+
+// required int32 socketcount = 6;
+inline bool Equipment::has_socketcount() const {
+  return _has_bit(5);
+}
+inline void Equipment::clear_socketcount() {
+  socketcount_ = 0;
+  _clear_bit(5);
+}
+inline ::google::protobuf::int32 Equipment::socketcount() const {
+  return socketcount_;
+}
+inline void Equipment::set_socketcount(::google::protobuf::int32 value) {
+  _set_bit(5);
+  socketcount_ = value;
+}
+
+// repeated .TLMP.NetworkMessages.Equipment gems = 7;
+inline int Equipment::gems_size() const {
+  return gems_.size();
+}
+inline void Equipment::clear_gems() {
+  gems_.Clear();
+}
+inline const ::TLMP::NetworkMessages::Equipment& Equipment::gems(int index) const {
+  return gems_.Get(index);
+}
+inline ::TLMP::NetworkMessages::Equipment* Equipment::mutable_gems(int index) {
+  return gems_.Mutable(index);
+}
+inline ::TLMP::NetworkMessages::Equipment* Equipment::add_gems() {
+  return gems_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment >&
+Equipment::gems() const {
+  return gems_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment >*
+Equipment::mutable_gems() {
+  return &gems_;
+}
+
+// repeated .TLMP.NetworkMessages.EnchantType enchants = 8;
+inline int Equipment::enchants_size() const {
+  return enchants_.size();
+}
+inline void Equipment::clear_enchants() {
+  enchants_.Clear();
+}
+inline const ::TLMP::NetworkMessages::EnchantType& Equipment::enchants(int index) const {
+  return enchants_.Get(index);
+}
+inline ::TLMP::NetworkMessages::EnchantType* Equipment::mutable_enchants(int index) {
+  return enchants_.Mutable(index);
+}
+inline ::TLMP::NetworkMessages::EnchantType* Equipment::add_enchants() {
+  return enchants_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType >&
+Equipment::enchants() const {
+  return enchants_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType >*
+Equipment::mutable_enchants() {
+  return &enchants_;
 }
 
 // -------------------------------------------------------------------
@@ -2754,6 +3068,22 @@ inline ::google::protobuf::int32 InventoryAddEquipment::unk0() const {
 inline void InventoryAddEquipment::set_unk0(::google::protobuf::int32 value) {
   _set_bit(3);
   unk0_ = value;
+}
+
+// optional int64 guid = 5;
+inline bool InventoryAddEquipment::has_guid() const {
+  return _has_bit(4);
+}
+inline void InventoryAddEquipment::clear_guid() {
+  guid_ = GOOGLE_LONGLONG(0);
+  _clear_bit(4);
+}
+inline ::google::protobuf::int64 InventoryAddEquipment::guid() const {
+  return guid_;
+}
+inline void InventoryAddEquipment::set_guid(::google::protobuf::int64 value) {
+  _set_bit(4);
+  guid_ = value;
 }
 
 // -------------------------------------------------------------------

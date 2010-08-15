@@ -206,6 +206,16 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     break;
 
   case C_PUSH_EQUIPMENT_EQUIP:
+    {
+      NetworkMessages::InventoryAddEquipment *msgInventoryAddEquipment = ParseMessage<NetworkMessages::InventoryAddEquipment>(m_pBitStream);
+      u32 ownerId = msgInventoryAddEquipment->ownerid();
+      u32 equipmentId = msgInventoryAddEquipment->equipmentid();
+      u32 slot = msgInventoryAddEquipment->slot();
+      u32 unk0 = msgInventoryAddEquipment->unk0();
+      u64 guid = msgInventoryAddEquipment->guid();
+
+      HandleInventoryAddEquipment(ownerId, equipmentId, slot, unk0, guid);
+    }
     break;
 
   case C_PUSH_EQUIPMENT_UNEQUIP:
@@ -276,10 +286,10 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
   for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
     CCharacter* character = (CCharacter*)((*itr)->getInternalObject());
 
-    multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i) out to client that just joined...",
-      character->GUID, (*itr)->getCommonId());
-    log(L"Server: Pushing existing Character (%016I64X %i) out to client that just joined...",
-      character->GUID, (*itr)->getCommonId());
+    multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
+      character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
+    log(L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
+      character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
 
     string characterName(character->characterName.begin(), character->characterName.end());
     characterName.assign(character->characterName.begin(), character->characterName.end());
@@ -302,20 +312,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 
   // Send all of the existing equipment in the game to the client
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
-    CEquipment* equipment = (CEquipment*)((*itr)->getInternalObject());
-
-    multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
-      equipment->GUID, (*itr)->getCommonId());
-    log(L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
-      equipment->GUID, (*itr)->getCommonId());
-
-    // Create a new network message for all clients to create this character
-    NetworkMessages::Equipment msgEquipment;
-    msgEquipment.set_guid(equipment->GUID);
-    msgEquipment.set_id((*itr)->getCommonId());
-
-    // This will broadcast to all clients except the one we received it from
-    Server::getSingleton().SendMessage<NetworkMessages::Equipment>(clientAddress, S_PUSH_NEWEQUIPMENT, &msgEquipment);
+    Helper_SendEquipmentToClient(clientAddress, (CEquipment*)((*itr)->getInternalObject()), (*itr));
   }
 
   // Send a request for character info
@@ -405,4 +402,140 @@ void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 c
   CCharacter *character = (CCharacter *)entity->getInternalObject();
 
   character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
+}
+
+
+void Server::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid)
+{
+  multiplayerLogger.WriteLine(Info, L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64)",
+    ownerId, equipmentId, slot, guid);
+  log(L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64)",
+    ownerId, equipmentId, slot, guid);
+
+  NetworkEntity* owner = searchCharacterByCommonID(ownerId);
+  NetworkEntity* equipment = searchEquipmentByCommonID(equipmentId);
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+
+  if (owner) {
+    CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
+    CInventory *inventory = characterOwner->pCInventory;
+
+    if (equipment) {
+      CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
+
+      inventory->AddEquipment(equipmentReal, slot, unk0);
+    } else {
+      multiplayerLogger.WriteLine(Info, L"Server: Could not find Equipment with ID = %x, creating it", equipmentId);
+      log(L"Server: Could not find Equipment with ID = %x, creating it", equipmentId);
+
+      CEquipment *equipmentReal = resourceManager->CreateEquipment(guid, 1, 1, 0);
+  
+      log(L"Server: Adding equipment to shared network equipment...");
+      NetworkEntity *newEntity = addEquipment(equipmentReal, equipmentId);
+
+      multiplayerLogger.WriteLine(Info, L"Server: Added equipment.. now adding to inventory...");
+      log(L"Server: Added equipment.. now adding to inventory...");
+
+      inventory->AddEquipment(equipmentReal, slot, unk0);
+
+      multiplayerLogger.WriteLine(Info, L"Server: Done adding equipment to inventory.");
+      log(L"Server: Done adding equipment to inventory.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
+    log(L"Error: Could not find Character with ID = %x", ownerId);
+  }
+
+  log(L"HandleInventoryAddEquipment Done.");
+}
+
+void Server::Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment)
+{
+  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId());
+  log(L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId());
+
+  // Create a new network message for all clients to create this character
+  NetworkMessages::Equipment msgEquipment;
+  Helper_PopulateEquipmentMessage(&msgEquipment, equipment, netEquipment);
+
+  multiplayerLogger.WriteLine(Info, L"  Equipment contains %i Gems", equipment->gemList.size);
+  log(L"  Equipment contains %i Gems", equipment->gemList.size);
+
+  // Add the Gem Equipment
+  for (u32 i = 0; i < equipment->gemList.size; i++) {
+    multiplayerLogger.WriteLine(Info, L"Server: Adding gem...");
+    log(L"Server: Adding gem...");
+
+    NetworkMessages::Equipment *msgGem = msgEquipment.add_gems();
+    CEquipment *gem = equipment->gemList[i];
+    NetworkEntity *netGem = searchEquipmentByInternalObject(gem);
+    
+    // 
+    if (netGem) {
+      Helper_PopulateEquipmentMessage(msgGem, gem, netGem);
+    } else {
+      multiplayerLogger.WriteLine(Info, L"Could not find NetworkEntity for Gem, skipping equipment");
+      log(L"Could not find NetworkEntity for Gem, skipping equipment");
+      continue;
+    }
+  }
+
+  // This will broadcast to all clients except the one we received it from
+  Server::getSingleton().SendMessage<NetworkMessages::Equipment>(clientAddress, S_PUSH_NEWEQUIPMENT, &msgEquipment);
+}
+
+//
+// Populates the msgEquipment with the given Equipment vars
+void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment)
+{
+  multiplayerLogger.WriteLine(Info, L"  Setting up regular variables...");
+  log(L"  Setting up regular variables...");
+
+  // Fill out the easy stuff
+  msgEquipment->set_guid(equipment->GUID);
+  msgEquipment->set_id(netEquipment->getCommonId());
+  msgEquipment->set_stacksize(equipment->stackSize);
+  msgEquipment->set_stacksizemax(equipment->stackSizeMax);
+  msgEquipment->set_socketcount(equipment->socketCount);
+
+  multiplayerLogger.WriteLine(Info, L"  Setting up Regular Enchants...");
+  log(L"  Setting up Regular Enchants...");
+
+  // Work on Regular Enchants
+  u32 *itr = equipment->enchantListStart;
+  u32 *itrType = equipment->enchantTypeListStart;
+  while (itr != equipment->enchantListEnd) {
+    multiplayerLogger.WriteLine(Info, L"  Adding Equipment Enchant: REGULAR (%i: %i)", *itrType, *itr);
+    log(L"  Adding Equipment Enchant: REGULAR (%i: %i)", *itrType, *itr);
+
+    NetworkMessages::EnchantType *msgEnchantType = msgEquipment->add_enchants();
+    msgEnchantType->set_type(REGULAR);
+    msgEnchantType->set_subtype(*itrType);
+    msgEnchantType->set_value((float)*itr);
+
+    itr++;
+    itrType++;
+  }
+  
+  CEffectManager *effectManager = equipment->pCEffectManager;
+
+  if (effectManager) {
+    multiplayerLogger.WriteLine(Info, L"  Setting up Effect Enchants...");
+    log(L"  Setting up Effect Enchants...");
+
+    // Work on Effect Enchants
+    for (u32 i = 0; i < effectManager->effectList.size; i++) {
+      CEffect *effect = effectManager->effectList[i];
+
+      multiplayerLogger.WriteLine(Info, L"  Adding Equipment Effect Enchant: (%x: %f)", effect->effectType, effect->effectValue);
+      log(L"  Adding Equipment Effect Enchant: (%x: %f)", effect->effectType, effect->effectValue);
+
+      NetworkMessages::EnchantType *msgEnchantType = msgEquipment->add_enchants();
+      msgEnchantType->set_type(effect->effectType);
+      msgEnchantType->set_subtype(-1);  // Not used in this instance
+      msgEnchantType->set_value(effect->effectValue);
+    }
+  }
 }
