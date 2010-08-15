@@ -14,10 +14,23 @@ message Character {
   optional int32     id = 5;
 }
 
+// This handles both Affixes and Regular Types
+// (C++ Types: EffectType and EnchantType)
+message EnchantType {
+  required int32     type = 1;
+  required int32     subtype = 2;
+  required float     value = 3;
+}
+
 message Equipment {
   required int64     guid = 1;
   optional int32     slot = 2;
   required int32     id = 3;
+  required int32     stacksize = 4;
+  required int32     stacksizemax = 5;
+  required int32     socketcount = 6;
+  repeated Equipment gems = 7;
+  repeated EnchantType enchants = 8;
 }
 
 
@@ -63,6 +76,7 @@ message InventoryAddEquipment {
   required int32    equipmentId = 2;
   required int32    slot = 3;
   required int32    unk0 = 4;
+  optional int64    guid = 5;
 }
 
 message InventoryRemoveEquipment {

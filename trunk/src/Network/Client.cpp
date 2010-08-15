@@ -228,10 +228,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       }
 
       NetworkMessages::Equipment *msgEquipment = ParseMessage<NetworkMessages::Equipment>(m_pBitStream);
-      u32 id = msgEquipment->id();
-      u64 guid = msgEquipment->guid();
-
-      HandleEquipmentCreation(id, guid);
+      
+      HandleEquipmentCreation(msgEquipment); 
     }
     break;
 
@@ -243,6 +241,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case S_PUSH_EQUIPMENT_DROP:
     {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
       NetworkMessages::EquipmentDrop *msgEquipmentDrop = ParseMessage<NetworkMessages::EquipmentDrop>(m_pBitStream);
       NetworkMessages::Position msgPosition = msgEquipmentDrop->position().Get(0);
 
@@ -263,6 +266,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case S_PUSH_EQUIPMENT_EQUIP:
     {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
       NetworkMessages::InventoryAddEquipment *msgInventoryAddEquipment = ParseMessage<NetworkMessages::InventoryAddEquipment>(m_pBitStream);
       u32 ownerId = msgInventoryAddEquipment->ownerid();
       u32 equipmentId = msgInventoryAddEquipment->equipmentid();
@@ -275,6 +283,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case S_PUSH_EQUIPMENT_UNEQUIP:
     {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
       NetworkMessages::InventoryRemoveEquipment *msgInventoryRemoveEquipment = ParseMessage<NetworkMessages::InventoryRemoveEquipment>(m_pBitStream);
       u32 ownerId = msgInventoryRemoveEquipment->ownerid();
       u32 equipmentId = msgInventoryRemoveEquipment->equipmentid();
@@ -297,6 +310,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   case S_PUSH_CHARACTER_SETDEST:
     {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
       NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
       NetworkMessages::Position msgDestination = msgCharacterDestination->destination().Get(0);
 
@@ -451,21 +469,60 @@ void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, st
   NetworkEntity *newEntity = addCharacter(monster, commonId);
 }
 
-void Client::HandleEquipmentCreation(u32 id, u64 guid)
+void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipment)
 {
-  multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
-    id, guid);
-  //log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X)",
-  //  id, guid);
+  u32 id = msgEquipment->id();
+  u64 guid = msgEquipment->guid();
+  u32 stacksize = msgEquipment->stacksize();
+  u32 stacksizemax = msgEquipment->stacksizemax();
+  u32 socketcount = msgEquipment->socketcount();
+  u32 gemCount = msgEquipment->gems_size();
+  u32 enchantCount = msgEquipment->enchants_size();
+
+  multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
+    id, guid, stacksize, stacksizemax, socketcount);
+  log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
+    id, guid, stacksize, stacksizemax, socketcount);
 
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
 
   if (resourceManager) {
-    //Client::getSingleton().SetSuppressed_EquipmentCreation(false);
     CEquipment *equipment = resourceManager->CreateEquipment(guid, 1, 1, 0);
-    //Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+    equipment->socketCount = socketcount;
+    equipment->stackSize = stacksize;
+    equipment->stackSizeMax = stacksizemax;
+    
+    multiplayerLogger.WriteLine(Info, L"Client: Adding gems to new equipment...");
+    log(L"Client: Adding gems to new equipment...");
 
-    log(L"Client: Adding equipment to shared network equipment...");
+    // Add the gems
+    for (u32 i = 0; i < gemCount; i++) {
+      NetworkMessages::Equipment msgGem = msgEquipment->gems().Get(i);
+      CEquipment *gem = resourceManager->CreateEquipment(msgGem.guid(), 1, 1, 0);
+      
+      multiplayerLogger.WriteLine(Info, L"Client: Adding gem to shared network equipment: %i", msgGem.id());
+      log(L"Client: Adding gem to shared network equipment: %i", msgGem.id());
+      NetworkEntity *newEntity = addEquipment(gem, msgGem.id());
+
+      for (int j = 0; j < msgGem.enchants_size(); j++) {
+        NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
+        gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value());
+      }
+
+      equipment->gemList.push(gem);
+    }
+
+    multiplayerLogger.WriteLine(Info, L"Client: Adding enchants to new equipment...");
+    log(L"Client: Adding enchants to new equipment...");
+
+    // Add the enchants
+    for (u32 i = 0; i < enchantCount; i++) {
+      NetworkMessages::EnchantType msgEnchantType = msgEquipment->enchants().Get(i);
+      equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
+    }
+
+    multiplayerLogger.WriteLine(Info, L"Client: Adding equipment to shared network equipment");
+    log(L"Client: Adding equipment to shared network equipment");
     NetworkEntity *newEntity = addEquipment(equipment, id);
   }
 }

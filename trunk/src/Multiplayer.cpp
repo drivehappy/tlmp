@@ -125,9 +125,12 @@ void TLMP::GameClient_Ctor(CGameClient* client)
   gameClient = client;
 }
 
-void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal)
+void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool noItems, bool & calloriginal)
 {
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X %i", guid, noItems);
+    log(L"Creating character: %016I64X %i", guid, noItems);
+
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
       //calloriginal = false;
       //character = NULL;
@@ -140,6 +143,7 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
 
 
   if (calloriginal) {
+    multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X", guid);
     log(L"Creating character: %016I64X", guid);
   }
 }
@@ -215,7 +219,7 @@ void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveSt
   if (calloriginal) {
   } else {
     multiplayerLogger.WriteLine(Info, L"Suppressing Equipment Initialize (GUID: %016I64X  %s)",
-        equipment->GUID, equipment->nameReal.c_str());
+      equipment->GUID, equipment->nameReal.c_str());
   }
 }
 
@@ -232,7 +236,10 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u64 BRINK = 0xBC1E373A723411DE;
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    log(L"Client::Level::CharacterInit - %i", Client::getSingleton().GetSuppressed_CharacterCreation());
+    multiplayerLogger.WriteLine(Info, L"Client: Level::CharacterInitialize: %s",
+      character->characterName.c_str());
+    log(L"Client: Level::CharacterInitialize: %s",
+      character->characterName.c_str());
 
     // True, attempt to suppress the character initialization
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
@@ -265,6 +272,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
       // Send this character to be created on the clients if it isn't suppressed
       if (!Server::getSingleton().GetSuppressed_SendCharacterCreation()) {
         multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
+        log(L"Server: Pushing Initialized Character out to clients...");
 
         string characterName(character->characterName.begin(), character->characterName.end());
         characterName.assign(character->characterName.begin(), character->characterName.end());
@@ -504,6 +512,41 @@ void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3
   }
 }
 
+void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk)
+{
+  NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
+  NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+
+  multiplayerLogger.WriteLine(Info, L"Character (%s) Adding Equipment to Inventory: %s (Slot=%i) (Unk = %i)",
+    owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
+  log(L"Character (%s) Adding Equipment to Inventory: %s (Slot=%i) (Unk = %i)",
+    owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
+
+  if (ownerEntity) {
+    if (equipmentEntity) {
+      // Create a Network Message for sending off to clients the equipment addition to the inventory
+      NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+      msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
+      msgInventoryAddEquipment.set_slot(slot);
+      msgInventoryAddEquipment.set_unk0(unk);
+      msgInventoryAddEquipment.set_guid(equipment->GUID);
+      msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
+
+      Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
+        equipment);
+      log(L"Could not find NetworkEntity for equipment: %p",
+        equipment);
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: %p (%s)",
+      owner, owner->characterName.c_str());
+    log(L"Could not find NetworkEntity for inventory owner: %p (%s)",
+      owner, owner->characterName.c_str());
+  }
+}
+
 void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32 slot, u32 unk0, bool& calloriginal)
 {
   log(L"Inventory adding Equipment: %016I64X (%s) (%p) (Owner = %s)",
@@ -526,14 +569,15 @@ void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEq
         calloriginal = false;
         retval = NULL;
       }
-    } else {
-      // TODO Send to Server
+
+      // If we're suppressing this, we need to send it to the Server
+      // The server will create, add the equipment and send the message back to us
+      SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
     }
   }
 
   // Server
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    CCharacter *owner = inventory->pCCharacter;
     NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
     NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
 
