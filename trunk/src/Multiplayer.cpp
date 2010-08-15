@@ -15,6 +15,7 @@ void TLMP::SetupNetwork()
   // Register event callbacks we need
   CCharacterSaveState::RegisterEvent_CharacterSaveState_LoadFromFile(NULL, CharacterSaveState_ReadFromFile);
 
+  CGame::RegisterEvent_GameCtor(Game_Ctor, NULL);
   CGame::RegisterEvent_Game_CreateUI(NULL, GameClient_CreateUI);
 
   CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
@@ -23,6 +24,7 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_LevelCharacterInitialize(Level_CharacterInitialize, NULL);
   CLevel::RegisterEvent_LevelDropEquipment(Level_DropEquipmentPre, Level_DropEquipmentPost);
 
+  CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
   CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, NULL);
@@ -31,11 +33,13 @@ void TLMP::SetupNetwork()
 
   CMainMenu::RegisterEvent_MainMenu_Event(MainMenuEventPre, NULL);
 
+  CEquipment::RegisterEvent_EquipmentCtor(Equipment_Ctor, NULL);
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
 
   CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI, NULL);
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
 
+  CCharacter::RegisterEvent_CharacterCtor(Character_Ctor, NULL);
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
 
@@ -99,12 +103,34 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
   */
 }
 
+void TLMP::Equipment_Ctor(CEquipment* equipment)
+{
+  log(L"Equipment::Ctor = %p", equipment);
+}
+
+void TLMP::Character_Ctor(CCharacter* character)
+{
+  log(L"Character::Ctor = %p", character);
+}
+
+void TLMP::Game_Ctor(CGame* game)
+{
+  log(L"Game::Ctor = %p", game);
+}
+
+void TLMP::GameClient_Ctor(CGameClient* client)
+{
+  log(L"GameClient::Ctor = %p", client);
+
+  gameClient = client;
+}
+
 void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal)
 {
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
-      calloriginal = false;
-      character = NULL;
+      //calloriginal = false;
+      //character = NULL;
     }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -198,26 +224,29 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u32 CPLAYER_BASE = 0xA80064;
   const u32 CMONSTER_BASE = 0xA7F97C;
 
+  const u64 CAT = 0x5C5BBC74483A11DE;
+  const u64 DOG = 0xD3A8F9832FA111DE;
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+  const u64 BRINK = 0xBC1E373A723411DE;
+
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     log(L"Client::Level::CharacterInit - %i", Client::getSingleton().GetSuppressed_CharacterCreation());
 
     // True, attempt to suppress the character initialization
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
-      // If we're in the game, attempt to suppress the char init
-      //if (gameClient->inGame) {
-        // Check if the base is CPlayer or CMonster
-        u32 ptr_base = *((u32*)character);
+      u64 guid = character->GUID;
 
-        if (ptr_base == CPLAYER_BASE) {
-          log("[CLIENT] Detected CPlayer addition to CLevel, not suppressing load");
-        } else if (ptr_base == CMONSTER_BASE) {
-          log("[CLIENT] Suppressing Monster load into level");
-          calloriginal = false;
-          retval = NULL;
-        } else {
-          log("[ERROR] Couldn't determine type of entity: %x", ptr_base);
-        }
-      //}
+      if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
+        guid == DOG || guid == CAT || guid == BRINK)
+      {
+        log("Client: Detected CPlayer addition to CLevel, not suppressing load");
+      } else {
+        log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
+        calloriginal = false;
+        retval = NULL;
+      }
     }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -262,8 +291,6 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
 void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
 {
-  gameClient = client;
-
   // Set the started flag - don't bother checking, it's just as fast to set it
   switch (Network::NetworkState::getSingleton().GetState()) {
     case SERVER:
@@ -282,8 +309,6 @@ void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk
 
 void TLMP::GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
 {
-  gameClient = client;
-
   //log("MainMenuShown: %i", MainMenuShown());
 
   // Determine if we've exited an existing game in network mode
@@ -481,14 +506,26 @@ void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3
 
 void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32 slot, u32 unk0, bool& calloriginal)
 {
-  log(L"Inventory adding Equipment: %016I64X (%s) (%p)",
-    equipment->GUID, equipment->nameReal.c_str(), inventory);
+  log(L"Inventory adding Equipment: %016I64X (%s) (%p) (Owner = %s)",
+    equipment->GUID, equipment->nameReal.c_str(), inventory, inventory->pCCharacter->characterName.c_str());
+  log(L"  inventory = %p  gameClient = %p",
+    inventory, gameClient);
+  log(L"  inventory->character = %p  player = %p",
+    inventory->pCCharacter, gameClient->pCPlayer);
+
+  const u32 CPLAYER_BASE = 0xA80064;
+  const u32 CMONSTER_BASE = 0xA7F97C;
+
+  CCharacter *owner = inventory->pCCharacter;
+  u32 ptr_base = *((u32*)owner);
 
   // Client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
-      calloriginal = false;
-      retval = NULL;
+      if (ptr_base != CPLAYER_BASE) {
+        calloriginal = false;
+        retval = NULL;
+      }
     } else {
       // TODO Send to Server
     }

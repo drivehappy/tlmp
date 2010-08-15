@@ -35,11 +35,13 @@ namespace TLMP
   void Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal);
 
   // Pre Event for Character SetDestination
+  void Character_Ctor(CCharacter*);
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
   void Character_PickupEquipmentPre(CCharacter*, CEquipment*, CLevel*);
   void Character_PickupEquipmentPost(CCharacter*, CEquipment*, CLevel*);
 
   // Post Event for equipment initialization
+  void Equipment_Ctor(CEquipment*);
   void CreateEquipmentPre(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void CreateEquipmentPost(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
@@ -56,7 +58,11 @@ namespace TLMP
   // Pre Event for MainMenu Event
   void MainMenuEventPre(CMainMenu*, u32, wstring, bool&);
 
+  // Event for Game
+  void Game_Ctor(CGame* game);
+
   // Pre Event for the main GameClient loop
+  void GameClient_Ctor(CGameClient*);
   void GameClient_CreateLevelPre(CGameClient*, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal);
   void GameClient_LoadLevelPre(CGameClient*, bool & calloriginal);
   void GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
