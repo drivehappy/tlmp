@@ -19,6 +19,7 @@ Client::Client()
   m_bSuppressNetwork_SetDestination = false;
   m_bSuppressNetwork_CharacterCreation = true;
   m_bSuppressNetwork_EquipmentCreation = true;
+  m_bSuppressNetwork_EquipmentDrop = false;
 
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
@@ -262,6 +263,19 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_EQUIPMENT_PICKUP:
+    {
+      // Ignore server character creation if we're not in the game
+      if (!gameClient->inGame) {
+        break;
+      }
+
+      NetworkMessages::EquipmentPickup *msgEquipmentPickup = ParseMessage<NetworkMessages::EquipmentPickup>(m_pBitStream);
+
+      u32 equipmentId = msgEquipmentPickup->equipmentid();
+      u32 characterId = msgEquipmentPickup->characterid();
+
+      HandleEquipmentPickup(characterId, equipmentId);
+    }
     break;
 
   case S_PUSH_EQUIPMENT_EQUIP:
@@ -601,11 +615,34 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
     CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
     CLevel *level = gameClient->pCLevel;
 
+    Client::getSingleton().SetSuppressed_EquipmentDrop(true);
     level->EquipmentDrop(equipment, position, unk0);
+    Client::getSingleton().SetSuppressed_EquipmentDrop(false);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x",
       equipmentId);
     log(L"Error: Could not find Equipment from CommonId: %x",
       equipmentId);
+  }
+}
+
+void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
+{
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (netEquipment) {
+    if (netCharacter) {
+      CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
+      CCharacter *character = (CCharacter *)netCharacter->getInternalObject();
+
+      character->PickupEquipment(equipment, gameClient->pCLevel);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find Character from CommonId: %x", characterId);
+      log(L"Error: Could not find Character from CommonId: %x", characterId);
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
+    log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
   }
 }

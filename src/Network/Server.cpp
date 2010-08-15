@@ -197,9 +197,28 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     break;
 
   case C_PUSH_EQUIPMENT:
+    {
+      NetworkMessages::Equipment *msgEquipment = ParseMessage<NetworkMessages::Equipment>(m_pBitStream);
+      
+      HandleEquipmentCreation(msgEquipment); 
+    }
     break;
 
   case C_PUSH_EQUIPMENT_DROP:
+    {
+      NetworkMessages::EquipmentDrop *msgEquipmentDrop = ParseMessage<NetworkMessages::EquipmentDrop>(m_pBitStream);
+      NetworkMessages::Position msgPosition = msgEquipmentDrop->position().Get(0);
+
+      Vector3 position;
+      position.x = msgPosition.x();
+      position.y = msgPosition.y();
+      position.z = msgPosition.z();
+
+      u32 equipmentId = msgEquipmentDrop->equipmentid();
+      bool unk0 = msgEquipmentDrop->unk0();
+
+      HandleEquipmentDrop(equipmentId, position, unk0);
+    }
     break;
 
   case C_PUSH_EQUIPMENT_PICKUP:
@@ -537,5 +556,83 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
       msgEnchantType->set_subtype(-1);  // Not used in this instance
       msgEnchantType->set_value(effect->effectValue);
     }
+  }
+}
+
+void Server::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
+{
+  multiplayerLogger.WriteLine(Info, L"Server received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
+    equipmentId, position.x, position.y, position.z, unk0);
+  log(L"Server received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
+    equipmentId, position.x, position.y, position.z, unk0);
+
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
+
+  if (netEquipment) {
+    CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
+    CLevel *level = gameClient->pCLevel;
+
+    level->EquipmentDrop(equipment, position, unk0);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
+    log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
+  }
+}
+
+void Server::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipment)
+{
+  u32 id = msgEquipment->id();
+  u64 guid = msgEquipment->guid();
+  u32 stacksize = msgEquipment->stacksize();
+  u32 stacksizemax = msgEquipment->stacksizemax();
+  u32 socketcount = msgEquipment->socketcount();
+  u32 gemCount = msgEquipment->gems_size();
+  u32 enchantCount = msgEquipment->enchants_size();
+
+  multiplayerLogger.WriteLine(Info, L"Server received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
+    id, guid, stacksize, stacksizemax, socketcount);
+  log(L"Server received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
+    id, guid, stacksize, stacksizemax, socketcount);
+
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+
+  if (resourceManager) {
+    CEquipment *equipment = resourceManager->CreateEquipment(guid, 1, 1, 0);
+    equipment->socketCount = socketcount;
+    equipment->stackSize = stacksize;
+    equipment->stackSizeMax = stacksizemax;
+    
+    multiplayerLogger.WriteLine(Info, L"Server: Adding gems to new equipment...");
+    log(L"Server: Adding gems to new equipment...");
+
+    // Add the gems
+    for (u32 i = 0; i < gemCount; i++) {
+      NetworkMessages::Equipment msgGem = msgEquipment->gems().Get(i);
+      CEquipment *gem = resourceManager->CreateEquipment(msgGem.guid(), 1, 1, 0);
+      
+      multiplayerLogger.WriteLine(Info, L"Server: Adding gem to shared network equipment: %i", msgGem.id());
+      log(L"Server: Adding gem to shared network equipment: %i", msgGem.id());
+      NetworkEntity *newEntity = addEquipment(gem, msgGem.id());
+
+      for (int j = 0; j < msgGem.enchants_size(); j++) {
+        NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
+        gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value());
+      }
+
+      equipment->gemList.push(gem);
+    }
+
+    multiplayerLogger.WriteLine(Info, L"Server: Adding enchants to new equipment...");
+    log(L"Server: Adding enchants to new equipment...");
+
+    // Add the enchants
+    for (u32 i = 0; i < enchantCount; i++) {
+      NetworkMessages::EnchantType msgEnchantType = msgEquipment->enchants().Get(i);
+      equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
+    }
+
+    multiplayerLogger.WriteLine(Info, L"Server: Adding equipment to shared network equipment");
+    log(L"Server: Adding equipment to shared network equipment");
+    NetworkEntity *newEntity = addEquipment(equipment, id);
   }
 }

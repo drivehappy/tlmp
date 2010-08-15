@@ -50,6 +50,7 @@ class CharacterDestination;
 class InventoryAddEquipment;
 class InventoryRemoveEquipment;
 class EquipmentDrop;
+class EquipmentPickup;
 class Entity;
 class Item;
 class ItemDrop;
@@ -1768,6 +1769,103 @@ class EquipmentDrop : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class EquipmentPickup : public ::google::protobuf::Message {
+ public:
+  EquipmentPickup();
+  virtual ~EquipmentPickup();
+  
+  EquipmentPickup(const EquipmentPickup& from);
+  
+  inline EquipmentPickup& operator=(const EquipmentPickup& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EquipmentPickup& default_instance();
+  
+  void Swap(EquipmentPickup* other);
+  
+  // implements Message ----------------------------------------------
+  
+  EquipmentPickup* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EquipmentPickup& from);
+  void MergeFrom(const EquipmentPickup& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 characterId = 1;
+  inline bool has_characterid() const;
+  inline void clear_characterid();
+  static const int kCharacterIdFieldNumber = 1;
+  inline ::google::protobuf::int32 characterid() const;
+  inline void set_characterid(::google::protobuf::int32 value);
+  
+  // required int32 equipmentId = 2;
+  inline bool has_equipmentid() const;
+  inline void clear_equipmentid();
+  static const int kEquipmentIdFieldNumber = 2;
+  inline ::google::protobuf::int32 equipmentid() const;
+  inline void set_equipmentid(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.EquipmentPickup)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 characterid_;
+  ::google::protobuf::int32 equipmentid_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static EquipmentPickup* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class Entity : public ::google::protobuf::Message {
  public:
   Entity();
@@ -3181,6 +3279,42 @@ inline ::google::protobuf::int32 EquipmentDrop::unk0() const {
 inline void EquipmentDrop::set_unk0(::google::protobuf::int32 value) {
   _set_bit(2);
   unk0_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// EquipmentPickup
+
+// required int32 characterId = 1;
+inline bool EquipmentPickup::has_characterid() const {
+  return _has_bit(0);
+}
+inline void EquipmentPickup::clear_characterid() {
+  characterid_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 EquipmentPickup::characterid() const {
+  return characterid_;
+}
+inline void EquipmentPickup::set_characterid(::google::protobuf::int32 value) {
+  _set_bit(0);
+  characterid_ = value;
+}
+
+// required int32 equipmentId = 2;
+inline bool EquipmentPickup::has_equipmentid() const {
+  return _has_bit(1);
+}
+inline void EquipmentPickup::clear_equipmentid() {
+  equipmentid_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 EquipmentPickup::equipmentid() const {
+  return equipmentid_;
+}
+inline void EquipmentPickup::set_equipmentid(::google::protobuf::int32 value) {
+  _set_bit(1);
+  equipmentid_ = value;
 }
 
 // -------------------------------------------------------------------

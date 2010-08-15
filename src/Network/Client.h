@@ -37,6 +37,9 @@ namespace TLMP {
       inline bool GetSuppressed_EquipmentCreation()            { return m_bSuppressNetwork_EquipmentCreation; }
       inline void SetSuppressed_EquipmentCreation(bool value)  { m_bSuppressNetwork_EquipmentCreation = value; }
 
+      inline bool GetSuppressed_EquipmentDrop()            { return m_bSuppressNetwork_EquipmentDrop; }
+      inline void SetSuppressed_EquipmentDrop(bool value)  { m_bSuppressNetwork_EquipmentDrop = value; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -67,6 +70,7 @@ namespace TLMP {
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0);
       void HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId);
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
+      void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
 
       void PushEquipment();
 
@@ -87,6 +91,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_SetDestination;
       bool m_bSuppressNetwork_CharacterCreation;
       bool m_bSuppressNetwork_EquipmentCreation;
+      bool m_bSuppressNetwork_EquipmentDrop;
     };
 
   };

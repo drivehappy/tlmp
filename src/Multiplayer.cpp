@@ -192,6 +192,8 @@ void TLMP::CreateEquipmentPost(CEquipment* equipment, CResourceManager* resource
       msgEquipment.set_id(newEntity->getCommonId());
       msgEquipment.set_guid(equipment->GUID);
 
+      // TODO Add Enchants and rest of data
+
       Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
     }
   }
@@ -471,6 +473,7 @@ void TLMP::Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
   log(L"Level dropping Equipment %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+
 }
 
 void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
@@ -481,34 +484,39 @@ void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3
   log(L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
 
-  // Client
+  // Bump out before sending the network message if we're not supposed to
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    // TODO Send to Server
+    if (Client::getSingleton().GetSuppressed_EquipmentDrop()) {
+      return;
+    }
   }
 
-  // Server
-  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+  //
+  NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
 
-    if (equipmentEntity) {
-      // Create a Network Message for sending off to clients the equipment addition to the inventory
-      NetworkMessages::EquipmentDrop msgEquipmentDrop;
+  if (equipmentEntity) {
+    // Create a Network Message for sending off to clients the equipment addition to the inventory
+    NetworkMessages::EquipmentDrop msgEquipmentDrop;
 
-      NetworkMessages::Position *msgPosition = msgEquipmentDrop.add_position();
-      msgPosition->set_x(position.x);
-      msgPosition->set_y(position.y);
-      msgPosition->set_z(position.z);
+    NetworkMessages::Position *msgPosition = msgEquipmentDrop.add_position();
+    msgPosition->set_x(position.x);
+    msgPosition->set_y(position.y);
+    msgPosition->set_z(position.z);
 
-      msgEquipmentDrop.set_equipmentid(equipmentEntity->getCommonId());
-      msgEquipmentDrop.set_unk0(unk0);
+    msgEquipmentDrop.set_equipmentid(equipmentEntity->getCommonId());
+    msgEquipmentDrop.set_unk0(unk0);
 
-      Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentDrop>(S_PUSH_EQUIPMENT_DROP, &msgEquipmentDrop);
-    } else {
-      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
-        equipment);
-      log(L"Could not find NetworkEntity for equipment: %p",
-        equipment);
+    // Client
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      Client::getSingleton().SendMessage<NetworkMessages::EquipmentDrop>(C_PUSH_EQUIPMENT_DROP, &msgEquipmentDrop);
     }
+    // Server
+    else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentDrop>(S_PUSH_EQUIPMENT_DROP, &msgEquipmentDrop);
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p", equipment);
+    log(L"Could not find NetworkEntity for equipment: %p", equipment);
   }
 }
 
@@ -523,22 +531,31 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
     owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
 
   if (ownerEntity) {
-    if (equipmentEntity) {
-      // Create a Network Message for sending off to clients the equipment addition to the inventory
-      NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-      msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
-      msgInventoryAddEquipment.set_slot(slot);
-      msgInventoryAddEquipment.set_unk0(unk);
-      msgInventoryAddEquipment.set_guid(equipment->GUID);
-      msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
+    // If the equipment hasn't yet been created for network use, do it now and send it out to the clients
+    if (!equipmentEntity) {
+      equipmentEntity = addEquipment(equipment);
 
-      Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
-    } else {
-      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
-        equipment);
-      log(L"Could not find NetworkEntity for equipment: %p",
-        equipment);
+      NetworkMessages::Equipment msgEquipment;
+      msgEquipment.set_guid(equipment->GUID);
+      msgEquipment.set_id(equipmentEntity->getCommonId());
+      msgEquipment.set_stacksize(equipment->stackSize);
+      msgEquipment.set_stacksizemax(equipment->stackSizeMax);
+      msgEquipment.set_socketcount(equipment->socketCount);
+
+      // TODO Add Enchants
+
+      Client::getSingleton().SendMessage<NetworkMessages::Equipment>(C_PUSH_EQUIPMENT, &msgEquipment);
     }
+
+    // Create a Network Message for sending off to clients the equipment addition to the inventory
+    NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+    msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
+    msgInventoryAddEquipment.set_slot(slot);
+    msgInventoryAddEquipment.set_unk0(unk);
+    msgInventoryAddEquipment.set_guid(equipment->GUID);
+    msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
+
+    Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
   } else {
     multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: %p (%s)",
       owner, owner->characterName.c_str());
@@ -565,14 +582,14 @@ void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEq
   // Client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
-      if (ptr_base != CPLAYER_BASE) {
+      //if (ptr_base != CPLAYER_BASE) {
         calloriginal = false;
         retval = NULL;
-      }
 
-      // If we're suppressing this, we need to send it to the Server
-      // The server will create, add the equipment and send the message back to us
-      SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
+        // If we're suppressing this, we need to send it to the Server
+        // The server will create, add the equipment and send the message back to us
+        SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
+      //}
     }
   }
 
@@ -687,6 +704,29 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
   // Turn on suppression again if we're the client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+  } else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
+    NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+
+    if (netEquipment) {
+      if (netCharacter) {
+        NetworkMessages::EquipmentPickup msgEquipmentPickup;
+        msgEquipmentPickup.set_characterid(netCharacter->getCommonId());
+        msgEquipmentPickup.set_equipmentid(netEquipment->getCommonId());
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentPickup>(S_PUSH_EQUIPMENT_PICKUP, &msgEquipmentPickup);
+      } else {
+        multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Character (%s)",
+          character->characterName.c_str());
+        log(L"Error: Could not find Network Entity for Character (%s)",
+          character->characterName.c_str());
+      }
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Equipment (%s)",
+        equipment->nameReal.c_str());
+      log(L"Error: Could not find Network Entity for Equipment (%s)",
+        equipment->nameReal.c_str());
+    }
   }
 }
 

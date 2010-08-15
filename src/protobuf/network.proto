@@ -90,6 +90,10 @@ message EquipmentDrop {
   required int32    unk0 = 3;
 }
 
+message EquipmentPickup {
+  required int32    characterId = 1;
+  required int32    equipmentId = 2;
+}
 
 
 
