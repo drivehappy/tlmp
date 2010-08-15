@@ -63,7 +63,7 @@ namespace TLMP {
       void HandleGameStarted();
       void HandleGameEnded();
       void HandleRequestCharacterInfo();
-      void HandleReplyCharacterId(u32 id);
+      void HandleReplyCharacterId(NetworkMessages::ReplyCharacterId *msgReplyCharacterId);
       void HandleCharacterDestination(u32 commonId, Vector3 destination);
       void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId);
       void HandleEquipmentCreation(NetworkMessages::Equipment *equipment);

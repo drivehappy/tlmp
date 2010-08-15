@@ -10,7 +10,7 @@ message Character {
   required int64     guid = 1;
   required string    name = 2;
   repeated Character minion  = 3;
-  repeated Position  position = 4;
+  required Position  position = 4;
   optional int32     id = 5;
 }
 
@@ -58,11 +58,12 @@ message RequestCharacterInfo {
 }
 
 message ReplyCharacterInfo {
-  repeated Character player = 1;
+  required Character player = 1;
 }
 
 message ReplyCharacterId {
   required int32 id = 1;
+  required int64 guid = 2;
 }
 
 message CharacterDestination {

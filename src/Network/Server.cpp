@@ -179,20 +179,9 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
   case C_REPLY_CHARINFO:
     {
       NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo = ParseMessage<NetworkMessages::ReplyCharacterInfo>(m_pBitStream);
-      NetworkMessages::Character msgPlayer;
-      NetworkMessages::Character msgPet;
-      NetworkMessages::Position  msgPlayerPosition;
 
-      msgPlayer = msgReplyCharacterInfo->player(0);
-      msgPlayerPosition = msgPlayer.position(0);
-      msgPet = msgPlayer.minion(0);
-
-      Vector3 posPlayer;
-      posPlayer.x = msgPlayerPosition.x();
-      posPlayer.y = msgPlayerPosition.y();
-      posPlayer.z = msgPlayerPosition.z();
-
-      HandleReplyCharacterInfo(address, posPlayer, msgPlayer.guid(), msgPlayer.name(), msgPet.guid(), msgPet.name());
+      //HandleReplyCharacterInfo(address, posPlayer, msgPlayer.guid(), msgPlayer.name(), msgPet.guid(), msgPet.name());
+      HandleReplyCharacterInfo(address, msgReplyCharacterInfo);
     }
     break;
 
@@ -318,7 +307,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     msgNewCharacter.set_guid(character->GUID);
     msgNewCharacter.set_name(characterName);
 
-    NetworkMessages::Position  *msgPlayerPosition = msgNewCharacter.add_position();
+    NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
     msgPlayerPosition->set_x(character->position.x);
     msgPlayerPosition->set_y(character->position.y);
     msgPlayerPosition->set_z(character->position.z);
@@ -362,7 +351,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
   msgNewCharacter.set_guid(guidCharacter);
   msgNewCharacter.set_name(nameCharacter);
 
-  NetworkMessages::Position  *msgPlayerPosition = msgNewCharacter.add_position();
+  NetworkMessages::Position  *msgPlayerPosition = msgNewCharacter.mutable_position();
   msgPlayerPosition->set_x(posCharacter.x);
   msgPlayerPosition->set_y(posCharacter.y);
   msgPlayerPosition->set_z(posCharacter.z);
@@ -378,7 +367,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
 
   if (clientCharacter) {
     clientCharacter->characterName.assign(convertAcsiiToWide(nameCharacter));
-    clientCharacter->SetAlignment(0);
+    clientCharacter->SetAlignment(2);
   } else {
     log("Error: clientCharacter is null!");
     multiplayerLogger.WriteLine(Info, L"Error: clientCharacter is null!");
@@ -401,6 +390,97 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3
     msgReplyCharacterId.set_id(entityCharacter->getCommonId());
 
     Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+  }
+}
+
+void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo)
+{
+  NetworkMessages::Character msgPlayer;
+  NetworkMessages::Position  msgPosition;
+  NetworkEntity *entityCharacter;
+
+  msgPlayer = msgReplyCharacterInfo->player();
+
+  // This will broadcast to all clients except the one we received it from
+  Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgPlayer);
+
+  Vector3 posCharacter;
+  Vector3 posPlayer;
+  posPlayer.x = msgPlayer.position().x();
+  posPlayer.y = msgPlayer.position().y();
+  posPlayer.z = msgPlayer.position().z();
+
+  // Create this Player on this instance
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+  CMonster *clientCharacter = resourceManager->CreateMonster(msgPlayer.guid(), 1, true);
+
+  if (clientCharacter) {
+    clientCharacter->characterName.assign(convertAcsiiToWide(msgPlayer.name()));
+    clientCharacter->SetAlignment(2);
+
+    // Lock the creation so we don't resend to all the clients
+    Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
+    gameClient->pCLevel->CharacterInitialize(clientCharacter, &posPlayer, 0);
+    Server::getSingleton().SetSuppressed_SendCharacterCreation(false);
+
+    // Send this ID to the Client that created the character
+    entityCharacter = searchCharacterByInternalObject(clientCharacter);
+    if (!entityCharacter) {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find Shared NetworkEntity for the Client Character.");
+    } else {
+      multiplayerLogger.WriteLine(Info, L"Server sending client character ID reply: %i", entityCharacter->getCommonId());
+
+      NetworkMessages::ReplyCharacterId msgReplyCharacterId;
+      msgReplyCharacterId.set_id(entityCharacter->getCommonId());
+      msgReplyCharacterId.set_guid(clientCharacter->GUID);
+
+      Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+    }
+  } else {
+    log("Error: clientCharacter is null!");
+    multiplayerLogger.WriteLine(Error, L"Error: clientCharacter is null!");
+  }
+
+  log(L"Minion Count: %i", msgPlayer.minion_size());
+
+  // Create the pets
+  for (int i = 0; i < msgPlayer.minion_size(); i++) {
+    NetworkMessages::Character msgMinion = msgPlayer.minion().Get(i);
+    posCharacter.x = msgMinion.position().x();
+    posCharacter.y = msgMinion.position().y();
+    posCharacter.z = msgMinion.position().z();
+
+    // Create this Player on this instance
+    CMonster *clientMinion = resourceManager->CreateMonster(msgMinion.guid(), 1, true);
+    if (clientMinion) {
+      clientMinion->characterName.assign(convertAcsiiToWide(msgMinion.name()));
+      clientMinion->SetAlignment(2);
+
+      // Lock the creation so we don't resend to all the clients
+      Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
+      gameClient->pCLevel->CharacterInitialize(clientMinion, &posCharacter, 0);
+      Server::getSingleton().SetSuppressed_SendCharacterCreation(false);  
+
+      // Add the minion to the player
+      clientCharacter->AddMinion(clientMinion);
+      
+      // Send this ID to the Client that created the character
+      entityCharacter = searchCharacterByInternalObject(clientMinion);
+      if (!entityCharacter) {
+        multiplayerLogger.WriteLine(Error, L"Error: Could not find Shared NetworkEntity for the Client Minion Character.");
+      } else {
+        multiplayerLogger.WriteLine(Info, L"Server sending client character ID reply: %i", entityCharacter->getCommonId());
+
+        NetworkMessages::ReplyCharacterId msgReplyCharacterId;
+        msgReplyCharacterId.set_id(entityCharacter->getCommonId());
+        msgReplyCharacterId.set_guid(clientCharacter->GUID);
+
+        Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+      }
+    } else {
+      log("Error: clientMinion is null!");
+      multiplayerLogger.WriteLine(Error, L"Error: clientMinion is null!");
+    }
   }
 }
 

@@ -193,9 +193,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   case S_REPLY_CHARID:
     {
       NetworkMessages::ReplyCharacterId *msgReplyCharacterId = ParseMessage<NetworkMessages::ReplyCharacterId>(m_pBitStream);
-      u32 id = msgReplyCharacterId->id();
 
-      HandleReplyCharacterId(id);
+      HandleReplyCharacterId(msgReplyCharacterId);
     }
     break;
 
@@ -208,7 +207,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
       NetworkMessages::Character *msgCharacter = ParseMessage<NetworkMessages::Character>(m_pBitStream);
 
-      NetworkMessages::Position msgCharacterPosition = msgCharacter->position(0);
+      NetworkMessages::Position msgCharacterPosition = msgCharacter->position();
 
       Vector3 posCharacter;
       posCharacter.x = msgCharacterPosition.x();
@@ -399,17 +398,13 @@ void Client::HandleRequestCharacterInfo()
 {
   NetworkMessages::ReplyCharacterInfo msgReplyCharacterInfo;
 
-  NetworkMessages::Character *msgPlayer         = msgReplyCharacterInfo.add_player();
-  NetworkMessages::Character *msgPet            = msgPlayer->add_minion();
-  NetworkMessages::Position  *msgPlayerPosition = msgPlayer->add_position();
+  NetworkMessages::Character *msgPlayer         = msgReplyCharacterInfo.mutable_player();
+  NetworkMessages::Position  *msgPlayerPosition = msgPlayer->mutable_position();
 
   // Add the player information
   CPlayer *player = gameClient->pCPlayer;
   string playerName(player->characterName.begin(), player->characterName.end());
   playerName.assign(player->characterName.begin(), player->characterName.end());
-
-  msgPet->set_guid(player->GUID);
-  msgPet->set_name(playerName);
 
   msgPlayer->set_guid(player->GUID);
   msgPlayer->set_name(playerName);
@@ -418,18 +413,44 @@ void Client::HandleRequestCharacterInfo()
   msgPlayerPosition->set_y(player->position.y);
   msgPlayerPosition->set_z(player->position.z);
 
+  // Add Minions
+  vector<CCharacter*> *minionList = gameClient->pCPlayer->GetMinions();
+  vector<CCharacter*>::iterator itr;
+  for (itr = minionList->begin(); itr != minionList->end(); itr++) {
+    string petName((*itr)->characterName.begin(), (*itr)->characterName.end());
+    petName.assign((*itr)->characterName.begin(), (*itr)->characterName.end());
+
+    NetworkMessages::Character *msgPet = msgPlayer->add_minion();
+    msgPet->set_guid((*itr)->GUID);
+    msgPet->set_name(petName);
+  }
+
   Client::getSingleton().SendMessage<NetworkMessages::ReplyCharacterInfo>(C_REPLY_CHARINFO, &msgReplyCharacterInfo);
 }
 
 // Receives a Character Network ID from the server to apply to our character
 // This is really a special message since the Client creates the player without the server
 // telling it to
-void Client::HandleReplyCharacterId(u32 id)
+void Client::HandleReplyCharacterId(TLMP::NetworkMessages::ReplyCharacterId *msgReplyCharacterId)
 {
   CPlayer *player = gameClient->pCPlayer;
 
-  NetworkEntity *newEntity = new NetworkEntity(player, id);
-  NetworkSharedCharacters->push_back(newEntity);
+  // Update our player or minion with the Network ID
+  if (player->GUID == msgReplyCharacterId->guid()) {
+    NetworkEntity *newEntity = new NetworkEntity(player, msgReplyCharacterId->id());
+    NetworkSharedCharacters->push_back(newEntity);
+  } else {
+    vector<CCharacter*> *minions = player->GetMinions();
+    vector<CCharacter*>::iterator itr;
+    for (itr = minions->begin(); itr != minions->end(); itr++) {
+      if ((*itr)->GUID == msgReplyCharacterId->guid()) {
+        NetworkEntity *newEntity = new NetworkEntity((*itr), msgReplyCharacterId->id());
+        NetworkSharedCharacters->push_back(newEntity);
+
+        break;
+      }
+    }
+  }  
 }
 
 // Pushes player inventory equipment list to the server to create
