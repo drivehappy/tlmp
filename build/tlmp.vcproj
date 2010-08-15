@@ -110,6 +110,10 @@
 				RelativePath="..\src\Logger.h"
 				>
 			</File>
+			<File
+				RelativePath="..\src\Multiplayer.h"
+				>
+			</File>
 			<Filter
 				Name="Network"
 				>
@@ -192,10 +196,6 @@
 			</File>
 			<File
 				RelativePath="..\src\Multiplayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\Multiplayer.h"
 				>
 			</File>
 			<Filter
