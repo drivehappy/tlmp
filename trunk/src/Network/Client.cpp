@@ -497,9 +497,18 @@ void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, st
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
   CLevel *level = gameClient->pCLevel;
 
+  // Create the monster, setup name and alignment
   Client::getSingleton().SetSuppressed_CharacterCreation(false);
   CMonster* monster = resourceManager->CreateMonster(guidCharacter, 1, true);
-  level->CharacterInitialize(monster, &posCharacter, 0);
+  
+  if (monster) {
+    monster->characterName.assign(convertAcsiiToWide(characterName));
+    monster->SetAlignment(1);
+    level->CharacterInitialize(monster, &posCharacter, 0);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
+  }
+
   Client::getSingleton().SetSuppressed_CharacterCreation(true);
 
   // Create a network ID to identify this monster later
