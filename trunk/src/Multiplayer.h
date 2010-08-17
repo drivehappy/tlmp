@@ -38,8 +38,8 @@ namespace TLMP
   void Character_Ctor(CCharacter*);
   void Character_SetAlignment(CCharacter*, u32);
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
-  void Character_PickupEquipmentPre(CCharacter*, CEquipment*, CLevel*);
-  void Character_PickupEquipmentPost(CCharacter*, CEquipment*, CLevel*);
+  void Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
+  void Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
 
   // Post Event for equipment initialization
   void Equipment_Ctor(CEquipment*);
@@ -49,8 +49,8 @@ namespace TLMP
   
   // Pre Event for player initialization
   void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
-  void Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal);
-  void Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal);
+  void Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool&);
+  void Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipment(CEquipment*, CInventory*, CEquipment*, u32, u32, bool&);
