@@ -632,30 +632,35 @@ void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEq
 
   // Server
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
-    NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+    // If we're not suppressed to send this out - 
+    // The reason this would be suppressed if a character had sent a Pickup message,
+    // That triggers an Equip then a Pickup message on the client, causing a phantom item in the inventory
+    if (!Server::getSingleton().GetSuppressed_SendEquipmentEquip()) {
+      NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
+      NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
 
-    if (ownerEntity) {
-      if (equipmentEntity) {
-        // Create a Network Message for sending off to clients the equipment addition to the inventory
-        NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-        msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
-        msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
-        msgInventoryAddEquipment.set_slot(slot);
-        msgInventoryAddEquipment.set_unk0(unk0);
+      if (ownerEntity) {
+        if (equipmentEntity) {
+          // Create a Network Message for sending off to clients the equipment addition to the inventory
+          NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+          msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
+          msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
+          msgInventoryAddEquipment.set_slot(slot);
+          msgInventoryAddEquipment.set_unk0(unk0);
 
-        Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryAddEquipment>(S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+          Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryAddEquipment>(S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+        } else {
+          multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
+            equipment);
+          log(L"Could not find NetworkEntity for equipment: %p",
+            equipment);
+        }
       } else {
-        multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
-          equipment);
-        log(L"Could not find NetworkEntity for equipment: %p",
-          equipment);
+        multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
+          inventory, owner);
+        log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
+          inventory, owner);
       }
-    } else {
-      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
-        inventory, owner);
-      log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
-        inventory, owner);
     }
   }
   
@@ -714,34 +719,47 @@ void TLMP::Inventory_RemoveEquipment(CInventory* inventory, CEquipment* equipmen
   }
 }
 
-void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level)
+void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  log(L"Level picking up Equipment Pre:");
+  log(L"Character picking up Equipment Pre:");
 
   multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
     character, equipment->nameReal.c_str(), level);
   log(L"Character::PickupEquipment(%p) (%s) (Level: %p)",
     character, equipment->nameReal.c_str(), level);
 
-  // Turn off suppression if we're the client
+  // If the client is requesting a pickup, request the server first
+  // The server will respond with a pickup message
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    Client::getSingleton().SetSuppressed_EquipmentCreation(false);
+    if (Client::getSingleton().GetSuppressed_EquipmentPickup()) {
+      if (!Client::getSingleton().Get_IsSendingPickup()) {
+        // Send the server a message requesting our character to pickup the item
+        NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
+        NetworkEntity *netEquipment = searchEquipmentByInternalObject((PVOID)equipment);
+
+        if (!netPlayer) {
+          multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
+          log(L"Error: Could not retrieve network entity of character for equipment pickup!");
+        } else if (!netEquipment) {
+          multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of equipment for equipment pickup!");
+          log(L"Error: Could not retrieve network entity of equipment for equipment pickup!");
+        } else {
+          NetworkMessages::EquipmentPickup msgEquipmentPickup;
+          msgEquipmentPickup.set_characterid(netPlayer->getCommonId());
+          msgEquipmentPickup.set_equipmentid(netEquipment->getCommonId());
+
+          Client::getSingleton().SendMessage<NetworkMessages::EquipmentPickup>(C_PUSH_EQUIPMENT_PICKUP, &msgEquipmentPickup);
+          Client::getSingleton().Set_IsSendingPickup(true);
+        }
+      }
+
+      calloriginal = false;
+    } else {
+      Client::getSingleton().SetSuppressed_EquipmentCreation(false);
+    }
   }
-}
-
-void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level)
-{
-  log(L"Level picking up Equipment Post:");
-
-  multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
-    character, equipment->nameReal.c_str(), level);
-  log(L"Character::PickupEquipment(%p) (%s) (Level: %p)",
-    character, equipment->nameReal.c_str(), level);
-  
-  // Turn on suppression again if we're the client
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    Client::getSingleton().SetSuppressed_EquipmentCreation(true);
-  } else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+  // Send the message off to the clients
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
     NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
 
@@ -752,6 +770,7 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
         msgEquipmentPickup.set_equipmentid(netEquipment->getCommonId());
 
         Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentPickup>(S_PUSH_EQUIPMENT_PICKUP, &msgEquipmentPickup);
+        Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
       } else {
         multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Character (%s)",
           character->characterName.c_str());
@@ -765,6 +784,30 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
         equipment->nameReal.c_str());
     }
   }
+}
+
+void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
+{
+  log(L"Character picking up Equipment Post:");
+
+  multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
+    character, equipment->nameReal.c_str(), level);
+  log(L"Character::PickupEquipment(%p) (%s) (Level: %p)",
+    character, equipment->nameReal.c_str(), level);
+  
+  // Turn on suppression again if we're the client
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    // If the original call was let through...
+    if (calloriginal) {
+      Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+      Client::getSingleton().Set_IsSendingPickup(false);
+    }
+  }
+  // Server turn off suppression of Equipment Equips
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
+  }
+  
 }
 
 // Server Events

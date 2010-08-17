@@ -40,6 +40,12 @@ namespace TLMP {
       inline bool GetSuppressed_EquipmentDrop()            { return m_bSuppressNetwork_EquipmentDrop; }
       inline void SetSuppressed_EquipmentDrop(bool value)  { m_bSuppressNetwork_EquipmentDrop = value; }
 
+      inline bool GetSuppressed_EquipmentPickup()            { return m_bSuppressNetwork_EquipmentPickup; }
+      inline void SetSuppressed_EquipmentPickup(bool value)  { m_bSuppressNetwork_EquipmentPickup = value; }
+
+      inline bool Get_IsSendingPickup()                      { return m_bIsSendingPickup; }
+      inline void Set_IsSendingPickup(bool value)            { m_bIsSendingPickup = value; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -92,6 +98,8 @@ namespace TLMP {
       bool m_bSuppressNetwork_CharacterCreation;
       bool m_bSuppressNetwork_EquipmentCreation;
       bool m_bSuppressNetwork_EquipmentDrop;
+      bool m_bSuppressNetwork_EquipmentPickup;
+      bool m_bIsSendingPickup;  // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
     };
 
   };

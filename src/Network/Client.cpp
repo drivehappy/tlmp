@@ -20,6 +20,8 @@ Client::Client()
   m_bSuppressNetwork_CharacterCreation = true;
   m_bSuppressNetwork_EquipmentCreation = true;
   m_bSuppressNetwork_EquipmentDrop = false;
+  m_bSuppressNetwork_EquipmentPickup = true;
+  m_bIsSendingPickup = false;
 
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
@@ -668,7 +670,9 @@ void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
       CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
       CCharacter *character = (CCharacter *)netCharacter->getInternalObject();
 
+      SetSuppressed_EquipmentPickup(false);
       character->PickupEquipment(equipment, gameClient->pCLevel);
+      SetSuppressed_EquipmentPickup(true);
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Character from CommonId: %x", characterId);
       log(L"Error: Could not find Character from CommonId: %x", characterId);
