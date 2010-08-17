@@ -463,6 +463,8 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination)
 {
   multiplayerLogger.WriteLine(Info, L"Client received character setDestination (CommonID = %x), Position = %f, %f",
     commonId, destination.x, destination.z);
+  //log(L"Client received character setDestination (CommonID = %x), Position = %f, %f",
+  //  commonId, destination.x, destination.z);
 
   // Search for our Character given the CommonID
   NetworkEntity *entity = searchCharacterByCommonID(commonId);

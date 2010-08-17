@@ -416,7 +416,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
   if (clientCharacter) {
     clientCharacter->characterName.assign(convertAcsiiToWide(msgPlayer.name()));
-    clientCharacter->SetAlignment(2);
+    clientCharacter->SetAlignment(1);
 
     // Lock the creation so we don't resend to all the clients
     Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
@@ -454,7 +454,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     CMonster *clientMinion = resourceManager->CreateMonster(msgMinion.guid(), 1, true);
     if (clientMinion) {
       clientMinion->characterName.assign(convertAcsiiToWide(msgMinion.name()));
-      clientMinion->SetAlignment(2);
+      clientMinion->SetAlignment(1);
 
       // Lock the creation so we don't resend to all the clients
       Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
@@ -473,7 +473,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
         NetworkMessages::ReplyCharacterId msgReplyCharacterId;
         msgReplyCharacterId.set_id(entityCharacter->getCommonId());
-        msgReplyCharacterId.set_guid(clientCharacter->GUID);
+        msgReplyCharacterId.set_guid(clientMinion->GUID);
 
         Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
       }

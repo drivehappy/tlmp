@@ -40,6 +40,7 @@ void TLMP::SetupNetwork()
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
 
   CCharacter::RegisterEvent_CharacterCtor(Character_Ctor, NULL);
+  CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignment, NULL);
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
 
@@ -111,6 +112,14 @@ void TLMP::Equipment_Ctor(CEquipment* equipment)
 void TLMP::Character_Ctor(CCharacter* character)
 {
   log(L"Character::Ctor = %p", character);
+}
+
+void TLMP::Character_SetAlignment(CCharacter* character, u32 alignment)
+{
+  multiplayerLogger.WriteLine(Info, L"Setting Character (%s) Alignment = %x",
+    character->characterName.c_str(), alignment);
+  log(L"Setting Character (%s) Alignment = %x",
+    character->characterName.c_str(), alignment);
 }
 
 void TLMP::Game_Ctor(CGame* game)
@@ -238,10 +247,10 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u64 BRINK = 0xBC1E373A723411DE;
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    multiplayerLogger.WriteLine(Info, L"Client: Level::CharacterInitialize: %s",
-      character->characterName.c_str());
-    log(L"Client: Level::CharacterInitialize: %s",
-      character->characterName.c_str());
+    multiplayerLogger.WriteLine(Info, L"Client: Level::CharacterInitialize: %s (%f %f %f) unk0: %x",
+      character->characterName.c_str(), position->x, position->y, position->z, unk0);
+    log(L"Client: Level::CharacterInitialize: %s (%f %f %f) unk0: %x",
+      character->characterName.c_str(), position->x, position->y, position->z, unk0);
 
     // True, attempt to suppress the character initialization
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
@@ -261,6 +270,8 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     if (gameClient->inGame) {
       multiplayerLogger.WriteLine(Info, L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
+        character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+      log(L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
         character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
 
       // Create a network ID to identify this character later
@@ -433,7 +444,18 @@ void TLMP::Monster_Idle(CMonster* monster, float dTime, bool & calloriginal)
 
 void TLMP::Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal)
 {
-  calloriginal = false;
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    calloriginal = false;
+  }
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    if (monster->GUID == DESTROYER || monster->GUID == ALCHEMIST || monster->GUID == VANQUISHER) {
+      calloriginal = false;
+    }
+  }
 }
 
 void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float x, float z)
@@ -473,6 +495,9 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   // Send this message to all clients if this is the Server
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     if (!Server::getSingleton().GetSuppressed_SetDestination()) {
+      multiplayerLogger.WriteLine(Info, L" Sending Destination for Common: %x (%p)", commonId, character);
+      //log(L" Sending Destination for Common: %x (%p)", commonId, character);
+
       Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterDestination>(S_PUSH_CHARACTER_SETDEST, &msgCharacterDestination);
     }
   }
