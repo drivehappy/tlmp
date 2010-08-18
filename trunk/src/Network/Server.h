@@ -35,6 +35,9 @@ namespace TLMP {
       inline bool GetSuppressed_SendCharacterCreation()            { return m_bSuppressNetwork_SendCharacterCreation; }
       inline void SetSuppressed_SendCharacterCreation(bool value)  { m_bSuppressNetwork_SendCharacterCreation = value; }
       
+      inline bool GetSuppressed_SendEquipmentCreation()            { return m_bSuppressNetwork_SendEquipmentCreation; }
+      inline void SetSuppressed_SendEquipmentCreation(bool value)  { m_bSuppressNetwork_SendEquipmentCreation = value; }
+
       inline bool GetSuppressed_SendEquipmentEquip()            { return m_bSuppressNetwork_SendEquipmentEquip; }
       inline void SetSuppressed_SendEquipmentEquip(bool value)  { m_bSuppressNetwork_SendEquipmentEquip = value; }
 
@@ -75,7 +78,7 @@ namespace TLMP {
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid);
       void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination);
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
-      void HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipment);
+      void HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::NetworkMessages::Equipment *msgEquipment);
       void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
       void HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId);
 
@@ -101,6 +104,7 @@ namespace TLMP {
 
       bool m_bSuppressNetwork_SetDestination;
       bool m_bSuppressNetwork_SendCharacterCreation;
+      bool m_bSuppressNetwork_SendEquipmentCreation;
       bool m_bSuppressNetwork_SendEquipmentEquip;
       bool m_bSuppressNetwork_SendEquipmentUnequip;
     };

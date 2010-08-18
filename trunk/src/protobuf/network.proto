@@ -31,8 +31,14 @@ message Equipment {
   required int32     socketcount = 6;
   repeated Equipment gems = 7;
   repeated EnchantType enchants = 8;
+  optional int32     client_id = 9;
 }
 
+message EquipmentSetID {
+  required int64     guid = 1;
+  required int32     client_id = 2;
+  required int32     id = 3;
+}
 
 message Version {
   required int32 version = 1;
