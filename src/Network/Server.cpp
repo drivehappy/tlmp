@@ -16,6 +16,7 @@ Server::Server()
   m_bSuppressNetwork_SetDestination = false;
   m_bSuppressNetwork_SendCharacterCreation = false;
   m_bSuppressNetwork_SendEquipmentEquip = false;
+  m_bSuppressNetwork_SendEquipmentUnequip = false;
 
   m_pOnListening = NULL;
   m_pOnShutdown = NULL;
@@ -236,6 +237,13 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     break;
 
   case C_PUSH_EQUIPMENT_UNEQUIP:
+    {
+      NetworkMessages::InventoryRemoveEquipment *msgInventoryRemoveEquipment = ParseMessage<NetworkMessages::InventoryRemoveEquipment>(m_pBitStream);
+      u32 ownerId = msgInventoryRemoveEquipment->ownerid();
+      u32 equipmentId = msgInventoryRemoveEquipment->equipmentid();
+
+      HandleInventoryRemoveEquipment(ownerId, equipmentId);
+    }
     break;
 
   case C_PUSH_EQUIPMENT_USE:
@@ -515,9 +523,9 @@ void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 c
 
 void Server::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid)
 {
-  multiplayerLogger.WriteLine(Info, L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64)",
+  multiplayerLogger.WriteLine(Info, L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64X)",
     ownerId, equipmentId, slot, guid);
-  log(L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64)",
+  log(L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64X)",
     ownerId, equipmentId, slot, guid);
 
   NetworkEntity* owner = searchCharacterByCommonID(ownerId);
@@ -744,5 +752,32 @@ void Server::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
     log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
+  }
+}
+
+void Server::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
+{
+  multiplayerLogger.WriteLine(Info, L"Server received inventory remove equipment: (CharacterID = %x, EquipmentID = %x)",
+    ownerId, equipmentId);
+  log(L"Server received inventory remove equipment: (CharacterID = %x, EquipmentID = %x)",
+    ownerId, equipmentId);
+
+  NetworkEntity* owner = searchCharacterByCommonID(ownerId);
+  NetworkEntity* equipment = searchEquipmentByCommonID(equipmentId);
+
+  if (owner) {
+    if (equipment) {
+      CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
+      CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
+
+      CInventory *inventory = characterOwner->pCInventory;
+      inventory->RemoveEquipment(equipmentReal);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
+      log(L"Error: Could not find Equipment with ID = %x", equipmentId);
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
+    log(L"Error: Could not find Character with ID = %x", ownerId);
   }
 }

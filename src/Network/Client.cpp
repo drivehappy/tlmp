@@ -21,6 +21,7 @@ Client::Client()
   m_bSuppressNetwork_EquipmentCreation = true;
   m_bSuppressNetwork_EquipmentDrop = false;
   m_bSuppressNetwork_EquipmentPickup = true;
+  m_bSuppressNetwork_SendEquipmentUnequip = true;
   m_bIsSendingPickup = false;
 
   m_pOnConnected = NULL;
@@ -625,7 +626,11 @@ void Client::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
       CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
 
       CInventory *inventory = characterOwner->pCInventory;
+
+      // Suppress from sending this out again
+      SetSuppressed_SendEquipmentUnequip(false);
       inventory->RemoveEquipment(equipmentReal);
+      SetSuppressed_SendEquipmentUnequip(true);
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
       log(L"Error: Could not find Equipment with ID = %x", equipmentId);

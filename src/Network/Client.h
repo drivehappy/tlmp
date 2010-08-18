@@ -46,6 +46,10 @@ namespace TLMP {
       inline bool Get_IsSendingPickup()                      { return m_bIsSendingPickup; }
       inline void Set_IsSendingPickup(bool value)            { m_bIsSendingPickup = value; }
 
+      inline bool GetSuppressed_SendEquipmentUnequip()           { return m_bSuppressNetwork_SendEquipmentUnequip; }
+      inline void SetSuppressed_SendEquipmentUnequip(bool value) { m_bSuppressNetwork_SendEquipmentUnequip = value; }
+
+
       void ReceiveMessages();
 
       template<typename T>
@@ -99,6 +103,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_EquipmentCreation;
       bool m_bSuppressNetwork_EquipmentDrop;
       bool m_bSuppressNetwork_EquipmentPickup;
+      bool m_bSuppressNetwork_SendEquipmentUnequip;
       bool m_bIsSendingPickup;  // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
     };
 
