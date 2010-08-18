@@ -140,7 +140,8 @@ void Client::OnConnect(void *args)
   SendMessage<NetworkMessages::Player>(C_PLAYER_INFO, &player);
   */
 
-  log("[CLIENT] Connected.");
+  multiplayerLogger.WriteLine(Info, L"Client Connected.");
+  log("Client Connected.");
 }
 
 void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
@@ -148,7 +149,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   wstring msgString = convertAcsiiToWide(MessageString[msg]);
 
   multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
-  log(L"Client Received Message: %s", msgString.c_str());
+  logColor(B_GREEN, L"Client Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case S_VERSION:
@@ -198,6 +199,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::ReplyCharacterId *msgReplyCharacterId = ParseMessage<NetworkMessages::ReplyCharacterId>(m_pBitStream);
 
       HandleReplyCharacterId(msgReplyCharacterId);
+    }
+    break;
+
+  case S_REPLY_EQUIPMENT_ID:
+    {
+      NetworkMessages::EquipmentSetID *msgEquipmentSetID = ParseMessage<NetworkMessages::EquipmentSetID>(m_pBitStream);
+
+      HandleReplyEquipmentID(msgEquipmentSetID);
     }
     break;
 
@@ -429,6 +438,8 @@ void Client::HandleRequestCharacterInfo()
   }
 
   Client::getSingleton().SendMessage<NetworkMessages::ReplyCharacterInfo>(C_REPLY_CHARINFO, &msgReplyCharacterInfo);
+
+  Helper_ClientPushAllEquipment();
 }
 
 // Receives a Character Network ID from the server to apply to our character
@@ -686,4 +697,121 @@ void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
     log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
   }
+}
+
+void Client::HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmentSetID)
+{
+  u64 guid = msgEquipmentSetID->guid();
+  u32 client_id = msgEquipmentSetID->client_id();
+  u32 id = msgEquipmentSetID->id();
+
+  multiplayerLogger.WriteLine(Info, L"  Client: Received a commonID from server: %016I64X in Slot: %x  ID = %x",
+    guid, client_id, id);
+  log(L"  Client: Received a commonID from server: %016I64X in Slot: %x  ID = %x",
+    guid, client_id, id);
+
+  // Search for the matching Client ID
+  NetworkEntity *clientEquipment = searchEquipmentByClientID(client_id);
+
+  if (clientEquipment) {
+    // Remove the Client temp equipment and create the actual network ID with the
+    // appropriate common ID
+    CEquipment *equipment = (CEquipment*)clientEquipment->getInternalObject();
+    removeEquipmentByClientID(client_id);
+
+    addEquipment(equipment, id);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Expected to set common ID for client Equipment, but could not find the Equipment with Client ID = %x",
+      client_id);
+    log(L"Error: Expected to set common ID for client Equipment, but could not find the Equipment with Client ID = %x",
+      client_id);
+  }
+
+  // Set the common ID for the Equipment
+}
+
+void Client::Helper_ClientPushAllEquipment()
+{
+  // Search Player and Minion inventories for unknown Common IDs for the Network
+  // Any not found will be pushed to the server so we can get them
+
+  CPlayer *player = gameClient->pCPlayer;
+  vector<CCharacter*>* clientCharacters = Helper_ProduceClientSideCharacters(player);
+
+  multiplayerLogger.WriteLine(Info, L"Pushing all equipment to server, Client Character Count: %i",
+    clientCharacters->size());
+  logColor(B_RED, L"Pushing all equipment to server, Client Character Count: %i",
+    clientCharacters->size());
+
+  vector<CCharacter*>::iterator itr;
+  for (itr = clientCharacters->begin(); itr != clientCharacters->end(); itr++) {
+    CInventory *characterInventory = (*itr)->pCInventory;
+
+    multiplayerLogger.WriteLine(Info, L"  Moving through inventory of size: %i",
+      characterInventory->equipmentList.size);
+    log(L"  Moving through inventory of size: %i",
+      characterInventory->equipmentList.size);
+
+    for (u32 i = 0; i < characterInventory->equipmentList.size; i++) {
+      CEquipment* equipment = characterInventory->equipmentList[i]->pCEquipment;
+
+      // Check if the Equipment has a valid common ID, if not add to temp vec and push to server
+      NetworkEntity *existingEquipment = searchEquipmentByInternalObject(equipment);
+
+      if (!existingEquipment) {
+        multiplayerLogger.WriteLine(Info, L"    Equipment doesn't have a common ID, creating temp and pushing to server.");
+        log(L"    Equipment doesn't have a common ID, creating temp and pushing to server.");
+
+        Helper_ClientPushEquipment(equipment);
+      } else {
+        multiplayerLogger.WriteLine(Info, L"    Equipment already has a Common ID of: %x",
+          existingEquipment->getCommonId());
+        log(L"    Equipment already has a Common ID of: %x",
+          existingEquipment->getCommonId());
+      }
+    }
+  }
+}
+
+void Client::Helper_ClientPushEquipment(CEquipment *equipment)
+{
+  // Add this equipment to our temporary list
+  NetworkEntity *clientEquipment = addEquipmentClientTemporary(equipment);
+
+  multiplayerLogger.WriteLine(Info, L"Pushing Equipment to Server (Client Temp ID = %x)",
+    clientEquipment->getCommonId());
+  log(L"Pushing Equipment to Server (Client Temp ID = %x)",
+    clientEquipment->getCommonId());
+
+  NetworkMessages::Equipment msgEquipment;
+  msgEquipment.set_guid(equipment->GUID);
+  msgEquipment.set_id(-1);
+  msgEquipment.set_stacksize(equipment->stackSize);
+  msgEquipment.set_stacksizemax(equipment->stackSizeMax);
+  msgEquipment.set_socketcount(equipment->socketCount);
+  msgEquipment.set_client_id(clientEquipment->getCommonId());     // Create a temporary client ID to identify this when we receive the common ID
+
+  // TODO: Add Enchants
+
+  Client::getSingleton().SendMessage<NetworkMessages::Equipment>(C_PUSH_EQUIPMENT, &msgEquipment);
+}
+
+vector<CCharacter*>* Client::Helper_ProduceClientSideCharacters(CCharacter *character)
+{
+  vector<CCharacter*>* retval = new vector<CCharacter*>();
+  vector<CCharacter*>* minions = character->GetMinions();
+  vector<CCharacter*>* minionList;
+
+  retval->push_back(character);
+
+  vector<CCharacter*>::iterator itr, itrMinion;
+  for (itr = minions->begin(); itr != minions->end(); itr++) {
+    minionList = Helper_ProduceClientSideCharacters((*itr));
+    for (itrMinion = minionList->begin(); itrMinion != minionList->end(); itrMinion++) {
+      retval->push_back((*itrMinion));
+    }
+    delete minionList;
+  }
+
+  return retval;
 }

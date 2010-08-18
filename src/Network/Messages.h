@@ -37,6 +37,7 @@ namespace TLMP {
       S_REPLY_CHARID,               // Server Respone for setting Character Network ID
 
       C_PUSH_EQUIPMENT,             // Client Pushes it's Suppressed Player's Equipment to server
+      S_REPLY_EQUIPMENT_ID,         // Server Respone to client equipment with the common ID
 
       S_PUSH_NEWCHAR,               // Server Pushes a New Character to the Client
       S_PUSH_NEWEQUIPMENT,          // Server Pushes a New Equipment
@@ -98,6 +99,7 @@ namespace TLMP {
       "S_REPLY_CHARID",
 
       "C_PUSH_EQUIPMENT",
+      "S_REPLY_EQUIPMENT_ID",
 
       "S_PUSH_NEWCHAR",
       "S_PUSH_NEWEQUIPMENT",

@@ -195,15 +195,17 @@ void TLMP::CreateEquipmentPost(CEquipment* equipment, CResourceManager* resource
 
     // --
     if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-      NetworkEntity *newEntity = addEquipment(equipment);
+      if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
+        NetworkEntity *newEntity = addEquipment(equipment);
 
-      NetworkMessages::Equipment msgEquipment;
-      msgEquipment.set_id(newEntity->getCommonId());
-      msgEquipment.set_guid(equipment->GUID);
+        NetworkMessages::Equipment msgEquipment;
+        msgEquipment.set_id(newEntity->getCommonId());
+        msgEquipment.set_guid(equipment->GUID);
 
-      // TODO Add Enchants and rest of data
+        // TODO Add Enchants and rest of data
 
-      Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
+        Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
+      }
     }
   }
 }
@@ -568,31 +570,21 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
     owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
 
   if (ownerEntity) {
-    // If the equipment hasn't yet been created for network use, do it now and send it out to the clients
+    // If the equipment hasn't yet been created for network use
+    // request the server create it and add it to the slot and reply with a network id for it
     if (!equipmentEntity) {
-      equipmentEntity = addEquipment(equipment);
+      Client::getSingleton().Helper_ClientPushEquipment(equipment);
+    } else {
+      // Create a Network Message for sending off to clients the equipment addition to the inventory
+      NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+      msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
+      msgInventoryAddEquipment.set_slot(slot);
+      msgInventoryAddEquipment.set_unk0(unk);
+      msgInventoryAddEquipment.set_guid(equipment->GUID);
+      msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
 
-      NetworkMessages::Equipment msgEquipment;
-      msgEquipment.set_guid(equipment->GUID);
-      msgEquipment.set_id(equipmentEntity->getCommonId());
-      msgEquipment.set_stacksize(equipment->stackSize);
-      msgEquipment.set_stacksizemax(equipment->stackSizeMax);
-      msgEquipment.set_socketcount(equipment->socketCount);
-
-      // TODO Add Enchants
-
-      Client::getSingleton().SendMessage<NetworkMessages::Equipment>(C_PUSH_EQUIPMENT, &msgEquipment);
+      Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
     }
-
-    // Create a Network Message for sending off to clients the equipment addition to the inventory
-    NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-    msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
-    msgInventoryAddEquipment.set_slot(slot);
-    msgInventoryAddEquipment.set_unk0(unk);
-    msgInventoryAddEquipment.set_guid(equipment->GUID);
-    msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
-
-    Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
   } else {
     multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: %p (%s)",
       owner, owner->characterName.c_str());
@@ -610,23 +602,14 @@ void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEq
   log(L"  inventory->character = %p  player = %p",
     inventory->pCCharacter, gameClient->pCPlayer);
 
-  const u32 CPLAYER_BASE = 0xA80064;
-  const u32 CMONSTER_BASE = 0xA7F97C;
-
   CCharacter *owner = inventory->pCCharacter;
-  u32 ptr_base = *((u32*)owner);
 
-  // Client
+  // Client - Allow the equipment to be added to the inventory, but send it out to the server to create
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
-      //if (ptr_base != CPLAYER_BASE) {
-        calloriginal = false;
-        retval = NULL;
-
-        // If we're suppressing this, we need to send it to the Server
-        // The server will create, add the equipment and send the message back to us
-        SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
-      //}
+      // If we're suppressing this, we need to send it to the Server
+      // The server will create, add the equipment and send the message back to us with the network id
+      SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
     }
   }
 

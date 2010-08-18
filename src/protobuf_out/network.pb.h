@@ -37,6 +37,7 @@ class Position;
 class Character;
 class EnchantType;
 class Equipment;
+class EquipmentSetID;
 class Version;
 class GameHasStarted;
 class GameStarted;
@@ -520,6 +521,13 @@ class Equipment : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType >*
       mutable_enchants();
   
+  // optional int32 client_id = 9;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 9;
+  inline ::google::protobuf::int32 client_id() const;
+  inline void set_client_id(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Equipment)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -533,11 +541,12 @@ class Equipment : public ::google::protobuf::Message {
   ::google::protobuf::int32 socketcount_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment > gems_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType > enchants_;
+  ::google::protobuf::int32 client_id_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(9 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -552,6 +561,111 @@ class Equipment : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static Equipment* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class EquipmentSetID : public ::google::protobuf::Message {
+ public:
+  EquipmentSetID();
+  virtual ~EquipmentSetID();
+  
+  EquipmentSetID(const EquipmentSetID& from);
+  
+  inline EquipmentSetID& operator=(const EquipmentSetID& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EquipmentSetID& default_instance();
+  
+  void Swap(EquipmentSetID* other);
+  
+  // implements Message ----------------------------------------------
+  
+  EquipmentSetID* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EquipmentSetID& from);
+  void MergeFrom(const EquipmentSetID& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int64 guid = 1;
+  inline bool has_guid() const;
+  inline void clear_guid();
+  static const int kGuidFieldNumber = 1;
+  inline ::google::protobuf::int64 guid() const;
+  inline void set_guid(::google::protobuf::int64 value);
+  
+  // required int32 client_id = 2;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 2;
+  inline ::google::protobuf::int32 client_id() const;
+  inline void set_client_id(::google::protobuf::int32 value);
+  
+  // required int32 id = 3;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 3;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.EquipmentSetID)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int64 guid_;
+  ::google::protobuf::int32 client_id_;
+  ::google::protobuf::int32 id_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static EquipmentSetID* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -2909,6 +3023,74 @@ Equipment::enchants() const {
 inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType >*
 Equipment::mutable_enchants() {
   return &enchants_;
+}
+
+// optional int32 client_id = 9;
+inline bool Equipment::has_client_id() const {
+  return _has_bit(8);
+}
+inline void Equipment::clear_client_id() {
+  client_id_ = 0;
+  _clear_bit(8);
+}
+inline ::google::protobuf::int32 Equipment::client_id() const {
+  return client_id_;
+}
+inline void Equipment::set_client_id(::google::protobuf::int32 value) {
+  _set_bit(8);
+  client_id_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// EquipmentSetID
+
+// required int64 guid = 1;
+inline bool EquipmentSetID::has_guid() const {
+  return _has_bit(0);
+}
+inline void EquipmentSetID::clear_guid() {
+  guid_ = GOOGLE_LONGLONG(0);
+  _clear_bit(0);
+}
+inline ::google::protobuf::int64 EquipmentSetID::guid() const {
+  return guid_;
+}
+inline void EquipmentSetID::set_guid(::google::protobuf::int64 value) {
+  _set_bit(0);
+  guid_ = value;
+}
+
+// required int32 client_id = 2;
+inline bool EquipmentSetID::has_client_id() const {
+  return _has_bit(1);
+}
+inline void EquipmentSetID::clear_client_id() {
+  client_id_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 EquipmentSetID::client_id() const {
+  return client_id_;
+}
+inline void EquipmentSetID::set_client_id(::google::protobuf::int32 value) {
+  _set_bit(1);
+  client_id_ = value;
+}
+
+// required int32 id = 3;
+inline bool EquipmentSetID::has_id() const {
+  return _has_bit(2);
+}
+inline void EquipmentSetID::clear_id() {
+  id_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 EquipmentSetID::id() const {
+  return id_;
+}
+inline void EquipmentSetID::set_id(::google::protobuf::int32 value) {
+  _set_bit(2);
+  id_ = value;
 }
 
 // -------------------------------------------------------------------

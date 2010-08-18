@@ -15,6 +15,53 @@ namespace TLMP {
 
   extern vector<NetworkEntity*>* NetworkSharedEquipment;
   extern vector<NetworkEntity*>* NetworkSharedCharacters;
+  extern vector<NetworkEntity*>* ClientTemporaryEquipment;
+
+  //
+  // Client Temprorary Equipment helpers
+  static NetworkEntity* searchEquipmentClientByInternalObject(PVOID internalObject) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = ClientTemporaryEquipment->begin(); itr != ClientTemporaryEquipment->end(); itr++) {
+      if ((*itr)->getInternalObject() == internalObject) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static NetworkEntity* addEquipmentClientTemporary(PVOID equipment) {
+    NetworkEntity *entity = searchEquipmentClientByInternalObject(equipment);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(equipment);
+      ClientTemporaryEquipment->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
+  }
+
+  static NetworkEntity* searchEquipmentByClientID(u32 clientId) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = ClientTemporaryEquipment->begin(); itr != ClientTemporaryEquipment->end(); itr++) {
+      if ((*itr)->getCommonId() == clientId) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static void removeEquipmentByClientID(u32 client_id) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = ClientTemporaryEquipment->begin(); itr != ClientTemporaryEquipment->end(); itr++) {
+      if ((*itr)->getCommonId() == client_id) {
+        ClientTemporaryEquipment->erase(itr);
+        break;
+      }
+    }
+  }
 
   //
   // Equipment helpers

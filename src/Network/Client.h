@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+using namespace TLMP;
 
 namespace TLMP {
 
@@ -55,6 +56,10 @@ namespace TLMP {
       template<typename T>
       void SendMessage(Message msg, ::google::protobuf::Message *message);
 
+      void Helper_ClientPushAllEquipment();
+      void Helper_ClientPushEquipment(CEquipment *equipment);
+      vector<CCharacter*>* Helper_ProduceClientSideCharacters(CCharacter *character);
+
     protected:
       Client();
       Client(const Client&);
@@ -81,6 +86,9 @@ namespace TLMP {
       void HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId);
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
       void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
+      void HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmentSetID);
+
+      
 
       void PushEquipment();
 
