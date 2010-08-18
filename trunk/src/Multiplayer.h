@@ -54,7 +54,7 @@ namespace TLMP
 
   // Event for Inventory
   void Inventory_AddEquipment(CEquipment*, CInventory*, CEquipment*, u32, u32, bool&);
-  void Inventory_RemoveEquipment(CInventory*, CEquipment*);
+  void Inventory_RemoveEquipmentPre(CInventory*, CEquipment*);
 
   // Pre Event for MainMenu Event
   void MainMenuEventPre(CMainMenu*, u32, wstring, bool&);

@@ -45,7 +45,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
 
   CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipment, NULL);
-  CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipment, NULL);
+  CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, NULL);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -676,7 +676,7 @@ void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEq
   }
 }
 
-void TLMP::Inventory_RemoveEquipment(CInventory* inventory, CEquipment* equipment)
+void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
 {
   log(L"Inventory removing Equipment:");
 
@@ -685,37 +685,46 @@ void TLMP::Inventory_RemoveEquipment(CInventory* inventory, CEquipment* equipmen
   log(L"Inventory::RemoveEquipment(%p) (%s)",
     inventory, equipment->nameReal.c_str());
 
+  //
+  CCharacter *owner = inventory->pCCharacter;
+  NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
+  NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+
+  //
+  if (!ownerEntity) {
+    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
+      inventory, owner);
+    log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
+      inventory, owner);
+    return;
+  } else if (!equipmentEntity) {
+    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
+      equipment);
+    log(L"Could not find NetworkEntity for equipment: %p",
+      equipment);
+    return;
+  }
+
   // Client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    // TODO Send to Server
+    if (Client::getSingleton().GetSuppressed_SendEquipmentUnequip()) {
+      // Send the server that we're unequipping the equipment
+      NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
+      msgInventoryRemoveEquipment.set_ownerid(ownerEntity->getCommonId());
+      msgInventoryRemoveEquipment.set_equipmentid(equipmentEntity->getCommonId());
+
+      Client::getSingleton().SendMessage<NetworkMessages::InventoryRemoveEquipment>(C_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
+    }
   }
 
   // Server
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    CCharacter *owner = inventory->pCCharacter;
-    NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
-    NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+    // Create a Network Message for sending off to clients the equipment addition to the inventory
+    NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
+    msgInventoryRemoveEquipment.set_ownerid(ownerEntity->getCommonId());
+    msgInventoryRemoveEquipment.set_equipmentid(equipmentEntity->getCommonId());
 
-    if (ownerEntity) {
-      if (equipmentEntity) {
-        // Create a Network Message for sending off to clients the equipment addition to the inventory
-        NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
-        msgInventoryRemoveEquipment.set_ownerid(ownerEntity->getCommonId());
-        msgInventoryRemoveEquipment.set_equipmentid(equipmentEntity->getCommonId());
-
-        Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
-      } else {
-        multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
-          equipment);
-        log(L"Could not find NetworkEntity for equipment: %p",
-          equipment);
-      }
-    } else {
-      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
-        inventory, owner);
-      log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
-        inventory, owner);
-    }
+    Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
   }
 }
 
