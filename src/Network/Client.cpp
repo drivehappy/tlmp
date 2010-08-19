@@ -21,7 +21,7 @@ Client::Client()
   m_bSuppressNetwork_EquipmentCreation = true;
   m_bSuppressNetwork_EquipmentDrop = false;
   m_bSuppressNetwork_EquipmentPickup = true;
-  m_bSuppressNetwork_SendEquipmentUnequip = true;
+  m_bSuppressNetwork_SendEquipmentUnequip = false;
   m_bIsSendingPickup = false;
 
   m_pOnConnected = NULL;
@@ -149,7 +149,10 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   wstring msgString = convertAcsiiToWide(MessageString[msg]);
 
   multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
-  logColor(B_GREEN, L"Client Received Message: %s", msgString.c_str());
+
+  // For sake of less spam
+  if (msg != S_PUSH_CHARACTER_SETDEST)
+    logColor(B_GREEN, L"Client Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case S_VERSION:
@@ -639,9 +642,9 @@ void Client::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
       CInventory *inventory = characterOwner->pCInventory;
 
       // Suppress from sending this out again
-      SetSuppressed_SendEquipmentUnequip(false);
-      inventory->RemoveEquipment(equipmentReal);
       SetSuppressed_SendEquipmentUnequip(true);
+      inventory->RemoveEquipment(equipmentReal);
+      SetSuppressed_SendEquipmentUnequip(false);
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
       log(L"Error: Could not find Equipment with ID = %x", equipmentId);
