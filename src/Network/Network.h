@@ -17,6 +17,9 @@ namespace TLMP {
       void SetState(State state);
       State GetState() const;
 
+      inline bool GetSuppressed_LevelChange()            { return m_bSuppressLevelChange; }
+      inline void SetSuppressed_LevelChange(bool value)  { m_bSuppressLevelChange = value; }
+
     protected:
       NetworkState();
       NetworkState(const NetworkState&);
@@ -25,6 +28,7 @@ namespace TLMP {
 
     private:
       State   m_State;
+      bool m_bSuppressLevelChange;
     };
 
     void HostGame(u16 port);

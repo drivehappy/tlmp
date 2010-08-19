@@ -27,7 +27,7 @@ void TLMP::SetupNetwork()
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
-  CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, NULL);
+  CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, GameClient_CreateLevelPost);
   CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, NULL);
   CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, NULL);
 
@@ -364,13 +364,14 @@ void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring 
 {
   multiplayerLogger.WriteLine(Info, L"GameClient::CreateLevel Pre (%s, %s, %s)",
     unk0.c_str(), unk1.c_str(), unk5.c_str());
+  log(L"GameClient::CreateLevel Pre (%s, %s, %s)",
+    unk0.c_str(), unk1.c_str(), unk5.c_str());
 
   // Send a Message to clients that the Server's game has started
   if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     Server::getSingleton().SetGameStarted(true);
 
     NetworkMessages::GameStarted msgGameStarted;
-
     Server::getSingleton().BroadcastMessage<NetworkMessages::GameStarted>(S_PUSH_GAMESTARTED, &msgGameStarted);
   }
 
@@ -384,11 +385,41 @@ void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring 
   }
 }
 
+void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)
+{
+  if (NetworkState::getSingleton().GetState() == CLIENT ||
+    NetworkState::getSingleton().GetState() == SERVER)
+  {
+    // Force load the Player into the Town
+    wstring Town(L"TOWN");
+
+    if (gameClient->pCDungeon->name0 == Town) {
+      multiplayerLogger.WriteLine(Info, L"Player already in town (%s) (%s) (%s)",
+        unk0.c_str(), unk1.c_str(), unk5.c_str());
+      logColor(B_RED, L"Player already in town (%s) (%s) (%s)",
+        unk0.c_str(), unk1.c_str(), unk5.c_str());
+    } else {
+      multiplayerLogger.WriteLine(Info, L"Player not in town (%s), force loading... (%s) (%s) (%s)",
+        gameClient->pCDungeon->name0.c_str(), unk0.c_str(), unk1.c_str(), unk5.c_str());
+      logColor(B_RED, L"Player not in town (%s), force loading... (%s) (%s) (%s)",
+        gameClient->pCDungeon->name0.c_str(), unk0.c_str(), unk1.c_str(), unk5.c_str());
+
+      NetworkState::getSingleton().SetSuppressed_LevelChange(false);
+      gameClient->ChangeLevel(-99);
+      NetworkState::getSingleton().SetSuppressed_LevelChange(true);
+    }
+  }
+}
+
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
   // Suppress level changes
-  multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel");
-  calloriginal = false;
+  multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
+  log(L"GameClient::LoadLevel Suppressed");
+
+  if (NetworkState::getSingleton().GetSuppressed_LevelChange()) {
+    calloriginal = false;
+  }
 }
 
 void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
