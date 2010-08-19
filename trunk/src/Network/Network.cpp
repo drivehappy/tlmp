@@ -10,6 +10,7 @@ NetworkState& NetworkState::getSingleton()
 
 NetworkState::NetworkState()
 {
+  m_bSuppressLevelChange = true;
 }
 
 NetworkState::~NetworkState()
