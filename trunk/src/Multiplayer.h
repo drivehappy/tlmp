@@ -24,6 +24,8 @@ namespace TLMP
     e->retval = 1;
   };
 
+  static s32 g_iWardrobeForceSlot = -1;
+
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
@@ -53,8 +55,10 @@ namespace TLMP
   void Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool&);
 
   // Event for Inventory
-  void Inventory_AddEquipment(CEquipment*, CInventory*, CEquipment*, u32, u32, bool&);
+  void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
+  void Inventory_AddEquipmentPost(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
   void Inventory_RemoveEquipmentPre(CInventory*, CEquipment*);
+  void Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equipment);
 
   // Pre Event for MainMenu Event
   void MainMenuEventPre(CMainMenu*, u32, wstring, bool&);

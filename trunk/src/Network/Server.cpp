@@ -143,7 +143,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
   wstring msgString = convertAcsiiToWide(MessageString[msg]);
 
   multiplayerLogger.WriteLine(Info, L"Server Received Message: %s", msgString.c_str());
-  logColor(B_RED, L"Server Received Message: %s", msgString.c_str());
+  logColor(B_GREEN, L"Server Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case C_VERSION:
@@ -232,7 +232,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       u32 unk0 = msgInventoryAddEquipment->unk0();
       u64 guid = msgInventoryAddEquipment->guid();
 
-      HandleInventoryAddEquipment(ownerId, equipmentId, slot, unk0, guid);
+      HandleInventoryAddEquipment(address, ownerId, equipmentId, slot, unk0, guid);
     }
     break;
 
@@ -242,7 +242,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       u32 ownerId = msgInventoryRemoveEquipment->ownerid();
       u32 equipmentId = msgInventoryRemoveEquipment->equipmentid();
 
-      HandleInventoryRemoveEquipment(ownerId, equipmentId);
+      HandleInventoryRemoveEquipment(address, ownerId, equipmentId);
     }
     break;
 
@@ -523,7 +523,7 @@ void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 c
 }
 
 
-void Server::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid)
+void Server::HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid)
 {
   multiplayerLogger.WriteLine(Info, L"Server received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x, guid = %016I64X)",
     ownerId, equipmentId, slot, guid);
@@ -537,28 +537,40 @@ void Server::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot,
   if (owner) {
     CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
     CInventory *inventory = characterOwner->pCInventory;
+    CEquipment *equipmentReal;
 
     if (equipment) {
-      CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
-
-      inventory->AddEquipment(equipmentReal, slot, unk0);
+      equipmentReal = (CEquipment*)equipment->getInternalObject();
     } else {
       multiplayerLogger.WriteLine(Info, L"Server: Could not find Equipment with ID = %x, creating it", equipmentId);
       log(L"Server: Could not find Equipment with ID = %x, creating it", equipmentId);
 
-      CEquipment *equipmentReal = resourceManager->CreateEquipment(guid, 1, 1, 0);
+      equipmentReal = resourceManager->CreateEquipment(guid, 1, 1, 0);
   
       log(L"Server: Adding equipment to shared network equipment...");
       NetworkEntity *newEntity = addEquipment(equipmentReal, equipmentId);
-
-      multiplayerLogger.WriteLine(Info, L"Server: Added equipment.. now adding to inventory...");
-      log(L"Server: Added equipment.. now adding to inventory...");
-
-      inventory->AddEquipment(equipmentReal, slot, unk0);
-
-      multiplayerLogger.WriteLine(Info, L"Server: Done adding equipment to inventory.");
-      log(L"Server: Done adding equipment to inventory.");
     }
+
+    multiplayerLogger.WriteLine(Info, L"Server: Added equipment.. now adding to inventory...");
+    log(L"Server: Added equipment.. now adding to inventory...");
+
+    // Suppress network send
+    Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
+    inventory->AddEquipment(equipmentReal, slot, unk0);
+    Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
+
+    // And send it to the other clients
+    NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+    msgInventoryAddEquipment.set_ownerid(owner->getCommonId());
+    msgInventoryAddEquipment.set_equipmentid(equipment->getCommonId());
+    msgInventoryAddEquipment.set_slot(slot);
+    msgInventoryAddEquipment.set_unk0(unk0);
+
+    Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryAddEquipment>(clientAddress, S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+
+    //
+    multiplayerLogger.WriteLine(Info, L"Server: Done adding equipment to inventory.");
+    log(L"Server: Done adding equipment to inventory.");
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
     log(L"Error: Could not find Character with ID = %x", ownerId);
@@ -741,7 +753,7 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
 
     multiplayerLogger.WriteLine(Info, L"Server: Adding equipment to shared network equipment");
     log(L"Server: Adding equipment to shared network equipment");
-    NetworkEntity *newEntity = addEquipment(equipment, id);
+    NetworkEntity *newEntity = addEquipment(equipment);
 
     multiplayerLogger.WriteLine(Info, L"Server: Broadcasting new equipment to all other clients.");
     log(L"Server: Broadcasting new equipment to all other clients.");
@@ -784,7 +796,7 @@ void Server::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
   }
 }
 
-void Server::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
+void Server::HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId)
 {
   multiplayerLogger.WriteLine(Info, L"Server received inventory remove equipment: (CharacterID = %x, EquipmentID = %x)",
     ownerId, equipmentId);
@@ -800,7 +812,19 @@ void Server::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
       CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
 
       CInventory *inventory = characterOwner->pCInventory;
+
+      // Suppress this and send it manually
+      Server::getSingleton().SetSuppressed_SendEquipmentUnequip(true);
       inventory->RemoveEquipment(equipmentReal);
+      Server::getSingleton().SetSuppressed_SendEquipmentUnequip(false);
+
+      // And send to other clients
+      // Create a Network Message for sending off to clients the equipment addition to the inventory
+      NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
+      msgInventoryRemoveEquipment.set_ownerid(owner->getCommonId());
+      msgInventoryRemoveEquipment.set_equipmentid(equipment->getCommonId());
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(clientAddress, S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
       log(L"Error: Could not find Equipment with ID = %x", equipmentId);

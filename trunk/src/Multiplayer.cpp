@@ -44,8 +44,8 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
 
-  CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipment, NULL);
-  CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, NULL);
+  CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipmentPre, Inventory_AddEquipmentPost);
+  CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, Inventory_RemoveEquipmentPost);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -624,16 +624,20 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
   }
 }
 
-void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32 slot, u32 unk0, bool& calloriginal)
+void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
 {
-  log(L"Inventory adding Equipment: %016I64X (%s) (%p) (Owner = %s)",
-    equipment->GUID, equipment->nameReal.c_str(), inventory, inventory->pCCharacter->characterName.c_str());
-  log(L"  inventory = %p  gameClient = %p",
-    inventory, gameClient);
-  log(L"  inventory->character = %p  player = %p",
-    inventory->pCCharacter, gameClient->pCPlayer);
+  log(L"Inventory adding Equipment: %016I64X (%s) (slot = %x) (Owner = %s)",
+    equipment->GUID, equipment->nameReal.c_str(), slot, inventory->pCCharacter->characterName.c_str());
 
   CCharacter *owner = inventory->pCCharacter;
+
+  // Force the slot number for the wardrobe if this is called again
+  if (g_iWardrobeForceSlot > -1) {
+    slot = g_iWardrobeForceSlot;
+    log(L"Forcing Slot to: %x", slot);
+  } else {
+    g_iWardrobeForceSlot = slot;
+  }
 
   // Client - Allow the equipment to be added to the inventory, but send it out to the server to create
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -678,26 +682,35 @@ void TLMP::Inventory_AddEquipment(CEquipment* retval, CInventory* inventory, CEq
     }
   }
   
+  multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
+    inventory, equipment, equipment->nameReal.c_str());
+  log(L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
+    inventory, equipment, equipment->nameReal.c_str());
+}
 
-  if (calloriginal) {
-    multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipment(%p) (%p) (%s)",
-      inventory, equipment, equipment->nameReal.c_str());
-    log(L"Inventory::AddEquipment(%p) (%p) (%s)",
-      inventory, equipment, equipment->nameReal.c_str());
-  } else {
-    multiplayerLogger.WriteLine(Info, L"  Suppressed");
-    log(L"  Suppressed");
-  }
+void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
+{
+  multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPost(%p) (%p) (%s)",
+    inventory, equipment, equipment->nameReal.c_str());
+  log(L"Inventory::AddEquipmentPost(%p) (%p) (%s)",
+    inventory, equipment, equipment->nameReal.c_str());
+
+  g_iWardrobeForceSlot = -1;
 }
 
 void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
 {
-  log(L"Inventory removing Equipment:");
+  log(L"Inventory removing Equipment Pre:");
 
   multiplayerLogger.WriteLine(Info, L"Inventory::RemoveEquipment(%p) (%s)",
     inventory, equipment->nameReal.c_str());
   log(L"Inventory::RemoveEquipment(%p) (%s)",
     inventory, equipment->nameReal.c_str());
+}
+
+void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equipment)
+{
+  log(L"Inventory removing Equipment Post:");
 
   //
   CCharacter *owner = inventory->pCCharacter;
@@ -721,7 +734,9 @@ void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equip
 
   // Client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    if (Client::getSingleton().GetSuppressed_SendEquipmentUnequip()) {
+    if (!Client::getSingleton().GetSuppressed_SendEquipmentUnequip() &&
+      Client::getSingleton().GetSuppressed_EquipmentCreation())
+    {
       // Send the server that we're unequipping the equipment
       NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
       msgInventoryRemoveEquipment.set_ownerid(ownerEntity->getCommonId());
@@ -733,12 +748,16 @@ void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equip
 
   // Server
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    // Create a Network Message for sending off to clients the equipment addition to the inventory
-    NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
-    msgInventoryRemoveEquipment.set_ownerid(ownerEntity->getCommonId());
-    msgInventoryRemoveEquipment.set_equipmentid(equipmentEntity->getCommonId());
+    if (!Server::getSingleton().GetSuppressed_SendEquipmentUnequip() &&
+      !Server::getSingleton().GetSuppressed_SendEquipmentEquip()) 
+    {
+      // Create a Network Message for sending off to clients the equipment addition to the inventory
+      NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
+      msgInventoryRemoveEquipment.set_ownerid(ownerEntity->getCommonId());
+      msgInventoryRemoveEquipment.set_equipmentid(equipmentEntity->getCommonId());
 
-    Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
+      Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
+    }
   }
 }
 
