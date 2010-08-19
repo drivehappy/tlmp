@@ -76,6 +76,8 @@ message CharacterDestination {
   required int32    id = 1;
   repeated Position current = 2;
   repeated Position destination = 3;
+  required bool     running = 4;
+  required bool     attacking = 5;
 }
 
 message InventoryAddEquipment {
@@ -101,6 +103,16 @@ message EquipmentPickup {
   required int32    characterId = 1;
   required int32    equipmentId = 2;
 }
+
+message CharacterAction {
+  required int32    characterId = 1;
+  required int32    action = 2;
+}
+
+message CharacterAttack {
+  required int32    characterId = 1;
+}
+
 
 
 

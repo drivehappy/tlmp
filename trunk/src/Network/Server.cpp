@@ -269,9 +269,27 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       destination.x = msgDestination.x();
       destination.z = msgDestination.z();
 
-      HandleCharacterDestination(address, commonId, destination);
+      u8 running = msgCharacterDestination->running();
+      u8 attacking = msgCharacterDestination->attacking();
+
+      HandleCharacterDestination(address, commonId, destination, running, attacking);
     }
     break;
+
+  case C_PUSH_CHARACTER_ACTION:
+    {
+      NetworkMessages::CharacterAction *msgCharacterAction = ParseMessage<NetworkMessages::CharacterAction>(m_pBitStream);
+
+      HandleCharacterSetAction(address, msgCharacterAction);
+    }
+    break;
+
+  case C_PUSH_CHARACTER_ATTACK:
+    {
+      NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
+
+      HandleCharacterAttack(msgCharacterAttack);
+    }
 
   }
 }
@@ -504,7 +522,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 }
 
 
-void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination)
+void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination, u8 running, u8 attacking)
 {
   multiplayerLogger.WriteLine(Info, L"Server received character setDestination (CommonID = %x), Position = %f, %f",
     commonId, destination.x, destination.z);
@@ -520,6 +538,8 @@ void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 c
   CCharacter *character = (CCharacter *)entity->getInternalObject();
 
   character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
+  character->running = running;
+  character->attacking = attacking;
 }
 
 
@@ -832,5 +852,37 @@ void Server::HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Character with ID = %x", ownerId);
     log(L"Error: Could not find Character with ID = %x", ownerId);
+  }
+}
+
+void Server::HandleCharacterSetAction(const SystemAddress clientAddress, NetworkMessages::CharacterAction* msgCharacterAction)
+{
+  u32 id = msgCharacterAction->characterid();
+  u32 action = msgCharacterAction->action();
+
+  NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
+
+  if (networkCharacter) {
+    CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+    character->SetAction(action);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
+    log(L"Error: Could not find character with common id = %x", id);
+  }
+}
+
+void Server::HandleCharacterAttack(NetworkMessages::CharacterAttack* msgCharacterAttack)
+{
+  u32 id = msgCharacterAttack->characterid();
+
+  NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
+
+  if (networkCharacter) {
+    CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+
+    character->Attack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
+    log(L"Error: Could not find character with common id = %x", id);
   }
 }

@@ -52,6 +52,8 @@ class InventoryAddEquipment;
 class InventoryRemoveEquipment;
 class EquipmentDrop;
 class EquipmentPickup;
+class CharacterAction;
+class CharacterAttack;
 class Entity;
 class Item;
 class ItemDrop;
@@ -1523,6 +1525,20 @@ class CharacterDestination : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position >*
       mutable_destination();
   
+  // required bool running = 4;
+  inline bool has_running() const;
+  inline void clear_running();
+  static const int kRunningFieldNumber = 4;
+  inline bool running() const;
+  inline void set_running(bool value);
+  
+  // required bool attacking = 5;
+  inline bool has_attacking() const;
+  inline void clear_attacking();
+  static const int kAttackingFieldNumber = 5;
+  inline bool attacking() const;
+  inline void set_attacking(bool value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.CharacterDestination)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -1531,11 +1547,13 @@ class CharacterDestination : public ::google::protobuf::Message {
   ::google::protobuf::int32 id_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position > current_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Position > destination_;
+  bool running_;
+  bool attacking_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1975,6 +1993,192 @@ class EquipmentPickup : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static EquipmentPickup* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class CharacterAction : public ::google::protobuf::Message {
+ public:
+  CharacterAction();
+  virtual ~CharacterAction();
+  
+  CharacterAction(const CharacterAction& from);
+  
+  inline CharacterAction& operator=(const CharacterAction& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CharacterAction& default_instance();
+  
+  void Swap(CharacterAction* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CharacterAction* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CharacterAction& from);
+  void MergeFrom(const CharacterAction& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 characterId = 1;
+  inline bool has_characterid() const;
+  inline void clear_characterid();
+  static const int kCharacterIdFieldNumber = 1;
+  inline ::google::protobuf::int32 characterid() const;
+  inline void set_characterid(::google::protobuf::int32 value);
+  
+  // required int32 action = 2;
+  inline bool has_action() const;
+  inline void clear_action();
+  static const int kActionFieldNumber = 2;
+  inline ::google::protobuf::int32 action() const;
+  inline void set_action(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.CharacterAction)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 characterid_;
+  ::google::protobuf::int32 action_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CharacterAction* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class CharacterAttack : public ::google::protobuf::Message {
+ public:
+  CharacterAttack();
+  virtual ~CharacterAttack();
+  
+  CharacterAttack(const CharacterAttack& from);
+  
+  inline CharacterAttack& operator=(const CharacterAttack& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CharacterAttack& default_instance();
+  
+  void Swap(CharacterAttack* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CharacterAttack* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CharacterAttack& from);
+  void MergeFrom(const CharacterAttack& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 characterId = 1;
+  inline bool has_characterid() const;
+  inline void clear_characterid();
+  static const int kCharacterIdFieldNumber = 1;
+  inline ::google::protobuf::int32 characterid() const;
+  inline void set_characterid(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.CharacterAttack)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 characterid_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CharacterAttack* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -3280,6 +3484,38 @@ CharacterDestination::mutable_destination() {
   return &destination_;
 }
 
+// required bool running = 4;
+inline bool CharacterDestination::has_running() const {
+  return _has_bit(3);
+}
+inline void CharacterDestination::clear_running() {
+  running_ = false;
+  _clear_bit(3);
+}
+inline bool CharacterDestination::running() const {
+  return running_;
+}
+inline void CharacterDestination::set_running(bool value) {
+  _set_bit(3);
+  running_ = value;
+}
+
+// required bool attacking = 5;
+inline bool CharacterDestination::has_attacking() const {
+  return _has_bit(4);
+}
+inline void CharacterDestination::clear_attacking() {
+  attacking_ = false;
+  _clear_bit(4);
+}
+inline bool CharacterDestination::attacking() const {
+  return attacking_;
+}
+inline void CharacterDestination::set_attacking(bool value) {
+  _set_bit(4);
+  attacking_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // InventoryAddEquipment
@@ -3495,6 +3731,62 @@ inline ::google::protobuf::int32 EquipmentPickup::equipmentid() const {
 inline void EquipmentPickup::set_equipmentid(::google::protobuf::int32 value) {
   _set_bit(1);
   equipmentid_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// CharacterAction
+
+// required int32 characterId = 1;
+inline bool CharacterAction::has_characterid() const {
+  return _has_bit(0);
+}
+inline void CharacterAction::clear_characterid() {
+  characterid_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 CharacterAction::characterid() const {
+  return characterid_;
+}
+inline void CharacterAction::set_characterid(::google::protobuf::int32 value) {
+  _set_bit(0);
+  characterid_ = value;
+}
+
+// required int32 action = 2;
+inline bool CharacterAction::has_action() const {
+  return _has_bit(1);
+}
+inline void CharacterAction::clear_action() {
+  action_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 CharacterAction::action() const {
+  return action_;
+}
+inline void CharacterAction::set_action(::google::protobuf::int32 value) {
+  _set_bit(1);
+  action_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// CharacterAttack
+
+// required int32 characterId = 1;
+inline bool CharacterAttack::has_characterid() const {
+  return _has_bit(0);
+}
+inline void CharacterAttack::clear_characterid() {
+  characterid_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 CharacterAttack::characterid() const {
+  return characterid_;
+}
+inline void CharacterAttack::set_characterid(::google::protobuf::int32 value) {
+  _set_bit(0);
+  characterid_ = value;
 }
 
 // -------------------------------------------------------------------

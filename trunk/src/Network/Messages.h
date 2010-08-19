@@ -79,6 +79,12 @@ namespace TLMP {
 
       C_PUSH_CHARACTER_SETDEST,     // Client Pushes a Character SetDestination to Server
       S_PUSH_CHARACTER_SETDEST,     // Server Pushes a Character SetDestination to Client
+
+      C_PUSH_CHARACTER_ACTION,      // Client Pushes a Character Action
+      S_PUSH_CHARACTER_ACTION,      // Server Pushes a Character Action
+
+      C_PUSH_CHARACTER_ATTACK,      // Client Pushes a Character Attack
+      S_PUSH_CHARACTER_ATTACK,      // Server Pushes a Character Attack
     };
 
     static const char* MessageString[] = {
@@ -133,6 +139,12 @@ namespace TLMP {
                   
       "C_PUSH_CHARACTER_SETDEST",
       "S_PUSH_CHARACTER_SETDEST",
+
+      "C_PUSH_CHARACTER_ACTION",
+      "S_PUSH_CHARACTER_ACTION",
+      
+      "C_PUSH_CHARACTER_ATTACK",
+      "S_PUSH_CHARACTER_ATTACK",
     };
 
   };
