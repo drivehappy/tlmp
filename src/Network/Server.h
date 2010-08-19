@@ -45,7 +45,6 @@ namespace TLMP {
       inline void SetSuppressed_SendEquipmentUnequip(bool value) { m_bSuppressNetwork_SendEquipmentUnequip = value; }
 
 
-
       void ReceiveMessages();
 
       template<typename T>
@@ -77,11 +76,12 @@ namespace TLMP {
       void HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo);
       void HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid);
       void HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId);
-      void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination);
+      void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination, u8 running, u8 attacking);
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
       void HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::NetworkMessages::Equipment *msgEquipment);
       void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
-      
+      void HandleCharacterSetAction(const SystemAddress clientAddress, NetworkMessages::CharacterAction*);
+      void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
 
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);

@@ -23,6 +23,8 @@ Client::Client()
   m_bSuppressNetwork_EquipmentPickup = true;
   m_bSuppressNetwork_SendEquipmentUnequip = false;
   m_bIsSendingPickup = false;
+  m_bSuppressNetwork_CharacterAction = true;
+  m_bSuppressNetwork_CharacterAttack = true;
 
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
@@ -352,9 +354,29 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       destination.x = msgDestination.x();
       destination.z = msgDestination.z();
 
-      HandleCharacterDestination(id, destination);
+      u8 running = msgCharacterDestination->running();
+      u8 attacking = msgCharacterDestination->attacking();
+
+      HandleCharacterDestination(id, destination, running, attacking);
     }
     break;
+
+  case S_PUSH_CHARACTER_ACTION:
+    {
+      NetworkMessages::CharacterAction *msgCharacterAction = ParseMessage<NetworkMessages::CharacterAction>(m_pBitStream);
+
+      HandleCharacterSetAction(msgCharacterAction);
+    }
+    break;
+
+    
+  case S_PUSH_CHARACTER_ATTACK:
+    {
+      NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
+
+      HandleCharacterAttack(msgCharacterAttack);
+    }
+
   }     
 }
 
@@ -476,7 +498,7 @@ void Client::PushEquipment()
 }
 
 // Handles Character Set Destination
-void Client::HandleCharacterDestination(u32 commonId, Vector3 destination)
+void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 running, u8 attacking)
 {
   multiplayerLogger.WriteLine(Info, L"Client received character setDestination (CommonID = %x), Position = %f, %f",
     commonId, destination.x, destination.z);
@@ -499,6 +521,9 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination)
     Client::getSingleton().SetSuppressed_SetDestination(true);
     character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
     Client::getSingleton().SetSuppressed_SetDestination(false);
+
+    character->running = running;
+    character->attacking = attacking;
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Character is NULL");
     log(L"Error: Character is NULL");
@@ -817,4 +842,43 @@ vector<CCharacter*>* Client::Helper_ProduceClientSideCharacters(CCharacter *char
   }
 
   return retval;
+}
+
+void Client::HandleCharacterSetAction(NetworkMessages::CharacterAction* msgCharacterAction)
+{
+  u32 id = msgCharacterAction->characterid();
+  u32 action = msgCharacterAction->action();
+
+  NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
+
+  if (networkCharacter) {
+    CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+
+    // Stop the suppress and network request
+    Client::getSingleton().SetSuppressed_CharacterAction(false);
+    character->SetAction(action);
+    Client::getSingleton().SetSuppressed_CharacterAction(true);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
+    log(L"Error: Could not find character with common id = %x", id);
+  }
+}
+
+void Client::HandleCharacterAttack(NetworkMessages::CharacterAttack* msgCharacterAttack)
+{
+  u32 id = msgCharacterAttack->characterid();
+
+  NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
+
+  if (networkCharacter) {
+    CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+
+    // Stop the suppress and network request
+    Client::getSingleton().SetSuppressed_CharacterAttack(false);
+    character->Attack();
+    Client::getSingleton().SetSuppressed_CharacterAttack(true);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
+    log(L"Error: Could not find character with common id = %x", id);
+  }
 }

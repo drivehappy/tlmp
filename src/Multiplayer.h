@@ -39,7 +39,11 @@ namespace TLMP
   // Pre Event for Character SetDestination
   void Character_Ctor(CCharacter*);
   void Character_SetAlignment(CCharacter*, u32);
+  void Character_SetActionPre(CCharacter*, u32, bool & calloriginal);
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
+  void Character_UseSkillPre(CCharacter*, u64, bool & calloriginal);
+  void Character_SetTarget(CCharacter*, CCharacter*, bool & calloriginal);
+  void Character_AttackPre(CCharacter*, bool & calloriginal);
   void Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
   void Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
 

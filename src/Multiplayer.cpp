@@ -40,7 +40,11 @@ void TLMP::SetupNetwork()
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
 
   CCharacter::RegisterEvent_CharacterCtor(Character_Ctor, NULL);
+  CCharacter::RegisterEvent_CharacterSetAction(Character_SetActionPre, NULL);
   CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignment, NULL);
+  CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, NULL);
+  CCharacter::RegisterEvent_CharacterSetTarget(Character_SetTarget, NULL);
+  CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, NULL);
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
 
@@ -314,6 +318,20 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
 void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
 {
+  
+  /*
+  CPlayer *player = client->pCPlayer;
+  log(L"Test: target = %x", player->target);
+  log(L"Test: offset target = %x", ((u32)&player->target - (u32)player) );
+  log(L"Test: running = %x", player->running);
+  log(L"Test: offset running = %x", ((u32)&player->running - (u32)player) );
+
+  log(L"Test: moving = %x", player->moving);
+  log(L"Test: attacking = %x", player->attacking);
+  log(L"Test: offset moving = %x", ((u32)&player->moving - (u32)player) );
+  log(L"Test: offset attacking = %x", ((u32)&player->attacking - (u32)player) );
+  */
+
   // Set the started flag - don't bother checking, it's just as fast to set it
   switch (Network::NetworkState::getSingleton().GetState()) {
     case SERVER:
@@ -517,7 +535,8 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   }
 
   msgCharacterDestination.set_id(commonId);
-
+  msgCharacterDestination.set_running(character->running);
+  msgCharacterDestination.set_attacking(character->attacking);
 
   // Send a Network message off to the server if we're a client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -633,8 +652,12 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
 
   // Force the slot number for the wardrobe if this is called again
   if (g_iWardrobeForceSlot > -1) {
+    log(L"Forcing Slot to: %x", g_iWardrobeForceSlot);
+    log(L"  Equipment in old slot (%x) = %p", slot, inventory->GetEquipmentFromSlot(slot));
+
     slot = g_iWardrobeForceSlot;
-    log(L"Forcing Slot to: %x", slot);
+    
+    log(L"  Equipment in new slot (%x) = %p", slot, inventory->GetEquipmentFromSlot(slot));
   } else {
     g_iWardrobeForceSlot = slot;
   }
@@ -850,6 +873,102 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
   }
   
+}
+
+void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & calloriginal)
+{
+  multiplayerLogger.WriteLine(Info, L"Character::SetActionPre(%s, %x)", character->characterName.c_str(), action);
+  log(L"Character::SetActionPre(%s %x)", character->characterName.c_str(), action);
+
+  // Client - Requests the set action from the server
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (Client::getSingleton().GetSuppressed_CharacterAction()) {
+      calloriginal = false;
+
+      NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
+
+      if (networkCharacter) {
+        NetworkMessages::CharacterAction msgCharacterAction;
+        msgCharacterAction.set_characterid(networkCharacter->getCommonId());
+        msgCharacterAction.set_action(action);
+
+        Client::getSingleton().SendMessage<NetworkMessages::CharacterAction>(C_PUSH_CHARACTER_ACTION, &msgCharacterAction);
+      } else {
+        multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
+        //log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
+      }
+    }
+  }
+
+  // Server - Always send this out to every client becuase it's request-based
+  else if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
+
+    if (networkCharacter) {
+      NetworkMessages::CharacterAction msgCharacterAction;
+      msgCharacterAction.set_characterid(networkCharacter->getCommonId());
+      msgCharacterAction.set_action(action);
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAction>(S_PUSH_CHARACTER_ACTION, &msgCharacterAction);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
+      log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
+    }
+  }
+}
+
+void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
+{
+  multiplayerLogger.WriteLine(Info, L"Character (%s) used skill: %016I64X", character->characterName.c_str(), skillGUID);
+  log(L"Character (%s) used skill: %016I64X", character->characterName.c_str(), skillGUID);
+}
+
+void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool & calloriginal)
+{
+  if (target != NULL) {
+    multiplayerLogger.WriteLine(Info, L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
+    log(L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
+  }
+}
+
+void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
+{
+  multiplayerLogger.WriteLine(Info, L"Character (%s) Set Attack Pre", character->characterName.c_str());
+  log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
+
+  // Client - Requests the set action from the server
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (Client::getSingleton().GetSuppressed_CharacterAttack()) {
+      calloriginal = false;
+
+      NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
+
+      if (networkCharacter) {
+        NetworkMessages::CharacterAttack msgCharacterAttack;
+        msgCharacterAttack.set_characterid(networkCharacter->getCommonId());
+
+        Client::getSingleton().SendMessage<NetworkMessages::CharacterAttack>(C_PUSH_CHARACTER_ATTACK, &msgCharacterAttack);
+      } else {
+        multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
+        log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
+      }
+    }
+  }
+
+  // Server - Always send this out to every client becuase it's request-based
+  else if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
+
+    if (networkCharacter) {
+      NetworkMessages::CharacterAttack msgCharacterAttack;
+      msgCharacterAttack.set_characterid(networkCharacter->getCommonId());
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAttack>(S_PUSH_CHARACTER_ATTACK, &msgCharacterAttack);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
+      log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
+    }
+  }
 }
 
 // Server Events

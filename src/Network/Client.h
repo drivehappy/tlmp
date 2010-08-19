@@ -50,6 +50,12 @@ namespace TLMP {
       inline bool GetSuppressed_SendEquipmentUnequip()           { return m_bSuppressNetwork_SendEquipmentUnequip; }
       inline void SetSuppressed_SendEquipmentUnequip(bool value) { m_bSuppressNetwork_SendEquipmentUnequip = value; }
 
+      inline bool GetSuppressed_CharacterAction()           { return m_bSuppressNetwork_CharacterAction; }
+      inline void SetSuppressed_CharacterAction(bool value) { m_bSuppressNetwork_CharacterAction = value; }
+
+      inline bool GetSuppressed_CharacterAttack()           { return m_bSuppressNetwork_CharacterAttack; }
+      inline void SetSuppressed_CharacterAttack(bool value) { m_bSuppressNetwork_CharacterAttack = value; }
+
 
       void ReceiveMessages();
 
@@ -79,7 +85,7 @@ namespace TLMP {
       void HandleGameEnded();
       void HandleRequestCharacterInfo();
       void HandleReplyCharacterId(NetworkMessages::ReplyCharacterId *msgReplyCharacterId);
-      void HandleCharacterDestination(u32 commonId, Vector3 destination);
+      void HandleCharacterDestination(u32 commonId, Vector3 destination, u8 running, u8 attacking);
       void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId);
       void HandleEquipmentCreation(NetworkMessages::Equipment *equipment);
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0);
@@ -87,7 +93,8 @@ namespace TLMP {
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
       void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
       void HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmentSetID);
-
+      void HandleCharacterSetAction(NetworkMessages::CharacterAction*);
+      void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
       
 
       void PushEquipment();
@@ -113,6 +120,8 @@ namespace TLMP {
       bool m_bSuppressNetwork_EquipmentPickup;
       bool m_bSuppressNetwork_SendEquipmentUnequip;
       bool m_bIsSendingPickup;  // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
+      bool m_bSuppressNetwork_CharacterAction;
+      bool m_bSuppressNetwork_CharacterAttack;
     };
 
   };
