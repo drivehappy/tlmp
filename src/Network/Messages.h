@@ -85,6 +85,9 @@ namespace TLMP {
 
       C_PUSH_CHARACTER_ATTACK,      // Client Pushes a Character Attack
       S_PUSH_CHARACTER_ATTACK,      // Server Pushes a Character Attack
+
+      C_PUSH_CHARACTER_USESKILL,    // Client Pushes a Character Use Skill
+      S_PUSH_CHARACTER_USESKILL,    // Server Pushes a Character Use Skill
     };
 
     static const char* MessageString[] = {
@@ -145,6 +148,9 @@ namespace TLMP {
       
       "C_PUSH_CHARACTER_ATTACK",
       "S_PUSH_CHARACTER_ATTACK",
+      
+      "C_PUSH_CHARACTER_USESKILL",
+      "S_PUSH_CHARACTER_USESKILL",
     };
 
   };

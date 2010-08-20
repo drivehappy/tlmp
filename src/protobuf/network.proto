@@ -113,6 +113,11 @@ message CharacterAttack {
   required int32    characterId = 1;
 }
 
+message CharacterUseSkill {
+  required int32    characterId = 1;
+  required int64    skill = 2;
+}
+
 
 
 

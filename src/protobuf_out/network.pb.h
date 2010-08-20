@@ -54,6 +54,7 @@ class EquipmentDrop;
 class EquipmentPickup;
 class CharacterAction;
 class CharacterAttack;
+class CharacterUseSkill;
 class Entity;
 class Item;
 class ItemDrop;
@@ -2182,6 +2183,103 @@ class CharacterAttack : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class CharacterUseSkill : public ::google::protobuf::Message {
+ public:
+  CharacterUseSkill();
+  virtual ~CharacterUseSkill();
+  
+  CharacterUseSkill(const CharacterUseSkill& from);
+  
+  inline CharacterUseSkill& operator=(const CharacterUseSkill& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CharacterUseSkill& default_instance();
+  
+  void Swap(CharacterUseSkill* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CharacterUseSkill* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CharacterUseSkill& from);
+  void MergeFrom(const CharacterUseSkill& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 characterId = 1;
+  inline bool has_characterid() const;
+  inline void clear_characterid();
+  static const int kCharacterIdFieldNumber = 1;
+  inline ::google::protobuf::int32 characterid() const;
+  inline void set_characterid(::google::protobuf::int32 value);
+  
+  // required int64 skill = 2;
+  inline bool has_skill() const;
+  inline void clear_skill();
+  static const int kSkillFieldNumber = 2;
+  inline ::google::protobuf::int64 skill() const;
+  inline void set_skill(::google::protobuf::int64 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.CharacterUseSkill)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 characterid_;
+  ::google::protobuf::int64 skill_;
+  friend void  protobuf_AddDesc_network_2eproto();
+  friend void protobuf_AssignDesc_network_2eproto();
+  friend void protobuf_ShutdownFile_network_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CharacterUseSkill* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class Entity : public ::google::protobuf::Message {
  public:
   Entity();
@@ -3787,6 +3885,42 @@ inline ::google::protobuf::int32 CharacterAttack::characterid() const {
 inline void CharacterAttack::set_characterid(::google::protobuf::int32 value) {
   _set_bit(0);
   characterid_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// CharacterUseSkill
+
+// required int32 characterId = 1;
+inline bool CharacterUseSkill::has_characterid() const {
+  return _has_bit(0);
+}
+inline void CharacterUseSkill::clear_characterid() {
+  characterid_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 CharacterUseSkill::characterid() const {
+  return characterid_;
+}
+inline void CharacterUseSkill::set_characterid(::google::protobuf::int32 value) {
+  _set_bit(0);
+  characterid_ = value;
+}
+
+// required int64 skill = 2;
+inline bool CharacterUseSkill::has_skill() const {
+  return _has_bit(1);
+}
+inline void CharacterUseSkill::clear_skill() {
+  skill_ = GOOGLE_LONGLONG(0);
+  _clear_bit(1);
+}
+inline ::google::protobuf::int64 CharacterUseSkill::skill() const {
+  return skill_;
+}
+inline void CharacterUseSkill::set_skill(::google::protobuf::int64 value) {
+  _set_bit(1);
+  skill_ = value;
 }
 
 // -------------------------------------------------------------------

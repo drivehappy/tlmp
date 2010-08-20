@@ -291,6 +291,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       HandleCharacterAttack(msgCharacterAttack);
     }
 
+  case C_PUSH_CHARACTER_USESKILL:
+    {
+      NetworkMessages::CharacterUseSkill *msgCharacterUseSkill = ParseMessage<NetworkMessages::CharacterUseSkill>(m_pBitStream);
+
+      HandleCharacterUseSkill(msgCharacterUseSkill);
+    }
+    break;
+
   }
 }
 
@@ -331,8 +339,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 
     multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
       character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
-    log(L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
-      character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
+    log(L"Server: Pushing existing Character (%p %016I64X %i %s) out to client that just joined...",
+      character, character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
 
     string characterName(character->characterName.begin(), character->characterName.end());
     characterName.assign(character->characterName.begin(), character->characterName.end());
@@ -881,6 +889,24 @@ void Server::HandleCharacterAttack(NetworkMessages::CharacterAttack* msgCharacte
     CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
 
     character->Attack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
+    log(L"Error: Could not find character with common id = %x", id);
+  }
+}
+
+void Server::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgCharacterUseSkill)
+{
+  u32 id = msgCharacterUseSkill->characterid();
+  u64 skill = msgCharacterUseSkill->skill();
+
+  NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
+
+  if (networkCharacter) {
+    CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+
+    // Stop the suppress and network request
+    character->UseSkill(skill);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);
