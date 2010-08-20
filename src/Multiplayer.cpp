@@ -567,7 +567,6 @@ void TLMP::Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 
 
 void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
 {
-  log(L"Level dropping EquipmentPost:");
   multiplayerLogger.WriteLine(Info, L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
   log(L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
@@ -853,7 +852,7 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 
 void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  log(L"Character picking up Equipment Post:");
+  log(L"Character picking up Equipment Post: %p", equipment);
 
   multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
     character, equipment->nameReal.c_str(), level);
@@ -921,8 +920,12 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    multiplayerLogger.WriteLine(Info, L"Character (%s) used skill pre: %016I64X", character->characterName.c_str(), skillGUID);
-    log(L"Character (%s) used skill pre: %016I64X", character->characterName.c_str(), skillGUID);
+    log(L"Test: Character Mana: %i", character->mana);
+
+    multiplayerLogger.WriteLine(Info, L"Character (%s) used skill pre: (%016I64X)",
+      character->characterName.c_str(), skillGUID);
+    log(L"Character (%s) used skill pre: (%016I64X)",
+      character->characterName.c_str(), skillGUID);
 
     // If the client is requesting a pickup, request the server first
     // The server will respond with a pickup message
@@ -972,8 +975,12 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
 void TLMP::Character_UseSkillPost(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    multiplayerLogger.WriteLine(Info, L"Character (%s) used skill post: %016I64X (Mana = %i)", character->characterName.c_str(), skillGUID, character->mana);
-    log(L"Character (%s) used skill post: %016I64X (Mana = %i)", character->characterName.c_str(), skillGUID, character->mana);
+    log(L"Test: Character Mana: %i", character->mana);
+
+    multiplayerLogger.WriteLine(Info, L"Character (%s) used skill post: (%016I64X)",
+      character->characterName.c_str(), skillGUID);
+    log(L"Character (%s) used skill post: (%016I64X)",
+      character->characterName.c_str(), skillGUID);
 
     // Turn on suppression again if we're the client
     if (Network::NetworkState::getSingleton().GetState() == CLIENT) {

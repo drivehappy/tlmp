@@ -266,6 +266,20 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 id() const;
   inline void set_id(::google::protobuf::int32 value);
   
+  // required int32 health = 6;
+  inline bool has_health() const;
+  inline void clear_health();
+  static const int kHealthFieldNumber = 6;
+  inline ::google::protobuf::int32 health() const;
+  inline void set_health(::google::protobuf::int32 value);
+  
+  // required int32 mana = 7;
+  inline bool has_mana() const;
+  inline void clear_mana();
+  static const int kManaFieldNumber = 7;
+  inline ::google::protobuf::int32 mana() const;
+  inline void set_mana(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Character)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -277,11 +291,13 @@ class Character : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Character > minion_;
   ::TLMP::NetworkMessages::Position* position_;
   ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 health_;
+  ::google::protobuf::int32 mana_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -531,6 +547,85 @@ class Equipment : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 client_id() const;
   inline void set_client_id(::google::protobuf::int32 value);
   
+  // required int32 physical_damage_min = 10;
+  inline bool has_physical_damage_min() const;
+  inline void clear_physical_damage_min();
+  static const int kPhysicalDamageMinFieldNumber = 10;
+  inline ::google::protobuf::int32 physical_damage_min() const;
+  inline void set_physical_damage_min(::google::protobuf::int32 value);
+  
+  // required int32 physical_damage_max = 11;
+  inline bool has_physical_damage_max() const;
+  inline void clear_physical_damage_max();
+  static const int kPhysicalDamageMaxFieldNumber = 11;
+  inline ::google::protobuf::int32 physical_damage_max() const;
+  inline void set_physical_damage_max(::google::protobuf::int32 value);
+  
+  // optional string name_unidentified = 12;
+  inline bool has_name_unidentified() const;
+  inline void clear_name_unidentified();
+  static const int kNameUnidentifiedFieldNumber = 12;
+  inline const ::std::string& name_unidentified() const;
+  inline void set_name_unidentified(const ::std::string& value);
+  inline void set_name_unidentified(const char* value);
+  inline void set_name_unidentified(const char* value, size_t size);
+  inline ::std::string* mutable_name_unidentified();
+  
+  // optional string name_prefix = 13;
+  inline bool has_name_prefix() const;
+  inline void clear_name_prefix();
+  static const int kNamePrefixFieldNumber = 13;
+  inline const ::std::string& name_prefix() const;
+  inline void set_name_prefix(const ::std::string& value);
+  inline void set_name_prefix(const char* value);
+  inline void set_name_prefix(const char* value, size_t size);
+  inline ::std::string* mutable_name_prefix();
+  
+  // optional string name_suffix = 14;
+  inline bool has_name_suffix() const;
+  inline void clear_name_suffix();
+  static const int kNameSuffixFieldNumber = 14;
+  inline const ::std::string& name_suffix() const;
+  inline void set_name_suffix(const ::std::string& value);
+  inline void set_name_suffix(const char* value);
+  inline void set_name_suffix(const char* value, size_t size);
+  inline ::std::string* mutable_name_suffix();
+  
+  // required int32 req_level = 15;
+  inline bool has_req_level() const;
+  inline void clear_req_level();
+  static const int kReqLevelFieldNumber = 15;
+  inline ::google::protobuf::int32 req_level() const;
+  inline void set_req_level(::google::protobuf::int32 value);
+  
+  // required int32 req_strength = 16;
+  inline bool has_req_strength() const;
+  inline void clear_req_strength();
+  static const int kReqStrengthFieldNumber = 16;
+  inline ::google::protobuf::int32 req_strength() const;
+  inline void set_req_strength(::google::protobuf::int32 value);
+  
+  // required int32 req_dexterity = 17;
+  inline bool has_req_dexterity() const;
+  inline void clear_req_dexterity();
+  static const int kReqDexterityFieldNumber = 17;
+  inline ::google::protobuf::int32 req_dexterity() const;
+  inline void set_req_dexterity(::google::protobuf::int32 value);
+  
+  // required int32 req_magic = 18;
+  inline bool has_req_magic() const;
+  inline void clear_req_magic();
+  static const int kReqMagicFieldNumber = 18;
+  inline ::google::protobuf::int32 req_magic() const;
+  inline void set_req_magic(::google::protobuf::int32 value);
+  
+  // required int32 req_defense = 19;
+  inline bool has_req_defense() const;
+  inline void clear_req_defense();
+  static const int kReqDefenseFieldNumber = 19;
+  inline ::google::protobuf::int32 req_defense() const;
+  inline void set_req_defense(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.NetworkMessages.Equipment)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -545,11 +640,24 @@ class Equipment : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::Equipment > gems_;
   ::google::protobuf::RepeatedPtrField< ::TLMP::NetworkMessages::EnchantType > enchants_;
   ::google::protobuf::int32 client_id_;
+  ::google::protobuf::int32 physical_damage_min_;
+  ::google::protobuf::int32 physical_damage_max_;
+  ::std::string* name_unidentified_;
+  static const ::std::string _default_name_unidentified_;
+  ::std::string* name_prefix_;
+  static const ::std::string _default_name_prefix_;
+  ::std::string* name_suffix_;
+  static const ::std::string _default_name_suffix_;
+  ::google::protobuf::int32 req_level_;
+  ::google::protobuf::int32 req_strength_;
+  ::google::protobuf::int32 req_dexterity_;
+  ::google::protobuf::int32 req_magic_;
+  ::google::protobuf::int32 req_defense_;
   friend void  protobuf_AddDesc_network_2eproto();
   friend void protobuf_AssignDesc_network_2eproto();
   friend void protobuf_ShutdownFile_network_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(9 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(19 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -3125,6 +3233,38 @@ inline void Character::set_id(::google::protobuf::int32 value) {
   id_ = value;
 }
 
+// required int32 health = 6;
+inline bool Character::has_health() const {
+  return _has_bit(5);
+}
+inline void Character::clear_health() {
+  health_ = 0;
+  _clear_bit(5);
+}
+inline ::google::protobuf::int32 Character::health() const {
+  return health_;
+}
+inline void Character::set_health(::google::protobuf::int32 value) {
+  _set_bit(5);
+  health_ = value;
+}
+
+// required int32 mana = 7;
+inline bool Character::has_mana() const {
+  return _has_bit(6);
+}
+inline void Character::clear_mana() {
+  mana_ = 0;
+  _clear_bit(6);
+}
+inline ::google::protobuf::int32 Character::mana() const {
+  return mana_;
+}
+inline void Character::set_mana(::google::protobuf::int32 value) {
+  _set_bit(6);
+  mana_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // EnchantType
@@ -3341,6 +3481,244 @@ inline ::google::protobuf::int32 Equipment::client_id() const {
 inline void Equipment::set_client_id(::google::protobuf::int32 value) {
   _set_bit(8);
   client_id_ = value;
+}
+
+// required int32 physical_damage_min = 10;
+inline bool Equipment::has_physical_damage_min() const {
+  return _has_bit(9);
+}
+inline void Equipment::clear_physical_damage_min() {
+  physical_damage_min_ = 0;
+  _clear_bit(9);
+}
+inline ::google::protobuf::int32 Equipment::physical_damage_min() const {
+  return physical_damage_min_;
+}
+inline void Equipment::set_physical_damage_min(::google::protobuf::int32 value) {
+  _set_bit(9);
+  physical_damage_min_ = value;
+}
+
+// required int32 physical_damage_max = 11;
+inline bool Equipment::has_physical_damage_max() const {
+  return _has_bit(10);
+}
+inline void Equipment::clear_physical_damage_max() {
+  physical_damage_max_ = 0;
+  _clear_bit(10);
+}
+inline ::google::protobuf::int32 Equipment::physical_damage_max() const {
+  return physical_damage_max_;
+}
+inline void Equipment::set_physical_damage_max(::google::protobuf::int32 value) {
+  _set_bit(10);
+  physical_damage_max_ = value;
+}
+
+// optional string name_unidentified = 12;
+inline bool Equipment::has_name_unidentified() const {
+  return _has_bit(11);
+}
+inline void Equipment::clear_name_unidentified() {
+  if (name_unidentified_ != &_default_name_unidentified_) {
+    name_unidentified_->clear();
+  }
+  _clear_bit(11);
+}
+inline const ::std::string& Equipment::name_unidentified() const {
+  return *name_unidentified_;
+}
+inline void Equipment::set_name_unidentified(const ::std::string& value) {
+  _set_bit(11);
+  if (name_unidentified_ == &_default_name_unidentified_) {
+    name_unidentified_ = new ::std::string;
+  }
+  name_unidentified_->assign(value);
+}
+inline void Equipment::set_name_unidentified(const char* value) {
+  _set_bit(11);
+  if (name_unidentified_ == &_default_name_unidentified_) {
+    name_unidentified_ = new ::std::string;
+  }
+  name_unidentified_->assign(value);
+}
+inline void Equipment::set_name_unidentified(const char* value, size_t size) {
+  _set_bit(11);
+  if (name_unidentified_ == &_default_name_unidentified_) {
+    name_unidentified_ = new ::std::string;
+  }
+  name_unidentified_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Equipment::mutable_name_unidentified() {
+  _set_bit(11);
+  if (name_unidentified_ == &_default_name_unidentified_) {
+    name_unidentified_ = new ::std::string;
+  }
+  return name_unidentified_;
+}
+
+// optional string name_prefix = 13;
+inline bool Equipment::has_name_prefix() const {
+  return _has_bit(12);
+}
+inline void Equipment::clear_name_prefix() {
+  if (name_prefix_ != &_default_name_prefix_) {
+    name_prefix_->clear();
+  }
+  _clear_bit(12);
+}
+inline const ::std::string& Equipment::name_prefix() const {
+  return *name_prefix_;
+}
+inline void Equipment::set_name_prefix(const ::std::string& value) {
+  _set_bit(12);
+  if (name_prefix_ == &_default_name_prefix_) {
+    name_prefix_ = new ::std::string;
+  }
+  name_prefix_->assign(value);
+}
+inline void Equipment::set_name_prefix(const char* value) {
+  _set_bit(12);
+  if (name_prefix_ == &_default_name_prefix_) {
+    name_prefix_ = new ::std::string;
+  }
+  name_prefix_->assign(value);
+}
+inline void Equipment::set_name_prefix(const char* value, size_t size) {
+  _set_bit(12);
+  if (name_prefix_ == &_default_name_prefix_) {
+    name_prefix_ = new ::std::string;
+  }
+  name_prefix_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Equipment::mutable_name_prefix() {
+  _set_bit(12);
+  if (name_prefix_ == &_default_name_prefix_) {
+    name_prefix_ = new ::std::string;
+  }
+  return name_prefix_;
+}
+
+// optional string name_suffix = 14;
+inline bool Equipment::has_name_suffix() const {
+  return _has_bit(13);
+}
+inline void Equipment::clear_name_suffix() {
+  if (name_suffix_ != &_default_name_suffix_) {
+    name_suffix_->clear();
+  }
+  _clear_bit(13);
+}
+inline const ::std::string& Equipment::name_suffix() const {
+  return *name_suffix_;
+}
+inline void Equipment::set_name_suffix(const ::std::string& value) {
+  _set_bit(13);
+  if (name_suffix_ == &_default_name_suffix_) {
+    name_suffix_ = new ::std::string;
+  }
+  name_suffix_->assign(value);
+}
+inline void Equipment::set_name_suffix(const char* value) {
+  _set_bit(13);
+  if (name_suffix_ == &_default_name_suffix_) {
+    name_suffix_ = new ::std::string;
+  }
+  name_suffix_->assign(value);
+}
+inline void Equipment::set_name_suffix(const char* value, size_t size) {
+  _set_bit(13);
+  if (name_suffix_ == &_default_name_suffix_) {
+    name_suffix_ = new ::std::string;
+  }
+  name_suffix_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Equipment::mutable_name_suffix() {
+  _set_bit(13);
+  if (name_suffix_ == &_default_name_suffix_) {
+    name_suffix_ = new ::std::string;
+  }
+  return name_suffix_;
+}
+
+// required int32 req_level = 15;
+inline bool Equipment::has_req_level() const {
+  return _has_bit(14);
+}
+inline void Equipment::clear_req_level() {
+  req_level_ = 0;
+  _clear_bit(14);
+}
+inline ::google::protobuf::int32 Equipment::req_level() const {
+  return req_level_;
+}
+inline void Equipment::set_req_level(::google::protobuf::int32 value) {
+  _set_bit(14);
+  req_level_ = value;
+}
+
+// required int32 req_strength = 16;
+inline bool Equipment::has_req_strength() const {
+  return _has_bit(15);
+}
+inline void Equipment::clear_req_strength() {
+  req_strength_ = 0;
+  _clear_bit(15);
+}
+inline ::google::protobuf::int32 Equipment::req_strength() const {
+  return req_strength_;
+}
+inline void Equipment::set_req_strength(::google::protobuf::int32 value) {
+  _set_bit(15);
+  req_strength_ = value;
+}
+
+// required int32 req_dexterity = 17;
+inline bool Equipment::has_req_dexterity() const {
+  return _has_bit(16);
+}
+inline void Equipment::clear_req_dexterity() {
+  req_dexterity_ = 0;
+  _clear_bit(16);
+}
+inline ::google::protobuf::int32 Equipment::req_dexterity() const {
+  return req_dexterity_;
+}
+inline void Equipment::set_req_dexterity(::google::protobuf::int32 value) {
+  _set_bit(16);
+  req_dexterity_ = value;
+}
+
+// required int32 req_magic = 18;
+inline bool Equipment::has_req_magic() const {
+  return _has_bit(17);
+}
+inline void Equipment::clear_req_magic() {
+  req_magic_ = 0;
+  _clear_bit(17);
+}
+inline ::google::protobuf::int32 Equipment::req_magic() const {
+  return req_magic_;
+}
+inline void Equipment::set_req_magic(::google::protobuf::int32 value) {
+  _set_bit(17);
+  req_magic_ = value;
+}
+
+// required int32 req_defense = 19;
+inline bool Equipment::has_req_defense() const {
+  return _has_bit(18);
+}
+inline void Equipment::clear_req_defense() {
+  req_defense_ = 0;
+  _clear_bit(18);
+}
+inline ::google::protobuf::int32 Equipment::req_defense() const {
+  return req_defense_;
+}
+inline void Equipment::set_req_defense(::google::protobuf::int32 value) {
+  _set_bit(18);
+  req_defense_ = value;
 }
 
 // -------------------------------------------------------------------
