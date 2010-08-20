@@ -127,12 +127,14 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Position));
   Character_descriptor_ = file->message_type(1);
-  static const int Character_offsets_[5] = {
+  static const int Character_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, guid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, minion_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, position_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, health_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, mana_),
   };
   Character_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -163,7 +165,7 @@ void protobuf_AssignDesc_network_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EnchantType));
   Equipment_descriptor_ = file->message_type(3);
-  static const int Equipment_offsets_[9] = {
+  static const int Equipment_offsets_[19] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, guid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, slot_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, id_),
@@ -173,6 +175,16 @@ void protobuf_AssignDesc_network_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, gems_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, enchants_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, client_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, physical_damage_min_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, physical_damage_max_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, name_unidentified_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, name_prefix_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, name_suffix_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, req_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, req_strength_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, req_dexterity_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, req_magic_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Equipment, req_defense_),
   };
   Equipment_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -713,55 +725,61 @@ void protobuf_AddDesc_network_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\rnetwork.proto\022\024TLMP.NetworkMessages\"+\n"
     "\010Position\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002"
-    "(\002\"\226\001\n\tCharacter\022\014\n\004guid\030\001 \002(\003\022\014\n\004name\030\002"
+    "(\002\"\264\001\n\tCharacter\022\014\n\004guid\030\001 \002(\003\022\014\n\004name\030\002"
     " \002(\t\022/\n\006minion\030\003 \003(\0132\037.TLMP.NetworkMessa"
     "ges.Character\0220\n\010position\030\004 \002(\0132\036.TLMP.N"
-    "etworkMessages.Position\022\n\n\002id\030\005 \001(\005\";\n\013E"
-    "nchantType\022\014\n\004type\030\001 \002(\005\022\017\n\007subtype\030\002 \002("
-    "\005\022\r\n\005value\030\003 \002(\002\"\350\001\n\tEquipment\022\014\n\004guid\030\001"
-    " \002(\003\022\014\n\004slot\030\002 \001(\005\022\n\n\002id\030\003 \002(\005\022\021\n\tstacks"
-    "ize\030\004 \002(\005\022\024\n\014stacksizemax\030\005 \002(\005\022\023\n\013socke"
-    "tcount\030\006 \002(\005\022-\n\004gems\030\007 \003(\0132\037.TLMP.Networ"
-    "kMessages.Equipment\0223\n\010enchants\030\010 \003(\0132!."
-    "TLMP.NetworkMessages.EnchantType\022\021\n\tclie"
-    "nt_id\030\t \001(\005\"=\n\016EquipmentSetID\022\014\n\004guid\030\001 "
-    "\002(\003\022\021\n\tclient_id\030\002 \002(\005\022\n\n\002id\030\003 \002(\005\"\032\n\007Ve"
-    "rsion\022\017\n\007version\030\001 \002(\005\"!\n\016GameHasStarted"
-    "\022\017\n\007started\030\001 \002(\010\"\r\n\013GameStarted\"\013\n\tGame"
-    "Ended\"\013\n\tGameEnter\"\014\n\nGameExited\"\026\n\024Requ"
-    "estCharacterInfo\"E\n\022ReplyCharacterInfo\022/"
-    "\n\006player\030\001 \002(\0132\037.TLMP.NetworkMessages.Ch"
-    "aracter\",\n\020ReplyCharacterId\022\n\n\002id\030\001 \002(\005\022"
-    "\014\n\004guid\030\002 \002(\003\"\254\001\n\024CharacterDestination\022\n"
-    "\n\002id\030\001 \002(\005\022/\n\007current\030\002 \003(\0132\036.TLMP.Netwo"
-    "rkMessages.Position\0223\n\013destination\030\003 \003(\013"
-    "2\036.TLMP.NetworkMessages.Position\022\017\n\007runn"
-    "ing\030\004 \002(\010\022\021\n\tattacking\030\005 \002(\010\"g\n\025Inventor"
-    "yAddEquipment\022\017\n\007ownerId\030\001 \002(\005\022\023\n\013equipm"
-    "entId\030\002 \002(\005\022\014\n\004slot\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022"
-    "\014\n\004guid\030\005 \001(\003\"@\n\030InventoryRemoveEquipmen"
-    "t\022\017\n\007ownerId\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002(\005\""
-    "d\n\rEquipmentDrop\022\023\n\013equipmentId\030\001 \002(\005\0220\n"
-    "\010position\030\002 \003(\0132\036.TLMP.NetworkMessages.P"
-    "osition\022\014\n\004unk0\030\003 \002(\005\";\n\017EquipmentPickup"
-    "\022\023\n\013characterId\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002"
-    "(\005\"6\n\017CharacterAction\022\023\n\013characterId\030\001 \002"
-    "(\005\022\016\n\006action\030\002 \002(\005\"&\n\017CharacterAttack\022\023\n"
-    "\013characterId\030\001 \002(\005\"7\n\021CharacterUseSkill\022"
-    "\023\n\013characterId\030\001 \002(\005\022\r\n\005skill\030\002 \002(\003\"\251\001\n\006"
-    "Entity\022\n\n\002id\030\001 \002(\005\022\r\n\005level\030\002 \002(\005\022\014\n\004gui"
-    "d\030\003 \002(\003\022\017\n\007noItems\030\004 \002(\010\0223\n\013destination\030"
-    "\005 \001(\0132\036.TLMP.NetworkMessages.Position\0220\n"
-    "\010position\030\006 \003(\0132\036.TLMP.NetworkMessages.P"
-    "osition\"K\n\004Item\022\n\n\002id\030\001 \002(\005\022\014\n\004guid\030\002 \002("
-    "\003\022\r\n\005level\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n\004unk1\030\005"
-    " \002(\005\"V\n\010ItemDrop\022\n\n\002id\030\001 \002(\005\0220\n\010position"
-    "\030\002 \003(\0132\036.TLMP.NetworkMessages.Position\022\014"
-    "\n\004unk0\030\003 \002(\010\")\n\nItemPickup\022\n\n\002id\030\001 \002(\005\022\017"
-    "\n\007ownerId\030\002 \002(\005\"C\n\tItemEquip\022\n\n\002id\030\001 \002(\005"
-    "\022\014\n\004slot\030\002 \002(\005\022\017\n\007ownerId\030\003 \002(\005\022\013\n\003unk\030\004"
-    " \002(\005\"*\n\013ItemUnequip\022\n\n\002id\030\001 \002(\005\022\017\n\007owner"
-    "id\030\002 \002(\005", 2008);
+    "etworkMessages.Position\022\n\n\002id\030\005 \001(\005\022\016\n\006h"
+    "ealth\030\006 \002(\005\022\014\n\004mana\030\007 \002(\005\";\n\013EnchantType"
+    "\022\014\n\004type\030\001 \002(\005\022\017\n\007subtype\030\002 \002(\005\022\r\n\005value"
+    "\030\003 \002(\002\"\317\003\n\tEquipment\022\014\n\004guid\030\001 \002(\003\022\014\n\004sl"
+    "ot\030\002 \001(\005\022\n\n\002id\030\003 \002(\005\022\021\n\tstacksize\030\004 \002(\005\022"
+    "\024\n\014stacksizemax\030\005 \002(\005\022\023\n\013socketcount\030\006 \002"
+    "(\005\022-\n\004gems\030\007 \003(\0132\037.TLMP.NetworkMessages."
+    "Equipment\0223\n\010enchants\030\010 \003(\0132!.TLMP.Netwo"
+    "rkMessages.EnchantType\022\021\n\tclient_id\030\t \001("
+    "\005\022\033\n\023physical_damage_min\030\n \002(\005\022\033\n\023physic"
+    "al_damage_max\030\013 \002(\005\022\031\n\021name_unidentified"
+    "\030\014 \001(\t\022\023\n\013name_prefix\030\r \001(\t\022\023\n\013name_suff"
+    "ix\030\016 \001(\t\022\021\n\treq_level\030\017 \002(\005\022\024\n\014req_stren"
+    "gth\030\020 \002(\005\022\025\n\rreq_dexterity\030\021 \002(\005\022\021\n\treq_"
+    "magic\030\022 \002(\005\022\023\n\013req_defense\030\023 \002(\005\"=\n\016Equi"
+    "pmentSetID\022\014\n\004guid\030\001 \002(\003\022\021\n\tclient_id\030\002 "
+    "\002(\005\022\n\n\002id\030\003 \002(\005\"\032\n\007Version\022\017\n\007version\030\001 "
+    "\002(\005\"!\n\016GameHasStarted\022\017\n\007started\030\001 \002(\010\"\r"
+    "\n\013GameStarted\"\013\n\tGameEnded\"\013\n\tGameEnter\""
+    "\014\n\nGameExited\"\026\n\024RequestCharacterInfo\"E\n"
+    "\022ReplyCharacterInfo\022/\n\006player\030\001 \002(\0132\037.TL"
+    "MP.NetworkMessages.Character\",\n\020ReplyCha"
+    "racterId\022\n\n\002id\030\001 \002(\005\022\014\n\004guid\030\002 \002(\003\"\254\001\n\024C"
+    "haracterDestination\022\n\n\002id\030\001 \002(\005\022/\n\007curre"
+    "nt\030\002 \003(\0132\036.TLMP.NetworkMessages.Position"
+    "\0223\n\013destination\030\003 \003(\0132\036.TLMP.NetworkMess"
+    "ages.Position\022\017\n\007running\030\004 \002(\010\022\021\n\tattack"
+    "ing\030\005 \002(\010\"g\n\025InventoryAddEquipment\022\017\n\007ow"
+    "nerId\030\001 \002(\005\022\023\n\013equipmentId\030\002 \002(\005\022\014\n\004slot"
+    "\030\003 \002(\005\022\014\n\004unk0\030\004 \002(\005\022\014\n\004guid\030\005 \001(\003\"@\n\030In"
+    "ventoryRemoveEquipment\022\017\n\007ownerId\030\001 \002(\005\022"
+    "\023\n\013equipmentId\030\002 \002(\005\"d\n\rEquipmentDrop\022\023\n"
+    "\013equipmentId\030\001 \002(\005\0220\n\010position\030\002 \003(\0132\036.T"
+    "LMP.NetworkMessages.Position\022\014\n\004unk0\030\003 \002"
+    "(\005\";\n\017EquipmentPickup\022\023\n\013characterId\030\001 \002"
+    "(\005\022\023\n\013equipmentId\030\002 \002(\005\"6\n\017CharacterActi"
+    "on\022\023\n\013characterId\030\001 \002(\005\022\016\n\006action\030\002 \002(\005\""
+    "&\n\017CharacterAttack\022\023\n\013characterId\030\001 \002(\005\""
+    "7\n\021CharacterUseSkill\022\023\n\013characterId\030\001 \002("
+    "\005\022\r\n\005skill\030\002 \002(\003\"\251\001\n\006Entity\022\n\n\002id\030\001 \002(\005\022"
+    "\r\n\005level\030\002 \002(\005\022\014\n\004guid\030\003 \002(\003\022\017\n\007noItems\030"
+    "\004 \002(\010\0223\n\013destination\030\005 \001(\0132\036.TLMP.Networ"
+    "kMessages.Position\0220\n\010position\030\006 \003(\0132\036.T"
+    "LMP.NetworkMessages.Position\"K\n\004Item\022\n\n\002"
+    "id\030\001 \002(\005\022\014\n\004guid\030\002 \002(\003\022\r\n\005level\030\003 \002(\005\022\014\n"
+    "\004unk0\030\004 \002(\005\022\014\n\004unk1\030\005 \002(\005\"V\n\010ItemDrop\022\n\n"
+    "\002id\030\001 \002(\005\0220\n\010position\030\002 \003(\0132\036.TLMP.Netwo"
+    "rkMessages.Position\022\014\n\004unk0\030\003 \002(\010\")\n\nIte"
+    "mPickup\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerId\030\002 \002(\005\"C\n\t"
+    "ItemEquip\022\n\n\002id\030\001 \002(\005\022\014\n\004slot\030\002 \002(\005\022\017\n\007o"
+    "wnerId\030\003 \002(\005\022\013\n\003unk\030\004 \002(\005\"*\n\013ItemUnequip"
+    "\022\n\n\002id\030\001 \002(\005\022\017\n\007ownerid\030\002 \002(\005", 2269);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "network.proto", &protobuf_RegisterTypes);
   Position::default_instance_ = new Position();
@@ -1122,6 +1140,8 @@ const int Character::kNameFieldNumber;
 const int Character::kMinionFieldNumber;
 const int Character::kPositionFieldNumber;
 const int Character::kIdFieldNumber;
+const int Character::kHealthFieldNumber;
+const int Character::kManaFieldNumber;
 #endif  // !_MSC_VER
 
 Character::Character()
@@ -1145,6 +1165,8 @@ void Character::SharedCtor() {
   name_ = const_cast< ::std::string*>(&_default_name_);
   position_ = NULL;
   id_ = 0;
+  health_ = 0;
+  mana_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1193,6 +1215,8 @@ void Character::Clear() {
       if (position_ != NULL) position_->::TLMP::NetworkMessages::Position::Clear();
     }
     id_ = 0;
+    health_ = 0;
+    mana_ = 0;
   }
   minion_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1278,6 +1302,38 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(48)) goto parse_health;
+        break;
+      }
+      
+      // required int32 health = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_health:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &health_)));
+          _set_bit(5);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(56)) goto parse_mana;
+        break;
+      }
+      
+      // required int32 mana = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_mana:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &mana_)));
+          _set_bit(6);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1331,6 +1387,16 @@ void Character::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->id(), output);
   }
   
+  // required int32 health = 6;
+  if (_has_bit(5)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->health(), output);
+  }
+  
+  // required int32 mana = 7;
+  if (_has_bit(6)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->mana(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1373,6 +1439,16 @@ void Character::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->id(), target);
   }
   
+  // required int32 health = 6;
+  if (_has_bit(5)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->health(), target);
+  }
+  
+  // required int32 mana = 7;
+  if (_has_bit(6)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->mana(), target);
+  }
+  
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1410,6 +1486,20 @@ int Character::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->id());
+    }
+    
+    // required int32 health = 6;
+    if (has_health()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->health());
+    }
+    
+    // required int32 mana = 7;
+    if (has_mana()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->mana());
     }
     
   }
@@ -1460,6 +1550,12 @@ void Character::MergeFrom(const Character& from) {
     if (from._has_bit(4)) {
       set_id(from.id());
     }
+    if (from._has_bit(5)) {
+      set_health(from.health());
+    }
+    if (from._has_bit(6)) {
+      set_mana(from.mana());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1477,7 +1573,7 @@ void Character::CopyFrom(const Character& from) {
 }
 
 bool Character::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000000b) != 0x0000000b) return false;
+  if ((_has_bits_[0] & 0x0000006b) != 0x0000006b) return false;
   
   for (int i = 0; i < minion_size(); i++) {
     if (!this->minion(i).IsInitialized()) return false;
@@ -1495,6 +1591,8 @@ void Character::Swap(Character* other) {
     minion_.Swap(&other->minion_);
     std::swap(position_, other->position_);
     std::swap(id_, other->id_);
+    std::swap(health_, other->health_);
+    std::swap(mana_, other->mana_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1798,6 +1896,9 @@ void EnchantType::Swap(EnchantType* other) {
 
 // ===================================================================
 
+const ::std::string Equipment::_default_name_unidentified_;
+const ::std::string Equipment::_default_name_prefix_;
+const ::std::string Equipment::_default_name_suffix_;
 #ifndef _MSC_VER
 const int Equipment::kGuidFieldNumber;
 const int Equipment::kSlotFieldNumber;
@@ -1808,6 +1909,16 @@ const int Equipment::kSocketcountFieldNumber;
 const int Equipment::kGemsFieldNumber;
 const int Equipment::kEnchantsFieldNumber;
 const int Equipment::kClientIdFieldNumber;
+const int Equipment::kPhysicalDamageMinFieldNumber;
+const int Equipment::kPhysicalDamageMaxFieldNumber;
+const int Equipment::kNameUnidentifiedFieldNumber;
+const int Equipment::kNamePrefixFieldNumber;
+const int Equipment::kNameSuffixFieldNumber;
+const int Equipment::kReqLevelFieldNumber;
+const int Equipment::kReqStrengthFieldNumber;
+const int Equipment::kReqDexterityFieldNumber;
+const int Equipment::kReqMagicFieldNumber;
+const int Equipment::kReqDefenseFieldNumber;
 #endif  // !_MSC_VER
 
 Equipment::Equipment()
@@ -1833,6 +1944,16 @@ void Equipment::SharedCtor() {
   stacksizemax_ = 0;
   socketcount_ = 0;
   client_id_ = 0;
+  physical_damage_min_ = 0;
+  physical_damage_max_ = 0;
+  name_unidentified_ = const_cast< ::std::string*>(&_default_name_unidentified_);
+  name_prefix_ = const_cast< ::std::string*>(&_default_name_prefix_);
+  name_suffix_ = const_cast< ::std::string*>(&_default_name_suffix_);
+  req_level_ = 0;
+  req_strength_ = 0;
+  req_dexterity_ = 0;
+  req_magic_ = 0;
+  req_defense_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1841,6 +1962,15 @@ Equipment::~Equipment() {
 }
 
 void Equipment::SharedDtor() {
+  if (name_unidentified_ != &_default_name_unidentified_) {
+    delete name_unidentified_;
+  }
+  if (name_prefix_ != &_default_name_prefix_) {
+    delete name_prefix_;
+  }
+  if (name_suffix_ != &_default_name_suffix_) {
+    delete name_suffix_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -1876,6 +2006,30 @@ void Equipment::Clear() {
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     client_id_ = 0;
+    physical_damage_min_ = 0;
+    physical_damage_max_ = 0;
+    if (_has_bit(11)) {
+      if (name_unidentified_ != &_default_name_unidentified_) {
+        name_unidentified_->clear();
+      }
+    }
+    if (_has_bit(12)) {
+      if (name_prefix_ != &_default_name_prefix_) {
+        name_prefix_->clear();
+      }
+    }
+    if (_has_bit(13)) {
+      if (name_suffix_ != &_default_name_suffix_) {
+        name_suffix_->clear();
+      }
+    }
+    req_level_ = 0;
+    req_strength_ = 0;
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    req_dexterity_ = 0;
+    req_magic_ = 0;
+    req_defense_ = 0;
   }
   gems_.Clear();
   enchants_.Clear();
@@ -2026,6 +2180,169 @@ bool Equipment::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(80)) goto parse_physical_damage_min;
+        break;
+      }
+      
+      // required int32 physical_damage_min = 10;
+      case 10: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_physical_damage_min:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &physical_damage_min_)));
+          _set_bit(9);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(88)) goto parse_physical_damage_max;
+        break;
+      }
+      
+      // required int32 physical_damage_max = 11;
+      case 11: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_physical_damage_max:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &physical_damage_max_)));
+          _set_bit(10);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(98)) goto parse_name_unidentified;
+        break;
+      }
+      
+      // optional string name_unidentified = 12;
+      case 12: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_name_unidentified:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name_unidentified()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->name_unidentified().data(), this->name_unidentified().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(106)) goto parse_name_prefix;
+        break;
+      }
+      
+      // optional string name_prefix = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_name_prefix:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name_prefix()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->name_prefix().data(), this->name_prefix().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(114)) goto parse_name_suffix;
+        break;
+      }
+      
+      // optional string name_suffix = 14;
+      case 14: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_name_suffix:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name_suffix()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->name_suffix().data(), this->name_suffix().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(120)) goto parse_req_level;
+        break;
+      }
+      
+      // required int32 req_level = 15;
+      case 15: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_req_level:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &req_level_)));
+          _set_bit(14);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(128)) goto parse_req_strength;
+        break;
+      }
+      
+      // required int32 req_strength = 16;
+      case 16: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_req_strength:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &req_strength_)));
+          _set_bit(15);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(136)) goto parse_req_dexterity;
+        break;
+      }
+      
+      // required int32 req_dexterity = 17;
+      case 17: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_req_dexterity:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &req_dexterity_)));
+          _set_bit(16);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(144)) goto parse_req_magic;
+        break;
+      }
+      
+      // required int32 req_magic = 18;
+      case 18: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_req_magic:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &req_magic_)));
+          _set_bit(17);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(152)) goto parse_req_defense;
+        break;
+      }
+      
+      // required int32 req_defense = 19;
+      case 19: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_req_defense:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &req_defense_)));
+          _set_bit(18);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -2095,6 +2412,68 @@ void Equipment::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(9, this->client_id(), output);
   }
   
+  // required int32 physical_damage_min = 10;
+  if (_has_bit(9)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(10, this->physical_damage_min(), output);
+  }
+  
+  // required int32 physical_damage_max = 11;
+  if (_has_bit(10)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(11, this->physical_damage_max(), output);
+  }
+  
+  // optional string name_unidentified = 12;
+  if (_has_bit(11)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name_unidentified().data(), this->name_unidentified().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      12, this->name_unidentified(), output);
+  }
+  
+  // optional string name_prefix = 13;
+  if (_has_bit(12)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name_prefix().data(), this->name_prefix().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      13, this->name_prefix(), output);
+  }
+  
+  // optional string name_suffix = 14;
+  if (_has_bit(13)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name_suffix().data(), this->name_suffix().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      14, this->name_suffix(), output);
+  }
+  
+  // required int32 req_level = 15;
+  if (_has_bit(14)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(15, this->req_level(), output);
+  }
+  
+  // required int32 req_strength = 16;
+  if (_has_bit(15)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(16, this->req_strength(), output);
+  }
+  
+  // required int32 req_dexterity = 17;
+  if (_has_bit(16)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(17, this->req_dexterity(), output);
+  }
+  
+  // required int32 req_magic = 18;
+  if (_has_bit(17)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(18, this->req_magic(), output);
+  }
+  
+  // required int32 req_defense = 19;
+  if (_has_bit(18)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(19, this->req_defense(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2150,6 +2529,71 @@ void Equipment::SerializeWithCachedSizes(
   // optional int32 client_id = 9;
   if (_has_bit(8)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(9, this->client_id(), target);
+  }
+  
+  // required int32 physical_damage_min = 10;
+  if (_has_bit(9)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(10, this->physical_damage_min(), target);
+  }
+  
+  // required int32 physical_damage_max = 11;
+  if (_has_bit(10)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(11, this->physical_damage_max(), target);
+  }
+  
+  // optional string name_unidentified = 12;
+  if (_has_bit(11)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name_unidentified().data(), this->name_unidentified().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        12, this->name_unidentified(), target);
+  }
+  
+  // optional string name_prefix = 13;
+  if (_has_bit(12)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name_prefix().data(), this->name_prefix().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        13, this->name_prefix(), target);
+  }
+  
+  // optional string name_suffix = 14;
+  if (_has_bit(13)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name_suffix().data(), this->name_suffix().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        14, this->name_suffix(), target);
+  }
+  
+  // required int32 req_level = 15;
+  if (_has_bit(14)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(15, this->req_level(), target);
+  }
+  
+  // required int32 req_strength = 16;
+  if (_has_bit(15)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(16, this->req_strength(), target);
+  }
+  
+  // required int32 req_dexterity = 17;
+  if (_has_bit(16)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(17, this->req_dexterity(), target);
+  }
+  
+  // required int32 req_magic = 18;
+  if (_has_bit(17)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(18, this->req_magic(), target);
+  }
+  
+  // required int32 req_defense = 19;
+  if (_has_bit(18)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(19, this->req_defense(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -2212,6 +2656,78 @@ int Equipment::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->client_id());
+    }
+    
+    // required int32 physical_damage_min = 10;
+    if (has_physical_damage_min()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->physical_damage_min());
+    }
+    
+    // required int32 physical_damage_max = 11;
+    if (has_physical_damage_max()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->physical_damage_max());
+    }
+    
+    // optional string name_unidentified = 12;
+    if (has_name_unidentified()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name_unidentified());
+    }
+    
+    // optional string name_prefix = 13;
+    if (has_name_prefix()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name_prefix());
+    }
+    
+    // optional string name_suffix = 14;
+    if (has_name_suffix()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name_suffix());
+    }
+    
+    // required int32 req_level = 15;
+    if (has_req_level()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->req_level());
+    }
+    
+    // required int32 req_strength = 16;
+    if (has_req_strength()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->req_strength());
+    }
+    
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    // required int32 req_dexterity = 17;
+    if (has_req_dexterity()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->req_dexterity());
+    }
+    
+    // required int32 req_magic = 18;
+    if (has_req_magic()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->req_magic());
+    }
+    
+    // required int32 req_defense = 19;
+    if (has_req_defense()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->req_defense());
     }
     
   }
@@ -2282,6 +2798,38 @@ void Equipment::MergeFrom(const Equipment& from) {
     if (from._has_bit(8)) {
       set_client_id(from.client_id());
     }
+    if (from._has_bit(9)) {
+      set_physical_damage_min(from.physical_damage_min());
+    }
+    if (from._has_bit(10)) {
+      set_physical_damage_max(from.physical_damage_max());
+    }
+    if (from._has_bit(11)) {
+      set_name_unidentified(from.name_unidentified());
+    }
+    if (from._has_bit(12)) {
+      set_name_prefix(from.name_prefix());
+    }
+    if (from._has_bit(13)) {
+      set_name_suffix(from.name_suffix());
+    }
+    if (from._has_bit(14)) {
+      set_req_level(from.req_level());
+    }
+    if (from._has_bit(15)) {
+      set_req_strength(from.req_strength());
+    }
+  }
+  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    if (from._has_bit(16)) {
+      set_req_dexterity(from.req_dexterity());
+    }
+    if (from._has_bit(17)) {
+      set_req_magic(from.req_magic());
+    }
+    if (from._has_bit(18)) {
+      set_req_defense(from.req_defense());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2299,7 +2847,7 @@ void Equipment::CopyFrom(const Equipment& from) {
 }
 
 bool Equipment::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000003d) != 0x0000003d) return false;
+  if ((_has_bits_[0] & 0x0007c63d) != 0x0007c63d) return false;
   
   for (int i = 0; i < gems_size(); i++) {
     if (!this->gems(i).IsInitialized()) return false;
@@ -2321,6 +2869,16 @@ void Equipment::Swap(Equipment* other) {
     gems_.Swap(&other->gems_);
     enchants_.Swap(&other->enchants_);
     std::swap(client_id_, other->client_id_);
+    std::swap(physical_damage_min_, other->physical_damage_min_);
+    std::swap(physical_damage_max_, other->physical_damage_max_);
+    std::swap(name_unidentified_, other->name_unidentified_);
+    std::swap(name_prefix_, other->name_prefix_);
+    std::swap(name_suffix_, other->name_suffix_);
+    std::swap(req_level_, other->req_level_);
+    std::swap(req_strength_, other->req_strength_);
+    std::swap(req_dexterity_, other->req_dexterity_);
+    std::swap(req_magic_, other->req_magic_);
+    std::swap(req_defense_, other->req_defense_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

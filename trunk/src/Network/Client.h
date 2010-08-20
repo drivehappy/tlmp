@@ -92,7 +92,7 @@ namespace TLMP {
       void HandleRequestCharacterInfo();
       void HandleReplyCharacterId(NetworkMessages::ReplyCharacterId *msgReplyCharacterId);
       void HandleCharacterDestination(u32 commonId, Vector3 destination, u8 running, u8 attacking);
-      void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId);
+      void HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId, u32 health, u32 mana);
       void HandleEquipmentCreation(NetworkMessages::Equipment *equipment);
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0);
       void HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId);

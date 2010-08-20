@@ -12,6 +12,8 @@ message Character {
   repeated Character minion  = 3;
   required Position  position = 4;
   optional int32     id = 5;
+  required int32     health = 6;
+  required int32     mana = 7;
 }
 
 // This handles both Affixes and Regular Types
@@ -23,15 +25,28 @@ message EnchantType {
 }
 
 message Equipment {
-  required int64     guid = 1;
-  optional int32     slot = 2;
-  required int32     id = 3;
-  required int32     stacksize = 4;
-  required int32     stacksizemax = 5;
-  required int32     socketcount = 6;
-  repeated Equipment gems = 7;
+  required int64       guid = 1;
+  optional int32       slot = 2;
+  required int32       id = 3;
+  required int32       stacksize = 4;
+  required int32       stacksizemax = 5;
+  required int32       socketcount = 6;
+  repeated Equipment   gems = 7;
   repeated EnchantType enchants = 8;
-  optional int32     client_id = 9;
+  optional int32       client_id = 9;
+  
+  required int32       physical_damage_min = 10;
+  required int32       physical_damage_max = 11;
+  optional string      name_unidentified = 12;
+  optional string      name_prefix = 13;
+  optional string      name_suffix = 14;
+  required int32       req_level = 15;
+  required int32       req_strength = 16;
+  required int32       req_dexterity = 17;
+  required int32       req_magic = 18;
+  required int32       req_defense = 19;
+  
+  // TODO: AttackDescriptors?
 }
 
 message EquipmentSetID {

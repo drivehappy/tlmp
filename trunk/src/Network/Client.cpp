@@ -235,8 +235,10 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       posCharacter.z = msgCharacterPosition.z();
 
       u32 commonId = msgCharacter->id();
+      u32 health = msgCharacter->health();
+      u32 mana = msgCharacter->mana();
 
-      HandleCharacterCreation(posCharacter, msgCharacter->guid(), msgCharacter->name(), commonId);
+      HandleCharacterCreation(posCharacter, msgCharacter->guid(), msgCharacter->name(), commonId, health, mana);
     }
     break;
 
@@ -375,9 +377,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     
   case S_PUSH_CHARACTER_ATTACK:
     {
+      /* Hold off on this for now
       NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
 
       HandleCharacterAttack(msgCharacterAttack);
+      */
     }
     break;
 
@@ -543,7 +547,7 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 ru
 }
 
 // Handles Character Creation
-void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId)
+void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId, u32 health, u32 mana)
 {
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAcsiiToWide(characterName).c_str());
@@ -559,6 +563,8 @@ void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, st
     monster->characterName.assign(convertAcsiiToWide(characterName));
     monster->SetAlignment(1);
     level->CharacterInitialize(monster, &posCharacter, 0);
+    monster->health = health;
+    monster->mana = mana;
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
   }
@@ -579,6 +585,20 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
   u32 gemCount = msgEquipment->gems_size();
   u32 enchantCount = msgEquipment->enchants_size();
 
+  u32 minPhysicalDamage = msgEquipment->physical_damage_min();
+  u32 maxPhysicalDamage = msgEquipment->physical_damage_max();
+
+  wstring nameUnidentified = convertAcsiiToWide(msgEquipment->name_unidentified());
+  wstring namePrefix = convertAcsiiToWide(msgEquipment->name_prefix());
+  wstring nameSuffix = convertAcsiiToWide(msgEquipment->name_suffix());
+
+  u32 reqLevel = msgEquipment->req_level();
+  u32 reqStrength = msgEquipment->req_strength();
+  u32 reqDexterity = msgEquipment->req_dexterity();
+  u32 reqMagic = msgEquipment->req_magic();
+  u32 reqDefense = msgEquipment->req_defense();
+
+
   multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
     id, guid, stacksize, stacksizemax, socketcount);
   log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
@@ -591,6 +611,19 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
     equipment->socketCount = socketcount;
     equipment->stackSize = stacksize;
     equipment->stackSizeMax = stacksizemax;
+
+    equipment->minimumPhysicalDamage = minPhysicalDamage;
+    equipment->maximumPhysicalDamage = maxPhysicalDamage;
+    equipment->changeMeForDamageUpdate = maxPhysicalDamage;
+
+    equipment->nameUnidentified = nameUnidentified;
+    equipment->namePrefix = namePrefix;
+    equipment->nameSuffix = nameSuffix;
+    equipment->requirements[0] = reqLevel;
+    equipment->requirements[1] = reqStrength;
+    equipment->requirements[2] = reqDexterity;
+    equipment->requirements[3] = reqMagic;
+    equipment->requirements[4] = reqDefense;
     
     multiplayerLogger.WriteLine(Info, L"Client: Adding gems to new equipment...");
     log(L"Client: Adding gems to new equipment...");
@@ -612,12 +645,16 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
       equipment->gemList.push(gem);
     }
 
-    multiplayerLogger.WriteLine(Info, L"Client: Adding enchants to new equipment...");
-    log(L"Client: Adding enchants to new equipment...");
+    multiplayerLogger.WriteLine(Info, L"Client: Adding enchants to new equipment... count = %i", enchantCount);
+    log(L"Client: Adding enchants to new equipment... count = %i", enchantCount);
 
     // Add the enchants
     for (u32 i = 0; i < enchantCount; i++) {
       NetworkMessages::EnchantType msgEnchantType = msgEquipment->enchants().Get(i);
+
+      multiplayerLogger.WriteLine(Info, L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
+      log(L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
+
       equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
     }
 
@@ -831,7 +868,59 @@ void Client::Helper_ClientPushEquipment(CEquipment *equipment)
   msgEquipment.set_socketcount(equipment->socketCount);
   msgEquipment.set_client_id(clientEquipment->getCommonId());     // Create a temporary client ID to identify this when we receive the common ID
 
-  // TODO: Add Enchants
+  msgEquipment.set_physical_damage_min(equipment->minimumPhysicalDamage);
+  msgEquipment.set_physical_damage_max(equipment->maximumPhysicalDamage);
+
+  string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
+  nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
+  msgEquipment.set_name_unidentified(nameUnidentified);
+
+  string namePrefix(equipment->namePrefix.begin(), equipment->namePrefix.end());
+  namePrefix.assign(equipment->namePrefix.begin(), equipment->namePrefix.end());
+  msgEquipment.set_name_prefix(namePrefix);
+  
+  string nameSuffix(equipment->nameSuffix.begin(), equipment->nameSuffix.end());
+  nameSuffix.assign(equipment->nameSuffix.begin(), equipment->nameSuffix.end());
+  msgEquipment.set_name_suffix(nameSuffix);
+
+  msgEquipment.set_req_level(equipment->requirements[0]);
+  msgEquipment.set_req_strength(equipment->requirements[1]);
+  msgEquipment.set_req_dexterity(equipment->requirements[2]);
+  msgEquipment.set_req_magic(equipment->requirements[3]);
+  msgEquipment.set_req_defense(equipment->requirements[4]);
+
+  // Add Regular Enchants
+  for (size_t index = 0; index < equipment->enchantList.size(); index++) {
+    log(L"  Adding Equipment Enchant: REGULAR");
+    log(L"    (%i: %i)", equipment->enchantTypeList[index], equipment->enchantList[index]);
+    multiplayerLogger.WriteLine(Info, L"  Adding Equipment Enchant: REGULAR");
+    multiplayerLogger.WriteLine(Info, L"    (%i: %i)", equipment->enchantTypeList[index], equipment->enchantList[index]);
+
+    NetworkMessages::EnchantType *msgEnchantType = msgEquipment.add_enchants();
+    msgEnchantType->set_type(REGULAR);
+    msgEnchantType->set_subtype(equipment->enchantTypeList[index]);
+    msgEnchantType->set_value((float)equipment->enchantList[index]);
+  }
+
+  // Add the other Enchants (Effects)
+  CEffectManager *effectManager = equipment->pCEffectManager;
+  if (effectManager) {
+    multiplayerLogger.WriteLine(Info, L"  Setting up Effect Enchants...");
+    log(L"  Setting up Effect Enchants...");
+
+    // Work on Effect Enchants
+    for (u32 i = 0; i < effectManager->effectList.size; i++) {
+      CEffect *effect = effectManager->effectList[i];
+
+      multiplayerLogger.WriteLine(Info, L"  Adding Equipment Effect Enchant: (%x: %f)", effect->effectType, effect->effectValue);
+      log(L"  Adding Equipment Effect Enchant: (%x: %f)", effect->effectType, effect->effectValue);
+
+      NetworkMessages::EnchantType *msgEnchantType = msgEquipment.add_enchants();
+      msgEnchantType->set_type(effect->effectType);
+      msgEnchantType->set_subtype(-1);  // Not used in this instance
+      msgEnchantType->set_value(effect->effectValue);
+    }
+  }
 
   Client::getSingleton().SendMessage<NetworkMessages::Equipment>(C_PUSH_EQUIPMENT, &msgEquipment);
 }
