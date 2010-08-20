@@ -44,7 +44,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignment, NULL);
   CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, NULL);
   CCharacter::RegisterEvent_CharacterSetTarget(Character_SetTarget, NULL);
-  CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, NULL);
+  CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, Character_UseSkillPost);
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
 
@@ -872,11 +872,11 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
   }
-  
 }
 
 void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & calloriginal)
 {
+  /*
   multiplayerLogger.WriteLine(Info, L"Character::SetActionPre(%s, %x)", character->characterName.c_str(), action);
   log(L"Character::SetActionPre(%s %x)", character->characterName.c_str(), action);
 
@@ -915,12 +915,78 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
       log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
     }
   }
+  */
 }
 
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Character (%s) used skill: %016I64X", character->characterName.c_str(), skillGUID);
-  log(L"Character (%s) used skill: %016I64X", character->characterName.c_str(), skillGUID);
+  if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
+    multiplayerLogger.WriteLine(Info, L"Character (%s) used skill pre: %016I64X", character->characterName.c_str(), skillGUID);
+    log(L"Character (%s) used skill pre: %016I64X", character->characterName.c_str(), skillGUID);
+
+    // If the client is requesting a pickup, request the server first
+    // The server will respond with a pickup message
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      if (!Client::getSingleton().GetSuppressed_SendUseSkill()) {
+        if (!Client::getSingleton().Get_IsSendingUseSkill()) {
+          // Send the server a message requesting our character to pickup the item
+          NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
+
+          if (!netPlayer) {
+            multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
+            log(L"Error: Could not retrieve network entity of character for equipment pickup!");
+          } else {
+            NetworkMessages::CharacterUseSkill msgCharacterUseSkill;
+            msgCharacterUseSkill.set_characterid(netPlayer->getCommonId());
+            msgCharacterUseSkill.set_skill(skillGUID);
+
+            Client::getSingleton().SendMessage<NetworkMessages::CharacterUseSkill>(C_PUSH_CHARACTER_USESKILL, &msgCharacterUseSkill);
+            Client::getSingleton().Set_IsSendingUseSkill(true);
+          }
+        }
+
+        calloriginal = false;
+      }
+    }
+    // Send the message off to the clients
+    else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+
+      if (netCharacter) {
+        NetworkMessages::CharacterUseSkill msgCharacterUseSkill;
+        msgCharacterUseSkill.set_characterid(netCharacter->getCommonId());
+        msgCharacterUseSkill.set_skill(skillGUID);
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentPickup>(S_PUSH_CHARACTER_USESKILL, &msgCharacterUseSkill);
+        Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
+      } else {
+        multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Character (%s)",
+          character->characterName.c_str());
+        log(L"Error: Could not find Network Entity for Character (%s)",
+          character->characterName.c_str());
+      }
+    }
+  }
+}
+
+void TLMP::Character_UseSkillPost(CCharacter* character, u64 skillGUID, bool & calloriginal)
+{
+  if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
+    multiplayerLogger.WriteLine(Info, L"Character (%s) used skill post: %016I64X (Mana = %i)", character->characterName.c_str(), skillGUID, character->mana);
+    log(L"Character (%s) used skill post: %016I64X (Mana = %i)", character->characterName.c_str(), skillGUID, character->mana);
+
+    // Turn on suppression again if we're the client
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      // If the original call was let through...
+      if (calloriginal) {
+        Client::getSingleton().Set_IsSendingUseSkill(false);
+      }
+    }
+    // Server turn off suppression of Equipment Equips
+    else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
+    }
+  }
 }
 
 void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool & calloriginal)

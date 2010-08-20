@@ -82,7 +82,8 @@ namespace TLMP {
       void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
       void HandleCharacterSetAction(const SystemAddress clientAddress, NetworkMessages::CharacterAction*);
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
-
+      void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
+      
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 

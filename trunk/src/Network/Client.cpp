@@ -22,9 +22,12 @@ Client::Client()
   m_bSuppressNetwork_EquipmentDrop = false;
   m_bSuppressNetwork_EquipmentPickup = true;
   m_bSuppressNetwork_SendEquipmentUnequip = false;
-  m_bIsSendingPickup = false;
   m_bSuppressNetwork_CharacterAction = true;
   m_bSuppressNetwork_CharacterAttack = true;
+  m_bSuppressNetwork_SendUseSkill = false;
+
+  m_bIsSendingPickup = false;
+  m_bIsSendingUseSkill = false;
 
   m_pOnConnected = NULL;
   m_pOnDisconnected = NULL;
@@ -376,6 +379,15 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
       HandleCharacterAttack(msgCharacterAttack);
     }
+    break;
+
+  case S_PUSH_CHARACTER_USESKILL:
+    {
+      NetworkMessages::CharacterUseSkill *msgCharacterUseSkill = ParseMessage<NetworkMessages::CharacterUseSkill>(m_pBitStream);
+
+      HandleCharacterUseSkill(msgCharacterUseSkill);
+    }
+    break;
 
   }     
 }
@@ -877,6 +889,26 @@ void Client::HandleCharacterAttack(NetworkMessages::CharacterAttack* msgCharacte
     Client::getSingleton().SetSuppressed_CharacterAttack(false);
     character->Attack();
     Client::getSingleton().SetSuppressed_CharacterAttack(true);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
+    log(L"Error: Could not find character with common id = %x", id);
+  }
+}
+
+void Client::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgCharacterUseSkill)
+{
+  u32 id = msgCharacterUseSkill->characterid();
+  u64 skill = msgCharacterUseSkill->skill();
+
+  NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
+
+  if (networkCharacter) {
+    CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+
+    // Stop the suppress and network request
+    Client::getSingleton().SetSuppressed_SendUseSkill(true);
+    character->UseSkill(skill);
+    Client::getSingleton().SetSuppressed_SendUseSkill(false);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);
