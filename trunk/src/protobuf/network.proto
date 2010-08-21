@@ -12,9 +12,13 @@ message Character {
   repeated Character minion  = 3;
   required Position  position = 4;
   optional int32     id = 5;
-  required int32     health = 6;
-  required int32     mana = 7;
+  required float     health = 6;
+  required float     mana = 7;
   required int32     level = 8;
+  required int32     strength = 9;
+  required int32     dexterity = 10;
+  required int32     magic = 11;
+  required int32     defense = 12;
 }
 
 // This handles both Affixes and Regular Types

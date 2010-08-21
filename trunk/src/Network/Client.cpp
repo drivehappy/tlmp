@@ -49,6 +49,10 @@ void Client::Connect(const char* address, u16 port)
 
   m_pClient = RakNetworkFactory::GetRakPeerInterface();
 
+  // Debugging - allow 2 minutes until disconnect
+  m_pClient->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
+  //--
+
   SocketDescriptor socketDescriptor(0, 0);
   m_pClient->Startup(1, 30, &socketDescriptor, 1);
   m_pClient->Connect(address, port, 0, 0);
@@ -451,6 +455,10 @@ void Client::HandleRequestCharacterInfo()
   msgPlayer->set_guid(player->GUID);
   msgPlayer->set_name(playerName);
   msgPlayer->set_level(player->level);
+  msgPlayer->set_strength(player->baseStrength);
+  msgPlayer->set_dexterity(player->baseDexterity);
+  msgPlayer->set_defense(player->baseDefense);
+  msgPlayer->set_magic(player->baseMagic);
   
   msgPlayerPosition->set_x(player->position.x);
   msgPlayerPosition->set_y(player->position.y);
@@ -548,9 +556,13 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   posCharacter.z = msgCharacterPosition.z();
 
   u32 commonId = msgCharacter->id();
-  u32 health = msgCharacter->health();
-  u32 mana = msgCharacter->mana();
+  float health = msgCharacter->health();
+  float mana = msgCharacter->mana();
   u32 levelCharacter = msgCharacter->level();
+  u32 strength = msgCharacter->strength();
+  u32 dexterity = msgCharacter->dexterity();
+  u32 defense = msgCharacter->defense();
+  u32 magic = msgCharacter->magic();
   u64 guidCharacter = msgCharacter->guid();
   string characterName = msgCharacter->name();
 
@@ -569,8 +581,12 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
     monster->characterName.assign(convertAcsiiToWide(characterName));
     monster->SetAlignment(1);
     level->CharacterInitialize(monster, &posCharacter, 0);
-    monster->health = health;
-    monster->mana = mana;
+    monster->healthMax = health;
+    monster->manaMax = mana;
+    monster->baseStrength = strength;
+    monster->baseDexterity = dexterity;
+    monster->baseDefense = defense;
+    monster->baseMagic = magic;
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
   }
@@ -803,6 +819,23 @@ void Client::HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmen
     removeEquipmentByClientID(client_id);
 
     addEquipment(equipment, id);
+
+    // If the equipment is equipped on the body - tell the server to add it
+    NetworkEntity *netCharacter = searchCharacterByInternalObject(gameClient->pCPlayer);
+    if (netCharacter) {
+      u32 slotBody = gameClient->pCPlayer->pCInventory->GetEquipmentSlot(equipment);
+      if (slotBody <= 0x0C) {
+        NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+        msgInventoryAddEquipment.set_equipmentid(id);
+        msgInventoryAddEquipment.set_guid(equipment->GUID);
+        msgInventoryAddEquipment.set_ownerid(netCharacter->getCommonId());
+        msgInventoryAddEquipment.set_slot(slotBody);
+        msgInventoryAddEquipment.set_unk0(1);
+
+        Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+      }
+    }
+
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Expected to set common ID for client Equipment, but could not find the Equipment with Client ID = %x",
       client_id);

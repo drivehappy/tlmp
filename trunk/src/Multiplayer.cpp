@@ -649,23 +649,6 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
 
   CCharacter *owner = inventory->pCCharacter;
 
-  // Testing this Type? var
-  logColor(B_BLUE, L" Equipment Type?: %x", equipment->type__);
-  logColor(B_BLUE, L" Character Type?: %x", owner->type__);
-  // --
-
-  // Force the slot number for the wardrobe if this is called again
-  if (g_iWardrobeForceSlot > -1) {
-    log(L"Forcing Slot to: %x", g_iWardrobeForceSlot);
-    log(L"  Equipment in old slot (%x) = %p", slot, inventory->GetEquipmentFromSlot(slot));
-
-    slot = g_iWardrobeForceSlot;
-    
-    log(L"  Equipment in new slot (%x) = %p", slot, inventory->GetEquipmentFromSlot(slot));
-  } else {
-    g_iWardrobeForceSlot = slot;
-  }
-
   // Client - Allow the equipment to be added to the inventory, but send it out to the server to create
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
@@ -721,8 +704,6 @@ void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory,
     inventory, equipment, equipment->nameReal.c_str());
   log(L"Inventory::AddEquipmentPost(%p) (%p) (%s)",
     inventory, equipment, equipment->nameReal.c_str());
-
-  g_iWardrobeForceSlot = -1;
 }
 
 void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
@@ -743,6 +724,10 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
   CCharacter *owner = inventory->pCCharacter;
   NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
   NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+
+  // TESTING
+  //owner->dumpCharacter();
+  //
 
   //
   if (!ownerEntity) {
@@ -925,7 +910,7 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    log(L"Test: Character Mana: %i", character->mana);
+    log(L"Test: Character Mana max: %i", character->manaMax);
 
     multiplayerLogger.WriteLine(Info, L"Character (%s) used skill pre: (%016I64X)",
       character->characterName.c_str(), skillGUID);
@@ -980,7 +965,7 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
 void TLMP::Character_UseSkillPost(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    log(L"Test: Character Mana: %i", character->mana);
+    log(L"Test: Character Mana max: %i", character->manaMax);
 
     multiplayerLogger.WriteLine(Info, L"Character (%s) used skill post: (%016I64X)",
       character->characterName.c_str(), skillGUID);
