@@ -14,6 +14,7 @@ message Character {
   optional int32     id = 5;
   required int32     health = 6;
   required int32     mana = 7;
+  required int32     level = 8;
 }
 
 // This handles both Affixes and Regular Types

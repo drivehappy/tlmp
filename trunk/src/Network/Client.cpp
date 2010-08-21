@@ -227,18 +227,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
       NetworkMessages::Character *msgCharacter = ParseMessage<NetworkMessages::Character>(m_pBitStream);
 
-      NetworkMessages::Position msgCharacterPosition = msgCharacter->position();
-
-      Vector3 posCharacter;
-      posCharacter.x = msgCharacterPosition.x();
-      posCharacter.y = msgCharacterPosition.y();
-      posCharacter.z = msgCharacterPosition.z();
-
-      u32 commonId = msgCharacter->id();
-      u32 health = msgCharacter->health();
-      u32 mana = msgCharacter->mana();
-
-      HandleCharacterCreation(posCharacter, msgCharacter->guid(), msgCharacter->name(), commonId, health, mana);
+      HandleCharacterCreation(msgCharacter);
     }
     break;
 
@@ -461,6 +450,7 @@ void Client::HandleRequestCharacterInfo()
 
   msgPlayer->set_guid(player->GUID);
   msgPlayer->set_name(playerName);
+  msgPlayer->set_level(player->level);
   
   msgPlayerPosition->set_x(player->position.x);
   msgPlayerPosition->set_y(player->position.y);
@@ -476,6 +466,7 @@ void Client::HandleRequestCharacterInfo()
     NetworkMessages::Character *msgPet = msgPlayer->add_minion();
     msgPet->set_guid((*itr)->GUID);
     msgPet->set_name(petName);
+    msgPet->set_level((*itr)->level);
   }
 
   Client::getSingleton().SendMessage<NetworkMessages::ReplyCharacterInfo>(C_REPLY_CHARINFO, &msgReplyCharacterInfo);
@@ -547,8 +538,23 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 ru
 }
 
 // Handles Character Creation
-void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, string characterName, u32 commonId, u32 health, u32 mana)
+void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
 {
+  NetworkMessages::Position msgCharacterPosition = msgCharacter->position();
+
+  Vector3 posCharacter;
+  posCharacter.x = msgCharacterPosition.x();
+  posCharacter.y = msgCharacterPosition.y();
+  posCharacter.z = msgCharacterPosition.z();
+
+  u32 commonId = msgCharacter->id();
+  u32 health = msgCharacter->health();
+  u32 mana = msgCharacter->mana();
+  u32 levelCharacter = msgCharacter->level();
+  u64 guidCharacter = msgCharacter->guid();
+  string characterName = msgCharacter->name();
+
+
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAcsiiToWide(characterName).c_str());
 
@@ -557,7 +563,7 @@ void Client::HandleCharacterCreation(Vector3 posCharacter, u64 guidCharacter, st
 
   // Create the monster, setup name and alignment
   Client::getSingleton().SetSuppressed_CharacterCreation(false);
-  CMonster* monster = resourceManager->CreateMonster(guidCharacter, 1, true);
+  CMonster* monster = resourceManager->CreateMonster(guidCharacter, levelCharacter, true);
   
   if (monster) {
     monster->characterName.assign(convertAcsiiToWide(characterName));

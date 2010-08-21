@@ -649,6 +649,11 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
 
   CCharacter *owner = inventory->pCCharacter;
 
+  // Testing this Type? var
+  logColor(B_BLUE, L" Equipment Type?: %x", equipment->type__);
+  logColor(B_BLUE, L" Character Type?: %x", owner->type__);
+  // --
+
   // Force the slot number for the wardrobe if this is called again
   if (g_iWardrobeForceSlot > -1) {
     log(L"Forcing Slot to: %x", g_iWardrobeForceSlot);
