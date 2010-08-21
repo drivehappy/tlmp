@@ -24,8 +24,6 @@ namespace TLMP
     e->retval = 1;
   };
 
-  static s32 g_iWardrobeForceSlot = -1;
-
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 

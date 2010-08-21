@@ -44,6 +44,10 @@ void Server::Listen(u16 port, u16 maxconnections)
   m_pServer = RakNetworkFactory::GetRakPeerInterface();
   multiplayerLogger.WriteLine(Info, L"Got server: %p", m_pServer);
 
+  // Debugging - allow 2 minutes until disconnect
+  m_pServer->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
+  //--
+
   SocketDescriptor socketDescriptor(port, 0);
   m_pServer->Startup(maxconnections, 30, &socketDescriptor, 1);
   m_pServer->SetMaximumIncomingConnections(maxconnections);
@@ -334,8 +338,21 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 {
   multiplayerLogger.WriteLine(Info, L"Client has Entered the Game");
 
-  // Send all of the existing characters in the game to the client
   vector<NetworkEntity*>::iterator itr;
+
+  // Send all of the existing equipment in the game to the client
+  for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+    CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
+
+    // Suppress Waypoint and Return to Dungeon
+    if (equipment->GUID != 0x761772BDA01D11DE &&
+      equipment->GUID != 0xD3A8F99E2FA111DE) 
+    {
+      Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
+    }
+  }
+
+  // Send all of the existing characters in the game to the client
   for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
     CCharacter* character = (CCharacter*)((*itr)->getInternalObject());
 
@@ -358,23 +375,36 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     msgPlayerPosition->set_z(character->position.z);
 
     msgNewCharacter.set_id((*itr)->getCommonId());
-    msgNewCharacter.set_health(character->health);
-    msgNewCharacter.set_mana(character->mana);
+    msgNewCharacter.set_health(character->healthMax);
+    msgNewCharacter.set_mana(character->manaMax);
     msgNewCharacter.set_level(character->level);
+    msgNewCharacter.set_strength(character->baseStrength);
+    msgNewCharacter.set_dexterity(character->baseDexterity);
+    msgNewCharacter.set_defense(character->baseDefense);
+    msgNewCharacter.set_magic(character->baseMagic);
 
     // This will broadcast to all clients except the one we received it from
     Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
-  }
 
-  // Send all of the existing equipment in the game to the client
-  for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
-    CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
+    // Old: Move through the body slots and send an equip message to show the initial equipment
+    ///// New: Move throug all inventory slots and add equipment
+    for (u32 i = 0; i <= 0x0C; i++) {
+      CEquipment* equipment = character->pCInventory->GetEquipmentFromSlot(i);
 
-    // Suppress Waypoint and Return to Dungeon
-    if (equipment->GUID != 0x761772BDA01D11DE &&
-      equipment->GUID != 0xD3A8F99E2FA111DE) 
-    {
-      Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
+      if (equipment) {
+        NetworkEntity* netEquipment = searchEquipmentByInternalObject(equipment);
+
+        if (netEquipment) {
+          NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+          msgInventoryAddEquipment.set_equipmentid(netEquipment->getCommonId());
+          msgInventoryAddEquipment.set_guid(equipment->GUID);
+          msgInventoryAddEquipment.set_ownerid((*itr)->getCommonId());
+          msgInventoryAddEquipment.set_slot(i);
+          msgInventoryAddEquipment.set_unk0(1);
+
+          Server::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(clientAddress, S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+        }
+      }
     }
   }
 
@@ -465,9 +495,13 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
   posPlayer.y = msgPlayer.position().y();
   posPlayer.z = msgPlayer.position().z();
 
-  u32 health = msgPlayer.health();
-  u32 mana = msgPlayer.mana();
+  float health = msgPlayer.health();
+  float mana = msgPlayer.mana();
   u32 levelCharacter = msgPlayer.level();
+  u32 strength = msgPlayer.strength();
+  u32 dexterity = msgPlayer.dexterity();
+  u32 defense = msgPlayer.defense();
+  u32 magic = msgPlayer.magic();
 
   // Create this Player on this instance
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
@@ -482,8 +516,12 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     gameClient->pCLevel->CharacterInitialize(clientCharacter, &posPlayer, 0);
     Server::getSingleton().SetSuppressed_SendCharacterCreation(false);
 
-    clientCharacter->health = health;
-    clientCharacter->mana = mana;
+    clientCharacter->healthMax = health;
+    clientCharacter->manaMax = mana;
+    clientCharacter->baseStrength = strength;
+    clientCharacter->baseDexterity = dexterity;
+    clientCharacter->baseDefense = defense;
+    clientCharacter->baseMagic = magic;
 
     // Send this ID to the Client that created the character
     entityCharacter = searchCharacterByInternalObject(clientCharacter);
