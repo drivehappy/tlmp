@@ -360,6 +360,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     msgNewCharacter.set_id((*itr)->getCommonId());
     msgNewCharacter.set_health(character->health);
     msgNewCharacter.set_mana(character->mana);
+    msgNewCharacter.set_level(character->level);
 
     // This will broadcast to all clients except the one we received it from
     Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
@@ -367,7 +368,14 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 
   // Send all of the existing equipment in the game to the client
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
-    Helper_SendEquipmentToClient(clientAddress, (CEquipment*)((*itr)->getInternalObject()), (*itr));
+    CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
+
+    // Suppress Waypoint and Return to Dungeon
+    if (equipment->GUID != 0x761772BDA01D11DE &&
+      equipment->GUID != 0xD3A8F99E2FA111DE) 
+    {
+      Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
+    }
   }
 
   // Send a request for character info
@@ -459,10 +467,11 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
   u32 health = msgPlayer.health();
   u32 mana = msgPlayer.mana();
+  u32 levelCharacter = msgPlayer.level();
 
   // Create this Player on this instance
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
-  CMonster *clientCharacter = resourceManager->CreateMonster(msgPlayer.guid(), 1, true);
+  CMonster *clientCharacter = resourceManager->CreateMonster(msgPlayer.guid(), levelCharacter, true);
 
   if (clientCharacter) {
     clientCharacter->characterName.assign(convertAcsiiToWide(msgPlayer.name()));
@@ -505,7 +514,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     posCharacter.z = msgMinion.position().z();
 
     // Create this Player on this instance
-    CMonster *clientMinion = resourceManager->CreateMonster(msgMinion.guid(), 1, true);
+    CMonster *clientMinion = resourceManager->CreateMonster(msgMinion.guid(), msgMinion.level(), true);
     if (clientMinion) {
       clientMinion->characterName.assign(convertAcsiiToWide(msgMinion.name()));
       clientMinion->SetAlignment(1);
