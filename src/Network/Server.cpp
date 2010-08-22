@@ -119,13 +119,17 @@ void Server::ReceiveMessages()
     case ID_DISCONNECTION_NOTIFICATION:
       multiplayerLogger.WriteLine(Info, L"Client disconnected");
       if (m_pOnClientDisconnect) {
-        m_pOnClientDisconnect(NULL);
+        SystemAddress *sysAddress = new SystemAddress();
+        *sysAddress = packet->systemAddress;
+        m_pOnClientDisconnect((void*)sysAddress);
       }
       break;
     case ID_CONNECTION_LOST:
       multiplayerLogger.WriteLine(Info, L"Client disconnected");
       if (m_pOnClientDisconnect) {
-        m_pOnClientDisconnect(NULL);
+        SystemAddress *sysAddress = new SystemAddress();
+        *sysAddress = packet->systemAddress;
+        m_pOnClientDisconnect((void*)sysAddress);
       }
       break;
     case ID_USER_PACKET_ENUM+1:

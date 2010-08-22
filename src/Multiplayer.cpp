@@ -1088,6 +1088,7 @@ void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bo
 
   callOriginal = false;
 
+  /*
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     // Force disconnect, crashes when rejoining
     log(L"Forcing client disconnect.");
@@ -1102,28 +1103,32 @@ void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bo
     Server::getSingleton().Shutdown();
     NetworkState::getSingleton().SetState(SINGLEPLAYER);
   }
+  */
 }
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
 {
-  SystemAddress address = *(SystemAddress *)arg;
-  NetworkMessages::Version msgVersion;
-  msgVersion.set_version(MessageVersion);
+  if (arg) {
+    SystemAddress address = *(SystemAddress *)arg;
+    NetworkMessages::Version msgVersion;
+    msgVersion.set_version(MessageVersion);
 
-  multiplayerLogger.WriteLine(Info, L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
-  log(L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
+    multiplayerLogger.WriteLine(Info, L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
+    log(L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
 
-  Server::getSingleton().SendMessage<NetworkMessages::Version>(address, S_VERSION, &msgVersion);
+    Server::getSingleton().SendMessage<NetworkMessages::Version>(address, S_VERSION, &msgVersion);
+  }
 }
 
 void TLMP::ServerOnClientDisconnect(void *arg)
 {
-  SystemAddress address = *(SystemAddress *)arg;
+  if (arg) {
+    SystemAddress address = *(SystemAddress *)arg;
 
-  multiplayerLogger.WriteLine(Info, L"Client disconnected: %x:%i", address.binaryAddress, address.port);
-  log(L"Client disconnected: %x:%i", address.binaryAddress, address.port);
-
+    multiplayerLogger.WriteLine(Info, L"Client disconnected: %x:%i", address.binaryAddress, address.port);
+    log(L"Client disconnected: %x:%i", address.binaryAddress, address.port);
+  }
   // TODO: Cleanup client characters.
 }
 // --
@@ -1131,9 +1136,11 @@ void TLMP::ServerOnClientDisconnect(void *arg)
 // Client Events
 void TLMP::ClientOnConnect(void *arg)
 {
-  SystemAddress address = *(SystemAddress *)arg;
+  if (arg) {
+    SystemAddress address = *(SystemAddress *)arg;
 
-  multiplayerLogger.WriteLine(Info, L"Client connected: %x:%i", address.binaryAddress, address.port);
-  log(L"Client connected: %x:%i", address.binaryAddress, address.port);
+    multiplayerLogger.WriteLine(Info, L"Client connected: %x:%i", address.binaryAddress, address.port);
+    log(L"Client connected: %x:%i", address.binaryAddress, address.port);
+  }
 }
 // --
