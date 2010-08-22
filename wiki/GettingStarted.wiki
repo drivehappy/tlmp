@@ -15,7 +15,6 @@ The Multiplayer will be attached when Torchlight is started.
 ==Uninstall==
 Remove the following files/folders from your Torchlight directory:
   * winmm.dll
-  * TLAPI/IngameTest0.layout
-  * TLAPI/IngameTest0.layout
+  * TLAPI folder
 
 Note: The install contains a resources.cfg file that you should not remove, if you wish to revert it, remove the last line present dealing with the TLAPI folder.
