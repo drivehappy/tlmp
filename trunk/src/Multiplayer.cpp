@@ -33,7 +33,7 @@ void TLMP::SetupNetwork()
 
   CMainMenu::RegisterEvent_MainMenu_Event(MainMenuEventPre, NULL);
 
-  CEquipment::RegisterEvent_EquipmentCtor(Equipment_Ctor, NULL);
+  CEquipment::RegisterEvent_EquipmentDtor(Equipment_Dtor, NULL);
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
   CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
 
@@ -109,7 +109,7 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
   */
 }
 
-void TLMP::Equipment_Ctor(CEquipment* equipment)
+void TLMP::Equipment_Dtor(CEquipment* equipment)
 {
   log(L"Equipment::Dtor = %p Removing from network list...", equipment);
   log(L"  Name: %s", equipment->nameReal.c_str());
