@@ -111,8 +111,17 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::Equipment_Ctor(CEquipment* equipment)
 {
-  log(L"Equipment::Dtor = %p", equipment);
+  log(L"Equipment::Dtor = %p Removing from network list...", equipment);
   log(L"  Name: %s", equipment->nameReal.c_str());
+
+  vector<NetworkEntity*>::iterator itr;
+  for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+    CEquipment *equipment2 = (CEquipment*)(*itr)->getInternalObject();
+    if (equipment == equipment2) {
+      NetworkSharedEquipment->erase(itr);
+      break;
+    }
+  }
 }
 
 void TLMP::Character_Ctor(CCharacter* character)
