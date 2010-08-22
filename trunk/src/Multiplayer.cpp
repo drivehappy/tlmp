@@ -30,6 +30,7 @@ void TLMP::SetupNetwork()
   CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, GameClient_CreateLevelPost);
   CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, NULL);
   CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, NULL);
+  CGameClient::RegisterEvent_GameClient_SaveGame(GameClientSaveGamePre, NULL);
 
   CMainMenu::RegisterEvent_MainMenu_Event(MainMenuEventPre, NULL);
 
@@ -56,6 +57,8 @@ void TLMP::SetupNetwork()
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
 
   Server::getSingleton().SetCallback_OnClientConnect(&ServerOnClientConnected);
+  Server::getSingleton().SetCallback_OnClientDisconnect(&ServerOnClientDisconnect);
+  Client::getSingleton().SetCallback_OnConnected(&ClientOnConnect);
 
   Hook(GetProcAddress(GetModuleHandle("OgreMain.dll"), "?isActive@RenderWindow@Ogre@@UBE_NXZ"), OgreIsActive, 0, HOOK_THISCALL, 0);
 }
@@ -126,11 +129,13 @@ void TLMP::Equipment_Dtor(CEquipment* equipment)
 
 void TLMP::Character_Ctor(CCharacter* character)
 {
-  log(L"Character::Ctor = %p", character);
+  log(L"Character::Ctor = %p %s", character, character->characterName.c_str());
 }
 
 void TLMP::Character_SetAlignment(CCharacter* character, u32 alignment)
 {
+  log(L"Setting Character Alignment = %x", alignment);
+
   multiplayerLogger.WriteLine(Info, L"Setting Character (%s) Alignment = %x",
     character->characterName.c_str(), alignment);
   log(L"Setting Character (%s) Alignment = %x",
@@ -443,10 +448,10 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
   // Suppress level changes
-  multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
-  log(L"GameClient::LoadLevel Suppressed");
-
   if (NetworkState::getSingleton().GetSuppressed_LevelChange()) {
+    //multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
+    //log(L"GameClient::LoadLevel Suppressed");
+
     calloriginal = false;
   }
 }
@@ -1076,6 +1081,29 @@ void TLMP::EquipmentAddStackCountPost(CEquipment *equipment, u32 amount)
   }
 }
 
+void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal)
+{
+  log(L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
+  multiplayerLogger.WriteLine(Info, L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
+
+  callOriginal = false;
+
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    // Force disconnect, crashes when rejoining
+    log(L"Forcing client disconnect.");
+    multiplayerLogger.WriteLine(Info, L"Forcing client disconnect.");
+
+    Client::getSingleton().Disconnect();
+    NetworkState::getSingleton().SetState(SINGLEPLAYER);
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    log(L"Forcing server disconnect.");
+    multiplayerLogger.WriteLine(Info, L"Forcing server disconnect.");
+
+    Server::getSingleton().Shutdown();
+    NetworkState::getSingleton().SetState(SINGLEPLAYER);
+  }
+}
+
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
 {
@@ -1084,7 +1112,28 @@ void TLMP::ServerOnClientConnected(void *arg)
   msgVersion.set_version(MessageVersion);
 
   multiplayerLogger.WriteLine(Info, L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
+  log(L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
 
   Server::getSingleton().SendMessage<NetworkMessages::Version>(address, S_VERSION, &msgVersion);
+}
+
+void TLMP::ServerOnClientDisconnect(void *arg)
+{
+  SystemAddress address = *(SystemAddress *)arg;
+
+  multiplayerLogger.WriteLine(Info, L"Client disconnected: %x:%i", address.binaryAddress, address.port);
+  log(L"Client disconnected: %x:%i", address.binaryAddress, address.port);
+
+  // TODO: Cleanup client characters.
+}
+// --
+
+// Client Events
+void TLMP::ClientOnConnect(void *arg)
+{
+  SystemAddress address = *(SystemAddress *)arg;
+
+  multiplayerLogger.WriteLine(Info, L"Client connected: %x:%i", address.binaryAddress, address.port);
+  log(L"Client connected: %x:%i", address.binaryAddress, address.port);
 }
 // --
