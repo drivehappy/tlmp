@@ -47,7 +47,7 @@ namespace TLMP
   void Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
 
   // Post Event for equipment initialization
-  void Equipment_Ctor(CEquipment*);
+  void Equipment_Dtor(CEquipment*);
   void CreateEquipmentPre(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void CreateEquipmentPost(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
