@@ -18,6 +18,7 @@ Server::Server()
   m_bSuppressNetwork_SendEquipmentEquip = false;
   m_bSuppressNetwork_SendEquipmentUnequip = false;
   m_bSuppressNetwork_SendEquipmentCreation = false;
+  m_bSuppressNetwork_SendEquipmentStack = false;
 
   m_pOnListening = NULL;
   m_pOnShutdown = NULL;
@@ -304,6 +305,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       HandleCharacterUseSkill(msgCharacterUseSkill);
     }
     break;
+    
+  case C_PUSH_EQUIPMENT_STACKUPDATE:
+    {
+      NetworkMessages::EquipmentUpdateStackSize *msgEquipmentUpdateStackSize = ParseMessage<NetworkMessages::EquipmentUpdateStackSize>(m_pBitStream);
+
+      HandleEquipmentUpdateStack(address, msgEquipmentUpdateStackSize);
+    }
+    break;
 
   }
 }
@@ -339,6 +348,9 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
   multiplayerLogger.WriteLine(Info, L"Client has Entered the Game");
 
   vector<NetworkEntity*>::iterator itr;
+
+  // Check for destroyed equipment and remove them
+  RemoveDestroyedEquipmentFromNetwork();
 
   // Send all of the existing equipment in the game to the client
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
@@ -378,10 +390,18 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     msgNewCharacter.set_health(character->healthMax);
     msgNewCharacter.set_mana(character->manaMax);
     msgNewCharacter.set_level(character->level);
+
+    // This allows a workaround for the modified attributes needed for equipment
+    /*
     msgNewCharacter.set_strength(character->baseStrength);
     msgNewCharacter.set_dexterity(character->baseDexterity);
     msgNewCharacter.set_defense(character->baseDefense);
     msgNewCharacter.set_magic(character->baseMagic);
+    */
+    msgNewCharacter.set_strength(10000);
+    msgNewCharacter.set_dexterity(10000);
+    msgNewCharacter.set_defense(10000);
+    msgNewCharacter.set_magic(10000);
 
     // This will broadcast to all clients except the one we received it from
     Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
@@ -1043,5 +1063,51 @@ void Server::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgChar
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);
+  }
+}
+
+void Server::RemoveDestroyedEquipmentFromNetwork()
+{
+  vector<NetworkEntity*>::iterator itr;
+
+  // Search for destroyed equipment
+  bool clean = false;
+  while (!clean) {
+    clean = true;
+
+    for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+      CEquipment *equipment = (CEquipment*)(*itr)->getInternalObject();
+
+      if (equipment->destroy) {
+        NetworkSharedEquipment->erase(itr);
+        clean = false;
+        break;
+      }
+    }
+  }
+
+}
+
+void Server::HandleEquipmentUpdateStack(const SystemAddress clientAddress, NetworkMessages::EquipmentUpdateStackSize *msgEquipmentUpdateStackSize)
+{
+  u32 id = msgEquipmentUpdateStackSize->id();
+  u32 amount = msgEquipmentUpdateStackSize->change_amount();
+
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(id);
+
+  if (netEquipment) {
+    CEquipment *equipment = (CEquipment*)netEquipment->getInternalObject();
+
+    // Suppress the server from sending it
+    SetSuppressed_SendEquipmentStack(true);
+    EquipmentAddStackCount(equipment, amount);
+    SetSuppressed_SendEquipmentStack(false);
+
+    // Manually send it to the other clients
+    Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentUpdateStackSize>(clientAddress, S_PUSH_EQUIPMENT_STACKUPDATE, msgEquipmentUpdateStackSize);
+
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find equipment with common id = %x", id);
+    log(L"Error: Could not find equipment with common id = %x", id);
   }
 }

@@ -38,12 +38,16 @@ namespace TLMP {
       inline bool GetSuppressed_SendEquipmentCreation()            { return m_bSuppressNetwork_SendEquipmentCreation; }
       inline void SetSuppressed_SendEquipmentCreation(bool value)  { m_bSuppressNetwork_SendEquipmentCreation = value; }
 
-      inline bool GetSuppressed_SendEquipmentEquip()            { return m_bSuppressNetwork_SendEquipmentEquip; }
-      inline void SetSuppressed_SendEquipmentEquip(bool value)  { m_bSuppressNetwork_SendEquipmentEquip = value; }
+      inline bool GetSuppressed_SendEquipmentEquip()              { return m_bSuppressNetwork_SendEquipmentEquip; }
+      inline void SetSuppressed_SendEquipmentEquip(bool value)    { m_bSuppressNetwork_SendEquipmentEquip = value; }
 
-      inline bool GetSuppressed_SendEquipmentUnequip()           { return m_bSuppressNetwork_SendEquipmentUnequip; }
-      inline void SetSuppressed_SendEquipmentUnequip(bool value) { m_bSuppressNetwork_SendEquipmentUnequip = value; }
+      inline bool GetSuppressed_SendEquipmentUnequip()            { return m_bSuppressNetwork_SendEquipmentUnequip; }
+      inline void SetSuppressed_SendEquipmentUnequip(bool value)  { m_bSuppressNetwork_SendEquipmentUnequip = value; }
 
+      inline bool GetSuppressed_SendEquipmentStack()              { return m_bSuppressNetwork_SendEquipmentStack; }
+      inline void SetSuppressed_SendEquipmentStack(bool value)    { m_bSuppressNetwork_SendEquipmentStack = value; }
+
+      
 
       void ReceiveMessages();
 
@@ -83,9 +87,12 @@ namespace TLMP {
       void HandleCharacterSetAction(const SystemAddress clientAddress, NetworkMessages::CharacterAction*);
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
+      void HandleEquipmentUpdateStack(const SystemAddress, NetworkMessages::EquipmentUpdateStackSize*);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
+
+      void RemoveDestroyedEquipmentFromNetwork();
 
       TLMP::NetworkMessages::Equipment* Helper_CreateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
      
@@ -109,6 +116,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_SendEquipmentCreation;
       bool m_bSuppressNetwork_SendEquipmentEquip;
       bool m_bSuppressNetwork_SendEquipmentUnequip;
+      bool m_bSuppressNetwork_SendEquipmentStack;
     };
 
   };

@@ -35,6 +35,7 @@ void TLMP::SetupNetwork()
 
   CEquipment::RegisterEvent_EquipmentCtor(Equipment_Ctor, NULL);
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
+  CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
 
   CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI, NULL);
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
@@ -110,7 +111,8 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::Equipment_Ctor(CEquipment* equipment)
 {
-  log(L"Equipment::Ctor = %p", equipment);
+  log(L"Equipment::Dtor = %p", equipment);
+  log(L"  Name: %s", equipment->nameReal.c_str());
 }
 
 void TLMP::Character_Ctor(CCharacter* character)
@@ -727,6 +729,7 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
 
   // TESTING
   //owner->dumpCharacter();
+  equipment->dumpEquipment();
   //
 
   //
@@ -1031,6 +1034,36 @@ void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
       multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
       log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
     }
+  }
+}
+
+void TLMP::EquipmentAddStackCountPost(CEquipment *equipment, u32 amount)
+{
+  logColor(B_RED, L"Add StackCount: %s %i", equipment->nameReal.c_str(), amount);
+
+  NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
+
+  if (netEquipment) {
+    NetworkMessages::EquipmentUpdateStackSize msgEquipmentUpdateStackSize;
+    msgEquipmentUpdateStackSize.set_id(netEquipment->getCommonId());
+    msgEquipmentUpdateStackSize.set_change_amount(amount);
+
+    // Client
+    if (NetworkState::getSingleton().GetState() == CLIENT) {
+      if (!Client::getSingleton().GetSuppressed_SendEquipmentStack()) {
+        Client::getSingleton().SendMessage<NetworkMessages::EquipmentUpdateStackSize>(C_PUSH_EQUIPMENT_STACKUPDATE, &msgEquipmentUpdateStackSize);
+      }
+    }
+
+    // Server
+    else if (NetworkState::getSingleton().GetState() == SERVER) {
+      if (!Server::getSingleton().GetSuppressed_SendEquipmentStack()) {
+        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentUpdateStackSize>(S_PUSH_EQUIPMENT_STACKUPDATE, &msgEquipmentUpdateStackSize);
+      }
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for equipment: %s", equipment->nameReal.c_str());
+    log(L"Error: Could not find network id for equipment: %s", equipment->nameReal.c_str());
   }
 }
 

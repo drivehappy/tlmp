@@ -51,6 +51,7 @@ namespace TLMP
   void CreateEquipmentPre(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void CreateEquipmentPost(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
+  void EquipmentAddStackCountPost(CEquipment*, u32);
   
   // Pre Event for player initialization
   void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);

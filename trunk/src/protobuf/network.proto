@@ -113,6 +113,11 @@ message InventoryRemoveEquipment {
   required int32    equipmentId = 2;
 }
 
+message EquipmentUpdateStackSize {
+  required int32    id = 1;
+  required int32    change_amount = 2;
+}
+
 message EquipmentDrop {
   required int32    equipmentId = 1;
   repeated Position position = 2;
