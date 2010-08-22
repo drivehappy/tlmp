@@ -10,7 +10,7 @@ void TLMP::GameClient_CreateUI(CGame* game)
 
   // Added the main game GUI elements
   CEGUI::Window *pRoot = NULL, *pMainMenuButton = NULL, *pMainMenuOptions = NULL, *pMainMenuDialogs = NULL;
-  CEGUI::Window *pSheet = NULL;
+  CEGUI::Window *pSheet = NULL, *pMainMenuSplash = NULL;
   CEGUI::WindowManager* wm = UserInterface::getManager();
 
   // Sanity check on the window manager
@@ -34,6 +34,27 @@ void TLMP::GameClient_CreateUI(CGame* game)
     log(e.what());
     multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_Multiplayer.layout");
     return;
+  }
+
+  // Load the MainMenu Multiplayer Splash Screen
+  try {
+    pMainMenuSplash = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerSplash.layout"), CEGUI::String("1001_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerSplash.layout");
+    return;
+  }
+  
+  // Hookup button events
+  CEGUI::Window *pButtonSplash = pMainMenuSplash->recursiveChildSearch("1001_MultiplayerSplash_OkButton");
+  if (pButtonSplash) {
+    pButtonSplash->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerSplash_OkButton));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: MultiplayerSplash_OkButton");
+
+    for (size_t i = 0; i < pButtonSplash->getChildCount(); i++) {
+      multiplayerLogger.WriteLine(Info, L"  %s", pButtonSplash->getChildAtIdx(i));
+    }
   }
 
   // Load the MainMenu Multiplayer Options Window
@@ -143,10 +164,13 @@ void TLMP::GameClient_CreateUI(CGame* game)
 
   // Hookup everything to the existing main menu
   pRoot->addChildWindow(pMainMenuButton);
+  pSheet->addChildWindow(pMainMenuSplash);
   pSheet->addChildWindow(pMainMenuOptions);
   pSheet->addChildWindow(pMainMenuDialogs);
   pMainMenuOptions->setVisible(false);
   pMainMenuDialogs->setVisible(false);
+  pMainMenuSplash->setVisible(true);
+  pMainMenuSplash->moveToFront();
 
   multiplayerLogger.WriteLine(Info, L"Creating User Interface... Done.");
 }
@@ -392,6 +416,21 @@ bool TLMP::ButtonEvent_MultiplayerOptions_WaitServer_OkButton(const CEGUI::Event
     pWindowOptions->moveToBack();
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find 1003_MultiplayerOptions_WaitServerLoad");
+    return false;
+  }
+
+  return true;
+}
+
+bool TLMP::ButtonEvent_MultiplayerSplash_OkButton(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowSplash = UserInterface::getWindowFromName("1001_MainMenu_Multiplayer_Splash");
+
+  if (pWindowSplash) {
+    pWindowSplash->setVisible(false);
+    pWindowSplash->moveToBack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1001_MainMenu_Multiplayer_Splash");
     return false;
   }
 

@@ -15,6 +15,11 @@ namespace TLMP
 
   // Server Events
   void ServerOnClientConnected(void *);
+  void ServerOnClientDisconnect(void *arg);
+  // --
+
+  // Client Events
+  void ClientOnConnect(void *);
   // --
 
   // Direct Hook function for handling rendering the window without focus
@@ -76,6 +81,7 @@ namespace TLMP
   void GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal);
   void GameClient_LoadLevelPre(CGameClient*, bool & calloriginal);
   void GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
+  void GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal);
 
   // Post Event for the main GameClient loop
   void GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);

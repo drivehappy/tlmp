@@ -13,12 +13,7 @@ Server::Server()
   m_pServer = NULL;
   m_pBitStream = new RakNet::BitStream(1024);
 
-  m_bSuppressNetwork_SetDestination = false;
-  m_bSuppressNetwork_SendCharacterCreation = false;
-  m_bSuppressNetwork_SendEquipmentEquip = false;
-  m_bSuppressNetwork_SendEquipmentUnequip = false;
-  m_bSuppressNetwork_SendEquipmentCreation = false;
-  m_bSuppressNetwork_SendEquipmentStack = false;
+  Reset();
 
   m_pOnListening = NULL;
   m_pOnShutdown = NULL;
@@ -31,6 +26,16 @@ Server::Server()
 Server::~Server()
 {
   delete m_pBitStream;
+}
+
+void Server::Reset()
+{
+  m_bSuppressNetwork_SetDestination = false;
+  m_bSuppressNetwork_SendCharacterCreation = false;
+  m_bSuppressNetwork_SendEquipmentEquip = false;
+  m_bSuppressNetwork_SendEquipmentUnequip = false;
+  m_bSuppressNetwork_SendEquipmentCreation = false;
+  m_bSuppressNetwork_SendEquipmentStack = false;
 }
 
 void Server::Listen(u16 port, u16 maxconnections)
@@ -62,6 +67,8 @@ void Server::Listen(u16 port, u16 maxconnections)
 void Server::Shutdown()
 {
   if (m_pServer) {
+    Reset();
+
     m_pServer->Shutdown(0);
     m_pServer = NULL;
 
@@ -883,6 +890,7 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
     equipment->socketCount = socketcount;
     equipment->stackSize = stacksize;
     equipment->stackSizeMax = stacksizemax;
+    equipment->gemList.size = 0;
 
     equipment->minimumPhysicalDamage = minPhysicalDamage;
     equipment->maximumPhysicalDamage = maxPhysicalDamage;
@@ -905,16 +913,42 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
       NetworkMessages::Equipment msgGem = msgEquipment->gems().Get(i);
       CEquipment *gem = resourceManager->CreateEquipment(msgGem.guid(), 1, 1, 0);
       
-      multiplayerLogger.WriteLine(Info, L"Server: Adding gem to shared network equipment: %i", msgGem.id());
-      log(L"Server: Adding gem to shared network equipment: %i", msgGem.id());
-      NetworkEntity *newEntity = addEquipment(gem, msgGem.id());
+      if (gem) {
+        multiplayerLogger.WriteLine(Info, L"Server: Adding gem to shared network equipment: %i", msgGem.id());
+        log(L"Server: Adding gem to shared network equipment: %i", msgGem.id());
+        NetworkEntity *newEntity = addEquipment(gem, msgGem.id());
 
-      for (int j = 0; j < msgGem.enchants_size(); j++) {
-        NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
-        gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value());
+        for (int j = 0; j < msgGem.enchants_size(); j++) {
+          NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
+          gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value());
+        }
+
+        equipment->gemList.push(gem);
+
+        //
+        // Same as below, broadcast and send this gem ID to our client and others
+        //
+        multiplayerLogger.WriteLine(Info, L"Server: Broadcasting new gem to all other clients.");
+        log(L"Server: Broadcasting new gem to all other clients.");
+
+        // Send the Equipment w/ CommonID back to the clients
+        // Simply change the slot ID on the message we received and send it back out to all other clients
+        msgGem.set_id(newEntity->getCommonId());
+        Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(clientAddress, S_PUSH_NEWEQUIPMENT, &msgGem);
+
+        multiplayerLogger.WriteLine(Info, L"Server: Sending gem common ID to owner Client of equipment.");
+        log(L"Server: Sending gem common ID to owner Client of equipment.");
+
+        // Send a special equipment common ID message to the client that sent us their equipment
+        NetworkMessages::EquipmentSetID msgEquipmentSetID;
+        msgEquipmentSetID.set_guid(msgGem.guid());
+        msgEquipmentSetID.set_client_id(msgGem.client_id());
+        msgEquipmentSetID.set_id(newEntity->getCommonId());
+        Server::getSingleton().SendMessage<NetworkMessages::Equipment>(clientAddress, S_REPLY_EQUIPMENT_ID, &msgEquipmentSetID);
+      } else {
+        multiplayerLogger.WriteLine(Error, L"Could not create gem of GUID: %016I64X", msgGem.guid());
+        log(L"Could not create gem of GUID: %016I64X", msgGem.guid());
       }
-
-      equipment->gemList.push(gem);
     }
 
     multiplayerLogger.WriteLine(Info, L"Server: Adding enchants to new equipment...: %i", enchantCount);

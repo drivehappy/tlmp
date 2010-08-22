@@ -20,6 +20,8 @@ namespace TLMP {
       void Listen(u16 port, u16 maxconnections);
       void Shutdown();
 
+      void Reset();
+
       void SetCallback_OnListening(OnListening callback);
       void SetCallback_OnShutdown(OnShutdown callback);
       void SetCallback_OnClientConnect(OnClientConnect callback);

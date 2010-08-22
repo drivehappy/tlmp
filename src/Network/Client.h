@@ -18,6 +18,8 @@ namespace TLMP {
       void Connect(const char* address, u16 port);
       void Disconnect();
 
+      void Reset();
+
       void SetCallback_OnConnected(OnConnected callback);
       void SetCallback_OnDisconnected(OnDisconnected callback);
       void SetCallback_OnConnectFailed(OnConnectFailed callback);
@@ -107,6 +109,7 @@ namespace TLMP {
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
       void HandleEquipmentUpdateStack(NetworkMessages::EquipmentUpdateStackSize*);
       
+      void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
       void PushEquipment();
 

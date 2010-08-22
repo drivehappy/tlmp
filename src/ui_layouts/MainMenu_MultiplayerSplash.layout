@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+
+<GUILayout>
+
+  <!-- Contains the Multiplayer splash window with startup info -->
+  <Window Type="DefaultWindow" Name="MainMenu_Multiplayer_Splash" >
+    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+    <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+    <Property Name="MousePassThroughEnabled" Value="True" />
+
+    <!-- Background Image -->
+    <Window Type="GuiLook/StaticImage" Name="MultiplayerSplash_BackgroundImage">
+      <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+      <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+      <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+    </Window>
+
+    <!-- Title Text -->
+    <Window Type="GuiLook/StaticText" Name="MultiplayerSplash_TitleText">
+      <Property Name="UnifiedPosition" Value="{{.5,0},{.15,0}}" />
+      <Property Name="UnifiedSize" Value="{{0,240},{0,28}}" />
+      <Property Name="Font" Value="SerifBig"/>
+      <Property Name="TextColour" Value="FFFFFF00"/>
+      <Property Name="Text" Value="Torchlight Multiplayer"/>
+    </Window>
+
+
+    <!-- Title Text -->
+    <Window Type="GuiLook/StaticText" Name="MultiplayerSplash_DescText">
+      <Property Name="UnifiedPosition" Value="{{.5,-500},{.25,0}}" />
+      <Property Name="UnifiedSize" Value="{{0,1000},{0,250}}" />
+      <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned"/>
+      <Property Name="Font" Value="SerifBig"/>
+      <Property Name="TextColour" Value="FFFFFFFF"/>
+      <Property Name="Text" Value="Torchlight Mulitplayer has been successfully loaded.
+This is a first-phase test for multiplayer; it's limited to in-town play only.
+You must either Host or Join a game before entering to startup the network.
+Game saves with this test have been suppressed (nothing should be saved). However, there is a chance that your character or other entities in your saved game may be altered or destroyed, PLEASE BACKUP YOUR SAVED GAMES BEFORE CONTINUING."
+      />
+    </Window>
+
+
+    <!-- Ok Button -->
+    <Window Type="GuiLook/StandardButton" Name="MultiplayerSplash_OkButton">
+      <Property Name="UnifiedPosition" Value="{{.5,-71},{.70,0}}" />
+      <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+      <Property Name="Text" Value="Ok"/>
+    </Window>
+
+  </Window>
+
+</GUILayout>
