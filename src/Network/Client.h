@@ -62,6 +62,9 @@ namespace TLMP {
       inline bool GetSuppressed_CharacterAttack()           { return m_bSuppressNetwork_CharacterAttack; }
       inline void SetSuppressed_CharacterAttack(bool value) { m_bSuppressNetwork_CharacterAttack = value; }
 
+      inline bool GetSuppressed_SendEquipmentStack()              { return m_bSuppressNetwork_SendEquipmentStack; }
+      inline void SetSuppressed_SendEquipmentStack(bool value)    { m_bSuppressNetwork_SendEquipmentStack = value; }
+
 
       void ReceiveMessages();
 
@@ -102,6 +105,7 @@ namespace TLMP {
       void HandleCharacterSetAction(NetworkMessages::CharacterAction*);
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
+      void HandleEquipmentUpdateStack(NetworkMessages::EquipmentUpdateStackSize*);
       
 
       void PushEquipment();
@@ -129,6 +133,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_CharacterAction;
       bool m_bSuppressNetwork_CharacterAttack;
       bool m_bSuppressNetwork_SendUseSkill;
+      bool m_bSuppressNetwork_SendEquipmentStack;
 
       bool m_bIsSendingPickup;  // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
       bool m_bIsSendingUseSkill;  // Required because Same as above

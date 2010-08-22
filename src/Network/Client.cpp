@@ -25,6 +25,7 @@ Client::Client()
   m_bSuppressNetwork_CharacterAction = true;
   m_bSuppressNetwork_CharacterAttack = true;
   m_bSuppressNetwork_SendUseSkill = false;
+  m_bSuppressNetwork_SendEquipmentStack = false;
 
   m_bIsSendingPickup = false;
   m_bIsSendingUseSkill = false;
@@ -386,6 +387,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_EQUIPMENT_STACKUPDATE:
+    {
+      NetworkMessages::EquipmentUpdateStackSize *msgEquipmentUpdateStackSize = ParseMessage<NetworkMessages::EquipmentUpdateStackSize>(m_pBitStream);
+
+      HandleEquipmentUpdateStack(msgEquipmentUpdateStackSize);
+    }
+    break;
+
   }     
 }
 
@@ -455,10 +464,20 @@ void Client::HandleRequestCharacterInfo()
   msgPlayer->set_guid(player->GUID);
   msgPlayer->set_name(playerName);
   msgPlayer->set_level(player->level);
+
+  // This allows a workaround for the modified attributes needed for equipment
+  /*
   msgPlayer->set_strength(player->baseStrength);
   msgPlayer->set_dexterity(player->baseDexterity);
   msgPlayer->set_defense(player->baseDefense);
   msgPlayer->set_magic(player->baseMagic);
+  */
+  msgPlayer->set_strength(10000);
+  msgPlayer->set_dexterity(10000);
+  msgPlayer->set_defense(10000);
+  msgPlayer->set_magic(10000);
+
+  
   
   msgPlayerPosition->set_x(player->position.x);
   msgPlayerPosition->set_y(player->position.y);
@@ -1040,5 +1059,25 @@ void Client::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgChar
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);
+  }
+}
+
+void Client::HandleEquipmentUpdateStack(NetworkMessages::EquipmentUpdateStackSize *msgEquipmentUpdateStackSize)
+{
+  u32 id = msgEquipmentUpdateStackSize->id();
+  u32 amount = msgEquipmentUpdateStackSize->change_amount();
+
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(id);
+
+  if (netEquipment) {
+    CEquipment *equipment = (CEquipment*)netEquipment->getInternalObject();
+
+    // Suppress the client from re-sending it
+    SetSuppressed_SendEquipmentStack(true);
+    EquipmentAddStackCount(equipment, amount);
+    SetSuppressed_SendEquipmentStack(false);
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find equipment with common id = %x", id);
+    log(L"Error: Could not find equipment with common id = %x", id);
   }
 }

@@ -88,6 +88,9 @@ namespace TLMP {
 
       C_PUSH_CHARACTER_USESKILL,    // Client Pushes a Character Use Skill
       S_PUSH_CHARACTER_USESKILL,    // Server Pushes a Character Use Skill
+
+      C_PUSH_EQUIPMENT_STACKUPDATE, // Client Pushes an update on Equipment Stack size
+      S_PUSH_EQUIPMENT_STACKUPDATE, // Server Pushes an update on Equipment Stack size
     };
 
     static const char* MessageString[] = {
@@ -151,6 +154,9 @@ namespace TLMP {
       
       "C_PUSH_CHARACTER_USESKILL",
       "S_PUSH_CHARACTER_USESKILL",
+
+      "C_PUSH_EQUIPMENT_STACKUPDATE",
+      "S_PUSH_EQUIPMENT_STACKUPDATE",
     };
 
   };
