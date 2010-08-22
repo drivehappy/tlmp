@@ -1,5 +1,21 @@
-#summary This will detail user download and installation instructions.
+==Install==
+The current version of TLMP is for testing only, use at your own risk.
 
-== Getting Started ==
+You must have the Steam version of Torchlight (v1.15). If you obtained Torchlight through other publishers this will unfortunately not work:
 
-Torchlight Multiplayer is still a work in-progress. No binaries are available for download yet.
+Download the 7z or zip from: http://code.google.com/p/tlapi/downloads/list
+Extract the files into your Steam Torchlight folder:
+  * i.e.: C:\Program Files (x86)\Steam\SteamApps\common\torchlight
+
+Start Torchlight.
+
+The Multiplayer will be attached when Torchlight is started.
+
+
+==Uninstall==
+Remove the following files/folders from your Torchlight directory:
+  * winmm.dll
+  * TLAPI/IngameTest0.layout
+  * TLAPI/IngameTest0.layout
+
+Note: The install contains a resources.cfg file that you should not remove, if you wish to revert it, remove the last line present dealing with the TLAPI folder.
