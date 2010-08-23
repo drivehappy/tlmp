@@ -52,6 +52,9 @@ namespace TLMP {
       inline bool Get_IsSendingUseSkill()                      { return m_bIsSendingUseSkill; }
       inline void Set_IsSendingUseSkill(bool value)            { m_bIsSendingUseSkill = value; }
 
+      inline bool Get_IsSendingEquipmentAddGem()             { return m_bIsEquipmentAddingGem; }
+      inline void Set_IsSendingEquipmentAddGem(bool value)   { m_bIsEquipmentAddingGem = value; }      
+
       inline bool GetSuppressed_SendUseSkill()           { return m_bSuppressNetwork_SendUseSkill; }
       inline void SetSuppressed_SendUseSkill(bool value) { m_bSuppressNetwork_SendUseSkill = value; }
 
@@ -108,6 +111,7 @@ namespace TLMP {
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
       void HandleEquipmentUpdateStack(NetworkMessages::EquipmentUpdateStackSize*);
+      void HandleEquipmentAddGem(NetworkMessages::EquipmentAddGem*);
       
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -138,8 +142,9 @@ namespace TLMP {
       bool m_bSuppressNetwork_SendUseSkill;
       bool m_bSuppressNetwork_SendEquipmentStack;
 
-      bool m_bIsSendingPickup;  // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
-      bool m_bIsSendingUseSkill;  // Required because Same as above
+      bool m_bIsSendingPickup;      // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
+      bool m_bIsSendingUseSkill;    // Required because Same as above
+      bool m_bIsEquipmentAddingGem; // Used as a request mechanism to the server
     };
 
   };

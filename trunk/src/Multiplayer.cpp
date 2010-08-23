@@ -38,7 +38,7 @@ void TLMP::SetupNetwork()
   CEquipment::RegisterEvent_EquipmentDtor(Equipment_Dtor, NULL);
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
   CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
-  CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGem, NULL);
+  CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGemPre, NULL);
 
   CEnchantMenu::RegisterEvent_EnchantMenu_EnchantItem(EnchantMenuEnchantItemPre, NULL);
 
@@ -343,9 +343,24 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
 void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
 {
-  
+  //CPlayer *player = client->pCPlayer;
+  //log(L"Test: CPositionableObject: %x CBaseUnit: %x  CCharacter: %x (Player = %p)",
+  //  sizeof(CPositionableObject), sizeof(CBaseUnit), sizeof(CCharacter), player);
+
   /*
-  CPlayer *player = client->pCPlayer;
+  log(L"Test: destroy = %x", player->destroy);
+  log(L"Test: offset destroy = %x", ((u32)&player->destroy - (u32)player) );
+  */
+
+  /*
+  log(L"Test: health = %x", player->health);
+  log(L"Test: offset health = %x", ((u32)&player->health - (u32)player) );
+
+  log(L"Test: mana = %x", player->mana);
+  log(L"Test: offset mana = %x", ((u32)&player->mana - (u32)player) );
+  */
+
+  /*
   log(L"Test: target = %x", player->target);
   log(L"Test: offset target = %x", ((u32)&player->target - (u32)player) );
   log(L"Test: running = %x", player->running);
@@ -725,10 +740,10 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
 
 void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPost(%p) (%p) (%s)",
-    inventory, equipment, equipment->nameReal.c_str());
-  log(L"Inventory::AddEquipmentPost(%p) (%p) (%s)",
-    inventory, equipment, equipment->nameReal.c_str());
+  multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
+    inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
+  log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
+    inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
 }
 
 void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
@@ -1130,12 +1145,6 @@ void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
 void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu)
 {
   log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
-  log(L"  unk10: %x %x", enchantMenu->unk10[0], enchantMenu->unk10[1]);
-  log(L"  unk11:");
-  for (u32 i = 0; i < 32; i++) {
-    log(L"  %x", enchantMenu->unk11[i]);
-  }
-
 
   if (enchantMenu->EnchantType == 0x19) {
     log(L"Destroying gems from Equipment...");
@@ -1146,10 +1155,50 @@ void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu)
   }
 }
 
-void TLMP::EquipmentAddGem(CEquipment* equipment, CEquipment* gem)
+void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & calloriginal)
 {
   log(L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
   multiplayerLogger.WriteLine(Info, L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
+
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().Get_IsSendingEquipmentAddGem()) {
+      calloriginal = false;
+
+      NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
+      NetworkEntity *netGem = searchEquipmentByInternalObject(gem);
+
+      if (netEquipment && netGem) {
+        // Send the server a message requsting the Gem be Added to the equipment
+        NetworkMessages::EquipmentAddGem msgEquipmentAddGem;
+        msgEquipmentAddGem.set_equipmentid(netEquipment->getCommonId());
+        msgEquipmentAddGem.set_gemid(netGem->getCommonId());
+
+        Client::getSingleton().SendMessage<NetworkMessages::EquipmentAddGem>(C_PUSH_EQUIPMENT_ADD_GEM, &msgEquipmentAddGem);
+      } else {
+        log(L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+          netEquipment, netGem);
+        multiplayerLogger.WriteLine(Error, L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+          netEquipment, netGem);
+      }
+    }
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
+      NetworkEntity *netGem = searchEquipmentByInternalObject(gem);
+
+      if (netEquipment && netGem) {
+        // Send the server a message requsting the Gem be Added to the equipment
+        NetworkMessages::EquipmentAddGem msgEquipmentAddGem;
+        msgEquipmentAddGem.set_equipmentid(netEquipment->getCommonId());
+        msgEquipmentAddGem.set_gemid(netGem->getCommonId());
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentAddGem>(S_PUSH_EQUIPMENT_ADD_GEM, &msgEquipmentAddGem);
+      } else {
+        log(L"Error: Server could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+          netEquipment, netGem);
+        multiplayerLogger.WriteLine(Error, L"Error: Server could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+          netEquipment, netGem);
+      }
+  }
 }
 
 
