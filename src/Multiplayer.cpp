@@ -31,6 +31,7 @@ void TLMP::SetupNetwork()
   CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, NULL);
   CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, NULL);
   CGameClient::RegisterEvent_GameClient_SaveGame(GameClientSaveGamePre, NULL);
+  CGameClient::RegisterEvent_GameClientGamePaused(NULL, GameClientGamePausedPost);
 
   CMainMenu::RegisterEvent_MainMenu_Event(MainMenuEventPre, NULL);
 
@@ -52,6 +53,8 @@ void TLMP::SetupNetwork()
 
   CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipmentPre, Inventory_AddEquipmentPost);
   CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, Inventory_RemoveEquipmentPost);
+
+  CGameUI::RegisterEvent_GameUI_TriggerPause(GameUI_TriggerPausePre, NULL);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -1088,7 +1091,9 @@ void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bo
 
   callOriginal = false;
 
-  /*
+  /* Removed - New characters will try to save right off and Disconnect - move this
+     to a proper function where the game exits.
+
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     // Force disconnect, crashes when rejoining
     log(L"Forcing client disconnect.");
@@ -1104,6 +1109,16 @@ void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bo
     NetworkState::getSingleton().SetState(SINGLEPLAYER);
   }
   */
+}
+
+void TLMP::GameClientGamePausedPost(bool& retval, CGameClient *gameClient, bool & calloriginal)
+{
+  retval = false;
+}
+
+void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
+{
+  calloriginal = false;
 }
 
 // Server Events

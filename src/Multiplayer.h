@@ -82,6 +82,10 @@ namespace TLMP
   void GameClient_LoadLevelPre(CGameClient*, bool & calloriginal);
   void GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
   void GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal);
+  void GameClientGamePausedPost(bool& retval, CGameClient *gameClient, bool & calloriginal);
+
+  // Pre Event for suppressing the paused game
+  void GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal);
 
   // Post Event for the main GameClient loop
   void GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
