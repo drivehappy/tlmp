@@ -14,7 +14,7 @@ namespace TLMP {
     #define stringify(name) #name
 
     /** Version to signify any Messaging ID changes. */
-    const u32 MessageVersion = 1;
+    const u32 MessageVersion = 2;
 
     /** Network Control Messages */
     enum Message {
@@ -91,6 +91,12 @@ namespace TLMP {
 
       C_PUSH_EQUIPMENT_STACKUPDATE, // Client Pushes an update on Equipment Stack size
       S_PUSH_EQUIPMENT_STACKUPDATE, // Server Pushes an update on Equipment Stack size
+
+      C_PUSH_EQUIPMENT_ADD_GEM,     // Client pushes a gem attach to equipment
+      S_PUSH_EQUIPMENT_ADD_GEM,     // Server pushes a gem attach to equipment
+            
+      C_PUSH_EQUIPMENT_REMOVE_GEMS, // Client pushes equipment remove all gems
+      S_PUSH_EQUIPMENT_REMOVE_GEMS, // Server pushes equipment remove all gems
     };
 
     static const char* MessageString[] = {
@@ -157,6 +163,12 @@ namespace TLMP {
 
       "C_PUSH_EQUIPMENT_STACKUPDATE",
       "S_PUSH_EQUIPMENT_STACKUPDATE",
+
+      "C_PUSH_EQUIPMENT_ADD_GEM",
+      "S_PUSH_EQUIPMENT_ADD_GEM",
+      
+      "C_PUSH_EQUIPMENT_REMOVE_GEMS",
+      "S_PUSH_EQUIPMENT_REMOVE_GEMS",
     };
 
   };

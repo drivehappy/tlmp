@@ -168,11 +168,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 {
   wstring msgString = convertAcsiiToWide(MessageString[msg]);
 
-  multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
-
   // For sake of less spam
-  if (msg != S_PUSH_CHARACTER_SETDEST)
+  if (msg != S_PUSH_CHARACTER_SETDEST) {
+    multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
     logColor(B_GREEN, L"Client Received Message: %s", msgString.c_str());
+  }
 
   switch (msg) {
   case S_VERSION:
@@ -544,8 +544,8 @@ void Client::PushEquipment()
 // Handles Character Set Destination
 void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 running, u8 attacking)
 {
-  multiplayerLogger.WriteLine(Info, L"Client received character setDestination (CommonID = %x), Position = %f, %f",
-    commonId, destination.x, destination.z);
+  //multiplayerLogger.WriteLine(Info, L"Client received character setDestination (CommonID = %x), Position = %f, %f",
+  //  commonId, destination.x, destination.z);
   //log(L"Client received character setDestination (CommonID = %x), Position = %f, %f",
   //  commonId, destination.x, destination.z);
 

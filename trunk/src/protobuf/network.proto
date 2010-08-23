@@ -143,6 +143,11 @@ message CharacterUseSkill {
   required int64    skill = 2;
 }
 
+message EquipmentAddGem {
+  required int32    equipmentId = 1;
+  required int32    gemId = 2;
+}
+
 
 
 
