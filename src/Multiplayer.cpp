@@ -38,6 +38,9 @@ void TLMP::SetupNetwork()
   CEquipment::RegisterEvent_EquipmentDtor(Equipment_Dtor, NULL);
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
   CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
+  CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGem, NULL);
+
+  CEnchantMenu::RegisterEvent_EnchantMenu_EnchantItem(EnchantMenuEnchantItemPre, NULL);
 
   CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI, NULL);
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
@@ -1120,6 +1123,26 @@ void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
 {
   calloriginal = false;
 }
+
+void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu)
+{
+  log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
+
+  if (enchantMenu->EnchantType == 0x19) {
+    log(L"Destroying gems from Equipment...");
+    multiplayerLogger.WriteLine(Info, L"Destroying gems from Equipment...");
+  } else if (enchantMenu->EnchantType == 0x1A) {
+    log(L"Removing gems and destroying equipment...");
+    multiplayerLogger.WriteLine(Info, L"Removing gems and destroying equipment...");
+  }
+}
+
+void TLMP::EquipmentAddGem(CEquipment* equipment, CEquipment* gem)
+{
+  log(L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
+  multiplayerLogger.WriteLine(Info, L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
+}
+
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
