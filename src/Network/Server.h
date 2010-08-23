@@ -90,6 +90,7 @@ namespace TLMP {
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
       void HandleEquipmentUpdateStack(const SystemAddress, NetworkMessages::EquipmentUpdateStackSize*);
+      void HandleEquipmentAddGem(const SystemAddress, NetworkMessages::EquipmentAddGem*);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);

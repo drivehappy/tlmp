@@ -325,6 +325,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_PUSH_EQUIPMENT_ADD_GEM:
+    {
+      NetworkMessages::EquipmentAddGem *msgEquipmentAddGem = ParseMessage<NetworkMessages::EquipmentAddGem>(m_pBitStream);
+
+      HandleEquipmentAddGem(address, msgEquipmentAddGem);
+    }
+    break;
+
   }
 }
 
@@ -1147,5 +1155,26 @@ void Server::HandleEquipmentUpdateStack(const SystemAddress clientAddress, Netwo
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find equipment with common id = %x", id);
     log(L"Error: Could not find equipment with common id = %x", id);
+  }
+}
+
+void Server::HandleEquipmentAddGem(const SystemAddress address, NetworkMessages::EquipmentAddGem* msgEquipmentAddGem)
+{
+  u32 equipmentId = msgEquipmentAddGem->equipmentid();
+  u32 gemId = msgEquipmentAddGem->gemid();
+
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
+  NetworkEntity *netGem = searchEquipmentByCommonID(gemId);
+
+  if (netEquipment && netGem) {
+    CEquipment *equipment = (CEquipment*)netEquipment->getInternalObject();
+    CEquipment *gem = (CEquipment*)netGem->getInternalObject();
+
+    equipment->AddGem(gem);
+  } else {
+    log(L"Equipment or Gem commonId not found: %x %x  ptrs: %p %p",
+      equipmentId, gemId, netEquipment, netGem);
+    multiplayerLogger.WriteLine(Error, L"Equipment or Gem commonId not found: %x %x  ptrs: %p %p",
+      equipmentId, gemId, netEquipment, netGem);
   }
 }

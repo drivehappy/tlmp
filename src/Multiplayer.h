@@ -57,7 +57,7 @@ namespace TLMP
   void CreateEquipmentPost(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
   void EquipmentAddStackCountPost(CEquipment*, u32);
-  void EquipmentAddGem(CEquipment*, CEquipment*);
+  void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
 
   // Pre event for enchant menu
   void EnchantMenuEnchantItemPre(CEnchantMenu*);
