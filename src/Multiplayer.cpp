@@ -275,6 +275,9 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u64 BRINK = 0xBC1E373A723411DE;
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    log(L"Client: Level::CharInit: Level = %p Character = %p", level, character);
+    multiplayerLogger.WriteLine(Info, L"Client: Level::CharInit: Level = %p Character = %p", level, character);
+
     multiplayerLogger.WriteLine(Info, L"Client: Level::CharacterInitialize: %s (%f %f %f) unk0: %x",
       character->characterName.c_str(), position->x, position->y, position->z, unk0);
     log(L"Client: Level::CharacterInitialize: %s (%f %f %f) unk0: %x",
@@ -749,7 +752,7 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
 
   // TESTING
   //owner->dumpCharacter();
-  equipment->dumpEquipment();
+  //equipment->dumpEquipment();
   //
 
   //
@@ -1127,6 +1130,12 @@ void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
 void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu)
 {
   log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
+  log(L"  unk10: %x %x", enchantMenu->unk10[0], enchantMenu->unk10[1]);
+  log(L"  unk11:");
+  for (u32 i = 0; i < 32; i++) {
+    log(L"  %x", enchantMenu->unk11[i]);
+  }
+
 
   if (enchantMenu->EnchantType == 0x19) {
     log(L"Destroying gems from Equipment...");
