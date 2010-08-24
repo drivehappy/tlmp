@@ -112,6 +112,7 @@ namespace TLMP {
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
       void HandleEquipmentUpdateStack(NetworkMessages::EquipmentUpdateStackSize*);
       void HandleEquipmentAddGem(NetworkMessages::EquipmentAddGem*);
+      void HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *);
       
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 

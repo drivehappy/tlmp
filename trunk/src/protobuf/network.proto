@@ -148,6 +148,10 @@ message EquipmentAddGem {
   required int32    gemId = 2;
 }
 
+message EquipmentRemoveGems {
+  required int32    equipmentId = 1;
+}
+
 
 
 

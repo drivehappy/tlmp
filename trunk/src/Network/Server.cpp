@@ -333,6 +333,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_PUSH_EQUIPMENT_REMOVE_GEMS:
+    {
+      NetworkMessages::EquipmentRemoveGems *msgEquipmentRemoveGems = ParseMessage<NetworkMessages::EquipmentRemoveGems>(m_pBitStream);
+
+      HandleEquipmentRemoveGems(msgEquipmentRemoveGems);
+    }
+    break;
+
   }
 }
 
@@ -1176,5 +1184,23 @@ void Server::HandleEquipmentAddGem(const SystemAddress address, NetworkMessages:
       equipmentId, gemId, netEquipment, netGem);
     multiplayerLogger.WriteLine(Error, L"Equipment or Gem commonId not found: %x %x  ptrs: %p %p",
       equipmentId, gemId, netEquipment, netGem);
+  }
+}
+
+void Server::HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *msgEquipmentRemoveGems)
+{
+  u32 equipmentId = msgEquipmentRemoveGems->equipmentid();
+
+  NetworkEntity *netEntity = searchEquipmentByCommonID(equipmentId);
+
+  if (netEntity) {
+    CEquipment* equipment = (CEquipment*)netEntity->getInternalObject();
+    equipment->gemList.size = 0;
+
+    // Broadcast it back out
+    Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentRemoveGems>(S_PUSH_EQUIPMENT_REMOVE_GEMS, msgEquipmentRemoveGems);
+  } else {
+    log(L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
   }
 }

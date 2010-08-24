@@ -1142,16 +1142,40 @@ void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
   calloriginal = false;
 }
 
-void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu)
+void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu, bool & calloriginal)
 {
+  multiplayerLogger.WriteLine(Info, L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
   log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
+  
+  // !!!
+  // This is assuming the gameClient->Player is the Owner
+  CInventory *inventory = gameClient->pCPlayer->pCInventory;
+  CEquipment *equipment = inventory->GetEquipmentFromSlot(0xE);
+  log(L"  Acting on Equipment: %s", equipment->nameReal.c_str());
+  multiplayerLogger.WriteLine(Info, L"  Acting on Equipment: %s", equipment->nameReal.c_str());
 
-  if (enchantMenu->EnchantType == 0x19) {
-    log(L"Destroying gems from Equipment...");
-    multiplayerLogger.WriteLine(Info, L"Destroying gems from Equipment...");
-  } else if (enchantMenu->EnchantType == 0x1A) {
-    log(L"Removing gems and destroying equipment...");
-    multiplayerLogger.WriteLine(Info, L"Removing gems and destroying equipment...");
+  NetworkEntity* netEntity = searchEquipmentByInternalObject(equipment);
+  if (netEntity) {
+    if (enchantMenu->EnchantType == 0x19) {
+      log(L"Destroying gems from Equipment...");
+      multiplayerLogger.WriteLine(Info, L"Destroying gems from Equipment...");
+
+      NetworkMessages::EquipmentRemoveGems msgEquipmentRemoveGems;
+      msgEquipmentRemoveGems.set_equipmentid(netEntity->getCommonId());
+
+      if (NetworkState::getSingleton().GetState() == CLIENT) {
+        calloriginal = false;
+        Client::getSingleton().SendMessage<NetworkMessages::EquipmentRemoveGems>(C_PUSH_EQUIPMENT_REMOVE_GEMS, &msgEquipmentRemoveGems);
+      } else if (NetworkState::getSingleton().GetState() == SERVER) {
+        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentRemoveGems>(S_PUSH_EQUIPMENT_REMOVE_GEMS, &msgEquipmentRemoveGems);
+      }
+    } else if (enchantMenu->EnchantType == 0x1A) {
+      log(L"Removing gems and destroying equipment...");
+      multiplayerLogger.WriteLine(Info, L"Removing gems and destroying equipment...");
+    }
+  } else {
+    log(L"Error: Could not find NetworkEntity for equipment");
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment");
   }
 }
 

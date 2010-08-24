@@ -60,7 +60,7 @@ namespace TLMP
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
 
   // Pre event for enchant menu
-  void EnchantMenuEnchantItemPre(CEnchantMenu*);
+  void EnchantMenuEnchantItemPre(CEnchantMenu*, bool&);
   
   // Pre Event for player initialization
   void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
