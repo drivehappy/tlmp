@@ -424,23 +424,6 @@ void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring 
     unk0.c_str(), unk1.c_str(), unk5.c_str());
   log(L"GameClient::CreateLevel Pre (%s, %s, %s)",
     unk0.c_str(), unk1.c_str(), unk5.c_str());
-
-  // Send a Message to clients that the Server's game has started
-  if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    Server::getSingleton().SetGameStarted(true);
-
-    NetworkMessages::GameStarted msgGameStarted;
-    Server::getSingleton().BroadcastMessage<NetworkMessages::GameStarted>(S_PUSH_GAMESTARTED, &msgGameStarted);
-  }
-
-  // Send a Message to the Server that the client has entered the game
-  else if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    Client::getSingleton().SetGameStarted(true);
-
-    NetworkMessages::GameEnter msgGameEnter;
-
-    Client::getSingleton().SendMessage<NetworkMessages::GameEnter>(C_PUSH_GAMEENTER, &msgGameEnter);
-  }
 }
 
 void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)
@@ -466,6 +449,24 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
       gameClient->ChangeLevel(-99);
       NetworkState::getSingleton().SetSuppressed_LevelChange(true);
     }
+  }
+
+  // Do this in Post to ensure it loads at the right time
+  // Send a Message to clients that the Server's game has started
+  if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    Server::getSingleton().SetGameStarted(true);
+
+    NetworkMessages::GameStarted msgGameStarted;
+    Server::getSingleton().BroadcastMessage<NetworkMessages::GameStarted>(S_PUSH_GAMESTARTED, &msgGameStarted);
+  }
+
+  // Send a Message to the Server that the client has entered the game
+  else if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    Client::getSingleton().SetGameStarted(true);
+
+    NetworkMessages::GameEnter msgGameEnter;
+
+    Client::getSingleton().SendMessage<NetworkMessages::GameEnter>(C_PUSH_GAMEENTER, &msgGameEnter);
   }
 }
 

@@ -435,23 +435,28 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 
     // Old: Move through the body slots and send an equip message to show the initial equipment
     ///// New: Move throug all inventory slots and add equipment
-    for (u32 i = 0; i <= 0x0C; i++) {
-      CEquipment* equipment = character->pCInventory->GetEquipmentFromSlot(i);
+    if (character->pCInventory) {
+      for (u32 i = 0; i <= 0x0C; i++) {
+        CEquipment* equipment = character->pCInventory->GetEquipmentFromSlot(i);
 
-      if (equipment) {
-        NetworkEntity* netEquipment = searchEquipmentByInternalObject(equipment);
+        if (equipment) {
+          NetworkEntity* netEquipment = searchEquipmentByInternalObject(equipment);
 
-        if (netEquipment) {
-          NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-          msgInventoryAddEquipment.set_equipmentid(netEquipment->getCommonId());
-          msgInventoryAddEquipment.set_guid(equipment->GUID);
-          msgInventoryAddEquipment.set_ownerid((*itr)->getCommonId());
-          msgInventoryAddEquipment.set_slot(i);
-          msgInventoryAddEquipment.set_unk0(1);
+          if (netEquipment) {
+            NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+            msgInventoryAddEquipment.set_equipmentid(netEquipment->getCommonId());
+            msgInventoryAddEquipment.set_guid(equipment->GUID);
+            msgInventoryAddEquipment.set_ownerid((*itr)->getCommonId());
+            msgInventoryAddEquipment.set_slot(i);
+            msgInventoryAddEquipment.set_unk0(1);
 
-          Server::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(clientAddress, S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+            Server::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(clientAddress, S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+          }
         }
       }
+    } else {
+      log(L"Error: Character has no Inventory!");
+      multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
     }
   }
 
