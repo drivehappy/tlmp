@@ -37,6 +37,13 @@ namespace TLMP
   bool ButtonEvent_MultiplayerOptions_WaitServer_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerSplash_OkButton(const CEGUI::EventArgs& args);
 
+  bool ButtonEvent_MultiplayerClientConnecting_OkButton(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerClientConnecting_CancelButton(const CEGUI::EventArgs& args);
+
+  void OnClientConnected(void*);
+  void OnClientDisconnected(void*);
+  void OnClientConnectFailed(void*);
+
   // Internal "Events"
   void onNetworkStateChange();
 };

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+using namespace std;
+
 #include "Common.h"
 using namespace TLMP;
 
@@ -124,9 +127,9 @@ namespace TLMP {
       RakPeerInterface *m_pClient;
       RakNet::BitStream *m_pBitStream;
 
-      OnConnected       m_pOnConnected;
-      OnDisconnected    m_pOnDisconnected;
-      OnConnectFailed   m_pOnConnectFailed;
+      vector<OnConnected>       m_pOnConnected;
+      vector<OnDisconnected>    m_pOnDisconnected;
+      vector<OnConnectFailed>   m_pOnConnectFailed;
       
       bool m_bWaitingForGame;
       bool m_bGameStarted;
