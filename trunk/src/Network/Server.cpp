@@ -51,7 +51,7 @@ void Server::Listen(u16 port, u16 maxconnections)
   multiplayerLogger.WriteLine(Info, L"Got server: %p", m_pServer);
 
   // Debugging - allow 2 minutes until disconnect
-  m_pServer->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
+  //m_pServer->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
   //--
 
   SocketDescriptor socketDescriptor(port, 0);
@@ -110,6 +110,8 @@ void Server::ReceiveMessages()
     switch(packet->data[0]) {
     case ID_NEW_INCOMING_CONNECTION:
       multiplayerLogger.WriteLine(Info, L"Client connected");
+      logColor(B_GREEN, L"Client connected");
+
       if (m_pOnClientConnect) {
         SystemAddress *sysAddress = new SystemAddress();
         *sysAddress = packet->systemAddress;
@@ -118,6 +120,8 @@ void Server::ReceiveMessages()
       break;
     case ID_DISCONNECTION_NOTIFICATION:
       multiplayerLogger.WriteLine(Info, L"Client disconnected");
+      logColor(B_GREEN, L"Client disconnected");
+
       if (m_pOnClientDisconnect) {
         SystemAddress *sysAddress = new SystemAddress();
         *sysAddress = packet->systemAddress;
@@ -126,6 +130,8 @@ void Server::ReceiveMessages()
       break;
     case ID_CONNECTION_LOST:
       multiplayerLogger.WriteLine(Info, L"Client disconnected");
+      logColor(B_GREEN, L"Client disconnected");
+
       if (m_pOnClientDisconnect) {
         SystemAddress *sysAddress = new SystemAddress();
         *sysAddress = packet->systemAddress;
