@@ -414,6 +414,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_EQUIPMENT_REMOVE_GEMS:
+    {
+      NetworkMessages::EquipmentRemoveGems *msgEquipmentRemoveGems = ParseMessage<NetworkMessages::EquipmentRemoveGems>(m_pBitStream);
+
+      HandleEquipmentRemoveGems(msgEquipmentRemoveGems);
+    }
+    break;
+
   }     
 }
 
@@ -1168,5 +1176,20 @@ void Client::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
         msgEnchantType->set_value(effect->effectValue);
       }
     }
+  }
+}
+
+void Client::HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *msgEquipmentRemoveGems)
+{
+  u32 equipmentId = msgEquipmentRemoveGems->equipmentid();
+
+  NetworkEntity *netEntity = searchEquipmentByCommonID(equipmentId);
+
+  if (netEntity) {
+    CEquipment* equipment = (CEquipment*)netEntity->getInternalObject();
+    equipment->gemList.size = 0;
+  } else {
+    log(L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
   }
 }
