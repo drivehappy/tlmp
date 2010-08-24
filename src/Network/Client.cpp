@@ -14,10 +14,6 @@ Client::Client()
   m_pBitStream = new RakNet::BitStream(1024);
 
   Reset();
-
-  m_pOnConnected = NULL;
-  m_pOnDisconnected = NULL;
-  m_pOnConnectFailed = NULL;
 }
 
 Client::~Client()
@@ -80,17 +76,17 @@ void Client::Disconnect()
 
 void Client::SetCallback_OnConnected(OnConnected callback)
 {
-  m_pOnConnected = callback;
+  m_pOnConnected.push_back(callback);
 }
 
 void Client::SetCallback_OnDisconnected(OnDisconnected callback)
 {
-  m_pOnDisconnected = callback;
+  m_pOnDisconnected.push_back(callback);
 }
 
 void Client::SetCallback_OnConnectFailed(OnConnectFailed callback)
 {
-  m_pOnConnectFailed = callback;
+  m_pOnConnectFailed.push_back(callback);
 }
 
 void Client::ReceiveMessages()
@@ -104,46 +100,61 @@ void Client::ReceiveMessages()
     switch(packet->data[0])
     {
     case ID_CONNECTION_REQUEST_ACCEPTED:
-      multiplayerLogger.WriteLine(Info, L"Client connected to server.");
-      logColor(B_GREEN, L"Client connected to server.");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client connected to server.");
+        logColor(B_GREEN, L"Client connected to server.");
 
-      if (m_pOnConnected) {
-        SystemAddress *sysAddress = new SystemAddress();
-        *sysAddress = packet->systemAddress;
-        m_pOnConnected((void*)sysAddress);
+        vector<OnConnected>::iterator itr;
+        for (itr = m_pOnConnected.begin(); itr != m_pOnConnected.end(); itr++) {
+          SystemAddress *sysAddress = new SystemAddress();
+          *sysAddress = packet->systemAddress;
+          (*itr)((void*)sysAddress);
+        }
       }
-      OnConnect(NULL);
+
       break;
     case ID_NO_FREE_INCOMING_CONNECTIONS:
-      multiplayerLogger.WriteLine(Info, L"Could not connect to server: No Room.");
-      logColor(B_GREEN, L"Could not connect to server: No Room.");
+      {
+        multiplayerLogger.WriteLine(Info, L"Could not connect to server: No Room.");
+        logColor(B_GREEN, L"Could not connect to server: No Room.");
 
-      if (m_pOnConnectFailed) {
-        m_pOnConnectFailed(NULL);
+        vector<OnDisconnected>::iterator itr;
+        for (itr = m_pOnConnectFailed.begin(); itr != m_pOnConnectFailed.end(); itr++) {
+          (*itr)(NULL);
+        }
       }
       break;
     case ID_DISCONNECTION_NOTIFICATION:
-      multiplayerLogger.WriteLine(Info, L"Client disconnected.");
-      logColor(B_GREEN, L"Client disconnected.");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client disconnected.");
+        logColor(B_GREEN, L"Client disconnected.");
 
-      if (m_pOnDisconnected) {
-        m_pOnDisconnected(NULL);
+        vector<OnDisconnected>::iterator itr;
+        for (itr = m_pOnDisconnected.begin(); itr != m_pOnDisconnected.end(); itr++) {
+          (*itr)(NULL);
+        }
       }
       break;
     case ID_CONNECTION_LOST:
-      multiplayerLogger.WriteLine(Info, L"Client connection lost.");
-      logColor(B_GREEN, L"Client connection lost.");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client connection lost.");
+        logColor(B_GREEN, L"Client connection lost.");
 
-      if (m_pOnDisconnected) {
-        m_pOnDisconnected(NULL);
+        vector<OnDisconnected>::iterator itr;
+        for (itr = m_pOnDisconnected.begin(); itr != m_pOnDisconnected.end(); itr++) {
+          (*itr)(NULL);
+        }
       }
       break;
     case ID_CONNECTION_ATTEMPT_FAILED:
-      multiplayerLogger.WriteLine(Info, L"Client connection failed.");
-      logColor(B_GREEN, L"Client connection failed.");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client connection failed.");
+        logColor(B_GREEN, L"Client connection failed.");
 
-      if (m_pOnConnectFailed) {
-        m_pOnConnectFailed(NULL);
+        vector<OnDisconnected>::iterator itr;
+        for (itr = m_pOnConnectFailed.begin(); itr != m_pOnConnectFailed.end(); itr++) {
+          (*itr)(NULL);
+        }
       }
       break;
     case ID_USER_PACKET_ENUM+1:
