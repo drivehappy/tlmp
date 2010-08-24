@@ -57,7 +57,7 @@ void Client::Connect(const char* address, u16 port)
   m_pClient = RakNetworkFactory::GetRakPeerInterface();
 
   // Debugging - allow 2 minutes until disconnect
-  m_pClient->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
+  //m_pClient->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
   //--
 
   SocketDescriptor socketDescriptor(0, 0);
@@ -104,6 +104,9 @@ void Client::ReceiveMessages()
     switch(packet->data[0])
     {
     case ID_CONNECTION_REQUEST_ACCEPTED:
+      multiplayerLogger.WriteLine(Info, L"Client connected to server.");
+      logColor(B_GREEN, L"Client connected to server.");
+
       if (m_pOnConnected) {
         SystemAddress *sysAddress = new SystemAddress();
         *sysAddress = packet->systemAddress;
@@ -112,21 +115,33 @@ void Client::ReceiveMessages()
       OnConnect(NULL);
       break;
     case ID_NO_FREE_INCOMING_CONNECTIONS:
+      multiplayerLogger.WriteLine(Info, L"Could not connect to server: No Room.");
+      logColor(B_GREEN, L"Could not connect to server: No Room.");
+
       if (m_pOnConnectFailed) {
         m_pOnConnectFailed(NULL);
       }
       break;
     case ID_DISCONNECTION_NOTIFICATION:
+      multiplayerLogger.WriteLine(Info, L"Client disconnected.");
+      logColor(B_GREEN, L"Client disconnected.");
+
       if (m_pOnDisconnected) {
         m_pOnDisconnected(NULL);
       }
       break;
     case ID_CONNECTION_LOST:
+      multiplayerLogger.WriteLine(Info, L"Client connection lost.");
+      logColor(B_GREEN, L"Client connection lost.");
+
       if (m_pOnDisconnected) {
         m_pOnDisconnected(NULL);
       }
       break;
     case ID_CONNECTION_ATTEMPT_FAILED:
+      multiplayerLogger.WriteLine(Info, L"Client connection failed.");
+      logColor(B_GREEN, L"Client connection failed.");
+
       if (m_pOnConnectFailed) {
         m_pOnConnectFailed(NULL);
       }
@@ -786,10 +801,15 @@ void Client::HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId)
 
       CInventory *inventory = characterOwner->pCInventory;
 
-      // Suppress from sending this out again
-      SetSuppressed_SendEquipmentUnequip(true);
-      inventory->RemoveEquipment(equipmentReal);
-      SetSuppressed_SendEquipmentUnequip(false);
+      if (inventory) {
+        // Suppress from sending this out again
+        SetSuppressed_SendEquipmentUnequip(true);
+        inventory->RemoveEquipment(equipmentReal);
+        SetSuppressed_SendEquipmentUnequip(false);
+      } else {
+        multiplayerLogger.WriteLine(Error, L"Error: Inventory was NULL.");
+        log(L"Error: Inventory was NULL.");
+      }
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
       log(L"Error: Could not find Equipment with ID = %x", equipmentId);

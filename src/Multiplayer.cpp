@@ -688,55 +688,60 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
   log(L"Inventory adding Equipment: %016I64X (%s) (slot = %x) (Owner = %s)",
     equipment->GUID, equipment->nameReal.c_str(), slot, inventory->pCCharacter->characterName.c_str());
 
-  CCharacter *owner = inventory->pCCharacter;
+  if (inventory) {
+    CCharacter *owner = inventory->pCCharacter;
 
-  // Client - Allow the equipment to be added to the inventory, but send it out to the server to create
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
-      // If we're suppressing this, we need to send it to the Server
-      // The server will create, add the equipment and send the message back to us with the network id
-      SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
-    }
-  }
-
-  // Server
-  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    // If we're not suppressed to send this out - 
-    // The reason this would be suppressed if a character had sent a Pickup message,
-    // That triggers an Equip then a Pickup message on the client, causing a phantom item in the inventory
-    if (!Server::getSingleton().GetSuppressed_SendEquipmentEquip()) {
-      NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
-      NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
-
-      if (ownerEntity) {
-        if (equipmentEntity) {
-          // Create a Network Message for sending off to clients the equipment addition to the inventory
-          NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-          msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
-          msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
-          msgInventoryAddEquipment.set_slot(slot);
-          msgInventoryAddEquipment.set_unk0(unk0);
-
-          Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryAddEquipment>(S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
-        } else {
-          multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
-            equipment);
-          log(L"Could not find NetworkEntity for equipment: %p",
-            equipment);
-        }
-      } else {
-        multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
-          inventory, owner);
-        log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
-          inventory, owner);
+    // Client - Allow the equipment to be added to the inventory, but send it out to the server to create
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
+        // If we're suppressing this, we need to send it to the Server
+        // The server will create, add the equipment and send the message back to us with the network id
+        SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
       }
     }
+
+    // Server
+    else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      // If we're not suppressed to send this out - 
+      // The reason this would be suppressed if a character had sent a Pickup message,
+      // That triggers an Equip then a Pickup message on the client, causing a phantom item in the inventory
+      if (!Server::getSingleton().GetSuppressed_SendEquipmentEquip()) {
+        NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
+        NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+
+        if (ownerEntity) {
+          if (equipmentEntity) {
+            // Create a Network Message for sending off to clients the equipment addition to the inventory
+            NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+            msgInventoryAddEquipment.set_ownerid(ownerEntity->getCommonId());
+            msgInventoryAddEquipment.set_equipmentid(equipmentEntity->getCommonId());
+            msgInventoryAddEquipment.set_slot(slot);
+            msgInventoryAddEquipment.set_unk0(unk0);
+
+            Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryAddEquipment>(S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+          } else {
+            multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
+              equipment);
+            log(L"Could not find NetworkEntity for equipment: %p",
+              equipment);
+          }
+        } else {
+          multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
+            inventory, owner);
+          log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
+            inventory, owner);
+        }
+      }
+    }
+    
+    multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
+      inventory, equipment, equipment->nameReal.c_str());
+    log(L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
+      inventory, equipment, equipment->nameReal.c_str());
+  } else {
+    log(L"Error: Character has no Inventory!");
+    multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
   }
-  
-  multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
-    inventory, equipment, equipment->nameReal.c_str());
-  log(L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
-    inventory, equipment, equipment->nameReal.c_str());
 }
 
 void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
@@ -1154,6 +1159,11 @@ void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu, bool & callorigi
   CEquipment *equipment = inventory->GetEquipmentFromSlot(0xE);
   log(L"  Acting on Equipment: %s", equipment->nameReal.c_str());
   multiplayerLogger.WriteLine(Info, L"  Acting on Equipment: %s", equipment->nameReal.c_str());
+
+  if (!inventory) {
+    log(L"  Inventory is null!");
+    multiplayerLogger.WriteLine(Error, L"  Inventory is null!");
+  }
 
   NetworkEntity* netEntity = searchEquipmentByInternalObject(equipment);
   if (netEntity) {
