@@ -872,16 +872,21 @@ void Client::HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmen
     // If the equipment is equipped on the body - tell the server to add it
     NetworkEntity *netCharacter = searchCharacterByInternalObject(gameClient->pCPlayer);
     if (netCharacter) {
-      u32 slotBody = gameClient->pCPlayer->pCInventory->GetEquipmentSlot(equipment);
-      if (slotBody <= 0x0C) {
-        NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-        msgInventoryAddEquipment.set_equipmentid(id);
-        msgInventoryAddEquipment.set_guid(equipment->GUID);
-        msgInventoryAddEquipment.set_ownerid(netCharacter->getCommonId());
-        msgInventoryAddEquipment.set_slot(slotBody);
-        msgInventoryAddEquipment.set_unk0(1);
+      if (gameClient->pCPlayer->pCInventory) {
+        u32 slotBody = gameClient->pCPlayer->pCInventory->GetEquipmentSlot(equipment);
+        if (slotBody <= 0x0C) {
+          NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+          msgInventoryAddEquipment.set_equipmentid(id);
+          msgInventoryAddEquipment.set_guid(equipment->GUID);
+          msgInventoryAddEquipment.set_ownerid(netCharacter->getCommonId());
+          msgInventoryAddEquipment.set_slot(slotBody);
+          msgInventoryAddEquipment.set_unk0(1);
 
-        Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+          Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+        }
+      } else {
+        log(L"Error: Character has no Inventory!");
+        multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
       }
     }
 
