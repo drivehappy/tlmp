@@ -977,7 +977,7 @@ void Client::Helper_ClientPushEquipment(CEquipment *equipment)
   Helper_PopulateEquipmentMessage(&msgEquipment, equipment, clientEquipment);
 
   log(L"  DEBUG: Equipment gemList: %p (Offset = %x)",
-    &equipment->gemList, ((u32)this - (u32)&equipment->gemList));
+    &equipment->gemList, ((u32)&equipment->gemList - (u32)equipment));
   multiplayerLogger.WriteLine(Info, L"  Equipment contains %i Gems", equipment->gemList.size);
   log(L"  Equipment contains %i Gems", equipment->gemList.size);
 
@@ -1212,6 +1212,10 @@ void Client::HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *msg
 
   if (netEntity) {
     CEquipment* equipment = (CEquipment*)netEntity->getInternalObject();
+
+    log(L"Client: Removing gems from equipment: %s", equipment->nameReal.c_str());
+    multiplayerLogger.WriteLine(Info, L"Client: Removing gems from equipment: %s", equipment->nameReal.c_str());
+
     equipment->gemList.size = 0;
   } else {
     log(L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);

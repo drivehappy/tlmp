@@ -240,12 +240,11 @@ void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveSt
 {
   log(L"Equipment initializing: %p", equipment);
 
-  log(L"Equipment Initialized (GUID: %016I64X  %s)",
-    equipment->GUID, equipment->nameReal.c_str());
-
   log(L"  ItemSaveState: %s %s %s",
     itemSaveState->name.c_str(), itemSaveState->name2.c_str(), itemSaveState->name3.c_str());
 
+  log(L"Equipment Initialized (GUID: %016I64X  %s)",
+    equipment->GUID, equipment->nameReal.c_str());
   multiplayerLogger.WriteLine(Info, L"Equipment Initialized (GUID: %016I64X  %s)",
     equipment->GUID, equipment->nameReal.c_str());
 
@@ -773,7 +772,7 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
 
   // TESTING
   //owner->dumpCharacter();
-  //equipment->dumpEquipment();
+  equipment->dumpEquipment();
   //
 
   //
@@ -1196,24 +1195,26 @@ void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & cal
   multiplayerLogger.WriteLine(Info, L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
 
   if (NetworkState::getSingleton().GetState() == CLIENT) {
-    if (!Client::getSingleton().Get_IsSendingEquipmentAddGem()) {
-      calloriginal = false;
+    if (gameClient->inGame) {
+      if (!Client::getSingleton().Get_IsSendingEquipmentAddGem()) {
+        calloriginal = false;
 
-      NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
-      NetworkEntity *netGem = searchEquipmentByInternalObject(gem);
+        NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
+        NetworkEntity *netGem = searchEquipmentByInternalObject(gem);
 
-      if (netEquipment && netGem) {
-        // Send the server a message requsting the Gem be Added to the equipment
-        NetworkMessages::EquipmentAddGem msgEquipmentAddGem;
-        msgEquipmentAddGem.set_equipmentid(netEquipment->getCommonId());
-        msgEquipmentAddGem.set_gemid(netGem->getCommonId());
+        if (netEquipment && netGem) {
+          // Send the server a message requsting the Gem be Added to the equipment
+          NetworkMessages::EquipmentAddGem msgEquipmentAddGem;
+          msgEquipmentAddGem.set_equipmentid(netEquipment->getCommonId());
+          msgEquipmentAddGem.set_gemid(netGem->getCommonId());
 
-        Client::getSingleton().SendMessage<NetworkMessages::EquipmentAddGem>(C_PUSH_EQUIPMENT_ADD_GEM, &msgEquipmentAddGem);
-      } else {
-        log(L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
-          netEquipment, netGem);
-        multiplayerLogger.WriteLine(Error, L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
-          netEquipment, netGem);
+          Client::getSingleton().SendMessage<NetworkMessages::EquipmentAddGem>(C_PUSH_EQUIPMENT_ADD_GEM, &msgEquipmentAddGem);
+        } else {
+          log(L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+            netEquipment, netGem);
+          multiplayerLogger.WriteLine(Error, L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+            netEquipment, netGem);
+        }
       }
     }
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
