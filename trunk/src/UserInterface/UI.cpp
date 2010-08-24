@@ -10,13 +10,16 @@ void TLMP::GameClient_CreateUI(CGame* game)
 
   // Add Client and Server events
   Client::getSingleton().SetCallback_OnConnected(OnClientConnected);
-  Client::getSingleton().SetCallback_OnConnected(OnClientDisconnected);
-  Client::getSingleton().SetCallback_OnConnected(OnClientConnectFailed);
+  Client::getSingleton().SetCallback_OnDisconnected(OnClientDisconnected);
+  Client::getSingleton().SetCallback_OnConnectFailed(OnClientConnectFailed);
 
   // Added the main game GUI elements
   CEGUI::Window *pRoot = NULL, *pMainMenuButton = NULL, *pMainMenuOptions = NULL, *pMainMenuDialogs = NULL;
   CEGUI::Window *pSheet = NULL, *pMainMenuSplash = NULL;
   CEGUI::Window *pMainMenuDialogClientConnecting;
+  CEGUI::Window *pMainMenuDialogClientConnectedFailed;
+  CEGUI::Window *pMainMenuDialogClientDisconnected;
+
   CEGUI::WindowManager* wm = UserInterface::getManager();
 
   // Sanity check on the window manager
@@ -181,6 +184,42 @@ void TLMP::GameClient_CreateUI(CGame* game)
     return;
   }
 
+  // Load the MainMenu Multiplayer Dialog Client Connected
+  try {
+    pMainMenuDialogClientConnectedFailed = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerDialogClientConnectedFailed.layout"), CEGUI::String("1006_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerDialogClientConnectedFailed.layout");
+    return;
+  }
+  
+  // Hookup Button Events   
+  CEGUI::Window *pDialogClientConnectedFailedOk = pMainMenuDialogClientConnectedFailed->recursiveChildSearch("1006_MultiplayerOptionsClientConnectedFailed_OkButton");
+  if (pDialogClientConnectedFailedOk) {
+    pDialogClientConnectedFailedOk->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerClientConnectedFailed_OkButton));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1006_MultiplayerOptionsClientConnectedFailed_OkButton");
+    return;
+  }
+
+  // Load the MainMenu Multiplayer Dialog Client Disconnected
+  try {
+    pMainMenuDialogClientDisconnected = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerDialogClientDisconnected.layout"), CEGUI::String("1007_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerDialogClientConnecting.layout");
+    return;
+  }
+  
+  // Hookup Button Events   
+  CEGUI::Window *pDialogClientDisconnectedOk = pMainMenuDialogClientDisconnected->recursiveChildSearch("1007_MultiplayerOptionsClientDisconnected_OkButton");
+  if (pDialogClientDisconnectedOk) {
+    pDialogClientDisconnectedOk->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerClientDisconnected_OkButton));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1007_MultiplayerOptionsClientDisconnected_OkButton");
+    return;
+  }
+
   //
 
   onNetworkStateChange();
@@ -201,9 +240,13 @@ void TLMP::GameClient_CreateUI(CGame* game)
   pSheet->addChildWindow(pMainMenuOptions);
   pSheet->addChildWindow(pMainMenuDialogs);
   pSheet->addChildWindow(pMainMenuDialogClientConnecting);
+  pSheet->addChildWindow(pMainMenuDialogClientConnectedFailed);
+  pSheet->addChildWindow(pMainMenuDialogClientDisconnected);
+  pMainMenuDialogClientConnectedFailed->setVisible(false);
+  pMainMenuDialogClientDisconnected->setVisible(false);
+  pMainMenuDialogClientConnecting->setVisible(false);
   pMainMenuOptions->setVisible(false);
   pMainMenuDialogs->setVisible(false);
-  pMainMenuDialogClientConnecting->setVisible(false);
   pMainMenuSplash->setVisible(true);
   pMainMenuSplash->moveToFront();
 
@@ -433,17 +476,17 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args
     return false;
   }
 
-  // Finally, attempt to connect
-  multiplayerLogger.WriteLine(Info, L"Joining game at %s on port %i...", hostName.c_str(), port);
-  Network::JoinGame(hostNameString, port);
-  onNetworkStateChange();
-  
   // Get the Connecting screen
   CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1005_MultiplayerOptionsClientConnecting");
   if (pWindowClientConnect) {
     pWindowClientConnect->moveToFront();
     pWindowClientConnect->setVisible(true);
   }
+
+  // Finally, attempt to connect
+  multiplayerLogger.WriteLine(Info, L"Joining game at %s on port %i...", hostName.c_str(), port);
+  Network::JoinGame(hostNameString, port);
+  onNetworkStateChange();
 
   return true;
 }
@@ -481,7 +524,6 @@ bool TLMP::ButtonEvent_MultiplayerSplash_OkButton(const CEGUI::EventArgs& args)
 bool TLMP::ButtonEvent_MultiplayerClientConnecting_OkButton(const CEGUI::EventArgs& args)
 {
   CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1005_MultiplayerOptionsClientConnecting");
-
   if (pWindowClientConnect) {
     if (NetworkState::getSingleton().GetState() == CLIENT) {      
       pWindowClientConnect->setVisible(false);
@@ -501,7 +543,6 @@ bool TLMP::ButtonEvent_MultiplayerClientConnecting_OkButton(const CEGUI::EventAr
 bool TLMP::ButtonEvent_MultiplayerClientConnecting_CancelButton(const CEGUI::EventArgs& args)
 {
   CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1005_MultiplayerOptionsClientConnecting");
-
   if (pWindowClientConnect) {
     if (NetworkState::getSingleton().GetState() == CLIENT) {      
       NetworkState::getSingleton().SetState(SINGLEPLAYER);
@@ -521,20 +562,119 @@ bool TLMP::ButtonEvent_MultiplayerClientConnecting_CancelButton(const CEGUI::Eve
   return true;
 }
 
+bool TLMP::ButtonEvent_MultiplayerClientConnectedFailed_OkButton(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1006_MultiplayerOptionsClientConnectedFailed");
+  if (pWindowClientConnect) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {      
+      pWindowClientConnect->setVisible(false);
+      pWindowClientConnect->moveToFront();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+      log(L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerOptionsClientConnectedFailed");
+    return false;
+  }
 
+  // Hide the connecting window
+  pWindowClientConnect = UserInterface::getWindowFromName("1005_MultiplayerOptionsClientConnecting");
+  if (pWindowClientConnect) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {      
+      NetworkState::getSingleton().SetState(SINGLEPLAYER);
+      Client::getSingleton().Disconnect();
+
+      pWindowClientConnect->setVisible(false);
+      pWindowClientConnect->moveToBack();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+      log(L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1005_MultiplayerOptionsClientConnecting");
+    return false;
+  }
+
+  return true;
+}
+
+bool TLMP::ButtonEvent_MultiplayerClientDisconnected_OkButton(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1007_MultiplayerOptionsClientDisconnected");
+  if (pWindowClientConnect) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {      
+      pWindowClientConnect->setVisible(false);
+      pWindowClientConnect->moveToFront();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+      log(L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1007_MultiplayerOptionsClientDisconnected");
+    return false;
+  }
+
+  return true;
+}
+
+//
+// Client has connected, hide the connecting screen
 void TLMP::OnClientConnected(void *args)
 {
-  
+  log(L"UI::OnClientConnected");
+
+  CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1005_MultiplayerOptionsClientConnecting");
+
+  if (pWindowClientConnect) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {      
+      pWindowClientConnect->setVisible(false);
+      pWindowClientConnect->moveToBack();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+      log(L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1005_MultiplayerOptionsClientConnecting");
+  }
 }
 
-void TLMP::OnClientDisconnected(void*)
+void TLMP::OnClientDisconnected(void *args)
 {
-  
+  log(L"UI::OnClientDisconnected");
+
+  CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1007_MultiplayerOptionsClientDisconnected");
+
+  if (pWindowClientConnect) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {      
+      pWindowClientConnect->setVisible(true);
+      pWindowClientConnect->moveToFront();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+      log(L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1007_MultiplayerOptionsClientDisconnected");
+  }
 }
 
-void TLMP::OnClientConnectFailed(void*)
+void TLMP::OnClientConnectFailed(void *args)
 {
-  
+  log(L"UI::OnClientFailed");
+
+  CEGUI::Window *pWindowClientConnect = UserInterface::getWindowFromName("1006_MultiplayerOptionsClientConnectedFailed");
+
+  if (pWindowClientConnect) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {      
+      pWindowClientConnect->setVisible(true);
+      pWindowClientConnect->moveToFront();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+      log(L"Error: Game is in weird state: Client window connecting shown but not in client state.");
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerOptionsClientConnectedFailed");
+  }
 }
 
 void TLMP::onNetworkStateChange()
