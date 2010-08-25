@@ -17,19 +17,20 @@
 
       <!-- Title Text -->
       <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_TitleText">
-        <Property Name="UnifiedPosition" Value="{{.5,0},{.15,0}}" />
+        <Property Name="UnifiedPosition" Value="{{.5,-60},{.15,0}}" />
         <Property Name="UnifiedSize" Value="{{0,120},{0,28}}" />
         <Property Name="Font" Value="SerifBig"/>
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned"/>
         <Property Name="TextColour" Value="FFFFFFFF"/>
         <Property Name="Text" Value="Multiplayer"/>
       </Window>
 
       <!-- Multiplayer State Text -->
       <Window Type="GuiLook/StaticText" Name="MultiplayerOptions_MultiplayerStateText">
-        <Property Name="UnifiedPosition" Value="{{.5,0},{.25,0}}" />
-        <Property Name="UnifiedSize" Value="{{0,320},{0,56}}" />
+        <Property Name="UnifiedPosition" Value="{{.5,-240},{.25,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,480},{0,64}}" />
         <Property Name="Font" Value="SerifBig"/>
-        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+        <Property Name="HorzTextFormatting" Value="WordWrapCentreAligned" />
         <Property Name="TextColour" Value="FFFFFFFF"/>
         <Property Name="Text" Value="Currently in SinglePlayer mode. You can join an existing game or host one for Multiplayer."/>
       </Window>
@@ -64,7 +65,7 @@
       
       <!-- Cancel Button -->
       <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_CancelButton">
-        <Property Name="UnifiedPosition" Value="{{.5,0},{.70,0}}" />
+        <Property Name="UnifiedPosition" Value="{{.5,-76},{.70,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Cancel"/>
       </Window>

@@ -1,11 +1,14 @@
 #pragma once
 
+#include "Common.h"
+
 #include "NetworkEntity.h"
 
 #include <map>
 using std::map;
 #include <vector>
 using std::vector;
+
 
 /*
   This file contains global variables that store state information used
@@ -16,6 +19,7 @@ namespace TLMP {
   extern vector<NetworkEntity*>* NetworkSharedEquipment;
   extern vector<NetworkEntity*>* NetworkSharedCharacters;
   extern vector<NetworkEntity*>* ClientTemporaryEquipment;
+  extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
 
   //
   // Client Temprorary Equipment helpers

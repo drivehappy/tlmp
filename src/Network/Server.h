@@ -78,7 +78,6 @@ namespace TLMP {
       void HandleHasGameStarted(const SystemAddress clientAddress);
       void HandleGameEnter(const SystemAddress clientAddress);
       void HandleGameExited(const SystemAddress clientAddress);
-      void HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3 posCharacter, u64 guidCharacter, string nameCharacter, u64 guidPet, string namePet);
       void HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo);
       void HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid);
       void HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId);
@@ -96,21 +95,27 @@ namespace TLMP {
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
+      static void Helper_RemoveBaseUnit(CBaseUnit*);
+
       void RemoveDestroyedEquipmentFromNetwork();
+
+      void HandleAddClientCharacter(const SystemAddress address, CCharacter* character);
 
       TLMP::NetworkMessages::Equipment* Helper_CreateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
      
 
+      static void OnClientConnected(void *args);
+      static void OnClientDisconnected(void *args);
 
       void SendClientEntities();
 
       RakPeerInterface *m_pServer;
       RakNet::BitStream *m_pBitStream;
       
-      OnListening         m_pOnListening;
-      OnShutdown          m_pOnShutdown;
-      OnClientConnect     m_pOnClientConnect;
-      OnClientDisconnect  m_pOnClientDisconnect;
+      vector<OnListening>         m_pOnListening;
+      vector<OnShutdown>          m_pOnShutdown;
+      vector<OnClientConnect>     m_pOnClientConnect;
+      vector<OnClientDisconnect>  m_pOnClientDisconnect;
 
       bool m_bWaitingForGame;
       bool m_bGameStarted;

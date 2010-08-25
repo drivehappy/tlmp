@@ -15,12 +15,10 @@ Server::Server()
 
   Reset();
 
-  m_pOnListening = NULL;
-  m_pOnShutdown = NULL;
-  m_pOnClientConnect = NULL;
-  m_pOnClientDisconnect = NULL;
-
   m_bWaitingForGame = true;
+
+  SetCallback_OnClientConnect(&OnClientConnected);
+  SetCallback_OnClientDisconnect(&OnClientDisconnected);
 }
 
 Server::~Server()
@@ -59,8 +57,10 @@ void Server::Listen(u16 port, u16 maxconnections)
   m_pServer->SetMaximumIncomingConnections(maxconnections);
 
   multiplayerLogger.WriteLine(Info, L"Server listening on port %i (max connections = %i)", port, maxconnections);
-  if (m_pOnListening) {
-    m_pOnListening(NULL);
+
+  vector<OnListening>::iterator itr;
+  for (itr = m_pOnListening.begin(); itr != m_pOnListening.end(); itr++) {
+    (*itr)(NULL);
   }
 }
 
@@ -74,29 +74,31 @@ void Server::Shutdown()
 
     multiplayerLogger.WriteLine(Info, L"Server shutdown");
 
-    if (m_pOnShutdown)
-      m_pOnShutdown(NULL);
+    vector<OnShutdown>::iterator itr;
+    for (itr = m_pOnShutdown.begin(); itr != m_pOnShutdown.end(); itr++) {
+      (*itr)(NULL);
+    }
   }
 }
 
 void Server::SetCallback_OnListening(OnListening callback)
 {
-  m_pOnListening = callback;
+  m_pOnListening.push_back(callback);
 }
 
 void Server::SetCallback_OnShutdown(OnShutdown callback)
 {
-  m_pOnShutdown = callback;
+  m_pOnShutdown.push_back(callback);
 }
 
 void Server::SetCallback_OnClientConnect(OnClientConnect callback)
 {
-  m_pOnClientConnect = callback;
+  m_pOnClientConnect.push_back(callback);
 }
 
 void Server::SetCallback_OnClientDisconnect(OnClientDisconnect callback)
 {
-  m_pOnClientDisconnect = callback;
+  m_pOnClientDisconnect.push_back(callback);
 }
 
 void Server::ReceiveMessages()
@@ -109,35 +111,47 @@ void Server::ReceiveMessages()
   while (packet) {
     switch(packet->data[0]) {
     case ID_NEW_INCOMING_CONNECTION:
-      multiplayerLogger.WriteLine(Info, L"Client connected");
-      logColor(B_GREEN, L"Client connected");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client connected");
+        logColor(B_GREEN, L"Client connected");
 
-      if (m_pOnClientConnect) {
-        SystemAddress *sysAddress = new SystemAddress();
-        *sysAddress = packet->systemAddress;
-        m_pOnClientConnect((void*)sysAddress);
+        vector<OnClientConnect>::iterator itr;
+        for (itr = m_pOnClientConnect.begin(); itr != m_pOnClientConnect.end(); itr++) {
+          SystemAddress *sysAddress = new SystemAddress();
+          *sysAddress = packet->systemAddress;
+          (*itr)((void*)sysAddress);
+        }
       }
       break;
+
     case ID_DISCONNECTION_NOTIFICATION:
-      multiplayerLogger.WriteLine(Info, L"Client disconnected");
-      logColor(B_GREEN, L"Client disconnected");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client disconnected");
+        logColor(B_GREEN, L"Client disconnected");
 
-      if (m_pOnClientDisconnect) {
-        SystemAddress *sysAddress = new SystemAddress();
-        *sysAddress = packet->systemAddress;
-        m_pOnClientDisconnect((void*)sysAddress);
+        vector<OnClientDisconnect>::iterator itr;
+        for (itr = m_pOnClientDisconnect.begin(); itr != m_pOnClientDisconnect.end(); itr++) {
+          SystemAddress *sysAddress = new SystemAddress();
+          *sysAddress = packet->systemAddress;
+          (*itr)((void*)sysAddress);
+        }
       }
       break;
+
     case ID_CONNECTION_LOST:
-      multiplayerLogger.WriteLine(Info, L"Client disconnected");
-      logColor(B_GREEN, L"Client disconnected");
+      {
+        multiplayerLogger.WriteLine(Info, L"Client disconnected");
+        logColor(B_GREEN, L"Client disconnected");
 
-      if (m_pOnClientDisconnect) {
-        SystemAddress *sysAddress = new SystemAddress();
-        *sysAddress = packet->systemAddress;
-        m_pOnClientDisconnect((void*)sysAddress);
+        vector<OnClientDisconnect>::iterator itr;
+        for (itr = m_pOnClientDisconnect.begin(); itr != m_pOnClientDisconnect.end(); itr++) {
+          SystemAddress *sysAddress = new SystemAddress();
+          *sysAddress = packet->systemAddress;
+          (*itr)((void*)sysAddress);
+        }
       }
       break;
+
     case ID_USER_PACKET_ENUM+1:
       u32 msg;
       m_pBitStream->Reset();
@@ -477,65 +491,6 @@ void Server::HandleGameExited(const SystemAddress clientAddress)
   multiplayerLogger.WriteLine(Info, L"Client has Exited the Game");
 }
 
-void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Vector3 posCharacter, u64 guidCharacter, string nameCharacter, u64 guidPet, string namePet)
-{
-  multiplayerLogger.WriteLine(Info, L"Server Received Client Character Info:");
-  multiplayerLogger.WriteLine(Info, L"  GUID: %016I64X", guidCharacter);
-  multiplayerLogger.WriteLine(Info, L"  Name: %s", convertAcsiiToWide(nameCharacter).c_str());
-  multiplayerLogger.WriteLine(Info, L"  Position: %f %f %f", posCharacter.x, posCharacter.y, posCharacter.z);
-  multiplayerLogger.WriteLine(Info, L"  GUID: %016I64X", guidPet);
-  multiplayerLogger.WriteLine(Info, L"  Name: %s", convertAcsiiToWide(namePet).c_str());
-
-  log(L"Server Received Client Character Info");
-
-  //
-  // Create a new network message for other clients to create this character
-  NetworkMessages::Character msgNewCharacter;
-  msgNewCharacter.set_guid(guidCharacter);
-  msgNewCharacter.set_name(nameCharacter);
-
-  NetworkMessages::Position  *msgPlayerPosition = msgNewCharacter.mutable_position();
-  msgPlayerPosition->set_x(posCharacter.x);
-  msgPlayerPosition->set_y(posCharacter.y);
-  msgPlayerPosition->set_z(posCharacter.z);
-
-  // This will broadcast to all clients except the one we received it from
-  Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
-
-  // Create this character on this instance
-  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
-  CMonster *clientCharacter = resourceManager->CreateMonster(guidCharacter, 1, true);
-
-  log("Character created: %p", clientCharacter);
-
-  if (clientCharacter) {
-    clientCharacter->characterName.assign(convertAcsiiToWide(nameCharacter));
-    clientCharacter->SetAlignment(2);
-  } else {
-    log("Error: clientCharacter is null!");
-    multiplayerLogger.WriteLine(Info, L"Error: clientCharacter is null!");
-  }
-
-  // Lock the creation so we don't resend to all the clients
-  Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
-  gameClient->pCLevel->CharacterInitialize(clientCharacter, &posCharacter, 0);
-  Server::getSingleton().SetSuppressed_SendCharacterCreation(false);
-
-  // Send this ID to the Client that created the character
-  NetworkEntity *entityCharacter = searchCharacterByInternalObject(clientCharacter);
-
-  if (!entityCharacter) {
-    multiplayerLogger.WriteLine(Error, L"Error: Could not find Shared NetworkEntity for the Client Character.");
-  } else {
-    multiplayerLogger.WriteLine(Info, L"Server sending client character ID reply: %i", entityCharacter->getCommonId());
-
-    NetworkMessages::ReplyCharacterId msgReplyCharacterId;
-    msgReplyCharacterId.set_id(entityCharacter->getCommonId());
-
-    Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
-  }
-}
-
 void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo)
 {
   NetworkMessages::Character msgPlayer;
@@ -594,6 +549,9 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
       msgReplyCharacterId.set_guid(clientCharacter->GUID);
 
       Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+
+      // Add this character to our ClientAddressCharacter map
+      HandleAddClientCharacter(clientAddress, clientCharacter);
     }
   } else {
     log("Error: clientCharacter is null!");
@@ -636,6 +594,9 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
         msgReplyCharacterId.set_guid(clientMinion->GUID);
 
         Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+
+        // Add this character to our ClientAddressCharacter map
+        HandleAddClientCharacter(clientAddress, clientMinion);
       }
     } else {
       log("Error: clientMinion is null!");
@@ -1213,5 +1174,71 @@ void Server::HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *msg
   } else {
     log(L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
     multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
+  }
+}
+
+void Server::Helper_RemoveBaseUnit(CBaseUnit* unit)
+{
+  log(L"Server: Removing BaseUnit (%p)  %016I64X", unit, unit->GUID);
+  multiplayerLogger.WriteLine(Info, L"Server: Removing BaseUnit (%p)  %016I64X", unit, unit->GUID);
+
+  unit->destroy = true;
+}
+
+void Server::OnClientConnected(void *args)
+{
+  
+}
+
+void Server::OnClientDisconnected(void *args)
+{
+  SystemAddress address = *(SystemAddress*)args;
+
+  map<SystemAddress, vector<NetworkEntity*>*>::iterator itr;
+
+  // Search for an existing address
+  for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); itr++) {
+    if ((*itr).first == address) {
+      vector<NetworkEntity*>::iterator itr2;
+      for (itr2 = (*itr).second->begin(); itr2 != (*itr).second->end(); itr2++) {
+        if (*itr2) {
+          CCharacter *character = (CCharacter*)(*itr2)->getInternalObject();
+          if (character) {
+            Helper_RemoveBaseUnit(character);
+          }
+        }
+      }
+      break;
+    }
+  }
+}
+
+void Server::HandleAddClientCharacter(const SystemAddress address, CCharacter* character)
+{
+  map<SystemAddress, vector<NetworkEntity*>*>::iterator itr;
+
+  // Search for an existing address
+  bool found = false;
+  for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); itr++) {
+    if ((*itr).first == address) {
+      found = true;
+      break;
+    }
+  }
+
+  // Add the new key
+  if (!found) {
+    (*Server_ClientCharacterMapping)[address] = new vector<NetworkEntity*>();
+  }
+
+  // Find the NetworkEntity for the character
+  NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+
+  // We now have a vector at the key, add the character
+  if (netCharacter) {
+    (*Server_ClientCharacterMapping)[address]->push_back(netCharacter);
+  } else {
+    log(L"Error: Could not add character to Server_ClientCharacterMapping - Could not find network entity.");
+    multiplayerLogger.WriteLine(Error, L"Error: Could not add character to Server_ClientCharacterMapping - Could not find network entity.");
   }
 }
