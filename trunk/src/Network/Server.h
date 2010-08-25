@@ -94,6 +94,7 @@ namespace TLMP {
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
+      void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);
 
       static void Helper_RemoveBaseUnit(CBaseUnit*);
 

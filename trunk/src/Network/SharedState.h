@@ -20,6 +20,7 @@ namespace TLMP {
   extern vector<NetworkEntity*>* NetworkSharedCharacters;
   extern vector<NetworkEntity*>* ClientTemporaryEquipment;
   extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
+  extern vector<NetworkEntity*>* ServerEquipmentOnGround;
 
   //
   // Client Temprorary Equipment helpers

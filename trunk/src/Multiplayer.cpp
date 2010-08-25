@@ -641,6 +641,9 @@ void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3
     // Server
     else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
       Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentDrop>(S_PUSH_EQUIPMENT_DROP, &msgEquipmentDrop);
+
+      // Add this to our Equipment on the Ground list
+      ServerEquipmentOnGround->push_back(equipmentEntity);
     }
   } else {
     multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p", equipment);
@@ -871,6 +874,15 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 
         Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentPickup>(S_PUSH_EQUIPMENT_PICKUP, &msgEquipmentPickup);
         Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
+
+        // Remove the Equipment from the Ground list
+        vector<NetworkEntity*>::iterator itr;
+        for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
+          if ((*itr) == netEquipment) {
+            ServerEquipmentOnGround->erase(itr);
+            break;
+          }
+        }
       } else {
         multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Character (%s)",
           character->characterName.c_str());
