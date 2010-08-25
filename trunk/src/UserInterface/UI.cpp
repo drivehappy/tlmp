@@ -679,6 +679,7 @@ void TLMP::OnClientConnectFailed(void *args)
 
 void TLMP::onNetworkStateChange()
 {
+  /*
   CEGUI::Window *pMainMenuOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
   CEGUI::Window *pOptionsStatusText = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_MultiplayerStateText");
 
@@ -700,4 +701,5 @@ void TLMP::onNetworkStateChange()
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_MultiplayerStateText");
     return;
   }
+  */
 }
