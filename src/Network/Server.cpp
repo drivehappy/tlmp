@@ -410,6 +410,18 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
       Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
     }
   }
+  
+  // Send all of the Equipment on the Ground in the game
+  for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
+    CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
+
+    // Suppress Waypoint and Return to Dungeon
+    if (equipment->GUID != 0x761772BDA01D11DE &&
+      equipment->GUID != 0xD3A8F99E2FA111DE) 
+    {
+      Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
+    }
+  }
 
   // Send all of the existing characters in the game to the client
   for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
@@ -720,6 +732,26 @@ void Server::Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEq
 
   // This will broadcast to all clients except the one we received it from
   Server::getSingleton().SendMessage<NetworkMessages::Equipment>(clientAddress, S_PUSH_NEWEQUIPMENT, &msgEquipment);
+}
+
+void Server::Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment)
+{
+  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId());
+  log(L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId());
+
+  // Create a new network message for all clients to create this character
+  NetworkMessages::EquipmentDrop msgEquipmentDrop;
+  NetworkMessages::Position *msgPosition = msgEquipmentDrop.add_position();
+  msgPosition->set_x(equipment->position.x);
+  msgPosition->set_y(equipment->position.y);
+  msgPosition->set_z(equipment->position.z);
+  msgEquipmentDrop.set_equipmentid(netEquipment->getCommonId());
+  msgEquipmentDrop.set_unk0(1);
+
+  // This will broadcast to all clients except the one we received it from
+  Server::getSingleton().SendMessage<NetworkMessages::EquipmentDrop>(clientAddress, S_PUSH_EQUIPMENT_DROP, &msgEquipmentDrop);
 }
 
 //
