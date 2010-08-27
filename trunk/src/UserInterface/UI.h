@@ -22,6 +22,9 @@ namespace TLMP
   // Post Event for handling UI creation
   void GameClient_CreateUI(CGame* game);
 
+  void SetupUI();
+  void ResizeUI();
+
   // Helper for displaying the mainmenu UI
   void DisplayWaitForServerWindow();
 
@@ -51,6 +54,8 @@ namespace TLMP
 
   CEGUI::Window* getChatHistoryWindow();
   CEGUI::Window* getChatEntryWindow();
+
+  extern bool UISetup;
 
   // Internal "Events"
   void onNetworkStateChange();

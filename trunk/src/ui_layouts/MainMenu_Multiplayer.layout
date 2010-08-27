@@ -3,12 +3,14 @@
 <GUILayout>
 
   <!-- Contains the Multiplayer button addition to the MainMenu -->
+  <!--
   <Window Type="DefaultWindow" Name="MainMenu_Multiplayer" >
     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
     <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
     <Property Name="MousePassThroughEnabled" Value="True" />
     <Property Name="AlwaysOnTop" Value="False" />
-
+    -->
+  
     <!-- Button to open the Multiplayer Options window -->
     <Window Type="GuiLook/StandardButton" Name="OpenMultiplayerOptions">
       <Property Name="UnifiedPosition" Value="{{.5,-507},{1,-140}}" />
@@ -16,6 +18,8 @@
       <Property Name="Text" Value="Multiplayer"/>
     </Window>
 
+  <!--
   </Window>
+  -->
 
 </GUILayout>

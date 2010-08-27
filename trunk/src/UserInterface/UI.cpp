@@ -1,35 +1,26 @@
 #include "UI.h"
 
 bool TLMP::suppressInGameMouse = false;
+bool TLMP::UISetup = false;
 
-void TLMP::GameClient_CreateUI(CGame* game)
+void TLMP::ResizeUI()
 {
-  UserInterface::init();
-
-  multiplayerLogger.WriteLine(Info, L"Creating User Interface...");
-
-  // Add Client and Server events
-  Client::getSingleton().SetCallback_OnConnected(OnClientConnected);
-  Client::getSingleton().SetCallback_OnDisconnected(OnClientDisconnected);
-  Client::getSingleton().SetCallback_OnConnectFailed(OnClientConnectFailed);
-
   // Added the main game GUI elements
-  CEGUI::Window *pRoot = NULL, *pMainMenuButton = NULL, *pMainMenuOptions = NULL, *pMainMenuDialogs = NULL;
+  CEGUI::Window *pRoot = NULL, *pMainMenuOptions = NULL, *pMainMenuDialogs = NULL;
   CEGUI::Window *pSheet = NULL, *pMainMenuSplash = NULL;
   CEGUI::Window *pMainMenuDialogClientConnecting;
   CEGUI::Window *pMainMenuDialogClientConnectedFailed;
   CEGUI::Window *pMainMenuDialogClientDisconnected;
   CEGUI::Window *pInGameRoot, *pInGameChat;
+  CEGUI::Window *pMainMenuButton;
 
+  // Find the root window for attaching our UI elements
   CEGUI::WindowManager* wm = UserInterface::getManager();
-
-  // Sanity check on the window manager
   if (!wm) {
-    multiplayerLogger.WriteLine(Error, L"Error getting WindowManager: NULL");
+    log("Error: No CEGUI WindowManager found.");
     return;
   }
 
-  // Find the root window for attaching our UI elements
   if (wm->isWindowPresent(CEGUI::String("25_Root"))) {
     pRoot = wm->getWindow(CEGUI::String("25_Root"));
   } else {
@@ -37,13 +28,21 @@ void TLMP::GameClient_CreateUI(CGame* game)
     return;
   }
 
+  log("Loading Layout...");
   // Load the MainMenu Multiplayer Button
   try {
-    pMainMenuButton = wm->loadWindowLayout(CEGUI::String("MainMenu_Multiplayer.layout"), CEGUI::String("1001_"));
+    pMainMenuButton = wm->loadWindowLayout(CEGUI::String("MainMenu_Multiplayer.layout"), CEGUI::String("25_"));
   } catch (exception &e) {
     log(e.what());
     multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_Multiplayer.layout");
     return;
+  }
+
+  // Hookup button events
+  if (pMainMenuButton)
+  {
+    pMainMenuButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_OpenMultiplayerOptions));
+    pRoot->addChildWindow(pMainMenuButton);
   }
 
   // Load the MainMenu Multiplayer Splash Screen
@@ -86,12 +85,9 @@ void TLMP::GameClient_CreateUI(CGame* game)
   }
 
   // Hookup button events
-  CEGUI::Window *pButton = pMainMenuButton->recursiveChildSearch("1001_OpenMultiplayerOptions");
-  if (pButton) {
-    pButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_OpenMultiplayerOptions));
-  } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Button: OpenMultiplayerOptions");
-    return;
+  if (pMainMenuButton)
+  {
+    pMainMenuButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_OpenMultiplayerOptions));
   }
 
   CEGUI::Window *pOptionsCancel = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_CancelButton");
@@ -263,7 +259,6 @@ void TLMP::GameClient_CreateUI(CGame* game)
   // Hookup everything to the existing main menu
   pRoot->addChildWindow(pMainMenuButton);
   pInGameRoot->addChildWindow(pInGameChat);
-  pSheet->addChildWindow(pMainMenuSplash);
   pSheet->addChildWindow(pMainMenuOptions);
   pSheet->addChildWindow(pMainMenuDialogs);
   pSheet->addChildWindow(pMainMenuDialogClientConnecting);
@@ -274,10 +269,49 @@ void TLMP::GameClient_CreateUI(CGame* game)
   pMainMenuDialogClientConnecting->setVisible(false);
   pMainMenuOptions->setVisible(false);
   pMainMenuDialogs->setVisible(false);
-  pMainMenuSplash->setVisible(true);
-  pMainMenuSplash->moveToFront();
 
-  multiplayerLogger.WriteLine(Info, L"Creating User Interface... Done.");
+  if (!UISetup) {
+    pSheet->addChildWindow(pMainMenuSplash);
+    pMainMenuSplash->setVisible(true);
+    pMainMenuSplash->moveToFront();
+  }
+}
+
+void TLMP::SetupUI()
+{
+  UISetup = true;
+
+  CEGUI::Window *pSheet = NULL, *pMainMenuSplash = NULL;
+
+  // Find the root window for attaching our UI elements
+  CEGUI::WindowManager* wm = UserInterface::getManager();
+  if (!wm) {
+    log("Error: No CEGUI WindowManager found.");
+    return;
+  }
+
+  // Grab the Sheet window
+  if (wm->isWindowPresent(CEGUI::String("Sheet"))) {
+    pSheet = wm->getWindow(CEGUI::String("Sheet"));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error finding CEGUI Window \"Sheet\" - cannot add Multiplayer Options window to MainMenu.");
+    return;
+  }
+
+  pMainMenuSplash = pSheet->recursiveChildSearch("1001_MainMenu_Multiplayer_Splash");
+  if (pMainMenuSplash) {
+    pMainMenuSplash->moveToFront();
+  } else {
+    log(L"Error: Could not find 1001_MainMenu_Multiplayer_Splash");
+    for (size_t i = 0; i < pSheet->getChildCount(); i++) {
+      log("  %s", pSheet->getChildAtIdx(i)->getName().c_str());
+    }
+  }
+}
+
+void TLMP::GameClient_CreateUI(CGame* game)
+{
+  SetupUI();
 }
 
 void TLMP::DisplayWaitForServerWindow()
