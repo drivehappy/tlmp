@@ -447,6 +447,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       HandleEquipmentRemoveGems(msgEquipmentRemoveGems);
     }
     break;
+    
+  case S_PUSH_CHAT_PLAYER:
+    {
+      NetworkMessages::ChatPlayerText *msgChatPlayerText = ParseMessage<NetworkMessages::ChatPlayerText>(m_pBitStream);
+
+      HandleChatMessage(msgChatPlayerText);
+    }
+    break;
 
   }     
 }
@@ -1127,6 +1135,34 @@ void Client::HandleEquipmentAddGem(NetworkMessages::EquipmentAddGem* msgEquipmen
       equipmentId, gemId, netEquipment, netGem);
     multiplayerLogger.WriteLine(Error, L"Equipment or Gem commonId not found: %x %x  ptrs: %p %p",
       equipmentId, gemId, netEquipment, netGem);
+  }
+}
+
+void Client::HandleChatMessage(NetworkMessages::ChatPlayerText *msgChatPlayerText)
+{
+  log(L"Client: Received player chat text.");
+
+  CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getChatHistoryWindow();
+  size_t selectionEnd;
+
+  if (pWindow) {
+    CEGUI::String message = msgChatPlayerText->text().c_str();
+    u32 characterId = msgChatPlayerText->characterid();
+
+    NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+    if (netCharacter) {
+      CCharacter *character = (CCharacter*)netCharacter->getInternalObject();
+      string characterName(character->characterName.begin(), character->characterName.end());
+      characterName.assign(character->characterName.begin(), character->characterName.end());
+
+      //selectionStart = pWindow->getText().length();
+      pWindow->appendText(CEGUI::String(characterName) + CEGUI::String(": ") + message + CEGUI::String("\n"));
+      selectionEnd = pWindow->getText().length();
+      pWindow->setCaratIndex(selectionEnd);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error could not find Network entity of id: %x", characterId);
+    }
   }
 }
 

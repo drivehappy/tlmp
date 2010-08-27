@@ -244,9 +244,7 @@ void TLMP::GameClient_CreateUI(CGame* game)
   // Hookup Chat Entry Events -- Testing to stop Inventory from opening when typing 'i' into chat
   CEGUI::Window *pInGameChatEntry = pInGameChat->recursiveChildSearch("1010_ChatEntry");
   if (pInGameChatEntry) {
-    pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
     pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventCharacterKey, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
-    pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventKeyUp, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1010_ChatEntry");
     return;
@@ -649,7 +647,66 @@ bool TLMP::ButtonEvent_MultiplayerClientDisconnected_OkButton(const CEGUI::Event
 
 bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 {
+  CEGUI::KeyEventArgs keyArgs = (CEGUI::KeyEventArgs&)args;
+  size_t selectionEnd;
+
+  // If the user pressed enter, send the message out
+  if (keyArgs.codepoint == 0xD) {
+    // Get the current network player
+    NetworkEntity *netPlayer = searchCharacterByInternalObject(gameClient->pCPlayer);
+
+    if (netPlayer) {
+      CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getChatHistoryWindow();
+      CEGUI::Window *pChatEntry = getChatEntryWindow();
+
+      if (pWindow && pChatEntry) {
+        NetworkMessages::ChatPlayerText msgChatPlayerText;
+        msgChatPlayerText.set_characterid(netPlayer->getCommonId());
+        msgChatPlayerText.set_text(pChatEntry->getText().c_str());
+        pChatEntry->setText("");
+
+        if (NetworkState::getSingleton().GetState() == CLIENT) {
+          Client::getSingleton().SendMessage<NetworkMessages::ChatPlayerText>(C_PUSH_CHAT_PLAYER, &msgChatPlayerText);
+        } else if (NetworkState::getSingleton().GetState() == SERVER) {
+          CCharacter *character = (CCharacter*)gameClient->pCPlayer;
+          string characterName(character->characterName.begin(), character->characterName.end());
+          characterName.assign(character->characterName.begin(), character->characterName.end());
+
+          // Add the server's message to it's own history
+          CEGUI::String message = msgChatPlayerText.text().c_str();
+          pWindow->appendText(CEGUI::String(characterName) + CEGUI::String(": ") + message + CEGUI::String("\n"));
+          selectionEnd = pWindow->getText().length();
+          pWindow->setCaratIndex(selectionEnd);
+
+          Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, &msgChatPlayerText);
+        }
+      }
+    }
+  }
+  
   return true;
+}
+
+CEGUI::Window* TLMP::getChatHistoryWindow()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1010_ChatHistory");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatHistory");
+  }
+
+  return pWindow;
+}
+
+CEGUI::Window* TLMP::getChatEntryWindow()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1010_ChatEntry");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatEntry");
+  }
+
+  return pWindow;
 }
 
 //

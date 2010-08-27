@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include "UI.h"
 using namespace TLMP;
 
 namespace TLMP {
@@ -91,6 +92,7 @@ namespace TLMP {
       void HandleEquipmentUpdateStack(const SystemAddress, NetworkMessages::EquipmentUpdateStackSize*);
       void HandleEquipmentAddGem(const SystemAddress, NetworkMessages::EquipmentAddGem*);
       void HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *);
+      void HandleChatMessage(NetworkMessages::ChatPlayerText *msgChatPlayerText);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);

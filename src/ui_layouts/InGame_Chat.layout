@@ -6,11 +6,13 @@
     <Property Name="UnifiedSize" Value="{{0.4,0},{0.4,0}}" />
 
     <!-- Close button for the chat window -->
+    <!-- 
     <Window Type="GuiLook/StandardButton" Name="Say">
         <Property Name="UnifiedPosition" Value="{{.5,-50},{.9,0}}" />
         <Property Name="UnifiedSize" Value="{{0,100},{0,28}}" />
         <Property Name="Text" Value="Say"/>
     </Window>
+    -->
     
     <!-- Contains the Chat History -->
     <!-- Chat History Background -->
@@ -20,13 +22,14 @@
       <Property Name="MousePassThroughEnabled" Value="True" />
       <Property Name="Alpha" Value="0.5" />
     </Window>
-    <Window Type="GuiLook/StaticText" Name="ChatHistory">
-        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
-        <Property Name="VertFormatting" Value="TopAligned" />
-        <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
-        <Property Name="UnifiedSize" Value="{{1,0},{0.75,0}}" />
-        <Property Name="TextColour" Value="FFFFFFFF"/>
-        <Property Name="Text" Value=""/>
+    <Window Type="GuiLook/MultiLineEditbox" Name="ChatHistory">
+      <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+      <Property Name="VertFormatting" Value="TopAligned" />
+      <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.75,0}}" />
+      <Property Name="ReadOnly" Value="True"/>
+      <Property Name="NormalTextColour" Value="FFFFFFFF"/>
+      <Property Name="Text" Value=""/>
     </Window>
 
     <!-- Contains the Chat Entry -->
@@ -38,9 +41,9 @@
       <Property Name="Alpha" Value="0.5" />
     </Window>
     <Window Type="GuiLook/Editbox" Name="ChatEntry">
-        <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
-        <Property Name="UnifiedSize" Value="{{1,0},{.08,0}}" />
-        <Property Name="Text" Value=""/>
+      <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{.08,0}}" />
+      <Property Name="Text" Value=""/>
     </Window>
   
   </Window>
