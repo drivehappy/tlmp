@@ -58,6 +58,10 @@ void TLMP::SetupNetwork()
   CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, Inventory_RemoveEquipmentPost);
 
   CGameUI::RegisterEvent_GameUI_TriggerPause(GameUI_TriggerPausePre, NULL);
+  CGameUI::RegisterEvent_GameUI_HandleKeyboardInput(GameUI_HandleKeyboardInputPre, NULL);
+
+  CKeyManager::RegisterEvent_KeyManager_InjectKey(KeyManager_HandleInputPre, NULL);
+  CMouseManager::RegisterEvent_MouseManagerInput(MouseManager_HandleInputPre, NULL);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -602,7 +606,6 @@ void TLMP::Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
   log(L"Level dropping Equipment %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
-
 }
 
 void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
@@ -1246,6 +1249,54 @@ void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & cal
         multiplayerLogger.WriteLine(Error, L"Error: Server could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
           netEquipment, netGem);
       }
+  }
+}
+
+// Uses the KeyManager_HandleInput now to suppress this if needed
+void TLMP::GameUI_HandleKeyboardInputPre(CGameUI* gameUI, u32 unk0, u32 unk1, u32 unk2, bool & calloriginal)
+{
+  log(L"GameUI::HandleKeyboardInput (%p, %x, %x, %x)", gameUI, unk0, unk1, unk2);
+}
+
+void TLMP::KeyManager_HandleInputPre(CKeyManager* keyManager, u32 unk0, u32 unk1, bool & calloriginal)
+{
+  //log(L"KeyManager::HandleInput(%p %x %x)", keyManager, unk0, unk1);
+
+  CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
+  if (pInGameChatEntry) {
+    if (pInGameChatEntry->hasInputFocus()) {
+      log(L"Suppressing Keyboard Input - ChatEntry has focus");
+      calloriginal = false;
+    }
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatEntry");
+  }
+}
+
+void TLMP::MouseManager_HandleInputPre(CMouseManager* mouseManager, u32 wParam, u32 mouseButton, bool& calloriginal)
+{
+  //log(L"MouseManager::handleInput(%p %x %x)", mouseManager, wParam, mouseButton);
+
+  if (wParam == 0x201 || wParam == 0x204) {
+    CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
+    if (pInGameChatEntry) {
+      if (pInGameChatEntry->hasInputFocus()) {
+        log(L"Suppressing Mouse Input - ChatEntry has focus");
+        calloriginal = false;
+      }
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatEntry");
+    }
+
+    CEGUI::PushButton* pInGameChatSay = (CEGUI::PushButton*)UserInterface::getWindowFromName("1010_Say");
+    if (pInGameChatSay) {
+      if (pInGameChatSay->isPushed()) {
+        log(L"Suppressing Mouse Input - ChatHistory has focus");
+        calloriginal = false;
+      }
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error could not find 1010_Say");
+    }
   }
 }
 

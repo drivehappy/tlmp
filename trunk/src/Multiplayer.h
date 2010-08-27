@@ -91,6 +91,15 @@ namespace TLMP
   // Pre Event for suppressing the paused game
   void GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal);
 
+  // Pre Event for the GameUI Keyboard Input
+  void GameUI_HandleKeyboardInputPre(CGameUI*, u32, u32, u32, bool&);
+
+  // Pre Event for KeyManager input
+  void KeyManager_HandleInputPre(CKeyManager*, u32, u32, bool&);
+
+  // Pre Event for MouseManager input
+  void MouseManager_HandleInputPre(CMouseManager*, u32 wParam, u32 mouseButton, bool& calloriginal);
+
   // Post Event for the main GameClient loop
   void GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
   void GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);

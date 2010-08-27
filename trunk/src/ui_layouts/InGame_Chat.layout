@@ -1,45 +1,48 @@
 <?xml version="1.0" ?>
 <GUILayout>
-    <Window Type="GuiLook/StaticImage" Name="Frame">
-          <Property Name="UnifiedPosition" Value="{{0.01,0},{0.2,0}}" />
-          <Property Name="UnifiedSize" Value="{{0.4,0},{0.6,0}}" />
-          <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+  
+  <Window Type="DefaultWindow" Name="Frame">
+    <Property Name="UnifiedPosition" Value="{{0.02,0},{0.5,0}}" />
+    <Property Name="UnifiedSize" Value="{{0.4,0},{0.4,0}}" />
 
-          <!-- Title Text -->
-          <Window Type="GuiLook/StaticText" Name="Title">
-              <Property Name="HorzTextFormatting" Value="CentreAligned" />
-              <Property Name="VertFormatting" Value="CentreAligned" />
-              <Property Name="UnifiedPosition" Value="{{.5,-71},{.5,-200}}" />
-              <Property Name="UnifiedSize" Value="{{0,142},{0,28}}" />
-              <Property Name="TextColour" Value="FFFFFFFF"/>
-              <Property Name="Text" Value="Chat"/>
-              <Property Name="Font" Value="SerifBig"/>
-          </Window>
+    <!-- Close button for the chat window -->
+    <Window Type="GuiLook/StandardButton" Name="Say">
+        <Property Name="UnifiedPosition" Value="{{.5,-50},{.9,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,100},{0,28}}" />
+        <Property Name="Text" Value="Say"/>
+    </Window>
+    
+    <!-- Contains the Chat History -->
+    <!-- Chat History Background -->
+    <Window Type="GuiLook/ItemText" Name="ChatHistoryBackground">
+      <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.75,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
+      <Property Name="Alpha" Value="0.5" />
+    </Window>
+    <Window Type="GuiLook/StaticText" Name="ChatHistory">
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+        <Property Name="VertFormatting" Value="TopAligned" />
+        <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
+        <Property Name="UnifiedSize" Value="{{1,0},{0.75,0}}" />
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value=""/>
+    </Window>
 
-          <!-- Close button for the chat window -->
-          <Window Type="GuiLook/StandardButton" Name="Close">
-              <Property Name="UnifiedPosition" Value="{{.5,-76},{.90,0}}" />
-              <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
-              <Property Name="Text" Value="Close"/>
-              <Property Name="onClick" Value="guiExitGame"/>
-          </Window>
-          
-          <!-- Contains the Chat History -->
-          <Window Type="GuiLook/MultiLineEditbox" Name="ChatHistory">
-              <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
-              <Property Name="VertFormatting" Value="CentreAligned" />
-              <Property Name="UnifiedPosition" Value="{{0.05,0},{0.05,0}}" />
-              <Property Name="UnifiedSize" Value="{{1,0},{0.7,0}}" />
-              <Property Name="TextColour" Value="FFFFFFFF"/>
-              <Property Name="Text" Value=""/>
-          </Window>
-
-          <!-- Contains the Chat Entry -->
-          <Window Type="GuiLook/Editbox" Name="ChatEntry">
-              <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
-              <Property Name="UnifiedSize" Value="{{1,0},{1,0}}" />
-              <Property Name="Text" Value=""/>
-          </Window>
-      
-      </Window>
+    <!-- Contains the Chat Entry -->
+    <!-- Chat Entry Background -->
+    <Window Type="GuiLook/ItemText" Name="ChatEntryBackground">
+      <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.08,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
+      <Property Name="Alpha" Value="0.5" />
+    </Window>
+    <Window Type="GuiLook/Editbox" Name="ChatEntry">
+        <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
+        <Property Name="UnifiedSize" Value="{{1,0},{.08,0}}" />
+        <Property Name="Text" Value=""/>
+    </Window>
+  
+  </Window>
+  
 </GUILayout>

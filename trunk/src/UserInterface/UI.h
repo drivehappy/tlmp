@@ -43,6 +43,8 @@ namespace TLMP
   bool ButtonEvent_MultiplayerClientConnectedFailed_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerClientDisconnected_OkButton(const CEGUI::EventArgs& args);
 
+  bool EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args);
+
   void OnClientConnected(void*);
   void OnClientDisconnected(void*);
   void OnClientConnectFailed(void*);

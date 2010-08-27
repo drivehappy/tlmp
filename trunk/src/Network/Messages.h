@@ -97,6 +97,11 @@ namespace TLMP {
             
       C_PUSH_EQUIPMENT_REMOVE_GEMS, // Client pushes equipment remove all gems
       S_PUSH_EQUIPMENT_REMOVE_GEMS, // Server pushes equipment remove all gems
+
+      C_PUSH_CHAT_PLAYER,           // Client pushes chat message out
+      S_PUSH_CHAT_PLAYER,           // Server pushes chat message out
+
+      S_PUSH_CHAR_PLAYER_JOINED,    // Server pushes player joined message
     };
 
     static const char* MessageString[] = {

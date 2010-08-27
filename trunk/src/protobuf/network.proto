@@ -152,6 +152,14 @@ message EquipmentRemoveGems {
   required int32    equipmentId = 1;
 }
 
+message ChatServerMessage_PlayerJoin {
+  required int32    characterId = 1;
+}
+
+message ChatPlayerText {
+  required int32    characterId = 1;
+}
+
 
 
 
