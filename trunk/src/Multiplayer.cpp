@@ -1288,6 +1288,7 @@ void TLMP::MouseManager_HandleInputPre(CMouseManager* mouseManager, u32 wParam, 
       multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatEntry");
     }
 
+    /*
     CEGUI::PushButton* pInGameChatSay = (CEGUI::PushButton*)UserInterface::getWindowFromName("1010_Say");
     if (pInGameChatSay) {
       if (pInGameChatSay->isPushed()) {
@@ -1297,6 +1298,7 @@ void TLMP::MouseManager_HandleInputPre(CMouseManager* mouseManager, u32 wParam, 
     } else {
       multiplayerLogger.WriteLine(Error, L"Error could not find 1010_Say");
     }
+    */
   }
 }
 

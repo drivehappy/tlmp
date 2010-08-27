@@ -49,6 +49,9 @@ namespace TLMP
   void OnClientDisconnected(void*);
   void OnClientConnectFailed(void*);
 
+  CEGUI::Window* getChatHistoryWindow();
+  CEGUI::Window* getChatEntryWindow();
+
   // Internal "Events"
   void onNetworkStateChange();
 };

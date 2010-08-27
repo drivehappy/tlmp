@@ -4,6 +4,7 @@
 using namespace std;
 
 #include "Common.h"
+#include "UI.h"
 using namespace TLMP;
 
 namespace TLMP {
@@ -116,6 +117,7 @@ namespace TLMP {
       void HandleEquipmentUpdateStack(NetworkMessages::EquipmentUpdateStackSize*);
       void HandleEquipmentAddGem(NetworkMessages::EquipmentAddGem*);
       void HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *);
+      void HandleChatMessage(NetworkMessages::ChatPlayerText *);
       
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 

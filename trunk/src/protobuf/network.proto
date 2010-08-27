@@ -158,6 +158,7 @@ message ChatServerMessage_PlayerJoin {
 
 message ChatPlayerText {
   required int32    characterId = 1;
+  required string   text = 2;
 }
 
 

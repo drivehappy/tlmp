@@ -361,6 +361,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_PUSH_CHAT_PLAYER:
+    {
+      NetworkMessages::ChatPlayerText *msgChatPlayerText = ParseMessage<NetworkMessages::ChatPlayerText>(m_pBitStream);
+
+      HandleChatMessage(msgChatPlayerText);
+    }
+    break;
+
   }
 }
 
@@ -1206,6 +1214,37 @@ void Server::HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *msg
   } else {
     log(L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
     multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
+  }
+}
+
+void Server::HandleChatMessage(NetworkMessages::ChatPlayerText *msgChatPlayerText)
+{
+  log(L"Server: Received player chat text.");
+
+  CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getChatHistoryWindow();
+  size_t selectionEnd;
+
+  if (pWindow) {
+    CEGUI::String message = msgChatPlayerText->text().c_str();
+    u32 characterId = msgChatPlayerText->characterid();
+
+    NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+    if (netCharacter) {
+      CCharacter *character = (CCharacter*)netCharacter->getInternalObject();
+      string characterName(character->characterName.begin(), character->characterName.end());
+      characterName.assign(character->characterName.begin(), character->characterName.end());
+
+      //selectionStart = pWindow->getText().length();
+      pWindow->appendText(CEGUI::String(characterName) + CEGUI::String(": ") + message + CEGUI::String("\n"));
+      selectionEnd = pWindow->getText().length();
+      pWindow->setCaratIndex(selectionEnd);
+      
+      // Send it back out to all clients
+      Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, msgChatPlayerText);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error could not find Network entity of id: %x", characterId);
+    }
   }
 }
 
