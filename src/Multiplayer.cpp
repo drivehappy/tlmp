@@ -59,6 +59,7 @@ void TLMP::SetupNetwork()
 
   CGameUI::RegisterEvent_GameUI_TriggerPause(GameUI_TriggerPausePre, NULL);
   CGameUI::RegisterEvent_GameUI_HandleKeyboardInput(GameUI_HandleKeyboardInputPre, NULL);
+  CGameUI::RegisterEvent_GameUI_WindowResized(NULL, GameUI_WindowResizedPost);  
 
   CKeyManager::RegisterEvent_KeyManager_InjectKey(KeyManager_HandleInputPre, NULL);
   CMouseManager::RegisterEvent_MouseManagerInput(MouseManager_HandleInputPre, NULL);
@@ -1300,6 +1301,14 @@ void TLMP::MouseManager_HandleInputPre(CMouseManager* mouseManager, u32 wParam, 
     }
     */
   }
+}
+
+void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
+{
+  log(L"Window Resized");
+  multiplayerLogger.WriteLine(Info, L"Window Resized");
+  
+  ResizeUI();
 }
 
 
