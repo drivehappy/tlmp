@@ -19,6 +19,7 @@ void TLMP::GameClient_CreateUI(CGame* game)
   CEGUI::Window *pMainMenuDialogClientConnecting;
   CEGUI::Window *pMainMenuDialogClientConnectedFailed;
   CEGUI::Window *pMainMenuDialogClientDisconnected;
+  CEGUI::Window *pInGameRoot, *pInGameChat;
 
   CEGUI::WindowManager* wm = UserInterface::getManager();
 
@@ -221,8 +222,35 @@ void TLMP::GameClient_CreateUI(CGame* game)
   }
 
   //
-
   onNetworkStateChange();
+
+  // Find the root window in-game for attaching our UI elements
+  if (wm->isWindowPresent(CEGUI::String("1_PlayerHealthRoot"))) {
+    pInGameRoot = wm->getWindow(CEGUI::String("1_PlayerHealthRoot"));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error finding CEGUI Window \"1_PlayerHealthRoot\" - cannot add InGame UI functionality");
+    return;
+  }
+
+  // Load the In-game window
+  try {
+    pInGameChat = wm->loadWindowLayout(CEGUI::String("InGame_Chat.layout"), CEGUI::String("1010_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_Multiplayer.layout");
+    return;
+  }
+
+  // Hookup Chat Entry Events -- Testing to stop Inventory from opening when typing 'i' into chat
+  CEGUI::Window *pInGameChatEntry = pInGameChat->recursiveChildSearch("1010_ChatEntry");
+  if (pInGameChatEntry) {
+    pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
+    pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventCharacterKey, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
+    pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventKeyUp, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1010_ChatEntry");
+    return;
+  }
   
   
   
@@ -236,6 +264,7 @@ void TLMP::GameClient_CreateUI(CGame* game)
 
   // Hookup everything to the existing main menu
   pRoot->addChildWindow(pMainMenuButton);
+  pInGameRoot->addChildWindow(pInGameChat);
   pSheet->addChildWindow(pMainMenuSplash);
   pSheet->addChildWindow(pMainMenuOptions);
   pSheet->addChildWindow(pMainMenuDialogs);
@@ -615,6 +644,11 @@ bool TLMP::ButtonEvent_MultiplayerClientDisconnected_OkButton(const CEGUI::Event
     return false;
   }
 
+  return true;
+}
+
+bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
+{
   return true;
 }
 
