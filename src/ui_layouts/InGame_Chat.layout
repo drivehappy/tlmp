@@ -2,8 +2,8 @@
 <GUILayout>
   
   <Window Type="DefaultWindow" Name="Frame">
-    <Property Name="UnifiedPosition" Value="{{0.02,0},{0.5,0}}" />
-    <Property Name="UnifiedSize" Value="{{0.4,0},{0.4,0}}" />
+    <Property Name="UnifiedPosition" Value="{{0.02,0},{0.55,0}}" />
+    <Property Name="UnifiedSize" Value="{{0.35,0},{0.4,0}}" />
 
     <!-- Close button for the chat window -->
     <!-- 
@@ -39,11 +39,13 @@
       <Property Name="UnifiedSize" Value="{{1,0},{0.08,0}}" />
       <Property Name="MousePassThroughEnabled" Value="True" />
       <Property Name="Alpha" Value="0.5" />
+      <Property Name="Visible" Value="False" />
     </Window>
     <Window Type="GuiLook/Editbox" Name="ChatEntry">
       <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
       <Property Name="UnifiedSize" Value="{{1,0},{.08,0}}" />
       <Property Name="Text" Value=""/>
+      <Property Name="Visible" Value="False" />
     </Window>
   
   </Window>

@@ -29,6 +29,8 @@ namespace TLMP
     e->retval = 1;
   };
 
+  static void OgreAddResourceLocation STDARG;
+
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
