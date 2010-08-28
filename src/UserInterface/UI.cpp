@@ -14,6 +14,8 @@ void TLMP::ResizeUI()
   CEGUI::Window *pInGameRoot, *pInGameChat;
   CEGUI::Window *pMainMenuButton;
 
+
+
   // Find the root window for attaching our UI elements
   CEGUI::WindowManager* wm = UserInterface::getManager();
   if (!wm) {
@@ -282,6 +284,10 @@ void TLMP::SetupUI()
   UISetup = true;
 
   CEGUI::Window *pSheet = NULL, *pMainMenuSplash = NULL;
+
+  Client::getSingleton().SetCallback_OnConnected(OnClientConnected);
+  Client::getSingleton().SetCallback_OnDisconnected(OnClientDisconnected);
+  Client::getSingleton().SetCallback_OnConnectFailed(OnClientConnectFailed);
 
   // Find the root window for attaching our UI elements
   CEGUI::WindowManager* wm = UserInterface::getManager();
