@@ -14,8 +14,6 @@ void TLMP::ResizeUI()
   CEGUI::Window *pInGameRoot, *pInGameChat;
   CEGUI::Window *pMainMenuButton;
 
-
-
   // Find the root window for attaching our UI elements
   CEGUI::WindowManager* wm = UserInterface::getManager();
   if (!wm) {
@@ -697,28 +695,37 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 
     if (netPlayer) {
       CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getChatHistoryWindow();
+      CEGUI::Window* pInGameChatEntryBackground = getChatEntryBackgroundWindow();
       CEGUI::Window *pChatEntry = getChatEntryWindow();
 
       if (pWindow && pChatEntry) {
-        NetworkMessages::ChatPlayerText msgChatPlayerText;
-        msgChatPlayerText.set_characterid(netPlayer->getCommonId());
-        msgChatPlayerText.set_text(pChatEntry->getText().c_str());
-        pChatEntry->setText("");
+        if (pChatEntry->getText().length() > 0) {
+          NetworkMessages::ChatPlayerText msgChatPlayerText;
+          msgChatPlayerText.set_characterid(netPlayer->getCommonId());
+          msgChatPlayerText.set_text(pChatEntry->getText().c_str());
+          pChatEntry->setText("");
 
-        if (NetworkState::getSingleton().GetState() == CLIENT) {
-          Client::getSingleton().SendMessage<NetworkMessages::ChatPlayerText>(C_PUSH_CHAT_PLAYER, &msgChatPlayerText);
-        } else if (NetworkState::getSingleton().GetState() == SERVER) {
-          CCharacter *character = (CCharacter*)gameClient->pCPlayer;
-          string characterName(character->characterName.begin(), character->characterName.end());
-          characterName.assign(character->characterName.begin(), character->characterName.end());
+          if (NetworkState::getSingleton().GetState() == CLIENT) {
+            Client::getSingleton().SendMessage<NetworkMessages::ChatPlayerText>(C_PUSH_CHAT_PLAYER, &msgChatPlayerText);
+          } else if (NetworkState::getSingleton().GetState() == SERVER) {
+            CCharacter *character = (CCharacter*)gameClient->pCPlayer;
+            string characterName(character->characterName.begin(), character->characterName.end());
+            characterName.assign(character->characterName.begin(), character->characterName.end());
 
-          // Add the server's message to it's own history
-          CEGUI::String message = msgChatPlayerText.text().c_str();
-          pWindow->appendText(CEGUI::String(characterName) + CEGUI::String(": ") + message + CEGUI::String("\n"));
-          selectionEnd = pWindow->getText().length();
-          pWindow->setCaratIndex(selectionEnd);
+            // Add the server's message to it's own history
+            CEGUI::String message = msgChatPlayerText.text().c_str();
+            pWindow->appendText(CEGUI::String(characterName) + CEGUI::String(": ") + message + CEGUI::String("\n"));
+            selectionEnd = pWindow->getText().length();
+            pWindow->setCaratIndex(selectionEnd);
 
-          Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, &msgChatPlayerText);
+            Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, &msgChatPlayerText);
+          }
+        }
+
+        // Hide the chat entry after we typed our message
+        if (pInGameChatEntryBackground) { 
+          pInGameChatEntryBackground->setVisible(false);
+          pChatEntry->setVisible(false);
         }
       }
     }
@@ -744,6 +751,17 @@ CEGUI::Window* TLMP::getChatEntryWindow()
 
   if (!pWindow) {
     multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatEntry");
+  }
+
+  return pWindow;
+}
+
+CEGUI::Window* TLMP::getChatEntryBackgroundWindow()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1010_ChatEntryBackground");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1010_ChatEntryBackground");
   }
 
   return pWindow;

@@ -72,8 +72,43 @@ void TLMP::SetupNetwork()
   Client::getSingleton().SetCallback_OnConnected(&ClientOnConnect);
 
   Hook(GetProcAddress(GetModuleHandle("OgreMain.dll"), "?isActive@RenderWindow@Ogre@@UBE_NXZ"), OgreIsActive, 0, HOOK_THISCALL, 0);
+
+  log(L"Adding Resource Location...");
+  multiplayerLogger.WriteLine(Info, L"Adding Resource Location...");
+
+  const char *mangledResourceLocationFunc = "?addResourceLocation@ResourceGroupManager@Ogre@@QAEXABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@00_N@Z";
+  void (__thiscall *addResourceLocation)(PVOID, std::string&, std::string&, std::string&, bool) = 
+    (void (__thiscall *)(PVOID, std::string&, std::string&, std::string&, bool))GetProcAddress(GetModuleHandle("OgreMain.dll"), mangledResourceLocationFunc);
+  
+  Hook(addResourceLocation, OgreAddResourceLocation, 0, HOOK_THISCALL, 4);
 }
 
+void TLMP::OgreAddResourceLocation STDARG
+{
+  static bool setup = false;
+  std::string *name = *(std::string**)&Pz[0];
+  std::string *loc = *(std::string**)&Pz[1];
+  std::string *resGroup = *(std::string**)&Pz[2];
+
+  // Setup the resource location for our TLAPI folder to correctly load our UI layouts
+  if (!setup) {
+    const char *mangledResourceLocationFunc = "?addResourceLocation@ResourceGroupManager@Ogre@@QAEXABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@00_N@Z";
+    void (__thiscall *addResourceLocation)(PVOID, std::string&, std::string&, std::string&, bool) = 
+      (void (__thiscall *)(PVOID, std::string&, std::string&, std::string&, bool))GetProcAddress(GetModuleHandle("OgreMain.dll"), mangledResourceLocationFunc);
+
+    setup = true;
+    addResourceLocation(e->_this, std::string("TLAPI/"), std::string("FileSystem"), std::string("General"), false);
+  }
+
+  /*
+  log("AddResourceLocation: (%p) (%s %s %s)", e->_this, name->c_str(), loc->c_str(), resGroup->c_str());
+
+  PVOID (*ResourceGroupManager)() = (PVOID (*)())GetProcAddress(GetModuleHandle("OgreMain.dll"), "?getSingleton@ResourceGroupManager@Ogre@@SAAAV12@XZ");
+  log(L"func ResourceGroupManager = %p", ResourceGroupManager);
+  PVOID singletonResourceGM = ResourceGroupManager();
+  log(L"singleton ResourceGroupManager = %p", singletonResourceGM);
+  */
+}
 
 void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk)
 {
@@ -556,6 +591,10 @@ void TLMP::Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal
 
 void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float x, float z)
 {
+  if (Network::NetworkState::getSingleton().GetState() == SINGLEPLAYER) {
+    return;
+  }
+
   NetworkMessages::CharacterDestination msgCharacterDestination;
   NetworkMessages::Position *msgPositionCurrent = msgCharacterDestination.add_current();
   NetworkMessages::Position *msgPositionDestination = msgCharacterDestination.add_destination();
@@ -592,7 +631,7 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   // Send this message to all clients if this is the Server
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     if (!Server::getSingleton().GetSuppressed_SetDestination()) {
-      multiplayerLogger.WriteLine(Info, L" Sending Destination for Common: %x (%p)", commonId, character);
+      //multiplayerLogger.WriteLine(Info, L" Sending Destination for Common: %x (%p)", commonId, character);
       //log(L" Sending Destination for Common: %x (%p)", commonId, character);
 
       Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterDestination>(S_PUSH_CHARACTER_SETDEST, &msgCharacterDestination);
@@ -776,11 +815,6 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
   CCharacter *owner = inventory->pCCharacter;
   NetworkEntity *ownerEntity = searchCharacterByInternalObject((PVOID)owner);
   NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
-
-  // TESTING
-  //owner->dumpCharacter();
-  equipment->dumpEquipment();
-  //
 
   //
   if (!ownerEntity) {
@@ -1256,17 +1290,31 @@ void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & cal
 // Uses the KeyManager_HandleInput now to suppress this if needed
 void TLMP::GameUI_HandleKeyboardInputPre(CGameUI* gameUI, u32 unk0, u32 unk1, u32 unk2, bool & calloriginal)
 {
-  log(L"GameUI::HandleKeyboardInput (%p, %x, %x, %x)", gameUI, unk0, unk1, unk2);
+  //log(L"GameUI::HandleKeyboardInput (%p, %x, %x, %x)", gameUI, unk0, unk1, unk2);
+  multiplayerLogger.WriteLine(Info, L"GameUI::HandleKeyboardInput (%p, %x, %x, %x)", gameUI, unk0, unk1, unk2);
+
+  CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
+  CEGUI::Window* pInGameChatEntryBackground = UserInterface::getWindowFromName("1010_ChatEntryBackground");
+  if (pInGameChatEntry && pInGameChatEntryBackground) {
+    // Keydown and 'Enter'
+    if (unk0 == 0x100 && unk1 == 0xD) {
+      if (!pInGameChatEntry->isVisible()) {
+        pInGameChatEntryBackground->setVisible(true);
+        pInGameChatEntry->setVisible(true);
+        pInGameChatEntry->activate();
+      }
+    }
+  }
 }
 
 void TLMP::KeyManager_HandleInputPre(CKeyManager* keyManager, u32 unk0, u32 unk1, bool & calloriginal)
 {
   //log(L"KeyManager::HandleInput(%p %x %x)", keyManager, unk0, unk1);
+  multiplayerLogger.WriteLine(Info, L"KeyManager::HandleInput(%p %x %x)", keyManager, unk0, unk1);
 
   CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
   if (pInGameChatEntry) {
-    if (pInGameChatEntry->hasInputFocus()) {
-      log(L"Suppressing Keyboard Input - ChatEntry has focus");
+    if (pInGameChatEntry->isVisible()) {
       calloriginal = false;
     }
   } else {

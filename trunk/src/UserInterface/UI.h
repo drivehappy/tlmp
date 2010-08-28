@@ -54,6 +54,7 @@ namespace TLMP
 
   CEGUI::Window* getChatHistoryWindow();
   CEGUI::Window* getChatEntryWindow();
+  CEGUI::Window* getChatEntryBackgroundWindow();
 
   extern bool UISetup;
 
