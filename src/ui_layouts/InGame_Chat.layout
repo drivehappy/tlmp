@@ -2,8 +2,8 @@
 <GUILayout>
   
   <Window Type="DefaultWindow" Name="Frame">
-    <Property Name="UnifiedPosition" Value="{{0.02,0},{0.55,0}}" />
-    <Property Name="UnifiedSize" Value="{{0.35,0},{0.4,0}}" />
+    <Property Name="UnifiedPosition" Value="{{0.02,0},{0.67,0}}" />
+    <Property Name="UnifiedSize" Value="{{0.35,0},{0.25,0}}" />
 
     <!-- Close button for the chat window -->
     <!-- 
@@ -18,35 +18,38 @@
     <!-- Chat History Background -->
     <Window Type="GuiLook/ItemText" Name="ChatHistoryBackground">
       <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
-      <Property Name="UnifiedSize" Value="{{1,0},{0.75,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.7,0}}" />
       <Property Name="MousePassThroughEnabled" Value="True" />
-      <Property Name="Alpha" Value="0.5" />
+      <Property Name="Alpha" Value="0.2" />
     </Window>
     <Window Type="GuiLook/MultiLineEditbox" Name="ChatHistory">
       <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
       <Property Name="VertFormatting" Value="TopAligned" />
       <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
-      <Property Name="UnifiedSize" Value="{{1,0},{0.75,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.7,0}}" />
       <Property Name="ReadOnly" Value="True"/>
       <Property Name="NormalTextColour" Value="FFFFFFFF"/>
       <Property Name="Text" Value=""/>
-      <Property Name="Enabled" Valu="False"/>
+      <Property Name="Enabled" Value="False"/>
+      <Property Name="MousePassThroughEnabled" Value="True" />
     </Window>
 
     <!-- Contains the Chat Entry -->
     <!-- Chat Entry Background -->
     <Window Type="GuiLook/ItemText" Name="ChatEntryBackground">
       <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
-      <Property Name="UnifiedSize" Value="{{1,0},{0.08,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.1,0}}" />
       <Property Name="MousePassThroughEnabled" Value="True" />
-      <Property Name="Alpha" Value="0.5" />
+      <Property Name="Alpha" Value="0.2" />
       <Property Name="Visible" Value="False" />
     </Window>
     <Window Type="GuiLook/Editbox" Name="ChatEntry">
-      <Property Name="UnifiedPosition" Value="{{0,0},{0.8,0}}" />
-      <Property Name="UnifiedSize" Value="{{1,0},{.08,0}}" />
+      <Property Name="UnifiedPosition" Value="{{0,0},{0.79,0}}" />
+      <Property Name="UnifiedSize" Value="{{1,0},{0.12,0}}" />
       <Property Name="Text" Value=""/>
       <Property Name="Visible" Value="False" />
+      <Property Name="Enabled" Value="False"/>
+      <Property Name="MousePassThroughEnabled" Value="True" />
     </Window>
   
   </Window>

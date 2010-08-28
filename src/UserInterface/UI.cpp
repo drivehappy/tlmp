@@ -691,14 +691,14 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 
   // If the user pressed enter, send the message out
   if (keyArgs.codepoint == 0xD) {
+    CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getChatHistoryWindow();
+    CEGUI::Window* pInGameChatEntryBackground = getChatEntryBackgroundWindow();
+    CEGUI::Window *pChatEntry = getChatEntryWindow();
+
     // Get the current network player
     NetworkEntity *netPlayer = searchCharacterByInternalObject(gameClient->pCPlayer);
 
     if (netPlayer) {
-      CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getChatHistoryWindow();
-      CEGUI::Window* pInGameChatEntryBackground = getChatEntryBackgroundWindow();
-      CEGUI::Window *pChatEntry = getChatEntryWindow();
-
       if (pWindow && pChatEntry) {
         if (pChatEntry->getText().length() > 0) {
           NetworkMessages::ChatPlayerText msgChatPlayerText;
@@ -722,22 +722,22 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
             Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, &msgChatPlayerText);
           }
         }
-
-        // Really no nice way to make this:
-        // Once we press Enter it automatically activates and calls this function
-        // and in-turn hides it, so we have to burn off an Enter key
-        if (burnEnter) {
-          // Hide the chat entry after we typed our message
-          if (pInGameChatEntryBackground) { 
-            pInGameChatEntryBackground->setVisible(false);
-            pChatEntry->setVisible(false);
-
-            burnEnter = false;
-          }
-        } else {
-          burnEnter = true;
-        }
       }
+    }
+
+    // Really no nice way to make this:
+    // Once we press Enter it automatically activates and calls this function
+    // and in-turn hides it, so we have to burn off an Enter key
+    if (burnEnter) {
+      // Hide the chat entry after we typed our message
+      if (pInGameChatEntryBackground) { 
+        pInGameChatEntryBackground->setVisible(false);
+        pChatEntry->setVisible(false);
+
+        burnEnter = false;
+      }
+    } else {
+      burnEnter = true;
     }
   }
   
@@ -838,7 +838,6 @@ void TLMP::OnClientConnectFailed(void *args)
 
 void TLMP::onNetworkStateChange()
 {
-  /*
   CEGUI::Window *pMainMenuOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
   CEGUI::Window *pOptionsStatusText = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_MultiplayerStateText");
 
@@ -847,18 +846,17 @@ void TLMP::onNetworkStateChange()
   if (pOptionsStatusText) {
     switch (NetworkState::getSingleton().GetState()) {
     case SINGLEPLAYER:
-      pOptionsStatusText->setText("Singleplayer.");
+      pOptionsStatusText->setText("State: Singleplayer.");
       break;
     case SERVER:
-      pOptionsStatusText->setText("Hosting game.");
+      pOptionsStatusText->setText("State: Server");
       break;
     case CLIENT:
-      pOptionsStatusText->setText("Joining game.");
+      pOptionsStatusText->setText("State: Client");
       break;
     }
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_MultiplayerStateText");
     return;
   }
-  */
 }
