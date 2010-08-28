@@ -30,6 +30,7 @@
       <Property Name="ReadOnly" Value="True"/>
       <Property Name="NormalTextColour" Value="FFFFFFFF"/>
       <Property Name="Text" Value=""/>
+      <Property Name="Enabled" Valu="False"/>
     </Window>
 
     <!-- Contains the Chat Entry -->

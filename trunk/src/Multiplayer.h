@@ -95,6 +95,7 @@ namespace TLMP
 
   // Pre Event for the GameUI Keyboard Input
   void GameUI_HandleKeyboardInputPre(CGameUI*, u32, u32, u32, bool&);
+  void GameUI_HandleKeyboardInputPost(CGameUI*, u32, u32, u32, bool&);
 
   // Post Event for GameUI Window Resize
   void GameUI_WindowResizedPost(CGameUI*, bool&);

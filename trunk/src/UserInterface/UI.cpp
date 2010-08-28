@@ -687,6 +687,7 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 {
   CEGUI::KeyEventArgs keyArgs = (CEGUI::KeyEventArgs&)args;
   size_t selectionEnd;
+  static bool burnEnter = false;
 
   // If the user pressed enter, send the message out
   if (keyArgs.codepoint == 0xD) {
@@ -722,10 +723,19 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
           }
         }
 
-        // Hide the chat entry after we typed our message
-        if (pInGameChatEntryBackground) { 
-          pInGameChatEntryBackground->setVisible(false);
-          pChatEntry->setVisible(false);
+        // Really no nice way to make this:
+        // Once we press Enter it automatically activates and calls this function
+        // and in-turn hides it, so we have to burn off an Enter key
+        if (burnEnter) {
+          // Hide the chat entry after we typed our message
+          if (pInGameChatEntryBackground) { 
+            pInGameChatEntryBackground->setVisible(false);
+            pChatEntry->setVisible(false);
+
+            burnEnter = false;
+          }
+        } else {
+          burnEnter = true;
         }
       }
     }

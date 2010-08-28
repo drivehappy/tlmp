@@ -58,7 +58,7 @@ void TLMP::SetupNetwork()
   CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, Inventory_RemoveEquipmentPost);
 
   CGameUI::RegisterEvent_GameUI_TriggerPause(GameUI_TriggerPausePre, NULL);
-  CGameUI::RegisterEvent_GameUI_HandleKeyboardInput(GameUI_HandleKeyboardInputPre, NULL);
+  CGameUI::RegisterEvent_GameUI_HandleKeyboardInput(GameUI_HandleKeyboardInputPre, GameUI_HandleKeyboardInputPost);
   CGameUI::RegisterEvent_GameUI_WindowResized(NULL, GameUI_WindowResizedPost);  
 
   CKeyManager::RegisterEvent_KeyManager_InjectKey(KeyManager_HandleInputPre, NULL);
@@ -1290,17 +1290,40 @@ void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & cal
 // Uses the KeyManager_HandleInput now to suppress this if needed
 void TLMP::GameUI_HandleKeyboardInputPre(CGameUI* gameUI, u32 unk0, u32 unk1, u32 unk2, bool & calloriginal)
 {
+  /*
   //log(L"GameUI::HandleKeyboardInput (%p, %x, %x, %x)", gameUI, unk0, unk1, unk2);
   multiplayerLogger.WriteLine(Info, L"GameUI::HandleKeyboardInput (%p, %x, %x, %x)", gameUI, unk0, unk1, unk2);
 
   CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
   CEGUI::Window* pInGameChatEntryBackground = UserInterface::getWindowFromName("1010_ChatEntryBackground");
+
   if (pInGameChatEntry && pInGameChatEntryBackground) {
     // Keydown and 'Enter'
     if (unk0 == 0x100 && unk1 == 0xD) {
-      if (!pInGameChatEntry->isVisible()) {
-        pInGameChatEntryBackground->setVisible(true);
-        pInGameChatEntry->setVisible(true);
+      if (!pInGameChatEntry->isActive()) {
+        log("%p %p", pInGameChatEntry, pInGameChatEntryBackground);
+        log("vis: %i", pInGameChatEntry->isVisible());
+
+        pInGameChatEntryBackground->setVisible(true);        
+        pInGameChatEntry->show();
+        pInGameChatEntry->activate();
+      }
+    }
+  }
+  */
+}
+
+void TLMP::GameUI_HandleKeyboardInputPost(CGameUI* gameUI, u32 unk0, u32 unk1, u32 unk2, bool& calloriginal)
+{
+  CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
+  CEGUI::Window* pInGameChatEntryBackground = UserInterface::getWindowFromName("1010_ChatEntryBackground");
+
+  if (pInGameChatEntry && pInGameChatEntryBackground) {
+    // Keydown and 'Enter'
+    if (unk0 == 0x100 && unk1 == 0xD) {
+      if (!pInGameChatEntry->isActive()) {
+        pInGameChatEntryBackground->setVisible(true);        
+        pInGameChatEntry->show();
         pInGameChatEntry->activate();
       }
     }
