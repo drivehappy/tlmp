@@ -18,6 +18,7 @@ void TLMP::SetupNetwork()
   CGame::RegisterEvent_GameCtor(Game_Ctor, NULL);
   CGame::RegisterEvent_Game_CreateUI(NULL, GameClient_CreateUI);
 
+  CResourceManager::RegisterEvent_ResourceManagerCreatePlayer(CreatePlayer, NULL);
   CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
   CResourceManager::RegisterEvent_ResourceManagerCreateEquipment(CreateEquipmentPre, CreateEquipmentPost);
 
@@ -45,7 +46,7 @@ void TLMP::SetupNetwork()
   CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI, NULL);
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
 
-  CCharacter::RegisterEvent_CharacterCtor(Character_Ctor, NULL);
+  CCharacter::RegisterEvent_CharacterDtor(Character_Dtor, NULL);
   CCharacter::RegisterEvent_CharacterSetAction(Character_SetActionPre, NULL);
   CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignment, NULL);
   CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, NULL);
@@ -53,6 +54,12 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, Character_UseSkillPost);
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
+  CCharacter::RegisterEvent_Character_Update(Character_Character_UpdatePre, NULL);
+  CCharacter::RegisterEvent_Character_SetOrientation(Character_SetOrientationPre, NULL);
+  CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
+  CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
+  
+  CSkillManager::RegisterEvent_SkillManagerAddSkill(SkillManager_AddSkillPre, NULL);
 
   CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipmentPre, Inventory_AddEquipmentPost);
   CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, Inventory_RemoveEquipmentPost);
@@ -173,9 +180,10 @@ void TLMP::Equipment_Dtor(CEquipment* equipment)
   }
 }
 
-void TLMP::Character_Ctor(CCharacter* character)
+void TLMP::Character_Dtor(CCharacter* character)
 {
-  log(L"Character::Ctor = %p %s", character, character->characterName.c_str());
+  log(L"Character::Dtor = %p", character);
+  log(L"  %s", character->characterName.c_str());
 }
 
 void TLMP::Character_SetAlignment(CCharacter* character, u32 alignment)
@@ -198,6 +206,11 @@ void TLMP::GameClient_Ctor(CGameClient* client)
   log(L"GameClient::Ctor = %p", client);
 
   gameClient = client;
+}
+
+void TLMP::CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk0, bool & calloriginal)
+{
+  logColor(B_RED, L"CreatePlayer: %s %x", type, unk0);
 }
 
 void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool noItems, bool & calloriginal)
@@ -1003,8 +1016,34 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
   */
 }
 
+void TLMP::SkillManager_AddSkillPre(CSkillManager* skillManager, CSkill* skill, u32 unk0, u32 unk1, bool& calloriginal)
+{
+  log(L"SkillManager (%p) AddSkill: %p", skillManager, skill);
+  log(L"   unk0: %x   unk1: %x  GUID: %016I64X", unk0, unk1, skill->GUID);
+}
+
+void TLMP::Character_SetupSkillsPre(CCharacter* character, CDataGroup* dataGroup, u32 unk0, bool& calloriginal)
+{
+}
+
+void TLMP::Character_AddSkillPre(CCharacter* character, wstring* skillName, u32 unk1, bool& calloriginal)
+{
+  /*
+  log(L"Character::AddSkill: %p", character);
+  log(L"   %s", character->characterName.c_str());
+  log(L"   %s", skillName->c_str());
+  log(L"   %x", unk1);
+  */
+}
+
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
+  Vector3 test;
+  test.x = 0;
+  test.y = 0;
+  test.z = 0;
+  character->SetOrientation(test);
+
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
     log(L"Test: Character Mana max: %i", character->manaMax);
 
@@ -1013,46 +1052,47 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
     log(L"Character (%s) used skill pre: (%016I64X)",
       character->characterName.c_str(), skillGUID);
 
-    // If the client is requesting a pickup, request the server first
-    // The server will respond with a pickup message
-    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-      if (!Client::getSingleton().GetSuppressed_SendUseSkill()) {
-        if (!Client::getSingleton().Get_IsSendingUseSkill()) {
-          // Send the server a message requesting our character to pickup the item
-          NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
+    /*
+    // Testing for Skill Graphic Effect
+    log(L"  EffectManager: %p", character->pCEffectManager);
+    log(L"  Type: %x", character->type__);
+    log(L"  Skill: %p", character->pCSkill);
+    log(L"  ResourceManager: %p", character->pCResourceManager);
+    log(L"  pCSkillManager: %p", character->pCSkillManager);
+    log(L"  UsingSkill: %i", character->usingSkill);
+    character->pCSkillManager->dumpSkillManager();
+    // --
+    */
 
-          if (!netPlayer) {
-            multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
-            log(L"Error: Could not retrieve network entity of character for equipment pickup!");
-          } else {
-            NetworkMessages::CharacterUseSkill msgCharacterUseSkill;
-            msgCharacterUseSkill.set_characterid(netPlayer->getCommonId());
-            msgCharacterUseSkill.set_skill(skillGUID);
+    NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
 
-            Client::getSingleton().SendMessage<NetworkMessages::CharacterUseSkill>(C_PUSH_CHARACTER_USESKILL, &msgCharacterUseSkill);
-            Client::getSingleton().Set_IsSendingUseSkill(true);
-          }
-        }
-
-        calloriginal = false;
-      }
+    if (!netPlayer) {
+      multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
+      log(L"Error: Could not retrieve network entity of character for equipment pickup!");
+      return;
     }
-    // Send the message off to the clients
-    else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-      NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
 
-      if (netCharacter) {
-        NetworkMessages::CharacterUseSkill msgCharacterUseSkill;
-        msgCharacterUseSkill.set_characterid(netCharacter->getCommonId());
-        msgCharacterUseSkill.set_skill(skillGUID);
+    NetworkMessages::CharacterUseSkill msgCharacterUseSkill;
+    msgCharacterUseSkill.set_characterid(netPlayer->getCommonId());
+    msgCharacterUseSkill.set_skill(skillGUID);
 
+    NetworkMessages::Position *msgPosition = msgCharacterUseSkill.mutable_direction();
+    msgPosition->set_x(character->orientation.x);
+    msgPosition->set_y(character->orientation.y);
+    msgPosition->set_z(character->orientation.z);
+
+    if (!character->usingSkill) {
+      // If the client is requesting a pickup, request the server first
+      // The server will respond with a pickup message
+      if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+        if (!Client::getSingleton().GetSuppressed_SendUseSkill()) {
+          Client::getSingleton().SendMessage<NetworkMessages::CharacterUseSkill>(C_REQUEST_CHARACTER_USESKILL, &msgCharacterUseSkill);
+          calloriginal = false;
+        }
+      }
+      // Send the message off to the clients
+      else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
         Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentPickup>(S_PUSH_CHARACTER_USESKILL, &msgCharacterUseSkill);
-        Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
-      } else {
-        multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Character (%s)",
-          character->characterName.c_str());
-        log(L"Error: Could not find Network Entity for Character (%s)",
-          character->characterName.c_str());
       }
     }
   }
@@ -1061,7 +1101,7 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
 void TLMP::Character_UseSkillPost(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    log(L"Test: Character Mana max: %i", character->manaMax);
+    log(L"Character_UseSkillPost: Character Mana: %f / %i", character->manaCurrent, character->manaMax);
 
     multiplayerLogger.WriteLine(Info, L"Character (%s) used skill post: (%016I64X)",
       character->characterName.c_str(), skillGUID);
@@ -1080,6 +1120,19 @@ void TLMP::Character_UseSkillPost(CCharacter* character, u64 skillGUID, bool & c
       Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
     }
   }
+}
+
+void TLMP::Character_SetOrientationPre(CCharacter* character, Vector3* orient1, float dTime, bool& calloriginal)
+{
+  /*
+  if (character == gameClient->pCPlayer) {
+    log(L"Character_SetOrientationPre: %s (%p)", character->characterName.c_str(), orient1);
+    log(L" Current: %f, %f, %f", character->orientation.x, character->orientation.y, character->orientation.z);
+    log(L" Orient1: %f %f %f", orient1->x, orient1->y, orient1->z);
+    log(L" dTime: %f", dTime);
+    log(L" unkBool0: %i  usingSkill: %i", character->unkBool0, character->usingSkill);
+  }
+  */
 }
 
 void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool & calloriginal)
@@ -1382,6 +1435,10 @@ void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
   ResizeUI();
 }
 
+void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
+{
+
+}
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)

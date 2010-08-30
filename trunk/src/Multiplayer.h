@@ -36,13 +36,14 @@ namespace TLMP
 
   // Pre Event for character initialization
   void CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
+  void CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk, bool & calloriginal);
 
   // Pre Event for Monster AI and Idle
   void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);
   void Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal);
 
   // Pre Event for Character SetDestination
-  void Character_Ctor(CCharacter*);
+  void Character_Dtor(CCharacter*);
   void Character_SetAlignment(CCharacter*, u32);
   void Character_SetActionPre(CCharacter*, u32, bool & calloriginal);
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
@@ -52,6 +53,13 @@ namespace TLMP
   void Character_AttackPre(CCharacter*, bool & calloriginal);
   void Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
   void Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
+  void Character_Character_UpdatePre(CCharacter*, PVOID, float*, float, bool&);
+  void Character_SetOrientationPre(CCharacter*, Vector3*, float, bool&);
+  void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
+  void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
+
+  // Skill Manager
+  void SkillManager_AddSkillPre(CSkillManager*, CSkill*, u32, u32, bool&);
 
   // Post Event for equipment initialization
   void Equipment_Dtor(CEquipment*);
