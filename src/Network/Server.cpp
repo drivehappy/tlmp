@@ -1158,7 +1158,7 @@ void Server::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgChar
     character->UseSkill(skill);
 
     // Test, have the player do it too and see if the effect shows
-    gameClient->pCPlayer->UseSkill(skill);
+    //gameClient->pCPlayer->UseSkill(skill);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);

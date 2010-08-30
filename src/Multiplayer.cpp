@@ -29,7 +29,7 @@ void TLMP::SetupNetwork()
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
   CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, GameClient_CreateLevelPost);
-  CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, NULL);
+  CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, GameClient_LoadLevelPost);
   CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, NULL);
   CGameClient::RegisterEvent_GameClient_SaveGame(GameClientSaveGamePre, NULL);
   CGameClient::RegisterEvent_GameClientGamePaused(NULL, GameClientGamePausedPost);
@@ -526,11 +526,31 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
   // Suppress level changes
   if (NetworkState::getSingleton().GetSuppressed_LevelChange()) {
-    //multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
-    //log(L"GameClient::LoadLevel Suppressed");
+    multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
+    logColor(B_GREEN, L"GameClient::LoadLevel Suppressed");
+    
+    logColor(B_GREEN, L"Flag: %x", client->flagLevelLoading);
+    logColor(B_GREEN, L"Level: %i", client->level);
+    logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
+    logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
+    logColor(B_GREEN, L"Dungeon: %p", client->pCDungeon);
+    logColor(B_GREEN, L"  Name0: %s", client->pCDungeon->name0.c_str());
+    logColor(B_GREEN, L"  Name1: %s", client->pCDungeon->name1.c_str());
+    logColor(B_GREEN, L"  Name2: %s", client->pCDungeon->name2.c_str());
 
-    calloriginal = false;
+    //calloriginal = false;
+    //client->flagLevelLoading = 0;
   }
+}
+
+void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
+{
+  logColor(B_GREEN, L"GameClient_LoadLevelPost");
+  logColor(B_GREEN, L"  DungeonName: %s", client->dungeonName.c_str());
+  logColor(B_GREEN, L"  Dungeon: %p", client->pCDungeon);
+  logColor(B_GREEN, L"    Name0: %s", client->pCDungeon->name0.c_str());
+  logColor(B_GREEN, L"    Name1: %s", client->pCDungeon->name1.c_str());
+  logColor(B_GREEN, L"    Name2: %s", client->pCDungeon->name2.c_str());
 }
 
 void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
@@ -1053,13 +1073,18 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
       character->characterName.c_str(), skillGUID);
 
     // Testing for Skill Graphic Effect
-    log(L"  EffectManager: %p", character->pCEffectManager);
-    log(L"  Type: %x", character->type__);
-    log(L"  Skill: %p", character->pCSkill);
-    log(L"  ResourceManager: %p", character->pCResourceManager);
-    log(L"  pCSkillManager: %p", character->pCSkillManager);
-    log(L"  UsingSkill: %i", character->usingSkill);
-    character->pCSkillManager->dumpSkillManager();
+    if (!character->usingSkill) {
+      log(L"  EffectManager: %p", character->pCEffectManager);
+      log(L"  Type: %x", character->type__);
+      log(L"  Skill: %p", character->pCSkill);
+      log(L"  ResourceManager: %p", character->pCResourceManager);
+      log(L"  pCSkillManager: %p", character->pCSkillManager);
+      log(L"  UsingSkill: %i", character->usingSkill);
+      //character->pCSkillManager->dumpSkillManager();
+    } else {
+      // Save us the trouble of the constant keydown function spam
+      calloriginal = false;
+    }
     // --
 
     NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
