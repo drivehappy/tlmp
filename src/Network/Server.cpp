@@ -535,7 +535,10 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
   // Create this Player on this instance
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+  //Testing Skills
   CMonster *clientCharacter = resourceManager->CreateMonster(msgPlayer.guid(), levelCharacter, true);
+  //CPlayer *clientCharacter = resourceManager->CreatePlayer(L"Destroyer", 1);
+  //clientCharacter->level = levelCharacter;
 
   if (clientCharacter) {
     // Setup the skills
@@ -544,7 +547,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
       wstring skillName = convertAsciiToWide(msgPlayer.skills().Get(i));
 
       logColor(B_RED, L"Adding Skill to Character: %s", skillName.c_str());
-      clientCharacter->AddSkill(&skillName, 0);
+      clientCharacter->AddSkill(&skillName, 1);
     }
 
     // Setup the name and alignment
