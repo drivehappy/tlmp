@@ -1052,7 +1052,6 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
     log(L"Character (%s) used skill pre: (%016I64X)",
       character->characterName.c_str(), skillGUID);
 
-    /*
     // Testing for Skill Graphic Effect
     log(L"  EffectManager: %p", character->pCEffectManager);
     log(L"  Type: %x", character->type__);
@@ -1062,7 +1061,6 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
     log(L"  UsingSkill: %i", character->usingSkill);
     character->pCSkillManager->dumpSkillManager();
     // --
-    */
 
     NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
 
