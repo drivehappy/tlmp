@@ -16,7 +16,7 @@ using namespace std;
 
 namespace TLMP
 {
-  static wstring& convertAcsiiToWide(string str) {
+  static wstring& convertAsciiToWide(string str) {
     size_t origsize = strlen(str.c_str()) + 1;
     const size_t newsize = 1024;
     size_t convertedChars = 0;

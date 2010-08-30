@@ -86,7 +86,7 @@ namespace TLMP {
       C_PUSH_CHARACTER_ATTACK,      // Client Pushes a Character Attack
       S_PUSH_CHARACTER_ATTACK,      // Server Pushes a Character Attack
 
-      C_PUSH_CHARACTER_USESKILL,    // Client Pushes a Character Use Skill
+      C_REQUEST_CHARACTER_USESKILL, // Client requests a specific character uses a skill
       S_PUSH_CHARACTER_USESKILL,    // Server Pushes a Character Use Skill
 
       C_PUSH_EQUIPMENT_STACKUPDATE, // Client Pushes an update on Equipment Stack size
@@ -163,7 +163,7 @@ namespace TLMP {
       "C_PUSH_CHARACTER_ATTACK",
       "S_PUSH_CHARACTER_ATTACK",
       
-      "C_PUSH_CHARACTER_USESKILL",
+      "C_REQUEST_CHARACTER_USESKILL",
       "S_PUSH_CHARACTER_USESKILL",
 
       "C_PUSH_EQUIPMENT_STACKUPDATE",

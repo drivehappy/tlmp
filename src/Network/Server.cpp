@@ -176,7 +176,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     multiplayerLogger.WriteLine(Info, L"Error: Message out of range.");
   }
 
-  wstring msgString = convertAcsiiToWide(MessageString[msg]);
+  wstring msgString = convertAsciiToWide(MessageString[msg]);
 
   multiplayerLogger.WriteLine(Info, L"Server Received Message: %s", msgString.c_str());
   logColor(B_GREEN, L"Server Received Message: %s", msgString.c_str());
@@ -329,7 +329,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       */
     }
 
-  case C_PUSH_CHARACTER_USESKILL:
+  case C_REQUEST_CHARACTER_USESKILL:
     {
       NetworkMessages::CharacterUseSkill *msgCharacterUseSkill = ParseMessage<NetworkMessages::CharacterUseSkill>(m_pBitStream);
 
@@ -518,18 +518,15 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
   NetworkEntity *entityCharacter;
 
   msgPlayer = msgReplyCharacterInfo->player();
-
-  // This will broadcast to all clients except the one we received it from
-  Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgPlayer);
-
+  
   Vector3 posCharacter;
   Vector3 posPlayer;
   posPlayer.x = msgPlayer.position().x();
   posPlayer.y = msgPlayer.position().y();
   posPlayer.z = msgPlayer.position().z();
 
-  float health = msgPlayer.health();
-  float mana = msgPlayer.mana();
+  u32 health = msgPlayer.health();
+  u32 mana = msgPlayer.mana();
   u32 levelCharacter = msgPlayer.level();
   u32 strength = msgPlayer.strength();
   u32 dexterity = msgPlayer.dexterity();
@@ -541,7 +538,17 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
   CMonster *clientCharacter = resourceManager->CreateMonster(msgPlayer.guid(), levelCharacter, true);
 
   if (clientCharacter) {
-    clientCharacter->characterName.assign(convertAcsiiToWide(msgPlayer.name()));
+    // Setup the skills
+    u32 skillNameCount = msgPlayer.skills().size();
+    for (u32 i = 0; i < skillNameCount; i++) {
+      wstring skillName = convertAsciiToWide(msgPlayer.skills().Get(i));
+
+      logColor(B_RED, L"Adding Skill to Character: %s", skillName.c_str());
+      clientCharacter->AddSkill(&skillName, 0);
+    }
+
+    // Setup the name and alignment
+    clientCharacter->characterName.assign(convertAsciiToWide(msgPlayer.name()));
     clientCharacter->SetAlignment(1);
 
     // Lock the creation so we don't resend to all the clients
@@ -570,6 +577,10 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
       Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
 
+      // This will broadcast to all clients except the one we received it from
+      msgPlayer.set_id(entityCharacter->getCommonId());
+      Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgPlayer);
+
       // Add this character to our ClientAddressCharacter map
       HandleAddClientCharacter(clientAddress, clientCharacter);
     }
@@ -590,7 +601,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     // Create this Player on this instance
     CMonster *clientMinion = resourceManager->CreateMonster(msgMinion.guid(), msgMinion.level(), true);
     if (clientMinion) {
-      clientMinion->characterName.assign(convertAcsiiToWide(msgMinion.name()));
+      clientMinion->characterName.assign(convertAsciiToWide(msgMinion.name()));
       clientMinion->SetAlignment(1);
 
       // Lock the creation so we don't resend to all the clients
@@ -614,6 +625,10 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
         msgReplyCharacterId.set_guid(clientMinion->GUID);
 
         Server::getSingleton().SendMessage<NetworkMessages::ReplyCharacterId>(clientAddress, S_REPLY_CHARID, &msgReplyCharacterId);
+
+        // This will broadcast to all clients except the one we received it from
+        msgMinion.set_id(entityCharacter->getCommonId());
+        Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgMinion);
 
         // Add this character to our ClientAddressCharacter map
         HandleAddClientCharacter(clientAddress, clientMinion);
@@ -880,9 +895,9 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
   u32 minPhysicalDamage = msgEquipment->physical_damage_min();
   u32 maxPhysicalDamage = msgEquipment->physical_damage_max();
 
-  wstring nameUnidentified = convertAcsiiToWide(msgEquipment->name_unidentified());
-  wstring namePrefix = convertAcsiiToWide(msgEquipment->name_prefix());
-  wstring nameSuffix = convertAcsiiToWide(msgEquipment->name_suffix());
+  wstring nameUnidentified = convertAsciiToWide(msgEquipment->name_unidentified());
+  wstring namePrefix = convertAsciiToWide(msgEquipment->name_prefix());
+  wstring nameSuffix = convertAsciiToWide(msgEquipment->name_suffix());
 
   u32 reqLevel = msgEquipment->req_level();
   u32 reqStrength = msgEquipment->req_strength();
@@ -1118,14 +1133,29 @@ void Server::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgChar
 {
   u32 id = msgCharacterUseSkill->characterid();
   u64 skill = msgCharacterUseSkill->skill();
+  Vector3 direction;
+
+  NetworkMessages::Position msgPosition = msgCharacterUseSkill->direction();
+  direction.x = msgPosition.x();
+  direction.y = msgPosition.y();
+  direction.z = msgPosition.z();
 
   NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
-
   if (networkCharacter) {
     CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
+  
+    // Set the character orientation
+    //character->SetOrientation(direction);
 
-    // Stop the suppress and network request
+    // Have the character use the skill
+
+    // Testing - SkillManager will show the correct graphic on the
+    // client character, but the Server Player will not cast the skill
+    //character->pCSkillManager = gameClient->pCPlayer->pCSkillManager;
     character->UseSkill(skill);
+
+    // Test, have the player do it too and see if the effect shows
+    gameClient->pCPlayer->UseSkill(skill);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);

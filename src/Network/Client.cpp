@@ -193,7 +193,7 @@ void Client::OnConnect(void *args)
 
 void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 {
-  wstring msgString = convertAcsiiToWide(MessageString[msg]);
+  wstring msgString = convertAsciiToWide(MessageString[msg]);
 
   // For sake of less spam
   if (msg != S_PUSH_CHARACTER_SETDEST) {
@@ -537,13 +537,28 @@ void Client::HandleRequestCharacterInfo()
   msgPlayer->set_dexterity(10000);
   msgPlayer->set_defense(10000);
   msgPlayer->set_magic(10000);
+  msgPlayer->set_health(player->healthMax);
+  msgPlayer->set_mana(player->manaMax);
 
-  
-  
   msgPlayerPosition->set_x(player->position.x);
   msgPlayerPosition->set_y(player->position.y);
   msgPlayerPosition->set_z(player->position.z);
 
+  // Add the Character's Skills from both lists
+  CSkillManager *skillManager = player->pCSkillManager;  
+  for (u32 i = 0; i < skillManager->listSkills0.size; i++) {
+    CSkill *skill = skillManager->listSkills0[i];
+    string *skillName = msgPlayer->add_skills();
+
+    skillName->assign(skill->pCSkillProperty0->skillName.begin(), skill->pCSkillProperty0->skillName.end());
+  }
+  for (u32 i = 0; i < skillManager->listSkills1.size; i++) {
+    CSkill *skill = skillManager->listSkills1[i];
+    string *skillName = msgPlayer->add_skills();
+
+    skillName->assign(skill->pCSkillProperty0->skillName.begin(), skill->pCSkillProperty0->skillName.end());
+  }
+  
   // Add Minions
   vector<CCharacter*> *minionList = gameClient->pCPlayer->GetMinions();
   vector<CCharacter*>::iterator itr;
@@ -636,8 +651,8 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   posCharacter.z = msgCharacterPosition.z();
 
   u32 commonId = msgCharacter->id();
-  float health = msgCharacter->health();
-  float mana = msgCharacter->mana();
+  u32 health = msgCharacter->health();
+  u32 mana = msgCharacter->mana();
   u32 levelCharacter = msgCharacter->level();
   u32 strength = msgCharacter->strength();
   u32 dexterity = msgCharacter->dexterity();
@@ -648,7 +663,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
 
 
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
-    commonId, guidCharacter, TLMP::convertAcsiiToWide(characterName).c_str());
+    commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
 
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
   CLevel *level = gameClient->pCLevel;
@@ -658,7 +673,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   CMonster* monster = resourceManager->CreateMonster(guidCharacter, levelCharacter, true);
   
   if (monster) {
-    monster->characterName.assign(convertAcsiiToWide(characterName));
+    monster->characterName.assign(convertAsciiToWide(characterName));
     monster->SetAlignment(1);
     level->CharacterInitialize(monster, &posCharacter, 0);
     monster->healthMax = health;
@@ -690,9 +705,9 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
   u32 minPhysicalDamage = msgEquipment->physical_damage_min();
   u32 maxPhysicalDamage = msgEquipment->physical_damage_max();
 
-  wstring nameUnidentified = convertAcsiiToWide(msgEquipment->name_unidentified());
-  wstring namePrefix = convertAcsiiToWide(msgEquipment->name_prefix());
-  wstring nameSuffix = convertAcsiiToWide(msgEquipment->name_suffix());
+  wstring nameUnidentified = convertAsciiToWide(msgEquipment->name_unidentified());
+  wstring namePrefix = convertAsciiToWide(msgEquipment->name_prefix());
+  wstring nameSuffix = convertAsciiToWide(msgEquipment->name_suffix());
 
   u32 reqLevel = msgEquipment->req_level();
   u32 reqStrength = msgEquipment->req_strength();
@@ -1079,9 +1094,17 @@ void Client::HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill* msgChar
 {
   u32 id = msgCharacterUseSkill->characterid();
   u64 skill = msgCharacterUseSkill->skill();
+  Vector3 direction;
+
+  NetworkMessages::Position msgPosition = msgCharacterUseSkill->direction();
+  direction.x = msgPosition.x();
+  direction.y = msgPosition.y();
+  direction.z = msgPosition.z();
+
+  log(L"Client HandleCharacterUseSkill: %f %f %f", 
+    direction.x, direction.y, direction.z);
 
   NetworkEntity *networkCharacter = searchCharacterByCommonID(id);
-
   if (networkCharacter) {
     CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
 

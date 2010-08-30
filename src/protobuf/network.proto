@@ -12,13 +12,14 @@ message Character {
   repeated Character minion  = 3;
   required Position  position = 4;
   optional int32     id = 5;
-  required float     health = 6;
-  required float     mana = 7;
+  required int32     health = 6;
+  required int32     mana = 7;
   required int32     level = 8;
   required int32     strength = 9;
   required int32     dexterity = 10;
   required int32     magic = 11;
   required int32     defense = 12;
+  repeated string    skills = 13;
 }
 
 // This handles both Affixes and Regular Types
@@ -141,6 +142,7 @@ message CharacterAttack {
 message CharacterUseSkill {
   required int32    characterId = 1;
   required int64    skill = 2;
+  required Position direction = 3;
 }
 
 message EquipmentAddGem {
@@ -160,47 +162,3 @@ message ChatPlayerText {
   required int32    characterId = 1;
   required string   text = 2;
 }
-
-
-
-
-message Entity {
-  required int32 id = 1;
-  required int32 level = 2;
-  required int64 guid = 3;
-  required bool noItems = 4;
-  optional Position destination = 5;
-  repeated Position position = 6;
-}
-
-message Item {
-  required int32 id = 1;
-  required int64 guid = 2;
-  required int32 level = 3;
-  required int32 unk0 = 4;
-  required int32 unk1 = 5;
-}
-
-message ItemDrop {
-  required int32 id = 1;
-  repeated Position position = 2;
-  required bool unk0 = 3;
-}
-
-message ItemPickup {
-  required int32 id = 1;
-  required int32 ownerId = 2;
-}
-
-message ItemEquip {
-  required int32 id = 1;
-  required int32 slot = 2;
-  required int32 ownerId = 3;
-  required int32 unk = 4;
-}
-
-message ItemUnequip {
-  required int32 id = 1;
-  required int32 ownerid = 2;
-}
-
