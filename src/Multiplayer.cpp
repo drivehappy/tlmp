@@ -30,9 +30,10 @@ void TLMP::SetupNetwork()
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
   CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, GameClient_CreateLevelPost);
   CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, GameClient_LoadLevelPost);
-  CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, NULL);
-  CGameClient::RegisterEvent_GameClient_SaveGame(GameClientSaveGamePre, NULL);
+  CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, GameClient_LoadMapPost);
+  CGameClient::RegisterEvent_GameClient_SaveGame(GameClientSaveGamePre, GameClientSaveGamePost);
   CGameClient::RegisterEvent_GameClientGamePaused(NULL, GameClientGamePausedPost);
+  CGameClient::RegisterEvent_GameClient_ChangeLevel(GameClient_ChangeLevelPre, GameClient_ChangeLevelPost);
 
   CMainMenu::RegisterEvent_MainMenu_Event(MainMenuEventPre, NULL);
 
@@ -59,6 +60,9 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
   
+  _GLOBAL::RegisterEvent_SetSeedValue0(NULL, Global_SetSeedValue0Post);
+  _GLOBAL::RegisterEvent_SetSeedValue2(NULL, Global_SetSeedValue2Post);
+
   CSkillManager::RegisterEvent_SkillManagerAddSkill(SkillManager_AddSkillPre, NULL);
 
   CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipmentPre, Inventory_AddEquipmentPost);
@@ -184,6 +188,17 @@ void TLMP::Character_Dtor(CCharacter* character)
 {
   log(L"Character::Dtor = %p", character);
   log(L"  %s", character->characterName.c_str());
+  log(L"  Removing Character from NetworkSharedCharacters");
+
+  vector<NetworkEntity*>::iterator itr;
+  for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+    CCharacter* charItem = (CCharacter*)((*itr)->getInternalObject());
+    if (charItem == character) {
+      log(L"  Found and removed character");
+      NetworkSharedCharacters->erase(itr);
+      break;
+    }
+  }
 }
 
 void TLMP::Character_SetAlignment(CCharacter* character, u32 alignment)
@@ -272,18 +287,21 @@ void TLMP::CreateEquipmentPost(CEquipment* equipment, CResourceManager* resource
     multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
       guid, level, equipment, equipment->nameReal.c_str());
 
-    // --
-    if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-      if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
-        NetworkEntity *newEntity = addEquipment(equipment);
+    if (equipment->type__ != 29 && equipment->type__ != 40) 
+    {
+      // --
+      if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+        if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
+          NetworkEntity *newEntity = addEquipment(equipment);
 
-        NetworkMessages::Equipment msgEquipment;
-        msgEquipment.set_id(newEntity->getCommonId());
-        msgEquipment.set_guid(equipment->GUID);
+          NetworkMessages::Equipment msgEquipment;
+          msgEquipment.set_id(newEntity->getCommonId());
+          msgEquipment.set_guid(equipment->GUID);
 
-        // TODO Add Enchants and rest of data
+          // TODO Add Enchants and rest of data
 
-        Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
+          Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
+        }
       }
     }
   }
@@ -480,9 +498,12 @@ void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring 
 
 void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)
 {
+  log(L"CreateLevel Post");
+
   if (NetworkState::getSingleton().GetState() == CLIENT ||
     NetworkState::getSingleton().GetState() == SERVER)
   {
+    /*
     // Force load the Player into the Town
     wstring Town(L"TOWN");
 
@@ -501,6 +522,7 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
       gameClient->ChangeLevel(-99);
       NetworkState::getSingleton().SetSuppressed_LevelChange(true);
     }
+    */
   }
 
   // Do this in Post to ensure it loads at the right time
@@ -524,22 +546,24 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
+  logColor(B_GREEN, L"Flag: %x", client->flagLevelLoading);
+  logColor(B_GREEN, L"Level: %i", client->level);
+  logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
+  logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
+  logColor(B_GREEN, L"Dungeon: %p", client->pCDungeon);
+  logColor(B_GREEN, L"  Name0: %s", client->pCDungeon->name0.c_str());
+  logColor(B_GREEN, L"  Name1: %s", client->pCDungeon->name1.c_str());
+  logColor(B_GREEN, L"  Name2: %s", client->pCDungeon->name2.c_str());
+
   // Suppress level changes
   if (NetworkState::getSingleton().GetSuppressed_LevelChange()) {
-    multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
-    logColor(B_GREEN, L"GameClient::LoadLevel Suppressed");
-    
-    logColor(B_GREEN, L"Flag: %x", client->flagLevelLoading);
-    logColor(B_GREEN, L"Level: %i", client->level);
-    logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
-    logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
-    logColor(B_GREEN, L"Dungeon: %p", client->pCDungeon);
-    logColor(B_GREEN, L"  Name0: %s", client->pCDungeon->name0.c_str());
-    logColor(B_GREEN, L"  Name1: %s", client->pCDungeon->name1.c_str());
-    logColor(B_GREEN, L"  Name2: %s", client->pCDungeon->name2.c_str());
-
     //calloriginal = false;
     //client->flagLevelLoading = 0;
+  }
+
+  if (!calloriginal) {
+    multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
+    logColor(B_GREEN, L"GameClient::LoadLevel Suppressed");
   }
 }
 
@@ -555,7 +579,8 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
 
 void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap(%x)", unk0);
+  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Pre(%x)", unk0);
+  logColor(B_GREEN, L"GameClient::LoadMap Pre(%x)", unk0);
 
   // This will suppress the game load if the Server hasn't setup the game yet
   // TODO: Re-show the UI and Display an Error dialog
@@ -566,6 +591,12 @@ void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & ca
       }
     }
   }
+}
+
+void TLMP::GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
+{
+  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Post(%x)", unk0);
+  logColor(B_GREEN, L"GameClient::LoadMap Post(%x)", unk0);
 }
 
 void TLMP::MainMenuEventPre(CMainMenu* mainMenu, u32 unk0, wstring str, bool & calloriginal)
@@ -1263,6 +1294,13 @@ void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bo
   */
 }
 
+void TLMP::GameClientSaveGamePost(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal)
+{
+  log(L"Suppressed Game Save Successful");
+  multiplayerLogger.WriteLine(Info, L"Suppressed Game Save Successful");
+
+}
+
 void TLMP::GameClientGamePausedPost(bool& retval, CGameClient *gameClient, bool & calloriginal)
 {
   retval = false;
@@ -1461,6 +1499,74 @@ void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
 void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
 {
 
+}
+
+void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
+{
+  logColor(B_RED, L"GameClient::ChangeLevel (%s %i %x %x %s %x)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
+  multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel (%s %i %x %x %s %x)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
+
+
+  // Remove any other player characters and equipment or else we'll crash
+  // TODO: For my Destroyer "Drivehappy"
+
+  // Suppress the change if we're the client
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_ChangeLevel()) {
+      calloriginal = false;
+    } else {
+      clearAllNetworkIDs();
+    }
+  }
+  else if (NetworkState::getSingleton().GetState() == SERVER) {
+    clearAllNetworkIDs();
+
+    NetworkMessages::ChangeLevel msgChangeLevel;
+
+    string sDungeonName(dungeonName.begin(), dungeonName.end());
+    sDungeonName.assign(dungeonName.begin(), dungeonName.end());
+    string sUnkString(str2.begin(), str2.end());
+    sUnkString.assign(str2.begin(), str2.end());
+
+    msgChangeLevel.set_dungeon(sDungeonName);
+    msgChangeLevel.set_level(level);
+    msgChangeLevel.set_unk0(unk0);
+    msgChangeLevel.set_unk1(unk1);
+    msgChangeLevel.set_unkstring(sUnkString);
+    msgChangeLevel.set_unk2(unk2);
+
+    Server::getSingleton().BroadcastMessage<NetworkMessages::ChangeLevel>(S_PUSH_CHANGE_LEVEL, &msgChangeLevel);
+  }
+}
+
+void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
+{
+  log(L"GameClient::ChangeLevel Post");
+  multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel Post");
+}
+
+void TLMP::Global_SetSeedValue0Post(u32 seed)
+{
+  logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
+  multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
+
+  logColor(B_GREEN, L" Reseting to 1...");
+  *Seed1 = 1;
+  *Seed2 = 1;
+  *Seed3 = 1;
+  *Seed4 = 1;
+}
+
+void TLMP::Global_SetSeedValue2Post(u32 seed)
+{
+  logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
+  multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
+  
+  logColor(B_GREEN, L" Reseting to 1...");
+  *Seed1 = 1;
+  *Seed2 = 1;
+  *Seed3 = 1;
+  *Seed4 = 1;
 }
 
 // Server Events

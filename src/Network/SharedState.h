@@ -1,8 +1,12 @@
 #pragma once
 
-#include "Common.h"
+#include "tlapi.h"
+using namespace TLAPI;
 
 #include "NetworkEntity.h"
+
+#include "raknet/include/RakNetTypes.h"
+using namespace RakNet;
 
 #include <map>
 using std::map;
@@ -21,6 +25,35 @@ namespace TLMP {
   extern vector<NetworkEntity*>* ClientTemporaryEquipment;
   extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
   extern vector<NetworkEntity*>* ServerEquipmentOnGround;
+
+  extern vector<CBaseUnit*>* OutsideBaseUnits;  // Represents a list of BaseUnits created outside our singleplayer game
+
+
+  //
+  // Clear all network ids
+  static void clearAllNetworkIDs() {
+    NetworkSharedEquipment->clear();
+    NetworkSharedCharacters->clear();
+    ClientTemporaryEquipment->clear();
+    Server_ClientCharacterMapping->clear();
+    ServerEquipmentOnGround->clear();
+    OutsideBaseUnits->clear();
+  }
+
+  //
+  // Handle other characters
+  static void removeAllNetworkBaseUnits() {
+    vector<CBaseUnit*>::iterator itr;
+
+    // Search for an existing address
+    for (itr = OutsideBaseUnits->begin(); itr != OutsideBaseUnits->end(); itr++) {
+      CBaseUnit *baseUnit = (*itr);
+      if (baseUnit) {
+        baseUnit->Destroy();
+      }
+    }
+    OutsideBaseUnits->clear();
+  }
 
   //
   // Client Temprorary Equipment helpers

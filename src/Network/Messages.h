@@ -102,6 +102,8 @@ namespace TLMP {
       S_PUSH_CHAT_PLAYER,           // Server pushes chat message out
 
       S_PUSH_CHAR_PLAYER_JOINED,    // Server pushes player joined message
+
+      S_PUSH_CHANGE_LEVEL,          // Server pushes a change level
     };
 
     static const char* MessageString[] = {
@@ -179,6 +181,8 @@ namespace TLMP {
       "S_PUSH_CHAT_PLAYER",
 
       "S_PUSH_CHAR_PLAYER_JOINED",
+
+      "S_PUSH_CHANGE_LEVEL",
     };
 
   };
