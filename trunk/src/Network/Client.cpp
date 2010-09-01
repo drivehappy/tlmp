@@ -40,6 +40,7 @@ void Client::Reset()
   m_bIsSendingPickup = false;
   m_bIsSendingUseSkill = false;
   m_bIsEquipmentAddingGem = false;
+  m_bAllow_ChangeLevel = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -53,7 +54,7 @@ void Client::Connect(const char* address, u16 port)
   m_pClient = RakNetworkFactory::GetRakPeerInterface();
 
   // Debugging - allow 2 minutes until disconnect
-  //m_pClient->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
+  m_pClient->SetTimeoutTime(30000, UNASSIGNED_SYSTEM_ADDRESS);
   //--
 
   SocketDescriptor socketDescriptor(0, 0);
@@ -456,6 +457,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_CHANGE_LEVEL:
+    {
+      NetworkMessages::ChangeLevel *msgChangeLevel = ParseMessage<NetworkMessages::ChangeLevel>(m_pBitStream);
+
+      HandleChangeLevel(msgChangeLevel);
+    }
+    break;
+
   }     
 }
 
@@ -635,8 +644,9 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 ru
     character->running = running;
     character->attacking = attacking;
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error: Character is NULL");
-    log(L"Error: Character is NULL");
+    //multiplayerLogger.WriteLine(Error, L"Error: Character is NULL");
+    log(L"Error: Character is NULL (NetworkID: %x) (NetworkCharacter List Size: %i)", 
+      commonId, NetworkSharedCharacters->size());
   }
 }
 
@@ -664,32 +674,49 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
 
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
+  log(L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
+    commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
 
-  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
-  CLevel *level = gameClient->pCLevel;
+  NetworkEntity *existingEntity = searchCharacterByCommonID(commonId);
 
-  // Create the monster, setup name and alignment
-  Client::getSingleton().SetSuppressed_CharacterCreation(false);
-  CMonster* monster = resourceManager->CreateMonster(guidCharacter, levelCharacter, true);
-  
-  if (monster) {
-    monster->characterName.assign(convertAsciiToWide(characterName));
-    monster->SetAlignment(1);
-    level->CharacterInitialize(monster, &posCharacter, 0);
-    monster->healthMax = health;
-    monster->manaMax = mana;
-    monster->baseStrength = strength;
-    monster->baseDexterity = dexterity;
-    monster->baseDefense = defense;
-    monster->baseMagic = magic;
+  if (!existingEntity) {
+    CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+    CLevel *level = gameClient->pCLevel;
+
+    // Create the monster, setup name and alignment
+    Client::getSingleton().SetSuppressed_CharacterCreation(false);
+    CMonster* monster = resourceManager->CreateMonster(guidCharacter, levelCharacter, true);
+    
+    if (monster) {
+      monster->characterName.assign(convertAsciiToWide(characterName));
+      monster->SetAlignment(1);
+      level->CharacterInitialize(monster, &posCharacter, 0);
+      monster->healthMax = health;
+      monster->manaMax = mana;
+      monster->baseStrength = strength;
+      monster->baseDexterity = dexterity;
+      monster->baseDefense = defense;
+      monster->baseMagic = magic;
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
+      logColor(B_RED, L"Error: Character created was null!");
+      return;
+    }
+
+    Client::getSingleton().SetSuppressed_CharacterCreation(true);
+
+    // Create a network ID to identify this monster later
+    NetworkEntity *newEntity = addCharacter(monster, commonId);
+
+    // Add it to the BaseUnit list
+    OutsideBaseUnits->push_back(monster);
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
+    CCharacter *character = (CCharacter*)existingEntity->getInternalObject();
+    if (character) {
+      log(L"Client: Ignoring character creation for CommonID: %x (%s), already have character assigned: %s",
+        commonId, convertAsciiToWide(characterName).c_str(), character->characterName.c_str());
+    }
   }
-
-  Client::getSingleton().SetSuppressed_CharacterCreation(true);
-
-  // Create a network ID to identify this monster later
-  NetworkEntity *newEntity = addCharacter(monster, commonId);
 }
 
 void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipment)
@@ -741,7 +768,10 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
     equipment->requirements[2] = reqDexterity;
     equipment->requirements[3] = reqMagic;
     equipment->requirements[4] = reqDefense;
-    
+       
+    // Add to our BaseUnits list
+    //OutsideBaseUnits->push_back(equipment);
+
     multiplayerLogger.WriteLine(Info, L"Client: Adding gems to new equipment...");
     log(L"Client: Adding gems to new equipment...");
 
@@ -1210,9 +1240,11 @@ void Client::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   // Check if we're a:
   //  Waypoint Portal
   //  Return To Dungeon
+  //  Barrel
   // If so skip this
   if (equipment->GUID != 0x761772BDA01D11DE &&
-    equipment->GUID != 0xD3A8F99E2FA111DE) 
+    equipment->GUID != 0xD3A8F99E2FA111DE &&
+    equipment->GUID != 0xD3A8F9992FA111DE)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
@@ -1291,4 +1323,18 @@ void Client::HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *msg
     log(L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
     multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment of id: %x", equipmentId);
   }
+}
+
+void Client::HandleChangeLevel(NetworkMessages::ChangeLevel *msgChangeLevel)
+{
+  wstring dungeonName = convertAsciiToWide(msgChangeLevel->dungeon());
+  wstring unkString = convertAsciiToWide(msgChangeLevel->unkstring());
+  s32 level = msgChangeLevel->level();
+  s32 unk0 = msgChangeLevel->unk0();
+  s32 unk1 = msgChangeLevel->unk1();
+  s32 unk2 = msgChangeLevel->unk2();
+
+  Client::getSingleton().SetAllow_ChangeLevel(true);
+  gameClient->ChangeLevel(dungeonName, level, unk0, unk1, unkString, unk2);
+  Client::getSingleton().SetAllow_ChangeLevel(false);
 }

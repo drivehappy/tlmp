@@ -74,6 +74,10 @@ namespace TLMP {
       inline bool GetSuppressed_SendEquipmentStack()              { return m_bSuppressNetwork_SendEquipmentStack; }
       inline void SetSuppressed_SendEquipmentStack(bool value)    { m_bSuppressNetwork_SendEquipmentStack = value; }
 
+      inline bool GetAllow_ChangeLevel()              { return m_bAllow_ChangeLevel; }
+      inline void SetAllow_ChangeLevel(bool value)    { m_bAllow_ChangeLevel = value; }
+
+      
 
       void ReceiveMessages();
 
@@ -118,6 +122,7 @@ namespace TLMP {
       void HandleEquipmentAddGem(NetworkMessages::EquipmentAddGem*);
       void HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *);
       void HandleChatMessage(NetworkMessages::ChatPlayerText *);
+      void HandleChangeLevel(NetworkMessages::ChangeLevel*);
       
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -147,6 +152,8 @@ namespace TLMP {
       bool m_bSuppressNetwork_CharacterAttack;
       bool m_bSuppressNetwork_SendUseSkill;
       bool m_bSuppressNetwork_SendEquipmentStack;
+
+      bool m_bAllow_ChangeLevel;
 
       bool m_bIsSendingPickup;      // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
       bool m_bIsSendingUseSkill;    // Required because Same as above

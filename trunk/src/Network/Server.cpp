@@ -49,7 +49,7 @@ void Server::Listen(u16 port, u16 maxconnections)
   multiplayerLogger.WriteLine(Info, L"Got server: %p", m_pServer);
 
   // Debugging - allow 2 minutes until disconnect
-  //m_pServer->SetTimeoutTime(120000, UNASSIGNED_SYSTEM_ADDRESS);
+  m_pServer->SetTimeoutTime(30000, UNASSIGNED_SYSTEM_ADDRESS);
   //--
 
   SocketDescriptor socketDescriptor(port, 0);
@@ -413,7 +413,10 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
 
     // Suppress Waypoint and Return to Dungeon
     if (equipment->GUID != 0x761772BDA01D11DE &&
-      equipment->GUID != 0xD3A8F99E2FA111DE) 
+      equipment->GUID != 0xD3A8F99E2FA111DE &&
+      equipment->GUID != 0xD3A8F9992FA111DE &&
+      equipment->GUID != 0xFFFFFFFFFFFFFFFF &&
+      equipment->GUID != 0xEBE0D78E6D7F11DE)
     {
       Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
     }
@@ -423,9 +426,12 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
   for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
     CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
 
-    // Suppress Waypoint and Return to Dungeon
+    // Suppress Waypoint and Return to Dungeon and Barrel
     if (equipment->GUID != 0x761772BDA01D11DE &&
-      equipment->GUID != 0xD3A8F99E2FA111DE) 
+      equipment->GUID != 0xD3A8F99E2FA111DE &&
+      equipment->GUID != 0xD3A8F9992FA111DE &&
+      equipment->GUID != 0xFFFFFFFFFFFFFFFF &&
+      equipment->GUID != 0xEBE0D78E6D7F11DE)
     {
       Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
     }
@@ -434,6 +440,11 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
   // Send all of the existing characters in the game to the client
   for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
     CCharacter* character = (CCharacter*)((*itr)->getInternalObject());
+
+    if (character->GUID == 0xFFFFFFFFFFFFFFFF || character->destroy)
+    {
+      continue;
+    }
 
     multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
       character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
@@ -542,6 +553,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
   if (clientCharacter) {
     // Setup the skills
+    /*
     u32 skillNameCount = msgPlayer.skills().size();
     for (u32 i = 0; i < skillNameCount; i++) {
       wstring skillName = convertAsciiToWide(msgPlayer.skills().Get(i));
@@ -549,6 +561,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
       logColor(B_RED, L"Adding Skill to Character: %s", skillName.c_str());
       clientCharacter->AddSkill(&skillName, 1);
     }
+    */
 
     // Setup the name and alignment
     clientCharacter->characterName.assign(convertAsciiToWide(msgPlayer.name()));
@@ -723,10 +736,11 @@ void Server::HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 
 
 void Server::Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment)
 {
-  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
-    equipment->GUID, netEquipment->getCommonId());
+  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i %s) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
   log(L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
-    equipment->GUID, netEquipment->getCommonId());
+    equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
+  log(L"        Equipment Type: %x", equipment->type__);
 
   // Create a new network message for all clients to create this character
   NetworkMessages::Equipment msgEquipment;
@@ -762,10 +776,10 @@ void Server::Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEq
 
 void Server::Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment)
 {
-  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
-    equipment->GUID, netEquipment->getCommonId());
-  log(L"Server: Pushing existing Equipment (%016I64X %i) out to client that just joined...",
-    equipment->GUID, netEquipment->getCommonId());
+  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i %s) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
+  log(L"Server: Pushing existing Equipment (%016I64X %i %s) out to client that just joined...",
+    equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
 
   // Create a new network message for all clients to create this character
   NetworkMessages::EquipmentDrop msgEquipmentDrop;
@@ -800,9 +814,11 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   // Check if we're a:
   //  Waypoint Portal
   //  Return To Dungeon
+  //  Barrel
   // If so skip this
   if (equipment->GUID != 0x761772BDA01D11DE &&
-    equipment->GUID != 0xD3A8F99E2FA111DE) 
+    equipment->GUID != 0xD3A8F99E2FA111DE &&
+    equipment->GUID != 0xD3A8F9992FA111DE) 
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
@@ -954,6 +970,9 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
     equipment->requirements[2] = reqDexterity;
     equipment->requirements[3] = reqMagic;
     equipment->requirements[4] = reqDefense;
+
+    // Add to our BaseUnits list
+    //OutsideBaseUnits->push_back(equipment);
 
     multiplayerLogger.WriteLine(Info, L"Server: Adding gems to new equipment...");
     log(L"Server: Adding gems to new equipment...");
@@ -1281,14 +1300,6 @@ void Server::HandleChatMessage(NetworkMessages::ChatPlayerText *msgChatPlayerTex
   }
 }
 
-void Server::Helper_RemoveBaseUnit(CBaseUnit* unit)
-{
-  log(L"Server: Removing BaseUnit (%p)  %016I64X", unit, unit->GUID);
-  multiplayerLogger.WriteLine(Info, L"Server: Removing BaseUnit (%p)  %016I64X", unit, unit->GUID);
-
-  unit->destroy = true;
-}
-
 void Server::OnClientConnected(void *args)
 {
   
@@ -1308,7 +1319,7 @@ void Server::OnClientDisconnected(void *args)
         if (*itr2) {
           CCharacter *character = (CCharacter*)(*itr2)->getInternalObject();
           if (character) {
-            Helper_RemoveBaseUnit(character);
+            character->Destroy();
           }
         }
       }
@@ -1329,6 +1340,9 @@ void Server::HandleAddClientCharacter(const SystemAddress address, CCharacter* c
       break;
     }
   }
+
+  // Add to our BaseUnits list
+  OutsideBaseUnits->push_back(character);
 
   // Add the new key
   if (!found) {

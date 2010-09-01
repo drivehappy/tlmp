@@ -69,6 +69,10 @@ namespace TLMP
   void EquipmentAddStackCountPost(CEquipment*, u32);
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
 
+  // Pre event for seed
+  void Global_SetSeedValue0Post(u32);
+  void Global_SetSeedValue2Post(u32);
+
   // Pre event for enchant menu
   void EnchantMenuEnchantItemPre(CEnchantMenu*, bool&);
   
@@ -96,8 +100,12 @@ namespace TLMP
   void GameClient_LoadLevelPre(CGameClient*, bool & calloriginal);
   void GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal);
   void GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
+  void GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
   void GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal);
+  void GameClientSaveGamePost(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal);
   void GameClientGamePausedPost(bool& retval, CGameClient *gameClient, bool & calloriginal);
+  void GameClient_ChangeLevelPre(CGameClient*, wstring, s32, u32, u32, wstring, u32, bool&);
+  void GameClient_ChangeLevelPost(CGameClient*, wstring, s32, u32, u32, wstring, u32, bool&);
 
   // Pre Event for suppressing the paused game
   void GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal);
