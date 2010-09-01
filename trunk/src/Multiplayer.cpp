@@ -246,8 +246,9 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
 
 
   if (calloriginal) {
-    multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X", guid);
-    log(L"Creating character: %016I64X", guid);
+    multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X %i", guid, gameClient->flagLevelLoading);
+    log(L"Creating character: %016I64X %i %i %i %i", guid,
+      gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
   }
 }
 
@@ -546,7 +547,8 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
-  logColor(B_GREEN, L"Flag: %x", client->flagLevelLoading);
+  logColor(B_GREEN, L"LoadLevelPre");
+  logColor(B_GREEN, L"Flags: %x %x %x %x", gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
   logColor(B_GREEN, L"Level: %i", client->level);
   logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
   logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
@@ -570,6 +572,7 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
 {
   logColor(B_GREEN, L"GameClient_LoadLevelPost");
+  logColor(B_GREEN, L"Flags: %x %x %x %x", gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
   logColor(B_GREEN, L"  DungeonName: %s", client->dungeonName.c_str());
   logColor(B_GREEN, L"  Dungeon: %p", client->pCDungeon);
   logColor(B_GREEN, L"    Name0: %s", client->pCDungeon->name0.c_str());
@@ -1514,13 +1517,9 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (!Client::getSingleton().GetAllow_ChangeLevel()) {
       calloriginal = false;
-    } else {
-      clearAllNetworkIDs();
     }
   }
   else if (NetworkState::getSingleton().GetState() == SERVER) {
-    clearAllNetworkIDs();
-
     NetworkMessages::ChangeLevel msgChangeLevel;
 
     string sDungeonName(dungeonName.begin(), dungeonName.end());
@@ -1536,6 +1535,12 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
     msgChangeLevel.set_unk2(unk2);
 
     Server::getSingleton().BroadcastMessage<NetworkMessages::ChangeLevel>(S_PUSH_CHANGE_LEVEL, &msgChangeLevel);
+  }
+
+  // If we're going ahead with the change level, remove all the network information,
+  // we'll repopulate it when the new level loads
+  if (calloriginal) {
+    clearAllNetworkIDs();
   }
 }
 
