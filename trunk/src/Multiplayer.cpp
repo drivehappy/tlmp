@@ -4,6 +4,7 @@ using namespace TLMP;
 
 TLMP::Logger TLMP::multiplayerLogger("TLAPI/MultiplayerLog.txt");
 TLAPI::CGameClient *TLMP::gameClient = NULL;
+bool TLMP::LevelLoading = true;
 
 void TLMP::SetupNetwork()
 {
@@ -384,28 +385,31 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         return;
       }
 
-      // Send this character to be created on the clients if it isn't suppressed
-      if (!Server::getSingleton().GetSuppressed_SendCharacterCreation()) {
-        multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
-        log(L"Server: Pushing Initialized Character out to clients...");
+      // If the server isn't in the process of changing levels, we're safe to send this out
+      if (!LevelLoading) {
+        // Send this character to be created on the clients if it isn't suppressed
+        if (!Server::getSingleton().GetSuppressed_SendCharacterCreation()) {
+          multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
+          log(L"Server: Pushing Initialized Character out to clients...");
 
-        string characterName(character->characterName.begin(), character->characterName.end());
-        characterName.assign(character->characterName.begin(), character->characterName.end());
+          string characterName(character->characterName.begin(), character->characterName.end());
+          characterName.assign(character->characterName.begin(), character->characterName.end());
 
-        // Create a new network message for all clients to create this character
-        NetworkMessages::Character msgNewCharacter;
-        msgNewCharacter.set_guid(character->GUID);
-        msgNewCharacter.set_name(characterName);
+          // Create a new network message for all clients to create this character
+          NetworkMessages::Character msgNewCharacter;
+          msgNewCharacter.set_guid(character->GUID);
+          msgNewCharacter.set_name(characterName);
 
-        NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
-        msgPlayerPosition->set_x(character->position.x);
-        msgPlayerPosition->set_y(character->position.y);
-        msgPlayerPosition->set_z(character->position.z);
+          NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
+          msgPlayerPosition->set_x(character->position.x);
+          msgPlayerPosition->set_y(character->position.y);
+          msgPlayerPosition->set_z(character->position.z);
 
-        msgNewCharacter.set_id(newEntity->getCommonId());
+          msgNewCharacter.set_id(newEntity->getCommonId());
 
-        // This will broadcast to all clients except the one we received it from
-        Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
+          // This will broadcast to all clients except the one we received it from
+          Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
+        }
       }
     }
   }
@@ -557,6 +561,8 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   logColor(B_GREEN, L"  Name1: %s", client->pCDungeon->name1.c_str());
   logColor(B_GREEN, L"  Name2: %s", client->pCDungeon->name2.c_str());
 
+  LevelLoading = true;
+
   // Suppress level changes
   if (NetworkState::getSingleton().GetSuppressed_LevelChange()) {
     //calloriginal = false;
@@ -578,6 +584,8 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   logColor(B_GREEN, L"    Name0: %s", client->pCDungeon->name0.c_str());
   logColor(B_GREEN, L"    Name1: %s", client->pCDungeon->name1.c_str());
   logColor(B_GREEN, L"    Name2: %s", client->pCDungeon->name2.c_str());
+  
+  LevelLoading = false;
 }
 
 void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
@@ -1508,7 +1516,6 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
 {
   logColor(B_RED, L"GameClient::ChangeLevel (%s %i %x %x %s %x)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
   multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel (%s %i %x %x %s %x)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
-
 
   // Remove any other player characters and equipment or else we'll crash
   // TODO: For my Destroyer "Drivehappy"

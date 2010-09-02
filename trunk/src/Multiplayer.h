@@ -31,6 +31,8 @@ namespace TLMP
 
   static void OgreAddResourceLocation STDARG;
 
+  extern bool LevelLoading;
+
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
