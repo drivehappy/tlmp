@@ -369,6 +369,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_REQUEST_BREAKABLE_TRIGGERED:
+    {
+      NetworkMessages::BreakableTriggered *msgBreakableTriggered = ParseMessage<NetworkMessages::BreakableTriggered>(m_pBitStream);
+
+      HandleBreakableTriggered(msgBreakableTriggered);
+    }
+    break;
+
   }
 }
 
@@ -433,7 +441,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     // If so skip this
     if (equipment->type__ == 0x1D ||
         equipment->type__ == 0x22 ||
-        equipment->type__ == 0x20)  
+        equipment->type__ == 0x20 ||
+        equipment->type__ == 0x28)  
     {
       Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
     }
@@ -820,7 +829,8 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   // If so skip this
   if (equipment->type__ == 0x1D ||
       equipment->type__ == 0x22 ||
-      equipment->type__ == 0x20)  
+      equipment->type__ == 0x20 ||
+      equipment->type__ == 0x28)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
@@ -1360,5 +1370,26 @@ void Server::HandleAddClientCharacter(const SystemAddress address, CCharacter* c
   } else {
     log(L"Error: Could not add character to Server_ClientCharacterMapping - Could not find network entity.");
     multiplayerLogger.WriteLine(Error, L"Error: Could not add character to Server_ClientCharacterMapping - Could not find network entity.");
+  }
+}
+
+void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBreakableTriggered)
+{
+  u32 itemId = msgBreakableTriggered->itemid();
+  u32 characterId = msgBreakableTriggered->characterid();
+
+  NetworkEntity *entity = searchItemByCommonID(itemId);
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (entity && netCharacter) {
+    CBreakable *breakable = (CBreakable*)entity->getInternalObject();
+    CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
+
+    if (breakable && character) {
+      breakable->Break(character);
+    }
+  } else {
+    log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",
+      itemId, characterId);
   }
 }

@@ -36,12 +36,14 @@ void Client::Reset()
   m_bSuppressNetwork_CharacterAttack = true;
   m_bSuppressNetwork_SendUseSkill = false;
   m_bSuppressNetwork_SendEquipmentStack = false;
+  m_bSuppressNetwork_SendBreakableTriggered = false;
 
   m_bIsSendingPickup = false;
   m_bIsSendingUseSkill = false;
   m_bIsEquipmentAddingGem = false;
   m_bAllow_ChangeLevel = false;
   m_bAllow_HealthUpdate = false;
+  m_bAllow_LevelItemDrop = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -482,6 +484,30 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_LEVEL_CREATE_ITEM:
+    {
+      NetworkMessages::LevelCreateItem *msgLevelCreateItem = ParseMessage<NetworkMessages::LevelCreateItem>(m_pBitStream);
+
+      HandleLevelCreateItem(msgLevelCreateItem);
+    }
+    break;
+
+  case S_PUSH_LEVEL_ITEM_DROP:
+    {
+      NetworkMessages::LevelDropItem *msgLevelDropItem = ParseMessage<NetworkMessages::LevelDropItem>(m_pBitStream);
+
+      HandleLevelDropItem(msgLevelDropItem);
+    }
+    break;
+    
+  case S_PUSH_BREAKABLE_TRIGGERED:
+    {
+      NetworkMessages::BreakableTriggered *msgBreakableTriggered = ParseMessage<NetworkMessages::BreakableTriggered>(m_pBitStream);
+
+      HandleBreakableTriggered(msgBreakableTriggered);
+    }
+    break;
+
   }     
 }
 
@@ -914,9 +940,9 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
     CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
     CLevel *level = gameClient->pCLevel;
 
-    Client::getSingleton().SetSuppressed_EquipmentDrop(true);
+    SetAllow_LevelItemDrop(true);
     level->EquipmentDrop(equipment, position, unk0);
-    Client::getSingleton().SetSuppressed_EquipmentDrop(false);
+    SetAllow_LevelItemDrop(false);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x",
       equipmentId);
@@ -1258,10 +1284,12 @@ void Client::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   //  Breakable    - 29
   //  Interactable - 32
   //  ItemGold     - 34
+  //  Openable     - 40
   // If so skip this
   if (equipment->type__ == 0x1D ||
       equipment->type__ == 0x22 ||
-      equipment->type__ == 0x20)  
+      equipment->type__ == 0x20 ||
+      equipment->type__ == 0x28)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
@@ -1388,5 +1416,64 @@ void Client::HandleCharacterDestroy(NetworkMessages::CharacterDestroy *msgCharac
     }
   } else {
     log(L"Error: Could not find Network ID character: %x", characterId);
+  }
+}
+
+void Client::HandleLevelCreateItem(NetworkMessages::LevelCreateItem *msgLevelCreateItem)
+{
+  u32 itemId = msgLevelCreateItem->itemid();
+  u64 guid = msgLevelCreateItem->guid();
+  u32 level = msgLevelCreateItem->level();
+  u32 unk0 = msgLevelCreateItem->unk0();
+  u32 unk1 = msgLevelCreateItem->unk1();
+
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+  if (resourceManager) {
+    CItem *item = resourceManager->CreateItem(guid, level, unk0, unk1);
+
+    addItem(item, itemId);
+  }
+}
+
+void Client::HandleLevelDropItem(NetworkMessages::LevelDropItem *msgLevelDropItem)
+{
+  NetworkMessages::Position msgPosition = msgLevelDropItem->position();
+  u32 itemId = msgLevelDropItem->itemid();
+  Vector3 position;
+  position.x = msgPosition.x();
+  position.y = msgPosition.y();
+  position.z = msgPosition.z();
+
+  NetworkEntity *entity = searchItemByCommonID(itemId);
+  if (entity) {
+    CItem *item = (CItem*)entity->getInternalObject();
+
+    CLevel *level = gameClient->pCLevel;
+    if (level) {
+      SetAllow_LevelItemDrop(true);
+      level->ItemDrop(item, position, 0);
+      SetAllow_LevelItemDrop(false);
+    }
+  }
+}
+
+void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBreakableTriggered)
+{
+  u32 itemId = msgBreakableTriggered->itemid();
+  u32 characterId = msgBreakableTriggered->characterid();
+
+  NetworkEntity *entity = searchItemByCommonID(itemId);
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (entity && netCharacter) {
+    CBreakable *breakable = (CBreakable*)entity->getInternalObject();
+    CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
+
+    if (breakable && character) {
+      breakable->Break(character);
+    }
+  } else {
+    log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
+      itemId, characterId);
   }
 }

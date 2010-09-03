@@ -108,6 +108,13 @@ namespace TLMP {
       S_PUSH_CHAR_UPDATE_HEALTH,    // Server pushes a health update message
 
       S_PUSH_CHAR_DESTROY,          // Server pushes a character destroy
+      
+      S_PUSH_LEVEL_CREATE_ITEM,     // Push Item creation (not Equipment)
+
+      S_PUSH_LEVEL_ITEM_DROP,       // Push Item drop on level
+
+      C_REQUEST_BREAKABLE_TRIGGERED,// Client requests that a breakable be triggered
+      S_PUSH_BREAKABLE_TRIGGERED,   // Server pushes that a breakable triggered
     };
 
     static const char* MessageString[] = {
@@ -191,6 +198,13 @@ namespace TLMP {
       "S_PUSH_CHAR_UPDATE_HEALTH",
       
       "S_PUSH_CHAR_DESTROY",
+
+      "S_PUSH_LEVEL_CREATE_ITEM",
+
+      "S_PUSH_LEVEL_ITEM_DROP",
+
+      "C_REQUEST_BREAKABLE_TRIGGERED",
+      "S_PUSH_BREAKABLE_TRIGGERED",
     };
 
   };

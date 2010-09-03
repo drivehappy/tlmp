@@ -64,6 +64,9 @@ namespace TLMP
   // Trigger Unit
   void TriggerUnit_TriggeredPre(CTriggerUnit*, CPlayer*, bool&);
 
+  // Breakable
+  void Breakable_TriggeredPre(CBreakable*, CPlayer*, bool&);
+
   // Skill Manager
   void SkillManager_AddSkillPre(CSkillManager*, CSkill*, u32, u32, bool&);
 
