@@ -77,6 +77,9 @@ namespace TLMP {
       inline bool GetAllow_ChangeLevel()              { return m_bAllow_ChangeLevel; }
       inline void SetAllow_ChangeLevel(bool value)    { m_bAllow_ChangeLevel = value; }
 
+      inline bool GetAllow_HealthUpdate()             { return m_bAllow_HealthUpdate; }
+      inline void SetAllow_HealthUpdate(bool value)   { m_bAllow_HealthUpdate = value; }
+
       
 
       void ReceiveMessages();
@@ -123,7 +126,9 @@ namespace TLMP {
       void HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *);
       void HandleChatMessage(NetworkMessages::ChatPlayerText *);
       void HandleChangeLevel(NetworkMessages::ChangeLevel*);
-      
+      void HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth*);
+      void HandleCharacterDestroy(NetworkMessages::CharacterDestroy*);
+
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
       void PushEquipment();
@@ -154,6 +159,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_SendEquipmentStack;
 
       bool m_bAllow_ChangeLevel;
+      bool m_bAllow_HealthUpdate;
 
       bool m_bIsSendingPickup;      // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
       bool m_bIsSendingUseSkill;    // Required because Same as above

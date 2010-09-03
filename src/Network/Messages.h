@@ -104,6 +104,10 @@ namespace TLMP {
       S_PUSH_CHAR_PLAYER_JOINED,    // Server pushes player joined message
 
       S_PUSH_CHANGE_LEVEL,          // Server pushes a change level
+
+      S_PUSH_CHAR_UPDATE_HEALTH,    // Server pushes a health update message
+
+      S_PUSH_CHAR_DESTROY,          // Server pushes a character destroy
     };
 
     static const char* MessageString[] = {
@@ -183,6 +187,10 @@ namespace TLMP {
       "S_PUSH_CHAR_PLAYER_JOINED",
 
       "S_PUSH_CHANGE_LEVEL",
+
+      "S_PUSH_CHAR_UPDATE_HEALTH",
+      
+      "S_PUSH_CHAR_DESTROY",
     };
 
   };
