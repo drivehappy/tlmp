@@ -21,10 +21,10 @@ void TLMP::SetupNetwork()
 
   CResourceManager::RegisterEvent_ResourceManagerCreatePlayer(CreatePlayer, NULL);
   CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
-  CResourceManager::RegisterEvent_ResourceManagerCreateEquipment(CreateEquipmentPre, CreateEquipmentPost);
+  CResourceManager::RegisterEvent_ResourceManagerCreateItem(CreateItemPre, CreateItemPost);
 
   CLevel::RegisterEvent_LevelCharacterInitialize(Level_CharacterInitialize, NULL);
-  CLevel::RegisterEvent_LevelDropEquipment(Level_DropEquipmentPre, Level_DropEquipmentPost);
+  CLevel::RegisterEvent_LevelDropItem(Level_DropItemPre, Level_DropItemPost);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
@@ -61,6 +61,8 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
+
+  CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   
   _GLOBAL::RegisterEvent_SetSeedValue0(NULL, Global_SetSeedValue0Post);
   _GLOBAL::RegisterEvent_SetSeedValue2(NULL, Global_SetSeedValue2Post);
@@ -295,7 +297,7 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
   }
 }
 
-void TLMP::CreateEquipmentPre(CEquipment* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
+void TLMP::CreateItemPre(CItem* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
 {
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
@@ -322,7 +324,7 @@ void TLMP::CreateEquipmentPre(CEquipment* equipment, CResourceManager* resourceM
   }
 }
 
-void TLMP::CreateEquipmentPost(CEquipment* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
+void TLMP::CreateItemPost(CItem* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
 {
   if (equipment) {
     log(L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
@@ -756,20 +758,19 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   }
 }
 
-void TLMP::Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
+void TLMP::Level_DropItemPre(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool& calloriginal)
 {
-  log(L"Level dropping EquipmentPre:");
-  multiplayerLogger.WriteLine(Info, L"Level dropping Equipment %s at %f, %f, %f (unk0: %i)",
+  multiplayerLogger.WriteLine(Info, L"Level dropping Item %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
-  log(L"Level dropping Equipment %s at %f, %f, %f (unk0: %i)",
+  log(L"Level dropping Item %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
 }
 
-void TLMP::Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool& calloriginal)
+void TLMP::Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool& calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
+  multiplayerLogger.WriteLine(Info, L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
-  log(L"Level dropped Equipment %s at %f, %f, %f (unk0: %i)",
+  log(L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
     equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
 
   // Bump out before sending the network message if we're not supposed to
@@ -1620,6 +1621,11 @@ void TLMP::Global_SetSeedValue2Post(u32 seed)
   *Seed2 = 1;
   *Seed3 = 1;
   *Seed4 = 1;
+}
+
+void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, bool& calloriginal)
+{
+  logColor(B_RED, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
 }
 
 // Server Events

@@ -61,13 +61,16 @@ namespace TLMP
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
 
+  // Trigger Unit
+  void TriggerUnit_TriggeredPre(CTriggerUnit*, CPlayer*, bool&);
+
   // Skill Manager
   void SkillManager_AddSkillPre(CSkillManager*, CSkill*, u32, u32, bool&);
 
   // Post Event for equipment initialization
   void Equipment_Dtor(CEquipment*);
-  void CreateEquipmentPre(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
-  void CreateEquipmentPost(CEquipment*, CResourceManager*, u64, u32, u32, u32, bool&);
+  void CreateItemPre(CItem*, CResourceManager*, u64, u32, u32, u32, bool&);
+  void CreateItemPost(CItem*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
   void EquipmentAddStackCountPost(CEquipment*, u32);
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
@@ -81,8 +84,8 @@ namespace TLMP
   
   // Pre Event for player initialization
   void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
-  void Level_DropEquipmentPre(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool&);
-  void Level_DropEquipmentPost(CLevel* level, CEquipment* equipment, Vector3 & position, bool unk0, bool&);
+  void Level_DropItemPre(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
+  void Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
