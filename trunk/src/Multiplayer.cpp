@@ -63,6 +63,8 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
+
+  CBreakable::RegisterEvent_BreakableTriggered(Breakable_TriggeredPre, NULL);
   
   _GLOBAL::RegisterEvent_SetSeedValue0(NULL, Global_SetSeedValue0Post);
   _GLOBAL::RegisterEvent_SetSeedValue2(NULL, Global_SetSeedValue2Post);
@@ -297,56 +299,72 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
   }
 }
 
-void TLMP::CreateItemPre(CItem* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
+void TLMP::CreateItemPre(CItem* item, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
 {
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    if (Client::getSingleton().GetSuppressed_EquipmentCreation()) {
-      //calloriginal = false;
-      //equipment = NULL; 
-    }
-  }
-  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    //
-  }
-
 
   if (calloriginal) {
     multiplayerLogger.WriteLine(Info, L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
-      guid, level, equipment, unk0, unk1);
+      guid, level, item, unk0, unk1);
 
     log(L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
-      guid, level, equipment, unk0, unk1);
+      guid, level, item, unk0, unk1);
   } else {
     multiplayerLogger.WriteLine(Info, L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
-      guid, level, equipment, unk0, unk1);
+      guid, level, item, unk0, unk1);
     log(L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
-      guid, level, equipment, unk0, unk1);
+      guid, level, item, unk0, unk1);
   }
 }
 
-void TLMP::CreateItemPost(CItem* equipment, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
+void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
 {
-  if (equipment) {
+  if (item) {
     log(L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
-      guid, level, equipment, equipment->nameReal.c_str());
-
+      guid, level, item, item->nameReal.c_str());
     multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s)",
-      guid, level, equipment, equipment->nameReal.c_str());
+      guid, level, item, item->nameReal.c_str());
 
-    if (equipment->type__ != 29 && equipment->type__ != 40) 
+
+    // If we're a real equipment (not Interactable, Openable, Breakable, Gold, ...)
+    if (item->type__ != 29 && item->type__ != 40 &&
+        item->type__ != 32 && item->type__ != 30)
     {
       // --
       if (Network::NetworkState::getSingleton().GetState() == SERVER) {
         if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
-          NetworkEntity *newEntity = addEquipment(equipment);
+          NetworkEntity *newEntity = addEquipment(item);
 
           NetworkMessages::Equipment msgEquipment;
           msgEquipment.set_id(newEntity->getCommonId());
-          msgEquipment.set_guid(equipment->GUID);
+          msgEquipment.set_guid(item->GUID);
 
           // TODO Add Enchants and rest of data
 
           Server::getSingleton().BroadcastMessage<NetworkMessages::Equipment>(S_PUSH_NEWEQUIPMENT, &msgEquipment);
+        }
+      }
+    }
+
+    // Just send the standard Item Creation
+    else {
+      if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+        if (!Client::getSingleton().GetSuppressed_EquipmentCreation()) {
+          // Assume the above is set to true when the server sends the LevelCreateItem message
+          // For assigning to NetworkSharedLevelItems CItem* is returned on the call
+        }
+      }
+      else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+        if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
+          NetworkEntity *entity = addItem(item);
+
+          NetworkMessages::LevelCreateItem msgLevelCreateItem;
+          msgLevelCreateItem.set_itemid(entity->getCommonId());
+          msgLevelCreateItem.set_guid(item->GUID);
+          msgLevelCreateItem.set_level(level);
+          msgLevelCreateItem.set_unk0(unk0);
+          msgLevelCreateItem.set_unk1(unk1);
+
+          Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_LEVEL_CREATE_ITEM, &msgLevelCreateItem);
         }
       }
     }
@@ -758,20 +776,48 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   }
 }
 
-void TLMP::Level_DropItemPre(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool& calloriginal)
+void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, bool unk0, bool& calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"Level dropping Item %s at %f, %f, %f (unk0: %i)",
-    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+    item->nameReal.c_str(), position.x, position.y, position.z, unk0);
   log(L"Level dropping Item %s at %f, %f, %f (unk0: %i)",
-    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+    item->nameReal.c_str(), position.x, position.y, position.z, unk0);
+
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_LevelItemDrop() &&
+      item->type__ == 0x1D ||
+      item->type__ == 0x22 ||
+      item->type__ == 0x20 ||
+      item->type__ == 0x28)
+    {
+      calloriginal = false;
+    }
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *entity = searchItemByInternalObject(item);
+
+    if (entity) {
+      NetworkMessages::LevelDropItem msgLevelDropItem;
+      NetworkMessages::Position *msgPosition = msgLevelDropItem.mutable_position();
+      msgPosition->set_x(position.x);
+      msgPosition->set_y(position.y);
+      msgPosition->set_z(position.z);
+      msgLevelDropItem.set_itemid(entity->getCommonId());
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::LevelDropItem>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
+    }
+  }
+
+  if (!calloriginal) {
+    log(L"  Suppressing level drop item: type = %i", item->type__);
+  }
 }
 
-void TLMP::Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool& calloriginal)
+void TLMP::Level_DropItemPost(CLevel* level, CItem* item, Vector3 & position, bool unk0, bool& calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
-    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+    item->nameReal.c_str(), position.x, position.y, position.z, unk0);
   log(L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
-    equipment->nameReal.c_str(), position.x, position.y, position.z, unk0);
+    item->nameReal.c_str(), position.x, position.y, position.z, unk0);
 
   // Bump out before sending the network message if we're not supposed to
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -781,7 +827,7 @@ void TLMP::Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & positio
   }
 
   //
-  NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)equipment);
+  NetworkEntity *equipmentEntity = searchEquipmentByInternalObject((PVOID)item);
 
   if (equipmentEntity) {
     // Create a Network Message for sending off to clients the equipment addition to the inventory
@@ -807,8 +853,8 @@ void TLMP::Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & positio
       ServerEquipmentOnGround->push_back(equipmentEntity);
     }
   } else {
-    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p", equipment);
-    log(L"Could not find NetworkEntity for equipment: %p", equipment);
+    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p", item);
+    log(L"Could not find NetworkEntity for equipment: %p", item);
   }
 }
 
@@ -1143,12 +1189,6 @@ void TLMP::Character_AddSkillPre(CCharacter* character, wstring* skillName, u32 
 
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
-  Vector3 test;
-  test.x = 0;
-  test.y = 0;
-  test.z = 0;
-  character->SetOrientation(test);
-
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
     log(L"Test: Character Mana max: %i", character->manaMax);
 
@@ -1626,6 +1666,41 @@ void TLMP::Global_SetSeedValue2Post(u32 seed)
 void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, bool& calloriginal)
 {
   logColor(B_RED, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
+}
+
+void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& calloriginal)
+{
+  logColor(B_RED, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
+
+  NetworkEntity *entity = searchItemByInternalObject(breakable);
+  NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
+  if (entity && netCharacter) {
+
+    // Client
+    if (NetworkState::getSingleton().GetState() == CLIENT) {
+      if (Client::getSingleton().GetSuppressed_SendBreakableTriggered()) {
+        calloriginal = false;
+
+      
+        NetworkMessages::BreakableTriggered msgBreakableTriggered;
+        msgBreakableTriggered.set_itemid(entity->getCommonId());
+        msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+
+        Client::getSingleton().SendMessage<NetworkMessages::BreakableTriggered>(C_REQUEST_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
+      }
+    }
+
+    // Server
+    else if (NetworkState::getSingleton().GetState() == SERVER) {
+      NetworkMessages::BreakableTriggered msgBreakableTriggered;
+      msgBreakableTriggered.set_itemid(entity->getCommonId());
+      msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::BreakableTriggered>(S_PUSH_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
+    }
+  } else {
+    log(L"Error: Could not find breakable item in network shared list");
+  }
 }
 
 // Server Events

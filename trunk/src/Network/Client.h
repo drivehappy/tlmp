@@ -80,6 +80,13 @@ namespace TLMP {
       inline bool GetAllow_HealthUpdate()             { return m_bAllow_HealthUpdate; }
       inline void SetAllow_HealthUpdate(bool value)   { m_bAllow_HealthUpdate = value; }
 
+      inline bool GetAllow_LevelItemDrop()             { return m_bAllow_LevelItemDrop; }
+      inline void SetAllow_LevelItemDrop(bool value)   { m_bAllow_LevelItemDrop = value; }
+      
+      inline bool GetSuppressed_SendBreakableTriggered()             { return m_bSuppressNetwork_SendBreakableTriggered; }
+      inline void SetSuppressed_SendBreakableTriggered(bool value)   { m_bSuppressNetwork_SendBreakableTriggered = value; }
+      
+
       
 
       void ReceiveMessages();
@@ -128,6 +135,9 @@ namespace TLMP {
       void HandleChangeLevel(NetworkMessages::ChangeLevel*);
       void HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth*);
       void HandleCharacterDestroy(NetworkMessages::CharacterDestroy*);
+      void HandleLevelCreateItem(NetworkMessages::LevelCreateItem*);
+      void HandleLevelDropItem(NetworkMessages::LevelDropItem*);
+      void HandleBreakableTriggered(NetworkMessages::BreakableTriggered*);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -157,6 +167,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_CharacterAttack;
       bool m_bSuppressNetwork_SendUseSkill;
       bool m_bSuppressNetwork_SendEquipmentStack;
+      bool m_bSuppressNetwork_SendBreakableTriggered;
 
       bool m_bAllow_ChangeLevel;
       bool m_bAllow_HealthUpdate;
@@ -164,6 +175,7 @@ namespace TLMP {
       bool m_bIsSendingPickup;      // Required because EquipmentPickup function is called across multiple frames (MouseDown?)
       bool m_bIsSendingUseSkill;    // Required because Same as above
       bool m_bIsEquipmentAddingGem; // Used as a request mechanism to the server
+      bool m_bAllow_LevelItemDrop;
     };
 
   };

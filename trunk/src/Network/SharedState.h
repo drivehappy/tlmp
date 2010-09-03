@@ -25,6 +25,7 @@ namespace TLMP {
   extern vector<NetworkEntity*>* ClientTemporaryEquipment;
   extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
   extern vector<NetworkEntity*>* ServerEquipmentOnGround;
+  extern vector<NetworkEntity*>* NetworkSharedLevelItems;
 
   extern vector<CBaseUnit*>* OutsideBaseUnits;  // Represents a list of BaseUnits created outside our singleplayer game
 
@@ -38,6 +39,7 @@ namespace TLMP {
     Server_ClientCharacterMapping->clear();
     ServerEquipmentOnGround->clear();
     OutsideBaseUnits->clear();
+    NetworkSharedLevelItems->clear();
   }
 
   //
@@ -99,6 +101,54 @@ namespace TLMP {
         break;
       }
     }
+  }
+
+  //
+  // Item helpers
+  static NetworkEntity* searchItemByInternalObject(PVOID internalObject) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedLevelItems->begin(); itr != NetworkSharedLevelItems->end(); itr++) {
+      if ((*itr)->getInternalObject() == internalObject) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static NetworkEntity* searchItemByCommonID(u32 commondId) {
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedLevelItems->begin(); itr != NetworkSharedLevelItems->end(); itr++) {
+      if ((*itr)->getCommonId() == commondId) {
+        return (*itr);
+      }
+    }
+
+    return NULL;
+  };
+
+  static NetworkEntity* addItem(PVOID equipment) {
+    NetworkEntity *entity = searchItemByInternalObject(equipment);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(equipment);
+      NetworkSharedLevelItems->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
+  }
+
+  static NetworkEntity* addItem(PVOID equipment, u32 commonId) {
+    NetworkEntity *entity = searchItemByInternalObject(equipment);
+
+    if (!entity) {
+      NetworkEntity *newEntity = new NetworkEntity(equipment, commonId);
+      NetworkSharedLevelItems->push_back(newEntity);
+
+      return newEntity;
+    }
+    return entity;
   }
 
   //

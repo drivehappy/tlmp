@@ -181,3 +181,21 @@ message CharacterDestroy {
   required int32    characterId = 1;
 }
 
+message LevelCreateItem {
+  required int32    itemId = 1;
+  required int64    guid = 2;
+  required int32    level = 3;
+  required int32    unk0 = 4;
+  required int32    unk1 = 5;
+}
+
+message LevelDropItem {
+  required int32    itemId = 1;
+  required Position position = 2;
+}
+
+message BreakableTriggered {
+  required int32    itemId = 1;
+  required int32    characterId = 2;
+}
+

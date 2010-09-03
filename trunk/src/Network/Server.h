@@ -93,6 +93,7 @@ namespace TLMP {
       void HandleEquipmentAddGem(const SystemAddress, NetworkMessages::EquipmentAddGem*);
       void HandleEquipmentRemoveGems(NetworkMessages::EquipmentRemoveGems *);
       void HandleChatMessage(NetworkMessages::ChatPlayerText *msgChatPlayerText);
+      void HandleBreakableTriggered(NetworkMessages::BreakableTriggered *);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
