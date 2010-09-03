@@ -1255,13 +1255,13 @@ void Client::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   msgEquipment->set_physical_damage_max(equipment->maximumPhysicalDamage);
 
   // Check if we're a:
-  //  Waypoint Portal
-  //  Return To Dungeon
-  //  Barrel
+  //  Breakable    - 29
+  //  Interactable - 32
+  //  ItemGold     - 34
   // If so skip this
-  if (equipment->GUID != 0x761772BDA01D11DE &&
-    equipment->GUID != 0xD3A8F99E2FA111DE &&
-    equipment->GUID != 0xD3A8F9992FA111DE)  
+  if (equipment->type__ == 0x1D ||
+      equipment->type__ == 0x22 ||
+      equipment->type__ == 0x20)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
