@@ -171,3 +171,13 @@ message ChangeLevel {
   required string   unkString = 5;
   required int32    unk2 = 6;
 }
+
+message CharacterUpdateHealth {
+  required int32    characterId = 1;
+  required float    amount = 2;
+}
+
+message CharacterDestroy {
+  required int32    characterId = 1;
+}
+

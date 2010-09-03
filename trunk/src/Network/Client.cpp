@@ -41,6 +41,7 @@ void Client::Reset()
   m_bIsSendingUseSkill = false;
   m_bIsEquipmentAddingGem = false;
   m_bAllow_ChangeLevel = false;
+  m_bAllow_HealthUpdate = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -462,6 +463,22 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::ChangeLevel *msgChangeLevel = ParseMessage<NetworkMessages::ChangeLevel>(m_pBitStream);
 
       HandleChangeLevel(msgChangeLevel);
+    }
+    break;
+
+  case S_PUSH_CHAR_UPDATE_HEALTH:
+    {
+      NetworkMessages::CharacterUpdateHealth *msgCharacterUpdateHealth = ParseMessage<NetworkMessages::CharacterUpdateHealth>(m_pBitStream);
+
+      HandleUpdateHealth(msgCharacterUpdateHealth);
+    }
+    break;
+
+  case S_PUSH_CHAR_DESTROY:
+    {
+      NetworkMessages::CharacterDestroy *msgCharacterDestroy = ParseMessage<NetworkMessages::CharacterDestroy>(m_pBitStream);
+
+      HandleCharacterDestroy(msgCharacterDestroy);
     }
     break;
 
@@ -1337,4 +1354,39 @@ void Client::HandleChangeLevel(NetworkMessages::ChangeLevel *msgChangeLevel)
   Client::getSingleton().SetAllow_ChangeLevel(true);
   gameClient->ChangeLevel(dungeonName, level, unk0, unk1, unkString, unk2);
   Client::getSingleton().SetAllow_ChangeLevel(false);
+}
+
+void Client::HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth* msgCharacterUpdateHealth)
+{
+  u32 characterId = msgCharacterUpdateHealth->characterid();
+  float amount = msgCharacterUpdateHealth->amount();
+
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+
+  if (entity) {
+    CCharacter* character = (CCharacter*)entity->getInternalObject();
+
+    if (character) {
+      SetAllow_HealthUpdate(true);
+      character->UpdateHealth(amount);
+      SetAllow_HealthUpdate(false);
+    }
+  } else {
+    log(L"Error: Could not find entity with network ID %x to Update Health", characterId);
+  }
+}
+
+void Client::HandleCharacterDestroy(NetworkMessages::CharacterDestroy *msgCharacterDestroy)
+{
+  u32 characterId = msgCharacterDestroy->characterid();
+
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+  if (entity) {
+    CCharacter* character = (CCharacter*)entity->getInternalObject();
+    if (character) {
+      character->destroy = true;
+    }
+  } else {
+    log(L"Error: Could not find Network ID character: %x", characterId);
+  }
 }

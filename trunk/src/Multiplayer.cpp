@@ -60,6 +60,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_Character_SetOrientation(Character_SetOrientationPre, NULL);
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
+  CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
   
   _GLOBAL::RegisterEvent_SetSeedValue0(NULL, Global_SetSeedValue0Post);
   _GLOBAL::RegisterEvent_SetSeedValue2(NULL, Global_SetSeedValue2Post);
@@ -191,6 +192,20 @@ void TLMP::Character_Dtor(CCharacter* character)
   log(L"  %s", character->characterName.c_str());
   log(L"  Removing Character from NetworkSharedCharacters");
 
+  // If we're the server, send the client that the character has been destroyed
+  if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *entity = searchCharacterByInternalObject(character);
+    if (entity) {
+      NetworkMessages::CharacterDestroy msgCharacterDestroy;
+      msgCharacterDestroy.set_characterid(entity->getCommonId());
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterDestroy>(S_PUSH_CHAR_DESTROY, &msgCharacterDestroy);
+    } else {
+      log(L"Server: Error could not find network ID for character destroyed: %p", character);
+    }
+  }
+
+  // Remove it from our list
   vector<NetworkEntity*>::iterator itr;
   for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
     CCharacter* charItem = (CCharacter*)((*itr)->getInternalObject());
@@ -227,6 +242,33 @@ void TLMP::GameClient_Ctor(CGameClient* client)
 void TLMP::CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk0, bool & calloriginal)
 {
   logColor(B_RED, L"CreatePlayer: %s %x", type, unk0);
+}
+
+void TLMP::Character_UpdateHealthPre(CCharacter* character, float amount, bool& calloriginal)
+{
+  if (amount < 0 || (character->type__ == 0x1C && amount > 0)) {
+    logColor(B_RED, L"Character (%p) update health", character);
+    logColor(B_RED, L"Character (%s) Update health (%f)", character->characterName.c_str(), amount);
+
+    // Don't update the health on the client unless the server has sent it
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      if (!Client::getSingleton().GetAllow_HealthUpdate()) {
+        calloriginal = false;
+      }
+    } else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      NetworkEntity *entity = searchCharacterByInternalObject(character);
+
+      if (entity) {
+        NetworkMessages::CharacterUpdateHealth msgCharacterUpdateHealth;
+        msgCharacterUpdateHealth.set_amount(amount);
+        msgCharacterUpdateHealth.set_characterid(entity->getCommonId());
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterUpdateHealth>(S_PUSH_CHAR_UPDATE_HEALTH, &msgCharacterUpdateHealth);
+      } else {
+        log(L"Error: Could not find network ID for character");
+      }
+    }
+  }
 }
 
 void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool noItems, bool & calloriginal)
@@ -1559,10 +1601,9 @@ void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, 
 
 void TLMP::Global_SetSeedValue0Post(u32 seed)
 {
-  logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
+  //logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
 
-  logColor(B_GREEN, L" Reseting to 1...");
   *Seed1 = 1;
   *Seed2 = 1;
   *Seed3 = 1;

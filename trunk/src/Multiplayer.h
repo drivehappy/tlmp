@@ -59,6 +59,7 @@ namespace TLMP
   void Character_SetOrientationPre(CCharacter*, Vector3*, float, bool&);
   void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
+  void Character_UpdateHealthPre(CCharacter*, float, bool&);
 
   // Skill Manager
   void SkillManager_AddSkillPre(CSkillManager*, CSkill*, u32, u32, bool&);
