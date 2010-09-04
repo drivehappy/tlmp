@@ -63,6 +63,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
+  CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
 
   CBreakable::RegisterEvent_BreakableTriggered(Breakable_TriggeredPre, NULL);
   
@@ -1749,6 +1750,12 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
   } else {
     log(L"Error: Could not find breakable item in network shared list");
   }
+}
+
+void TLMP::TriggerUnit_CtorPost(CTriggerUnit* triggerUnit, CLayout* layout, bool& calloriginal)
+{
+  logColor(B_RED, L"TriggerUnit Created: %p", triggerUnit);
+  logColor(B_RED, L"   GUID: %016I64X", triggerUnit->GUID);
 }
 
 // Server Events

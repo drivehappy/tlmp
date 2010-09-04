@@ -63,6 +63,7 @@ namespace TLMP
 
   // Trigger Unit
   void TriggerUnit_TriggeredPre(CTriggerUnit*, CPlayer*, bool&);
+  void TriggerUnit_CtorPost(CTriggerUnit*, CLayout*, bool&);
 
   // Breakable
   void Breakable_TriggeredPre(CBreakable*, CPlayer*, bool&);

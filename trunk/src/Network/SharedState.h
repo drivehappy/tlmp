@@ -4,6 +4,8 @@
 using namespace TLAPI;
 
 #include "NetworkEntity.h"
+#include "Network.h"
+using namespace TLMP::Network;
 
 #include "raknet/include/RakNetTypes.h"
 using namespace RakNet;
@@ -32,16 +34,7 @@ namespace TLMP {
 
   //
   // Clear all network ids
-  static void clearAllNetworkIDs() {
-    // Commented this because server doesn't recreate it's characters' inventory on level changes
-    //NetworkSharedEquipment->clear();
-    NetworkSharedCharacters->clear();
-    ClientTemporaryEquipment->clear();
-    Server_ClientCharacterMapping->clear();
-    ServerEquipmentOnGround->clear();
-    OutsideBaseUnits->clear();
-    NetworkSharedLevelItems->clear();
-  }
+  void clearAllNetworkIDs();
 
   //
   // Handle other characters
