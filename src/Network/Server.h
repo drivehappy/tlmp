@@ -50,7 +50,7 @@ namespace TLMP {
       inline bool GetSuppressed_SendEquipmentStack()              { return m_bSuppressNetwork_SendEquipmentStack; }
       inline void SetSuppressed_SendEquipmentStack(bool value)    { m_bSuppressNetwork_SendEquipmentStack = value; }
 
-      
+      void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
       void ReceiveMessages();
 
@@ -96,7 +96,6 @@ namespace TLMP {
       void HandleBreakableTriggered(NetworkMessages::BreakableTriggered *);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
-      void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);
 
       static void Helper_RemoveBaseUnit(CBaseUnit*);

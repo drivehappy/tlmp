@@ -33,7 +33,8 @@ namespace TLMP {
   //
   // Clear all network ids
   static void clearAllNetworkIDs() {
-    NetworkSharedEquipment->clear();
+    // Commented this because server doesn't recreate it's characters' inventory on level changes
+    //NetworkSharedEquipment->clear();
     NetworkSharedCharacters->clear();
     ClientTemporaryEquipment->clear();
     Server_ClientCharacterMapping->clear();

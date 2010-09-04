@@ -37,6 +37,7 @@ void Client::Reset()
   m_bSuppressNetwork_SendUseSkill = false;
   m_bSuppressNetwork_SendEquipmentStack = false;
   m_bSuppressNetwork_SendBreakableTriggered = false;
+  m_bSuppressNetwork_SendTriggerUnitTriggered = false;
 
   m_bIsSendingPickup = false;
   m_bIsSendingUseSkill = false;
@@ -508,6 +509,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_TRIGGER_TRIGGERED:
+    {
+      NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTriggered = ParseMessage<NetworkMessages::TriggerUnitTriggered>(m_pBitStream);
+
+      HandleTriggerUnitTriggered(msgTriggerUnitTriggered);
+    }
+    break;
+
   }     
 }
 
@@ -940,6 +949,7 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
     CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
     CLevel *level = gameClient->pCLevel;
 
+    SetSuppressed_EquipmentDrop(true);
     SetAllow_LevelItemDrop(true);
     level->EquipmentDrop(equipment, position, unk0);
     SetAllow_LevelItemDrop(false);
@@ -1470,7 +1480,32 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
     CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
 
     if (breakable && character) {
+      SetSuppressed_SendBreakableTriggered(true);
       breakable->Break(character);
+      SetSuppressed_SendBreakableTriggered(false);
+    }
+  } else {
+    log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
+      itemId, characterId);
+  }
+}
+
+void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTrigger)
+{
+  u32 itemId = msgTriggerUnitTrigger->itemid();
+  u32 characterId = msgTriggerUnitTrigger->characterid();
+
+  NetworkEntity *entity = searchItemByCommonID(itemId);
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (entity && netCharacter) {
+    CTriggerUnit *trigger = (CTriggerUnit*)entity->getInternalObject();
+    CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
+
+    if (trigger && character) {
+      SetSuppressed_SendTriggerUnitTriggered(true);
+      trigger->Trigger(character);
+      SetSuppressed_SendTriggerUnitTriggered(false);
     }
   } else {
     log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
