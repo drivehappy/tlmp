@@ -85,6 +85,9 @@ namespace TLMP {
       
       inline bool GetSuppressed_SendBreakableTriggered()             { return m_bSuppressNetwork_SendBreakableTriggered; }
       inline void SetSuppressed_SendBreakableTriggered(bool value)   { m_bSuppressNetwork_SendBreakableTriggered = value; }
+            
+      inline bool GetSuppressed_SendTriggerUnitTriggered()             { return m_bSuppressNetwork_SendTriggerUnitTriggered; }
+      inline void SetSuppressed_SendTriggerUnitTriggered(bool value)   { m_bSuppressNetwork_SendTriggerUnitTriggered = value; }
       
 
       
@@ -138,6 +141,7 @@ namespace TLMP {
       void HandleLevelCreateItem(NetworkMessages::LevelCreateItem*);
       void HandleLevelDropItem(NetworkMessages::LevelDropItem*);
       void HandleBreakableTriggered(NetworkMessages::BreakableTriggered*);
+      void HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered*);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -168,6 +172,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_SendUseSkill;
       bool m_bSuppressNetwork_SendEquipmentStack;
       bool m_bSuppressNetwork_SendBreakableTriggered;
+      bool m_bSuppressNetwork_SendTriggerUnitTriggered;
 
       bool m_bAllow_ChangeLevel;
       bool m_bAllow_HealthUpdate;

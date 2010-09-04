@@ -419,21 +419,23 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
     CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
 
+    /*
     // Suppress Waypoint and Return to Dungeon
     if (equipment->GUID != 0x761772BDA01D11DE &&
       equipment->GUID != 0xD3A8F99E2FA111DE &&
       equipment->GUID != 0xD3A8F9992FA111DE &&
       equipment->GUID != 0xFFFFFFFFFFFFFFFF &&
       equipment->GUID != 0xEBE0D78E6D7F11DE)
-    {
+    {*/
       Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
-    }
+    //}
   }
   
   // Send all of the Equipment on the Ground in the game
   for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
     CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
 
+    /*
     // Check if we're a:
     //  Breakable    - 29
     //  Interactable - 32
@@ -443,9 +445,9 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
         equipment->type__ == 0x22 ||
         equipment->type__ == 0x20 ||
         equipment->type__ == 0x28)  
-    {
+    {*/
       Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
-    }
+    //}
   }
 
   // Send all of the existing characters in the game to the client
