@@ -517,6 +517,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_ITEM_GOLD:
+    {
+      NetworkMessages::ItemGoldCreate *msgItemGoldCreate = ParseMessage<NetworkMessages::ItemGoldCreate>(m_pBitStream);
+
+      HandleItemGoldAmount(msgItemGoldCreate);
+    }
+    break;
+
   }     
 }
 
@@ -965,6 +973,9 @@ void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
 {
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (!netEquipment)
+    netEquipment = searchItemByCommonID(equipmentId);
 
   if (netEquipment) {
     if (netCharacter) {
@@ -1461,9 +1472,11 @@ void Client::HandleLevelDropItem(NetworkMessages::LevelDropItem *msgLevelDropIte
     CLevel *level = gameClient->pCLevel;
     if (level) {
       SetAllow_LevelItemDrop(true);
-      level->ItemDrop(item, position, 0);
+      level->ItemDrop(item, position, 1);
       SetAllow_LevelItemDrop(false);
     }
+  } else {
+    log(L"Error: Could not find Item of Common ID: %x", itemId);
   }
 }
 
@@ -1475,11 +1488,16 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
-  if (entity && netCharacter) {
+  if (entity) {
     CBreakable *breakable = (CBreakable*)entity->getInternalObject();
-    CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
+    CPlayer *character = NULL;
 
-    if (breakable && character) {
+    // Character ID can be -1 if there was a skill used to kill it
+    if (characterId != -1) {
+      character = (CPlayer*)netCharacter->getInternalObject();
+    }
+
+    if (breakable) {
       SetSuppressed_SendBreakableTriggered(true);
       breakable->Break(character);
       SetSuppressed_SendBreakableTriggered(false);
@@ -1510,5 +1528,36 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   } else {
     log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
       itemId, characterId);
+  }
+}
+
+void Client::HandleItemGoldAmount(NetworkMessages::ItemGoldCreate *msgItemGoldCreate)
+{
+  u32 itemId = msgItemGoldCreate->itemid();
+  u32 amount = msgItemGoldCreate->amount();
+
+  NetworkEntity *entity = searchItemByCommonID(itemId);
+  if (entity) {
+    log(L"CommonID Already exists for Gold Item");
+  } else {
+    // Create the gold
+    CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+    log(L"Adding Gold Item: CommonID = %x, Amount = %i", itemId, amount);
+    log(L"  ResourceManager = %p", resourceManager);
+
+    CItemGold *gold = new CItemGold();
+    gold->ItemCtor(resourceManager, amount);
+
+    log(L"Gold: %p", gold);
+
+    addItem(gold, itemId);
+
+    NetworkEntity *check = searchItemByCommonID(itemId);
+    log(L"Check = %p", check);
+    if (check)
+      log(L"  ID = %x", check->getCommonId());
+
+
+    
   }
 }

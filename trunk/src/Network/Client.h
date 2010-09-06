@@ -142,6 +142,7 @@ namespace TLMP {
       void HandleLevelDropItem(NetworkMessages::LevelDropItem*);
       void HandleBreakableTriggered(NetworkMessages::BreakableTriggered*);
       void HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered*);
+      void HandleItemGoldAmount(NetworkMessages::ItemGoldCreate*);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 

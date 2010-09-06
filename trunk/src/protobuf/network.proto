@@ -204,3 +204,8 @@ message TriggerUnitTriggered {
   required int32    characterId = 2;
 }
 
+message ItemGoldCreate {
+  required int32    itemId = 1;
+  required int32    amount = 2;
+}
+

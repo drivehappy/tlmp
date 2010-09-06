@@ -116,8 +116,10 @@ namespace TLMP {
       C_REQUEST_BREAKABLE_TRIGGERED,// Client requests that a breakable be triggered
       S_PUSH_BREAKABLE_TRIGGERED,   // Server pushes that a breakable triggered
       
-      C_REQUEST_TRIGGER_TRIGGERED,// Client requests that a breakable be triggered
-      S_PUSH_TRIGGER_TRIGGERED,   // Server pushes that a breakable triggered
+      C_REQUEST_TRIGGER_TRIGGERED,  // Client requests that a breakable be triggered
+      S_PUSH_TRIGGER_TRIGGERED,     // Server pushes that a breakable triggered
+
+      S_PUSH_ITEM_GOLD,             // Gold amount after the item is created
     };
 
     static const char* MessageString[] = {
@@ -211,6 +213,8 @@ namespace TLMP {
 
       "C_REQUEST_TRIGGER_TRIGGERED",
       "S_PUSH_TRIGGER_TRIGGERED",
+
+      "S_PUSH_ITEM_GOLD",
     };
 
   };

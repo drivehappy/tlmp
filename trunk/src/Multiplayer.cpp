@@ -45,13 +45,15 @@ void TLMP::SetupNetwork()
 
   CEnchantMenu::RegisterEvent_EnchantMenu_EnchantItem(EnchantMenuEnchantItemPre, NULL);
 
+  CItemGold::RegisterEvent_ItemGold_Ctor(ItemGold_CtorPre, ItemGold_CtorPost);
+
   CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI, NULL);
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
 
   CCharacter::RegisterEvent_CharacterDtor(Character_Dtor, NULL);
   CCharacter::RegisterEvent_CharacterSetAction(Character_SetActionPre, NULL);
   CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignment, NULL);
-  CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, NULL);
+  CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, Character_AttackPost);
   CCharacter::RegisterEvent_CharacterSetTarget(Character_SetTarget, NULL);
   CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, Character_UseSkillPost);
   CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
@@ -278,13 +280,25 @@ void TLMP::Character_UpdateHealthPre(CCharacter* character, float amount, bool& 
 
 void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool noItems, bool & calloriginal)
 {
+  const u64 CAT = 0x5C5BBC74483A11DE;
+  const u64 DOG = 0xD3A8F9832FA111DE;
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+  const u64 BRINK = 0xBC1E373A723411DE;
+
+
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X %i", guid, noItems);
     log(L"Creating character: %016I64X %i", guid, noItems);
 
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
-      //calloriginal = false;
-      //character = NULL;
+      if (guid != CAT && guid != DOG && guid != DESTROYER && guid != ALCHEMIST && 
+        guid != VANQUISHER && guid != BRINK)
+      {
+        //calloriginal = false;
+        //character = NULL;
+      }
     }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -364,7 +378,6 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
           msgLevelCreateItem.set_level(level);
           msgLevelCreateItem.set_unk0(unk0);
           msgLevelCreateItem.set_unk1(unk1);
-
           Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_LEVEL_CREATE_ITEM, &msgLevelCreateItem);
         }
       }
@@ -430,6 +443,9 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
         calloriginal = false;
         retval = NULL;
+
+        // TESTING - Destroy the character if we're not going to load it
+        character->destroy = true;
       }
     }
   }
@@ -858,10 +874,30 @@ void TLMP::Level_DropItemPost(CLevel* level, CItem* item, Vector3 & position, bo
       // Add this to our Equipment on the Ground list
       ServerEquipmentOnGround->push_back(equipmentEntity);
     }
-  } else {
-    multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p (%s) Base: %p", item, item->nameReal.c_str(), *(u32*)item);
-    log(L"Could not find NetworkEntity for equipment: %p (%s) Base: %p", item, item->nameReal.c_str(), *(u32*)item);
+  } 
+  /* Already implemented in Pre
+  else {
+    equipmentEntity = searchItemByInternalObject((PVOID)item);
+
+    if (equipmentEntity) {
+      NetworkMessages::LevelDropItem msgLevelDropItem;
+
+      NetworkMessages::Position *msgPosition = msgLevelDropItem.mutable_position();
+      msgPosition->set_x(position.x);
+      msgPosition->set_y(position.y);
+      msgPosition->set_z(position.z);
+
+      msgLevelDropItem.set_itemid(equipmentEntity->getCommonId());
+
+      if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentDrop>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
+      }
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p (%s) Base: %p", item, item->nameReal.c_str(), *(u32*)item);
+      log(L"Could not find NetworkEntity for equipment: %p (%s) Base: %p", item, item->nameReal.c_str(), *(u32*)item);
+    }
   }
+  */
 }
 
 void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk)
@@ -1297,6 +1333,11 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
   }
 }
 
+void TLMP::Character_AttackPost(CCharacter* character, bool & calloriginal)
+{
+  log(L"Character Attack Post");
+}
+
 void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"Character (%s) Set Attack Pre", character->characterName.c_str());
@@ -1715,16 +1756,14 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
 {
   log(L"Breakable: %p %p", breakable, player);
 
-  // This was null on client - Can this be NULL and still be Ok to call org function?
-  if (!player)
-    return;
-
-  logColor(B_RED, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
-  multiplayerLogger.WriteLine(Info, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
+  if (player) {
+    logColor(B_RED, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
+    multiplayerLogger.WriteLine(Info, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
+  }
 
   NetworkEntity *entity = searchItemByInternalObject(breakable);
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
-  if (entity && netCharacter) {
+  if (entity) {
 
     // Client
     if (NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1733,7 +1772,12 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
       
         NetworkMessages::BreakableTriggered msgBreakableTriggered;
         msgBreakableTriggered.set_itemid(entity->getCommonId());
-        msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+
+        // Character can be null if skill was used to kill it
+        if (player)
+          msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+        else
+          msgBreakableTriggered.set_characterid(-1);
 
         Client::getSingleton().SendMessage<NetworkMessages::BreakableTriggered>(C_REQUEST_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
       }
@@ -1743,7 +1787,12 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
     else if (NetworkState::getSingleton().GetState() == SERVER) {
       NetworkMessages::BreakableTriggered msgBreakableTriggered;
       msgBreakableTriggered.set_itemid(entity->getCommonId());
-      msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+
+      // Character can be null if skill was used to kill it
+      if (player)
+        msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+      else
+        msgBreakableTriggered.set_characterid(-1);
 
       Server::getSingleton().BroadcastMessage<NetworkMessages::BreakableTriggered>(S_PUSH_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
     }
@@ -1757,6 +1806,33 @@ void TLMP::TriggerUnit_CtorPost(CTriggerUnit* triggerUnit, CLayout* layout, bool
   logColor(B_RED, L"TriggerUnit Created: %p", triggerUnit);
   logColor(B_RED, L"   GUID: %016I64X", triggerUnit->GUID);
 }
+
+void TLMP::ItemGold_CtorPost(CItemGold* itemGold, PVOID _this, CResourceManager* resourceManager, u32 amount, bool&)
+{
+  logColor(B_RED, L"ItemGold Created: %p %p %i", itemGold, resourceManager, amount);
+  logColor(B_RED, L"   GUID: %016I64X", itemGold->GUID);
+  logColor(B_RED, L"   Amount: %i", itemGold->amount);
+
+  if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *entity = addItem(itemGold);
+
+    NetworkMessages::ItemGoldCreate msgItemGoldCreate;
+    msgItemGoldCreate.set_itemid(entity->getCommonId());
+    msgItemGoldCreate.set_amount(itemGold->amount);
+    Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_ITEM_GOLD, &msgItemGoldCreate);
+  }
+}
+
+void TLMP::ItemGold_CtorPre(CItemGold* itemRetval, PVOID _this, CResourceManager* resourceManager, u32 amount, bool& calloriginal)
+{
+  if (!calloriginal) {
+    logColor(B_RED, L"ItemGold Ctor Suppressed for Testing");
+  }
+
+  //calloriginal = false;
+  //itemRetval = NULL;
+}
+
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
