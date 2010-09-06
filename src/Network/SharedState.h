@@ -141,6 +141,8 @@ namespace TLMP {
       NetworkSharedLevelItems->push_back(newEntity);
 
       return newEntity;
+    } else {
+      log(L"Error: Could not add Item to SharedLevelItems, CommonID of %x already exists!", commonId);
     }
     return entity;
   }

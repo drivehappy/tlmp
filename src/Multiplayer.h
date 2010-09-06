@@ -53,6 +53,7 @@ namespace TLMP
   void Character_UseSkillPost(CCharacter*, u64, bool & calloriginal);
   void Character_SetTarget(CCharacter*, CCharacter*, bool & calloriginal);
   void Character_AttackPre(CCharacter*, bool & calloriginal);
+  void Character_AttackPost(CCharacter*, bool&);
   void Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
   void Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
   void Character_Character_UpdatePre(CCharacter*, PVOID, float*, float, bool&);
@@ -60,6 +61,10 @@ namespace TLMP
   void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
+
+  // Item Gold
+  void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);
+  void ItemGold_CtorPost(CItemGold*, PVOID, CResourceManager*, u32, bool&);
 
   // Trigger Unit
   void TriggerUnit_TriggeredPre(CTriggerUnit*, CPlayer*, bool&);

@@ -322,11 +322,11 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
 
   case C_PUSH_CHARACTER_ATTACK:
     {
-      /* Crashes the server when receiving
+      //* Crashes the server when receiving
       NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
 
       HandleCharacterAttack(msgCharacterAttack);
-      */
+      //*/
     }
 
   case C_REQUEST_CHARACTER_USESKILL:
@@ -1383,11 +1383,15 @@ void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBr
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
-  if (entity && netCharacter) {
+  if (entity) {
     CBreakable *breakable = (CBreakable*)entity->getInternalObject();
-    CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
+    CPlayer *character = NULL;
+    
+    if (netCharacter) {
+      character = (CPlayer*)netCharacter->getInternalObject();
+    }
 
-    if (breakable && character) {
+    if (breakable) {
       breakable->Break(character);
     }
   } else {
