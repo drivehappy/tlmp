@@ -34,6 +34,7 @@ void Server::Reset()
   m_bSuppressNetwork_SendEquipmentUnequip = false;
   m_bSuppressNetwork_SendEquipmentCreation = false;
   m_bSuppressNetwork_SendEquipmentStack = false;
+  m_bSuppressNetwork_SendCharacterAttack = false;
 }
 
 void Server::Listen(u16 port, u16 maxconnections)
@@ -328,6 +329,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       HandleCharacterAttack(msgCharacterAttack);
       //*/
     }
+    break;
 
   case C_REQUEST_CHARACTER_USESKILL:
     {
@@ -366,6 +368,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
       NetworkMessages::ChatPlayerText *msgChatPlayerText = ParseMessage<NetworkMessages::ChatPlayerText>(m_pBitStream);
 
       HandleChatMessage(msgChatPlayerText);
+    }
+    break;
+
+  case C_REQUEST_TRIGGER_TRIGGERED:
+    {
+      NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTriggered = ParseMessage<NetworkMessages::TriggerUnitTriggered>(m_pBitStream);
+
+      HandleTriggerUnitTriggered(msgTriggerUnitTriggered);
     }
     break;
 
@@ -829,10 +839,10 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   //  Interactable - 32
   //  ItemGold     - 34
   // If so skip this
-  if (equipment->type__ == 0x1D ||
-      equipment->type__ == 0x22 ||
-      equipment->type__ == 0x20 ||
-      equipment->type__ == 0x28)  
+  if (equipment->type__ != 0x1D &&
+      equipment->type__ != 0x22 &&
+      equipment->type__ != 0x20 &&
+      equipment->type__ != 0x28)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
@@ -986,7 +996,7 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
     equipment->requirements[4] = reqDefense;
 
     // Add to our BaseUnits list
-    //OutsideBaseUnits->push_back(equipment);
+    OutsideBaseUnits->push_back(equipment);
 
     multiplayerLogger.WriteLine(Info, L"Server: Adding gems to new equipment...");
     log(L"Server: Adding gems to new equipment...");
@@ -1000,6 +1010,9 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
         multiplayerLogger.WriteLine(Info, L"Server: Adding gem to shared network equipment: %i", msgGem.id());
         log(L"Server: Adding gem to shared network equipment: %i", msgGem.id());
         NetworkEntity *newEntity = addEquipment(gem, msgGem.id());
+
+        // Add to our BaseUnits list
+        OutsideBaseUnits->push_back(gem);
 
         for (int j = 0; j < msgGem.enchants_size(); j++) {
           NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
@@ -1158,7 +1171,9 @@ void Server::HandleCharacterAttack(NetworkMessages::CharacterAttack* msgCharacte
   if (networkCharacter) {
     CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
 
+    SetSuppressed_SendCharacterAttack(true);
     character->Attack();
+    SetSuppressed_SendCharacterAttack(false);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     log(L"Error: Could not find character with common id = %x", id);
@@ -1393,6 +1408,31 @@ void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBr
 
     if (breakable) {
       breakable->Break(character);
+    }
+  } else {
+    log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",
+      itemId, characterId);
+  }
+}
+
+void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTriggered)
+{
+  u32 itemId = msgTriggerUnitTriggered->itemid();
+  u32 characterId = msgTriggerUnitTriggered->characterid();
+
+  NetworkEntity *entity = searchItemByCommonID(itemId);
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (entity) {
+    CTriggerUnit *triggerUnit = (CTriggerUnit*)entity->getInternalObject();
+    CPlayer *character = NULL;
+    
+    if (netCharacter) {
+      character = (CPlayer*)netCharacter->getInternalObject();
+    }
+
+    if (triggerUnit) {
+      triggerUnit->Trigger(character);
     }
   } else {
     log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",

@@ -56,7 +56,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, Character_AttackPost);
   CCharacter::RegisterEvent_CharacterSetTarget(Character_SetTarget, NULL);
   CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, Character_UseSkillPost);
-  CCharacter::RegisterEvent_CharacterSetDestination(Character_SetDestination, NULL);
+  CCharacter::RegisterEvent_CharacterSetDestination(NULL, Character_SetDestination);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
   CCharacter::RegisterEvent_Character_Update(Character_Character_UpdatePre, NULL);
   CCharacter::RegisterEvent_Character_SetOrientation(Character_SetOrientationPre, NULL);
@@ -1068,7 +1068,7 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
 
 void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  log(L"Character picking up Equipment Pre:");
+  log(L"Character picking up Equipment Pre: %p", equipment);
 
   multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
     character, equipment->nameReal.c_str(), level);
@@ -1083,6 +1083,10 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
         // Send the server a message requesting our character to pickup the item
         NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
         NetworkEntity *netEquipment = searchEquipmentByInternalObject((PVOID)equipment);
+
+        if (!netEquipment) {
+          netEquipment = searchItemByInternalObject((PVOID)equipment);
+        }
 
         if (!netPlayer) {
           multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
@@ -1109,6 +1113,10 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
     NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+
+    if (!netEquipment) {
+      netEquipment = searchItemByInternalObject((PVOID)equipment);
+    }
 
     if (netEquipment) {
       if (netCharacter) {
@@ -1163,6 +1171,8 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
   }
+
+  log(L"Character Done Picking up Item: %p", equipment);
 }
 
 void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & calloriginal)
@@ -1364,13 +1374,15 @@ void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
 
   // Server - Always send this out to every client becuase it's request-based
   else if (NetworkState::getSingleton().GetState() == SERVER) {
-    NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
+    if (!Server::getSingleton().GetSuppressed_SendCharacterAttack()) {
+      NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
 
-    if (networkCharacter) {
-      NetworkMessages::CharacterAttack msgCharacterAttack;
-      msgCharacterAttack.set_characterid(networkCharacter->getCommonId());
+      if (networkCharacter) {
+        NetworkMessages::CharacterAttack msgCharacterAttack;
+        msgCharacterAttack.set_characterid(networkCharacter->getCommonId());
 
-      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAttack>(S_PUSH_CHARACTER_ATTACK, &msgCharacterAttack);
+        Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAttack>(S_PUSH_CHARACTER_ATTACK, &msgCharacterAttack);
+      }
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
       log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
@@ -1677,6 +1689,11 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
   // If we're going ahead with the change level, remove all the network information,
   // we'll repopulate it when the new level loads
   if (calloriginal) {
+    if (NetworkState::getSingleton().GetState() == SERVER) {
+      removeAllNetworkBaseUnits();
+    }
+
+    // Flush Network IDs
     clearAllNetworkIDs();
   }
 }
