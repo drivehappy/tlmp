@@ -14,7 +14,7 @@ namespace TLMP {
     #define stringify(name) #name
 
     /** Version to signify any Messaging ID changes. */
-    const u32 MessageVersion = 3;
+    const u32 MessageVersion = 4;
 
     /** Network Control Messages */
     enum Message {
@@ -43,7 +43,6 @@ namespace TLMP {
       S_PUSH_NEWEQUIPMENT,          // Server Pushes a New Equipment
 
       S_PUSH_ADDCHARMINION,         // Server Pushes a Minion setup to Client
-      S_PUSH_SETCHARALIGNMENT,      // Server Pushes a Character SetAlignment to Client
 
       C_PUSH_EQUIPMENT_DROP,        // Client Pushes an Equipment Drop from Character
       S_PUSH_EQUIPMENT_DROP,        // Server Pushes an Equipment Drop from Character
@@ -120,6 +119,8 @@ namespace TLMP {
       S_PUSH_TRIGGER_TRIGGERED,     // Server pushes that a breakable triggered
 
       S_PUSH_ITEM_GOLD,             // Gold amount after the item is created
+
+      S_PUSH_CHARACTER_ALIGNMENT,   // Server pushes character alignment
     };
 
     static const char* MessageString[] = {
@@ -146,7 +147,6 @@ namespace TLMP {
       "S_PUSH_NEWEQUIPMENT",
 
       "S_PUSH_ADDCHARMINION",
-      "S_PUSH_SETCHARALIGNMENT",
 
       "C_PUSH_EQUIPMENT_DROP",
       "S_PUSH_EQUIPMENT_DROP",
@@ -215,6 +215,8 @@ namespace TLMP {
       "S_PUSH_TRIGGER_TRIGGERED",
 
       "S_PUSH_ITEM_GOLD",
+      
+      "S_PUSH_CHARACTER_ALIGNMENT",
     };
 
   };
