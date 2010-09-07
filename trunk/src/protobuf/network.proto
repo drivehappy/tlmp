@@ -20,6 +20,7 @@ message Character {
   required int32     magic = 11;
   required int32     defense = 12;
   repeated string    skills = 13;
+  required int32     alignment = 14;
 }
 
 // This handles both Affixes and Regular Types
@@ -207,5 +208,10 @@ message TriggerUnitTriggered {
 message ItemGoldCreate {
   required int32    itemId = 1;
   required int32    amount = 2;
+}
+
+message CharacterAlignment {
+  required int32    characterId = 1;
+  required int32    alignment = 2;
 }
 

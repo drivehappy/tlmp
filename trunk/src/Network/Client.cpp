@@ -294,9 +294,6 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
   case S_PUSH_ADDCHARMINION:
     break;
 
-  case S_PUSH_SETCHARALIGNMENT:
-    break;
-
   case S_PUSH_EQUIPMENT_DROP:
     {
       // Ignore server character creation if we're not in the game
@@ -521,7 +518,15 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::ItemGoldCreate *msgItemGoldCreate = ParseMessage<NetworkMessages::ItemGoldCreate>(m_pBitStream);
 
-      HandleItemGoldAmount(msgItemGoldCreate);
+      //HandleItemGoldAmount(msgItemGoldCreate);
+    }
+    break;
+
+  case S_PUSH_CHARACTER_ALIGNMENT:
+    {
+      NetworkMessages::CharacterAlignment *msgCharacterAlignment = ParseMessage<NetworkMessages::CharacterAlignment>(m_pBitStream);
+
+      HandleCharacterAlignment(msgCharacterAlignment);
     }
     break;
 
@@ -730,6 +735,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   u32 magic = msgCharacter->magic();
   u64 guidCharacter = msgCharacter->guid();
   string characterName = msgCharacter->name();
+  u32 alignment = msgCharacter->alignment();
 
 
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
@@ -749,7 +755,8 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
     
     if (monster) {
       monster->characterName.assign(convertAsciiToWide(characterName));
-      monster->SetAlignment(1);
+      //monster->SetAlignment(1);
+      monster->SetAlignment(alignment);
       level->CharacterInitialize(monster, &posCharacter, 0);
       monster->healthMax = health;
       monster->manaMax = mana;
@@ -1091,6 +1098,8 @@ void Client::Helper_ClientPushAllEquipment()
       }
     }
   }
+
+  log(L"Push All Equipment Completed.");
 }
 
 void Client::Helper_ClientPushEquipment(CEquipment *equipment)
@@ -1559,7 +1568,24 @@ void Client::HandleItemGoldAmount(NetworkMessages::ItemGoldCreate *msgItemGoldCr
     if (check)
       log(L"  ID = %x", check->getCommonId());
 
+  }
+}
 
-    
+void Client::HandleCharacterAlignment(NetworkMessages::CharacterAlignment *msgCharacterAlignment)
+{
+  u32 characterId = msgCharacterAlignment->characterid();
+  u32 alignment = msgCharacterAlignment->alignment();
+
+  log(L"Client setting character alignment... (Common ID: %x, Alignment = %x)", characterId, alignment);
+
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+
+  if (entity) {
+    CCharacter *character = (CCharacter*)entity->getInternalObject();
+    if (character) {
+      character->SetAlignment(alignment);
+    }
+  } else {
+    log(L"Error: Could not find entity with common ID = %x", characterId);
   }
 }

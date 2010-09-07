@@ -31,6 +31,7 @@ namespace TLMP {
 
   extern vector<CBaseUnit*>* OutsideBaseUnits;  // Represents a list of BaseUnits created outside our singleplayer game
 
+  extern CGameClient* gameClient;
 
   //
   // Clear all network ids
@@ -39,6 +40,26 @@ namespace TLMP {
   //
   // Handle other characters
   static void removeAllNetworkBaseUnits() {
+    /*
+    vector<NetworkEntity*>::iterator itr;
+    vector<CCharacter*>::iterator itr2;
+    vector<CCharacter*>* minions = gameClient->pCPlayer->GetMinions();
+
+    for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+      CCharacter *character = (CCharacter *)(*itr)->getInternalObject();
+
+      if (character != gameClient->pCPlayer) {
+        for (itr2 = minions->begin(); itr2 != minions->end(); itr2++) {
+          if (character != (*itr2)) {
+            character->Destroy();
+          }
+        }
+      } 
+    }
+
+    NetworkSharedCharacters->clear();
+    */
+    
     vector<CBaseUnit*>::iterator itr;
 
     // Search for an existing address

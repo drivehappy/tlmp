@@ -46,7 +46,8 @@ namespace TLMP
 
   // Pre Event for Character SetDestination
   void Character_Dtor(CCharacter*);
-  void Character_SetAlignment(CCharacter*, u32);
+  void Character_SetAlignmentPre(CCharacter*, u32, bool&);
+  void Character_SetAlignmentPost(CCharacter*, u32, bool&);
   void Character_SetActionPre(CCharacter*, u32, bool & calloriginal);
   void Character_SetDestination(CCharacter*, CLevel*, float, float);
   void Character_UseSkillPre(CCharacter*, u64, bool & calloriginal);
@@ -61,6 +62,7 @@ namespace TLMP
   void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
+  void Character_StrikePre(CCharacter*, CLevel*, CCharacter*, PVOID, u32, float, float, u32, bool&);
 
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);

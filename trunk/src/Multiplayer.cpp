@@ -52,7 +52,7 @@ void TLMP::SetupNetwork()
 
   CCharacter::RegisterEvent_CharacterDtor(Character_Dtor, NULL);
   CCharacter::RegisterEvent_CharacterSetAction(Character_SetActionPre, NULL);
-  CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignment, NULL);
+  CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignmentPre, Character_SetAlignmentPost);
   CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, Character_AttackPost);
   CCharacter::RegisterEvent_CharacterSetTarget(Character_SetTarget, NULL);
   CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, Character_UseSkillPost);
@@ -63,6 +63,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
+  CCharacter::RegisterEvent_CharacterStrike(Character_StrikePre, NULL);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
@@ -224,14 +225,38 @@ void TLMP::Character_Dtor(CCharacter* character)
   }
 }
 
-void TLMP::Character_SetAlignment(CCharacter* character, u32 alignment)
+void TLMP::Character_SetAlignmentPre(CCharacter* character, u32 alignment, bool& calloriginal)
 {
+  log(L"CharacterAlignment Pre: %x", character->alignment);
+}
+
+void TLMP::Character_SetAlignmentPost(CCharacter* character, u32 alignment, bool& calloriginal)
+{
+  log(L"CharacterAlignment Post: %x", character->alignment);
   log(L"Setting Character Alignment = %x", alignment);
 
   multiplayerLogger.WriteLine(Info, L"Setting Character (%s) Alignment = %x",
     character->characterName.c_str(), alignment);
   log(L"Setting Character (%s) Alignment = %x",
     character->characterName.c_str(), alignment);
+
+  // Client would never send alignment, just worry about the server
+  if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *entity = searchCharacterByInternalObject(character);
+
+    if (entity) {
+      NetworkMessages::CharacterAlignment msgCharacterAlignment;
+      msgCharacterAlignment.set_characterid(entity->getCommonId());
+      msgCharacterAlignment.set_alignment(alignment);
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAlignment>(S_PUSH_CHARACTER_ALIGNMENT, &msgCharacterAlignment);
+    } else {
+      log(L"Error: Cannot send alignment, could not find entity ID");
+    }
+  }
+
+  else if (NetworkState::getSingleton().GetState() == CLIENT) {
+  }
 }
 
 void TLMP::Game_Ctor(CGame* game)
@@ -485,6 +510,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
           msgPlayerPosition->set_z(character->position.z);
 
           msgNewCharacter.set_id(newEntity->getCommonId());
+          msgNewCharacter.set_alignment(character->alignment);
 
           // This will broadcast to all clients except the one we received it from
           Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
@@ -801,13 +827,12 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     item->nameReal.c_str(), position.x, position.y, position.z, unk0, item->type__);
 
   if (NetworkState::getSingleton().GetState() == CLIENT) {
-    /*
-    if (item->type__ == 0x1D || item->type__ == 0x22 ||
-        item->type__ == 0x20 || item->type__ == 0x28)
+    // Suppress the Gold Drops
+    if (item->type__ == 0x22)
     {
       calloriginal = false;
     }
-    else*/
+    else
     {
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
         calloriginal = false;
@@ -1689,9 +1714,7 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
   // If we're going ahead with the change level, remove all the network information,
   // we'll repopulate it when the new level loads
   if (calloriginal) {
-    if (NetworkState::getSingleton().GetState() == SERVER) {
-      removeAllNetworkBaseUnits();
-    }
+    removeAllNetworkBaseUnits();
 
     // Flush Network IDs
     clearAllNetworkIDs();
@@ -1848,6 +1871,12 @@ void TLMP::ItemGold_CtorPre(CItemGold* itemRetval, PVOID _this, CResourceManager
 
   //calloriginal = false;
   //itemRetval = NULL;
+}
+
+void TLMP::Character_StrikePre(CCharacter* character, CLevel* level, CCharacter* characterOther, PVOID unk0, u32 unk1, float unk2, float unk3, u32 unk4, bool& calloriginal)
+{
+  log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
+    character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
 }
 
 

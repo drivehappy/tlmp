@@ -504,6 +504,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress)
     msgNewCharacter.set_defense(10000);
     msgNewCharacter.set_magic(10000);
 
+    msgNewCharacter.set_alignment(character->alignment);
+
     // This will broadcast to all clients except the one we received it from
     Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
 

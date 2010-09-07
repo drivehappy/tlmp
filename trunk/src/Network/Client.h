@@ -143,6 +143,7 @@ namespace TLMP {
       void HandleBreakableTriggered(NetworkMessages::BreakableTriggered*);
       void HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered*);
       void HandleItemGoldAmount(NetworkMessages::ItemGoldCreate*);
+      void HandleCharacterAlignment(NetworkMessages::CharacterAlignment*);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
