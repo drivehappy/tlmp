@@ -413,11 +413,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     
   case S_PUSH_CHARACTER_ATTACK:
     {
-      /* Hold off on this for now
+      //* Hold off on this for now
       NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
 
       HandleCharacterAttack(msgCharacterAttack);
-      */
+      //*/
     }
     break;
 
@@ -974,8 +974,10 @@ void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
-  if (!netEquipment)
-    netEquipment = searchItemByCommonID(equipmentId);
+  // Turn this off for now - it causes a bug in KeyManager::0x4E4636
+  //   Bad Param passed in?
+  //if (!netEquipment)
+  //  netEquipment = searchItemByCommonID(equipmentId);
 
   if (netEquipment) {
     if (netCharacter) {
@@ -1307,10 +1309,10 @@ void Client::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   //  ItemGold     - 34
   //  Openable     - 40
   // If so skip this
-  if (equipment->type__ == 0x1D ||
-      equipment->type__ == 0x22 ||
-      equipment->type__ == 0x20 ||
-      equipment->type__ == 0x28)  
+  if (equipment->type__ != 0x1D &&
+      equipment->type__ != 0x22 &&
+      equipment->type__ != 0x20 &&
+      equipment->type__ != 0x28)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
