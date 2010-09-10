@@ -25,6 +25,8 @@ void TLMP::SetupNetwork()
 
   CLevel::RegisterEvent_LevelCharacterInitialize(Level_CharacterInitialize, NULL);
   CLevel::RegisterEvent_LevelDropItem(Level_DropItemPre, Level_DropItemPost);
+  CLevel::RegisterEvent_Level_Dtor(Level_Dtor, NULL);
+  CLevel::RegisterEvent_Level_Ctor(Level_Ctor, NULL);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
@@ -181,8 +183,7 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::Equipment_Dtor(CEquipment* equipment)
 {
-  log(L"Equipment::Dtor = %p Removing from network list...", equipment);
-  log(L"  Name: %s", equipment->nameReal.c_str());
+  log(L"Equipment::Dtor = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
 
   vector<NetworkEntity*>::iterator itr;
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
@@ -198,7 +199,6 @@ void TLMP::Character_Dtor(CCharacter* character)
 {
   log(L"Character::Dtor = %p", character);
   log(L"  %s", character->characterName.c_str());
-  log(L"  Removing Character from NetworkSharedCharacters");
 
   // If we're the server, send the client that the character has been destroyed
   if (NetworkState::getSingleton().GetState() == SERVER) {
@@ -654,17 +654,37 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
   }
 }
 
+void TLMP::Level_Dtor(CLevel* level, u32, bool&)
+{
+  logColor(B_RED, L"Level Dtor (%p)", level);
+
+  level->DumpCharacters1();
+  level->DumpTriggerUnits();
+  level->DumpCharacters2();
+  level->DumpItems();
+}
+
+void TLMP::Level_Ctor(wstring name, CSettings* settings, CGameClient* gameClient, CResourceManager* resourceManager, PVOID OctreeSM, CSoundManager* soundManager, u32 unk0, u32 unk1, bool&)
+{
+  logColor(B_RED, L"Level Ctor");
+  log(L"  Name: %s", name.c_str());
+  log(L"  Settings: %p", settings);
+  log(L"  GameClient: %p", gameClient);
+  log(L"  ResourceManager: %p", resourceManager);
+  log(L"  SoundManager: %p", soundManager);
+}
+
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
   logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
+  multiplayerLogger.WriteLine(Info, L"LoadLevelPre (GameClient = %p)", client);
+
   
-  LinkedListNode* itr = *client->pCLevel->ppCBaseUnits;
-  logColor(B_GREEN, L"Level Base Unit: %p %p %p", itr, itr->pCBaseUnit);
-  while (itr != NULL) {
-    CItem* baseUnit = (CItem*)itr->pCBaseUnit;
-    logColor(B_GREEN, L"  Base Unit: %p %s", baseUnit, baseUnit->nameReal.c_str());
-    itr = itr->pNext;
-  }
+  CLevel *level = client->pCLevel;
+  level->DumpCharacters1();
+  level->DumpTriggerUnits();
+  level->DumpCharacters2();
+  level->DumpItems();
 
   logColor(B_GREEN, L"Level: %i", client->level);
   logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
@@ -691,14 +711,13 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
 {
   logColor(B_GREEN, L"GameClient_LoadLevelPost");
-  
-  LinkedListNode* itr = *client->pCLevel->ppCBaseUnits;
-  logColor(B_GREEN, L"Level Base Unit: %p %p %p", itr, itr->pCBaseUnit);
-  while (itr != NULL) {
-    CItem* baseUnit = (CItem*)itr->pCBaseUnit;
-    logColor(B_GREEN, L"  Base Unit: %p %s", baseUnit, baseUnit->nameReal.c_str());
-    itr = itr->pNext;
-  }
+  multiplayerLogger.WriteLine(Info, L"GameClient_LoadLevelPost");
+
+  CLevel *level = client->pCLevel;
+  level->DumpCharacters1();
+  level->DumpTriggerUnits();
+  level->DumpCharacters2();
+  level->DumpItems();
 
   logColor(B_GREEN, L"  DungeonName: %s", client->dungeonName.c_str());
   logColor(B_GREEN, L"  Dungeon: %p", client->pCDungeon);
