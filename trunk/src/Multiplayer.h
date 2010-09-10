@@ -97,6 +97,8 @@ namespace TLMP
   void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
   void Level_DropItemPre(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
   void Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
+  void Level_Dtor(CLevel* level, u32, bool&);
+  void Level_Ctor(wstring name, CSettings*, CGameClient*, CResourceManager*, PVOID OctreeSM, CSoundManager*, u32, u32, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
