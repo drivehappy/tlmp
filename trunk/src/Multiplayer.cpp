@@ -656,8 +656,16 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
-  logColor(B_GREEN, L"LoadLevelPre");
-  logColor(B_GREEN, L"Flags: %x %x %x %x", gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
+  logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
+  
+  LinkedListNode* itr = *client->pCLevel->ppCBaseUnits;
+  logColor(B_GREEN, L"Level Base Unit: %p %p %p", itr, itr->pCBaseUnit);
+  while (itr != NULL) {
+    CItem* baseUnit = (CItem*)itr->pCBaseUnit;
+    logColor(B_GREEN, L"  Base Unit: %p %s", baseUnit, baseUnit->nameReal.c_str());
+    itr = itr->pNext;
+  }
+
   logColor(B_GREEN, L"Level: %i", client->level);
   logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
   logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
@@ -683,7 +691,15 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
 {
   logColor(B_GREEN, L"GameClient_LoadLevelPost");
-  logColor(B_GREEN, L"Flags: %x %x %x %x", gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
+  
+  LinkedListNode* itr = *client->pCLevel->ppCBaseUnits;
+  logColor(B_GREEN, L"Level Base Unit: %p %p %p", itr, itr->pCBaseUnit);
+  while (itr != NULL) {
+    CItem* baseUnit = (CItem*)itr->pCBaseUnit;
+    logColor(B_GREEN, L"  Base Unit: %p %s", baseUnit, baseUnit->nameReal.c_str());
+    itr = itr->pNext;
+  }
+
   logColor(B_GREEN, L"  DungeonName: %s", client->dungeonName.c_str());
   logColor(B_GREEN, L"  Dungeon: %p", client->pCDungeon);
   logColor(B_GREEN, L"    Name0: %s", client->pCDungeon->name0.c_str());
