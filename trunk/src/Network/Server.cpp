@@ -809,9 +809,9 @@ void Server::Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEq
 
 void Server::Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment)
 {
-  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Equipment (%016I64X %i %s) out to client that just joined...",
+  multiplayerLogger.WriteLine(Info, L"Server: Pushing existing ground Equipment (%016I64X %i %s) out to client that just joined...",
     equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
-  log(L"Server: Pushing existing Equipment (%016I64X %i %s) out to client that just joined...",
+  log(L"Server: Pushing existing ground Equipment (%016I64X %i %s) out to client that just joined...",
     equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
 
   // Create a new network message for all clients to create this character

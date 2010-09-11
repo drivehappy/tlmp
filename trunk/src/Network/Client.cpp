@@ -495,7 +495,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::LevelDropItem *msgLevelDropItem = ParseMessage<NetworkMessages::LevelDropItem>(m_pBitStream);
 
-      HandleLevelDropItem(msgLevelDropItem);
+      //HandleLevelDropItem(msgLevelDropItem);
     }
     break;
     

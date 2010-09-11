@@ -197,8 +197,10 @@ void TLMP::Equipment_Dtor(CEquipment* equipment)
 
 void TLMP::Character_Dtor(CCharacter* character)
 {
-  log(L"Character::Dtor = %p", character);
-  log(L"  %s", character->characterName.c_str());
+  //log(L"Character::Dtor = %p", character);
+  //log(L"  %s", character->characterName.c_str());
+  multiplayerLogger.WriteLine(Info, L"Character::Dtor = %p", character);
+  multiplayerLogger.WriteLine(Info, L"  %s", character->characterName.c_str());
 
   // If we're the server, send the client that the character has been destroyed
   if (NetworkState::getSingleton().GetState() == SERVER) {
@@ -658,6 +660,7 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 void TLMP::Level_Dtor(CLevel* level, u32, bool&)
 {
   logColor(B_RED, L"Level Dtor (%p)", level);
+  multiplayerLogger.WriteLine(Info, L"Level Dtor (%p)", level);
 
   level->DumpCharacters1();
   level->DumpTriggerUnits();
@@ -668,6 +671,8 @@ void TLMP::Level_Dtor(CLevel* level, u32, bool&)
 void TLMP::Level_Ctor(wstring name, CSettings* settings, CGameClient* gameClient, CResourceManager* resourceManager, PVOID OctreeSM, CSoundManager* soundManager, u32 unk0, u32 unk1, bool&)
 {
   logColor(B_RED, L"Level Ctor");
+  multiplayerLogger.WriteLine(Info, L"Level Ctor");
+
   log(L"  Name: %s", name.c_str());
   log(L"  Settings: %p", settings);
   log(L"  GameClient: %p", gameClient);
@@ -862,7 +867,20 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
   log(L"Level dropping Item %s at %f, %f, %f (unk0: %i) Type = %x",
     item->nameReal.c_str(), position.x, position.y, position.z, unk0, item->type__);
 
+  // Iterate over the existing items on the level and ensure the same item doesn't already exist
+  LinkedListNode* itr = *level->ppCItems;
+  while (itr != NULL) {
+    CItem* itemLevel = (CItem*)itr->pCBaseUnit;
+    if (itemLevel == item) {
+      log(L"Level Drop Found Identical Item already on the Ground! Suppressing the drop.");
+      calloriginal = false;
+      break;
+    }
+    itr = itr->pNext;
+  }
+
   if (NetworkState::getSingleton().GetState() == CLIENT) {
+    /*
     // Suppress the Gold Drops
     if (item->type__ == 0x22)
     {
@@ -870,10 +888,11 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     }
     else
     {
+    */
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
         calloriginal = false;
       }
-    }
+    //}
     
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
     NetworkEntity *entity = searchItemByInternalObject(item);
