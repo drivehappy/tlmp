@@ -88,6 +88,10 @@ namespace TLMP {
             
       inline bool GetSuppressed_SendTriggerUnitTriggered()             { return m_bSuppressNetwork_SendTriggerUnitTriggered; }
       inline void SetSuppressed_SendTriggerUnitTriggered(bool value)   { m_bSuppressNetwork_SendTriggerUnitTriggered = value; }
+            
+      inline bool GetAllow_CharacterSetTarget()             { return m_bAllow_CharacterSetTarget; }
+      inline void SetAllow_CharacterSetTarget(bool value)   { m_bAllow_CharacterSetTarget = value; }
+      
       
 
       
@@ -144,6 +148,7 @@ namespace TLMP {
       void HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered*);
       void HandleItemGoldAmount(NetworkMessages::ItemGoldCreate*);
       void HandleCharacterAlignment(NetworkMessages::CharacterAlignment*);
+      void HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -183,6 +188,7 @@ namespace TLMP {
       bool m_bIsSendingUseSkill;    // Required because Same as above
       bool m_bIsEquipmentAddingGem; // Used as a request mechanism to the server
       bool m_bAllow_LevelItemDrop;
+      bool m_bAllow_CharacterSetTarget;
     };
 
   };

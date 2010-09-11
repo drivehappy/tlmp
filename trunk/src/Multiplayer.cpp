@@ -366,7 +366,8 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
 
     // If we're a real equipment (not Interactable, Openable, Breakable, Gold, ...)
     if (item->type__ != 0x1D && item->type__ != 0x28 &&
-        item->type__ != 0x22 && item->type__ != 0x20)
+        item->type__ != 0x22 && item->type__ != 0x20 &&
+        item->type__ != 0xAB && item->type__ != 0x2B)
     {
       // --
       if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -1401,6 +1402,36 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
     multiplayerLogger.WriteLine(Info, L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
     log(L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
   }
+
+  // Setup the information
+  NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+  NetworkEntity *netTarget = searchCharacterByInternalObject(target);
+
+  NetworkMessages::CharacterSetTarget msgCharacterSetTarget;
+
+  if (netCharacter) {
+    s32 targetID = -1;    // Sometimes there's no target
+    if (netTarget) {
+      targetID = netTarget->getCommonId();
+    }
+
+    msgCharacterSetTarget.set_characterid(netCharacter->getCommonId());
+    msgCharacterSetTarget.set_targetid(targetID);
+  } else {
+    log(L"Error: Could not find network entity for character: %s", character->characterName.c_str());
+    return;
+  }
+
+  // Network push it out
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_CharacterSetTarget()) {
+      calloriginal = false;
+
+      Client::getSingleton().SendMessage<NetworkMessages::CharacterSetTarget>(C_REQUEST_CHARACTER_SETTARGET, &msgCharacterSetTarget);
+    }
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterSetTarget>(S_PUSH_CHARACTER_SETTARGET, &msgCharacterSetTarget);
+  }
 }
 
 void TLMP::Character_AttackPost(CCharacter* character, bool & calloriginal)
@@ -1416,7 +1447,7 @@ void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
   // Client - Requests the set action from the server
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_CharacterAttack()) {
-      calloriginal = false;
+      //calloriginal = false;
 
       NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
 

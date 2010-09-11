@@ -45,6 +45,7 @@ void Client::Reset()
   m_bAllow_ChangeLevel = false;
   m_bAllow_HealthUpdate = false;
   m_bAllow_LevelItemDrop = false;
+  m_bAllow_CharacterSetTarget = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -527,6 +528,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::CharacterAlignment *msgCharacterAlignment = ParseMessage<NetworkMessages::CharacterAlignment>(m_pBitStream);
 
       HandleCharacterAlignment(msgCharacterAlignment);
+    }
+    break;
+
+  case S_PUSH_CHARACTER_SETTARGET:
+    {
+      NetworkMessages::CharacterSetTarget *msgCharacterSetTarget = ParseMessage<NetworkMessages::CharacterSetTarget>(m_pBitStream);
+
+      HandleCharacterSetTarget(msgCharacterSetTarget);
     }
     break;
 
@@ -1587,5 +1596,36 @@ void Client::HandleCharacterAlignment(NetworkMessages::CharacterAlignment *msgCh
     }
   } else {
     log(L"Error: Could not find entity with common ID = %x", characterId);
+  }
+}
+
+void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCharacterSetTarget)
+{
+  u32 characterId = msgCharacterSetTarget->characterid();
+  u32 targetId = msgCharacterSetTarget->targetid();
+
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+  CCharacter *target = NULL;
+
+  if (targetId != -1) {
+    NetworkEntity *netTarget = searchCharacterByCommonID(targetId);
+    if (netTarget) {
+      target = (CCharacter*)netTarget->getInternalObject();
+    } else {
+      log(L"Error: Could not find Target character of ID: %x", targetId);
+      return;
+    }
+  }
+
+  if (netCharacter) {
+    CCharacter *character = (CCharacter*)netCharacter->getInternalObject();
+
+    if (character) {
+      SetAllow_CharacterSetTarget(true);
+      character->SetTarget(target);
+      SetAllow_CharacterSetTarget(false);
+    }
+  } else {
+    log(L"Error: Could not find Character of ID: %x", characterId);
   }
 }
