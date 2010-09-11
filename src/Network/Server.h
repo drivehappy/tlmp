@@ -100,6 +100,7 @@ namespace TLMP {
       void HandleChatMessage(NetworkMessages::ChatPlayerText *msgChatPlayerText);
       void HandleBreakableTriggered(NetworkMessages::BreakableTriggered *);
       void HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *);
+      void HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);

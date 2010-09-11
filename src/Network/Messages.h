@@ -121,6 +121,9 @@ namespace TLMP {
       S_PUSH_ITEM_GOLD,             // Gold amount after the item is created
 
       S_PUSH_CHARACTER_ALIGNMENT,   // Server pushes character alignment
+
+      C_REQUEST_CHARACTER_SETTARGET,// Client request the character set's the target
+      S_PUSH_CHARACTER_SETTARGET,   // Server pushes the character set target
     };
 
     static const char* MessageString[] = {
@@ -217,6 +220,9 @@ namespace TLMP {
       "S_PUSH_ITEM_GOLD",
       
       "S_PUSH_CHARACTER_ALIGNMENT",
+
+      "C_REQUEST_CHARACTER_SETTARGET",
+      "S_PUSH_CHARACTER_SETTARGET",
     };
 
   };

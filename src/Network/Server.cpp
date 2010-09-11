@@ -387,6 +387,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_REQUEST_CHARACTER_SETTARGET:
+    {
+      NetworkMessages::CharacterSetTarget *msgCharacterSetTarget = ParseMessage<NetworkMessages::CharacterSetTarget>(m_pBitStream);
+
+      HandleCharacterSetTarget(msgCharacterSetTarget);
+    }
+    break;
+
   }
 }
 
@@ -1439,5 +1447,34 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   } else {
     log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",
       itemId, characterId);
+  }
+}
+
+void Server::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCharacterSetTarget)
+{
+  u32 characterId = msgCharacterSetTarget->characterid();
+  u32 targetId = msgCharacterSetTarget->targetid();
+
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+  CCharacter *target = NULL;
+
+  if (targetId != -1) {
+    NetworkEntity *netTarget = searchCharacterByCommonID(targetId);
+    if (netTarget) {
+      target = (CCharacter*)netTarget->getInternalObject();
+    } else {
+      log(L"Error: Could not find Target character of ID: %x", targetId);
+      return;
+    }
+  }
+
+  if (netCharacter) {
+    CCharacter *character = (CCharacter*)netCharacter->getInternalObject();
+
+    if (character) {
+      character->SetTarget(target);
+    }
+  } else {
+    log(L"Error: Could not find Character of ID: %x", characterId);
   }
 }

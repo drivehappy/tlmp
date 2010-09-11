@@ -215,3 +215,9 @@ message CharacterAlignment {
   required int32    alignment = 2;
 }
 
+message CharacterSetTarget {
+  required int32    characterId = 1;
+  required int32    targetId = 2;
+}
+
+
