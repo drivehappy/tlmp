@@ -193,6 +193,7 @@ message LevelCreateItem {
 message LevelDropItem {
   required int32    itemId = 1;
   required Position position = 2;
+  required int32    unk0 = 3;
 }
 
 message BreakableTriggered {

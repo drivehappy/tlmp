@@ -495,7 +495,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::LevelDropItem *msgLevelDropItem = ParseMessage<NetworkMessages::LevelDropItem>(m_pBitStream);
 
-      //HandleLevelDropItem(msgLevelDropItem);
+      HandleLevelDropItem(msgLevelDropItem);
     }
     break;
     
@@ -519,7 +519,7 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     {
       NetworkMessages::ItemGoldCreate *msgItemGoldCreate = ParseMessage<NetworkMessages::ItemGoldCreate>(m_pBitStream);
 
-      //HandleItemGoldAmount(msgItemGoldCreate);
+      HandleItemGoldAmount(msgItemGoldCreate);
     }
     break;
 
@@ -990,10 +990,16 @@ void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
+  log(L"Client: Pickup Equipment: %x (Character: %x)", equipmentId, characterId);
+  
+
+  // Testing it out currently...
   // Turn this off for now - it causes a bug in KeyManager::0x4E4636
   //   Bad Param passed in?
-  //if (!netEquipment)
-  //  netEquipment = searchItemByCommonID(equipmentId);
+  if (!netEquipment) {
+    netEquipment = searchItemByCommonID(equipmentId);
+  }
+
 
   if (netEquipment) {
     if (netCharacter) {
@@ -1480,6 +1486,8 @@ void Client::HandleLevelDropItem(NetworkMessages::LevelDropItem *msgLevelDropIte
 {
   NetworkMessages::Position msgPosition = msgLevelDropItem->position();
   u32 itemId = msgLevelDropItem->itemid();
+  u32 unk0 = msgLevelDropItem->unk0();
+
   Vector3 position;
   position.x = msgPosition.x();
   position.y = msgPosition.y();
@@ -1492,7 +1500,7 @@ void Client::HandleLevelDropItem(NetworkMessages::LevelDropItem *msgLevelDropIte
     CLevel *level = gameClient->pCLevel;
     if (level) {
       SetAllow_LevelItemDrop(true);
-      level->ItemDrop(item, position, 1);
+      level->ItemDrop(item, position, unk0);
       SetAllow_LevelItemDrop(false);
     }
   } else {
@@ -1571,11 +1579,11 @@ void Client::HandleItemGoldAmount(NetworkMessages::ItemGoldCreate *msgItemGoldCr
     log(L"Gold: %p", gold);
 
     addItem(gold, itemId);
-
     NetworkEntity *check = searchItemByCommonID(itemId);
     log(L"Check = %p", check);
-    if (check)
+    if (check) {
       log(L"  ID = %x", check->getCommonId());
+    }
 
   }
 }

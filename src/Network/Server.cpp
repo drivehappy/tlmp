@@ -179,8 +179,11 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
 
   wstring msgString = convertAsciiToWide(MessageString[msg]);
 
-  multiplayerLogger.WriteLine(Info, L"Server Received Message: %s", msgString.c_str());
-  logColor(B_GREEN, L"Server Received Message: %s", msgString.c_str());
+  // For sake of less spam
+  if (msg != C_PUSH_CHARACTER_SETDEST) {
+    multiplayerLogger.WriteLine(Info, L"Server Received Message: %s", msgString.c_str());
+    logColor(B_GREEN, L"Server Received Message: %s", msgString.c_str());
+  }
 
   switch (msg) {
   case C_VERSION:
@@ -1100,6 +1103,10 @@ void Server::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
 {
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (!netEquipment) {
+    netEquipment = searchItemByCommonID(equipmentId);
+  }
 
   if (netEquipment) {
     if (netCharacter) {
