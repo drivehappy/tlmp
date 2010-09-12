@@ -75,6 +75,10 @@ namespace TLMP {
       m_pInternalObject = internalObject;
     };
 
+    void SetNewInternalObject(PVOID internalObject) {
+      m_pInternalObject = internalObject;
+    }
+
     int getCommonId() const  { return m_iCommonId; };
     int getInternalId() const { return m_iInternalId; };
     PVOID getInternalObject() const { return m_pInternalObject; };

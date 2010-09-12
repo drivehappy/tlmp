@@ -53,6 +53,8 @@ message Equipment {
   required int32       req_magic = 18;
   required int32       req_defense = 19;
   
+  required bool        identified = 20;
+  
   // TODO: AttackDescriptors?
 }
 
@@ -220,5 +222,10 @@ message CharacterSetTarget {
   required int32    characterId = 1;
   required int32    targetId = 2;
 }
+
+message EquipmentIdentify {
+  required int32    equipmentId = 1;
+}
+
 
 
