@@ -46,6 +46,7 @@ void Client::Reset()
   m_bAllow_HealthUpdate = false;
   m_bAllow_LevelItemDrop = false;
   m_bAllow_CharacterSetTarget = false;
+  m_bAllow_EquipmentIdentify = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -369,6 +370,11 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     break;
 
   case S_PUSH_EQUIPMENT_IDENTIFY:
+    {
+      NetworkMessages::EquipmentIdentify *msgEquipmentIdentify = ParseMessage<NetworkMessages::EquipmentIdentify>(m_pBitStream);
+
+      HandleEquipmentIdentify(msgEquipmentIdentify);
+    }
     break;
 
   case S_PUSH_EQUIPMENT_ADDENCHANT:
@@ -805,6 +811,8 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
   u32 gemCount = msgEquipment->gems_size();
   u32 enchantCount = msgEquipment->enchants_size();
 
+  u8 identified = msgEquipment->identified();
+
   u32 minPhysicalDamage = msgEquipment->physical_damage_min();
   u32 maxPhysicalDamage = msgEquipment->physical_damage_max();
 
@@ -831,6 +839,8 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
     equipment->socketCount = socketcount;
     equipment->stackSize = stacksize;
     equipment->stackSizeMax = stacksizemax;
+
+    equipment->identified = identified;
 
     equipment->minimumPhysicalDamage = minPhysicalDamage;
     equipment->maximumPhysicalDamage = maxPhysicalDamage;
@@ -1324,6 +1334,8 @@ void Client::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   msgEquipment->set_socketcount(equipment->socketCount);
   msgEquipment->set_client_id(netEquipment->getCommonId());     // Create a temporary client ID to identify this when we receive the common ID
 
+  msgEquipment->set_identified(equipment->identified);
+
   msgEquipment->set_physical_damage_min(equipment->minimumPhysicalDamage);
   msgEquipment->set_physical_damage_max(equipment->maximumPhysicalDamage);
 
@@ -1566,25 +1578,23 @@ void Client::HandleItemGoldAmount(NetworkMessages::ItemGoldCreate *msgItemGoldCr
 
   NetworkEntity *entity = searchItemByCommonID(itemId);
   if (entity) {
-    log(L"CommonID Already exists for Gold Item");
+    log(L"CommonID Already exists for Gold Item... replacing old with new");
+  }
+
+  // Create the gold
+  CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
+  log(L"Adding Gold Item: CommonID = %x, Amount = %i", itemId, amount);
+  log(L"  ResourceManager = %p", resourceManager);
+
+  CItemGold *gold = new CItemGold();
+  gold->ItemCtor(resourceManager, amount);
+
+  // Should hopefully be a ducttape fix until I can figure out the real cause
+  //  For bug when an CItemGold is created the Client already has the same ID of it listed
+  if (entity) {
+    entity->SetNewInternalObject(gold);
   } else {
-    // Create the gold
-    CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
-    log(L"Adding Gold Item: CommonID = %x, Amount = %i", itemId, amount);
-    log(L"  ResourceManager = %p", resourceManager);
-
-    CItemGold *gold = new CItemGold();
-    gold->ItemCtor(resourceManager, amount);
-
-    log(L"Gold: %p", gold);
-
     addItem(gold, itemId);
-    NetworkEntity *check = searchItemByCommonID(itemId);
-    log(L"Check = %p", check);
-    if (check) {
-      log(L"  ID = %x", check->getCommonId());
-    }
-
   }
 }
 
@@ -1635,5 +1645,25 @@ void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
     }
   } else {
     log(L"Error: Could not find Character of ID: %x", characterId);
+  }
+}
+
+void Client::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEquipmentIdentify)
+{
+  u32 equipmentId = msgEquipmentIdentify->equipmentid();
+
+  NetworkEntity *entity = searchEquipmentByCommonID(equipmentId);
+
+  if (entity) {
+    CEquipment* equipment = (CEquipment*)entity->getInternalObject();
+
+    log(L"  Equipment Identify = %p", equipment);
+    log(L"  Equipment Identify = %s", equipment->nameReal.c_str());
+
+    if (equipment) {
+      equipment->identified = 1;
+    }
+  } else {
+    log(L"Error: Could not find equipment of ID: %x", equipmentId);
   }
 }

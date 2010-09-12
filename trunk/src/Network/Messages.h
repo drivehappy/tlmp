@@ -64,7 +64,7 @@ namespace TLMP {
       S_PUSH_EQUIPMENT_USE,         // Server Pushes an Equipment Use to clients
                                     // Note: These aren't requests, the Server will notify other clients of the action
 
-      C_PUSH_EQUIPMENT_IDENTIFY,    // Client Pushes an Equipment Identify to Server
+      C_REQUEST_EQUIPMENT_IDENTIFY, // Client Requests an Equipment Identify to Server
       S_PUSH_EQUIPMENT_IDENTIFY,    // Server Pushes an Equipment Identify to clients
                                     // Note: These aren't requests, the Server will notify other clients of the action
 
@@ -166,7 +166,7 @@ namespace TLMP {
       "C_PUSH_EQUIPMENT_USE",
       "S_PUSH_EQUIPMENT_USE",
             
-      "C_PUSH_EQUIPMENT_IDENTIFY",
+      "C_REQUEST_EQUIPMENT_IDENTIFY",
       "S_PUSH_EQUIPMENT_IDENTIFY",
             
       "C_PUSH_EQUIPMENT_ADDENCHANT",

@@ -44,6 +44,7 @@ void TLMP::SetupNetwork()
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
   CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
   CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGemPre, NULL);
+  CEquipment::RegisterEvent_EquipmentIdentify(EquipmentIdentifyPre, NULL);
 
   CEnchantMenu::RegisterEvent_EnchantMenu_EnchantItem(EnchantMenuEnchantItemPre, NULL);
 
@@ -435,6 +436,32 @@ void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveSt
   } else {
     multiplayerLogger.WriteLine(Info, L"Suppressing Equipment Initialize (GUID: %016I64X  %s)",
       equipment->GUID, equipment->nameReal.c_str());
+  }
+}
+
+void TLMP::EquipmentIdentifyPre(CEquipment* identifyScroll, CPlayer *player, CEquipment* equipment, bool& calloriginal)
+{
+  log(L"Equipment Idenfity Pre (%p)", equipment);
+  log(L"  (%s)", equipment->nameReal.c_str());
+
+  NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
+
+  if (!entity) {
+    log(L"Error: Could not find Network Entity for Equipment");
+    return;
+  }
+
+  NetworkMessages::EquipmentIdentify msgEquipmentIdentify;
+  msgEquipmentIdentify.set_equipmentid(entity->getCommonId());
+
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_EquipmentIdentify()) {
+      calloriginal = false;
+
+      Client::getSingleton().SendMessage<NetworkMessages::EquipmentIdentify>(C_REQUEST_EQUIPMENT_IDENTIFY, &msgEquipmentIdentify);
+    }
+  } else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentIdentify>(S_PUSH_EQUIPMENT_IDENTIFY, &msgEquipmentIdentify);
   }
 }
 
@@ -1011,6 +1038,27 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
 
 void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
 {
+  log(L"~~~ TEST: Equipment enhancementCount: %x", equipment->enhancementCount);
+  log(L"~~~ TEST: Equipment enchantList: %x", equipment->enchantList.size());
+  u32 offset = ((u32)&equipment->unk1008 - (u32)equipment);
+  log(L"~~~ unk1008 Offset: %x", offset);
+  log(L"~~~ unk1008: %x", equipment->unk1008);
+
+  /*
+  if (equipment->unk1008)
+    equipment->unk1008 = 0;
+  else
+    equipment->unk1008 = 1;
+  */
+
+  if (equipment->pCEffectManager) {
+    log(L"~~~ TEST: Equipment Effect Size: %x", equipment->pCEffectManager->effectList.size);
+  }
+
+  if (equipment->enhancementCount == 0) {
+    equipment->enhancementCount = equipment->enchantList.size();
+  }
+
   log(L"Inventory adding Equipment: %016I64X (%s) (slot = %x) (Owner = %s)",
     equipment->GUID, equipment->nameReal.c_str(), slot, inventory->pCCharacter->characterName.c_str());
 
@@ -1150,9 +1198,9 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
   log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
     character, equipment, equipment->nameReal.c_str(), level);
 
-  log(L"Dumping Level Items...");
+  //log(L"Dumping Level Items...");
   //gameClient->pCLevel->DumpItems();
-  gameClient->pCLevel->DumpTriggerUnits();
+  //gameClient->pCLevel->DumpTriggerUnits();
 
   // If the client is requesting a pickup, request the server first
   // The server will respond with a pickup message
@@ -1233,9 +1281,9 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
 {
   log(L" Character picking up Equipment Post");
 
-  log(L"Dumping Level Items...");
+  //log(L"Dumping Level Items...");
   //gameClient->pCLevel->DumpItems();
-  gameClient->pCLevel->DumpTriggerUnits();
+  //gameClient->pCLevel->DumpTriggerUnits();
   
   // Turn on suppression again if we're the client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {

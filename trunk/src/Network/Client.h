@@ -91,6 +91,9 @@ namespace TLMP {
             
       inline bool GetAllow_CharacterSetTarget()             { return m_bAllow_CharacterSetTarget; }
       inline void SetAllow_CharacterSetTarget(bool value)   { m_bAllow_CharacterSetTarget = value; }
+                  
+      inline bool GetAllow_EquipmentIdentify()             { return m_bAllow_EquipmentIdentify; }
+      inline void SetAllow_EquipmentIdentify(bool value)   { m_bAllow_EquipmentIdentify = value; }
       
       
 
@@ -149,6 +152,7 @@ namespace TLMP {
       void HandleItemGoldAmount(NetworkMessages::ItemGoldCreate*);
       void HandleCharacterAlignment(NetworkMessages::CharacterAlignment*);
       void HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *);
+      void HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -189,6 +193,7 @@ namespace TLMP {
       bool m_bIsEquipmentAddingGem; // Used as a request mechanism to the server
       bool m_bAllow_LevelItemDrop;
       bool m_bAllow_CharacterSetTarget;
+      bool m_bAllow_EquipmentIdentify;
     };
 
   };

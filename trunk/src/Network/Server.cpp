@@ -289,7 +289,12 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
   case C_PUSH_EQUIPMENT_USE:
     break;
 
-  case C_PUSH_EQUIPMENT_IDENTIFY:
+  case C_REQUEST_EQUIPMENT_IDENTIFY:
+    {
+      NetworkMessages::EquipmentIdentify *msgEquipmentIdentify = ParseMessage<NetworkMessages::EquipmentIdentify>(m_pBitStream);
+
+      HandleEquipmentIdentify(msgEquipmentIdentify);
+    }
     break;
 
   case C_PUSH_EQUIPMENT_ADDENCHANT:
@@ -844,6 +849,8 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   msgEquipment->set_stacksizemax(equipment->stackSizeMax);
   msgEquipment->set_socketcount(equipment->socketCount);
 
+  msgEquipment->set_identified(equipment->identified);
+
   msgEquipment->set_physical_damage_min(equipment->minimumPhysicalDamage);
   msgEquipment->set_physical_damage_max(equipment->maximumPhysicalDamage);
 
@@ -948,6 +955,8 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
   u32 enchantCount = msgEquipment->enchants_size();
   u32 client_id = msgEquipment->client_id();
 
+  u32 identified = msgEquipment->identified();
+
   u32 minPhysicalDamage = msgEquipment->physical_damage_min();
   u32 maxPhysicalDamage = msgEquipment->physical_damage_max();
 
@@ -994,6 +1003,8 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
     equipment->stackSize = stacksize;
     equipment->stackSizeMax = stacksizemax;
     equipment->gemList.size = 0;
+
+    equipment->identified = identified;
 
     equipment->minimumPhysicalDamage = minPhysicalDamage;
     equipment->maximumPhysicalDamage = maxPhysicalDamage;
@@ -1483,5 +1494,24 @@ void Server::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
     }
   } else {
     log(L"Error: Could not find Character of ID: %x", characterId);
+  }
+}
+
+void Server::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEquipmentIdentify)
+{
+  u32 equipmentId = msgEquipmentIdentify->equipmentid();
+
+  NetworkEntity *entity = searchEquipmentByCommonID(equipmentId);
+
+  if (entity) {
+    CEquipment* equipment = (CEquipment*)entity->getInternalObject();
+
+    if (equipment) {
+      equipment->identified = 1;
+
+      Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentIdentify>(S_PUSH_EQUIPMENT_IDENTIFY, msgEquipmentIdentify);
+    }
+  } else {
+    log(L"Error: Could not find equipment of ID: %x", equipmentId);
   }
 }

@@ -85,6 +85,7 @@ namespace TLMP
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
   void EquipmentAddStackCountPost(CEquipment*, u32);
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
+  void EquipmentIdentifyPre(CEquipment*, CPlayer*, CEquipment*, bool&);
 
   // Pre event for seed
   void Global_SetSeedValue0Post(u32);
