@@ -281,8 +281,8 @@ void TLMP::CreatePlayer(CPlayer* character, CResourceManager* resourceManager, w
 void TLMP::Character_UpdateHealthPre(CCharacter* character, float amount, bool& calloriginal)
 {
   if (amount < 0 || (character->type__ == 0x1C && amount > 0)) {
-    logColor(B_RED, L"Character (%p) update health", character);
-    logColor(B_RED, L"Character (%s) Update health (%f)", character->characterName.c_str(), amount);
+    //logColor(B_RED, L"Character (%p) update health", character);
+    //logColor(B_RED, L"Character (%s) Update health (%f)", character->characterName.c_str(), amount);
 
     // Don't update the health on the client unless the server has sent it
     if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -862,10 +862,10 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
 
 void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, bool unk0, bool& calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Level dropping Item %s at %f, %f, %f (unk0: %i) Type = %x",
-    item->nameReal.c_str(), position.x, position.y, position.z, unk0, item->type__);
-  log(L"Level dropping Item %s at %f, %f, %f (unk0: %i) Type = %x",
-    item->nameReal.c_str(), position.x, position.y, position.z, unk0, item->type__);
+  multiplayerLogger.WriteLine(Info, L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
+    item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
+  log(L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
+    item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
 
   // Iterate over the existing items on the level and ensure the same item doesn't already exist
   LinkedListNode* itr = *level->ppCItems;
@@ -879,6 +879,7 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     itr = itr->pNext;
   }
 
+  //
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     /*
     // Suppress the Gold Drops
@@ -895,6 +896,7 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     //}
     
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    /* Move to Post
     NetworkEntity *entity = searchItemByInternalObject(item);
 
     if (entity) {
@@ -907,6 +909,7 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
 
       Server::getSingleton().BroadcastMessage<NetworkMessages::LevelDropItem>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
     }
+    */
   }
 
   if (!calloriginal) {
@@ -955,29 +958,21 @@ void TLMP::Level_DropItemPost(CLevel* level, CItem* item, Vector3 & position, bo
       ServerEquipmentOnGround->push_back(equipmentEntity);
     }
   } 
-  /* Already implemented in Pre
   else {
-    equipmentEntity = searchItemByInternalObject((PVOID)item);
+    NetworkEntity *entity = searchItemByInternalObject(item);
 
-    if (equipmentEntity) {
+    if (entity) {
       NetworkMessages::LevelDropItem msgLevelDropItem;
-
       NetworkMessages::Position *msgPosition = msgLevelDropItem.mutable_position();
       msgPosition->set_x(position.x);
       msgPosition->set_y(position.y);
       msgPosition->set_z(position.z);
+      msgLevelDropItem.set_itemid(entity->getCommonId());
+      msgLevelDropItem.set_unk0(unk0);
 
-      msgLevelDropItem.set_itemid(equipmentEntity->getCommonId());
-
-      if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-        Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentDrop>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
-      }
-    } else {
-      multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p (%s) Base: %p", item, item->nameReal.c_str(), *(u32*)item);
-      log(L"Could not find NetworkEntity for equipment: %p (%s) Base: %p", item, item->nameReal.c_str(), *(u32*)item);
+      Server::getSingleton().BroadcastMessage<NetworkMessages::LevelDropItem>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
     }
   }
-  */
 }
 
 void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk)
@@ -1150,10 +1145,14 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 {
   log(L"Character picking up Equipment Pre: %p", equipment);
 
-  multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
-    character, equipment->nameReal.c_str(), level);
-  log(L"Character::PickupEquipment(%p) (%s) (Level: %p)",
-    character, equipment->nameReal.c_str(), level);
+  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
+    character, equipment, equipment->nameReal.c_str(), level);
+  log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
+    character, equipment, equipment->nameReal.c_str(), level);
+
+  log(L"Dumping Level Items...");
+  //gameClient->pCLevel->DumpItems();
+  gameClient->pCLevel->DumpTriggerUnits();
 
   // If the client is requesting a pickup, request the server first
   // The server will respond with a pickup message
@@ -1232,12 +1231,11 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 
 void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  log(L"Character picking up Equipment Post: %p", equipment);
+  log(L" Character picking up Equipment Post");
 
-  multiplayerLogger.WriteLine(Info, L"Character::PickupEquipment(%p) (%s) (Level: %p)",
-    character, equipment->nameReal.c_str(), level);
-  log(L"Character::PickupEquipment(%p) (%s) (Level: %p)",
-    character, equipment->nameReal.c_str(), level);
+  log(L"Dumping Level Items...");
+  //gameClient->pCLevel->DumpItems();
+  gameClient->pCLevel->DumpTriggerUnits();
   
   // Turn on suppression again if we're the client
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1252,7 +1250,7 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
   }
 
-  log(L"Character Done Picking up Item: %p", equipment);
+  log(L"Character Done Picking up Item");
 }
 
 void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & calloriginal)
@@ -1945,6 +1943,8 @@ void TLMP::ItemGold_CtorPost(CItemGold* itemGold, PVOID _this, CResourceManager*
     msgItemGoldCreate.set_itemid(entity->getCommonId());
     msgItemGoldCreate.set_amount(itemGold->amount);
     Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_ITEM_GOLD, &msgItemGoldCreate);
+
+    logColor(B_RED, L"   ID: %x", entity->getCommonId());
   }
 }
 
