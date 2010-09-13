@@ -207,7 +207,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     {
       NetworkMessages::GameEnter *msgGameEnter = ParseMessage<NetworkMessages::GameEnter>(m_pBitStream);
 
-      HandleGameEnter(address);
+      HandleGameEnter(address, msgGameEnter);
     }
     break;
 
@@ -432,129 +432,153 @@ void Server::HandleHasGameStarted(const SystemAddress clientAddress)
 }
 
 // Server receives game entrance from Client
-void Server::HandleGameEnter(const SystemAddress clientAddress)
+void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages::GameEnter *msgGameEnter)
 {
   multiplayerLogger.WriteLine(Info, L"Client has Entered the Game");
 
   vector<NetworkEntity*>::iterator itr;
 
-  // Check for destroyed equipment and remove them
-  RemoveDestroyedEquipmentFromNetwork();
-
-  // Send all of the existing equipment in the game to the client
-  for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
-    CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
-
-    /*
-    // Suppress Waypoint and Return to Dungeon
-    if (equipment->GUID != 0x761772BDA01D11DE &&
-      equipment->GUID != 0xD3A8F99E2FA111DE &&
-      equipment->GUID != 0xD3A8F9992FA111DE &&
-      equipment->GUID != 0xFFFFFFFFFFFFFFFF &&
-      equipment->GUID != 0xEBE0D78E6D7F11DE)
-    {*/
-      Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
-    //}
-  }
   
-  // Send all of the Equipment on the Ground in the game
-  for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
-    CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
 
-    /*
-    // Check if we're a:
-    //  Breakable    - 29
-    //  Interactable - 32
-    //  ItemGold     - 34
-    // If so skip this
-    if (equipment->type__ == 0x1D ||
-        equipment->type__ == 0x22 ||
-        equipment->type__ == 0x20 ||
-        equipment->type__ == 0x28)  
-    {*/
-      Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
-    //}
-  }
+  // Grab the client's current level information
+  NetworkMessages::CurrentLevel msgCurrentLevel = msgGameEnter->currentlevel();
+  wstring dungeonSection = convertAsciiToWide(msgCurrentLevel.dungeonsection());
+  u32 relativeLevel = msgCurrentLevel.relativelevel();
+  u32 absoluteLevel = msgCurrentLevel.absolutelevel();
 
-  // Send all of the existing characters in the game to the client
-  for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
-    CCharacter* character = (CCharacter*)((*itr)->getInternalObject());
+  // Check if the Client's current level is the same as ours
+  if (!wcscmp(dungeonSection.c_str(), gameClient->pCDungeon->name0.c_str()) &&
+      relativeLevel == gameClient->level &&
+      absoluteLevel == gameClient->levelAbsolute)
+  {
+    log(L"~~~ Server: Client is in the same level, supplying info...");
 
-    if (character->GUID == 0xFFFFFFFFFFFFFFFF || character->destroy)
-    {
-      continue;
+    // Check for destroyed equipment and remove them
+    RemoveDestroyedEquipmentFromNetwork();
+
+    // Send all of the existing equipment in the game to the client
+    for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
+      CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
+
+      /*
+      // Suppress Waypoint and Return to Dungeon
+      if (equipment->GUID != 0x761772BDA01D11DE &&
+        equipment->GUID != 0xD3A8F99E2FA111DE &&
+        equipment->GUID != 0xD3A8F9992FA111DE &&
+        equipment->GUID != 0xFFFFFFFFFFFFFFFF &&
+        equipment->GUID != 0xEBE0D78E6D7F11DE)
+      {*/
+        Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
+      //}
+    }
+    
+    // Send all of the Equipment on the Ground in the game
+    for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
+      CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
+
+      /*
+      // Check if we're a:
+      //  Breakable    - 29
+      //  Interactable - 32
+      //  ItemGold     - 34
+      // If so skip this
+      if (equipment->type__ == 0x1D ||
+          equipment->type__ == 0x22 ||
+          equipment->type__ == 0x20 ||
+          equipment->type__ == 0x28)  
+      {*/
+        Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
+      //}
     }
 
-    multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
-      character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
-    log(L"Server: Pushing existing Character (%p %016I64X %i %s) out to client that just joined...",
-      character, character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
+    // Send all of the existing characters in the game to the client
+    for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+      CCharacter* character = (CCharacter*)((*itr)->getInternalObject());
 
-    string characterName(character->characterName.begin(), character->characterName.end());
-    characterName.assign(character->characterName.begin(), character->characterName.end());
+      if (character->GUID == 0xFFFFFFFFFFFFFFFF || character->destroy)
+      {
+        continue;
+      }
 
-    // Create a new network message for all clients to create this character
-    NetworkMessages::Character msgNewCharacter;
-    msgNewCharacter.set_guid(character->GUID);
-    msgNewCharacter.set_name(characterName);
+      multiplayerLogger.WriteLine(Info, L"Server: Pushing existing Character (%016I64X %i %s) out to client that just joined...",
+        character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
+      log(L"Server: Pushing existing Character (%p %016I64X %i %s) out to client that just joined...",
+        character, character->GUID, (*itr)->getCommonId(), character->characterName.c_str());
 
-    NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
-    msgPlayerPosition->set_x(character->position.x);
-    msgPlayerPosition->set_y(character->position.y);
-    msgPlayerPosition->set_z(character->position.z);
+      string characterName(character->characterName.begin(), character->characterName.end());
+      characterName.assign(character->characterName.begin(), character->characterName.end());
 
-    msgNewCharacter.set_id((*itr)->getCommonId());
-    msgNewCharacter.set_health(character->healthMax);
-    msgNewCharacter.set_mana(character->manaMax);
-    msgNewCharacter.set_level(character->level);
+      // Create a new network message for all clients to create this character
+      NetworkMessages::Character msgNewCharacter;
+      msgNewCharacter.set_guid(character->GUID);
+      msgNewCharacter.set_name(characterName);
 
-    // This allows a workaround for the modified attributes needed for equipment
-    /*
-    msgNewCharacter.set_strength(character->baseStrength);
-    msgNewCharacter.set_dexterity(character->baseDexterity);
-    msgNewCharacter.set_defense(character->baseDefense);
-    msgNewCharacter.set_magic(character->baseMagic);
-    */
-    msgNewCharacter.set_strength(10000);
-    msgNewCharacter.set_dexterity(10000);
-    msgNewCharacter.set_defense(10000);
-    msgNewCharacter.set_magic(10000);
+      NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
+      msgPlayerPosition->set_x(character->position.x);
+      msgPlayerPosition->set_y(character->position.y);
+      msgPlayerPosition->set_z(character->position.z);
 
-    msgNewCharacter.set_alignment(character->alignment);
+      msgNewCharacter.set_id((*itr)->getCommonId());
+      msgNewCharacter.set_health(character->healthMax);
+      msgNewCharacter.set_mana(character->manaMax);
+      msgNewCharacter.set_level(character->level);
 
-    // This will broadcast to all clients except the one we received it from
-    Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
+      // This allows a workaround for the modified attributes needed for equipment
+      /*
+      msgNewCharacter.set_strength(character->baseStrength);
+      msgNewCharacter.set_dexterity(character->baseDexterity);
+      msgNewCharacter.set_defense(character->baseDefense);
+      msgNewCharacter.set_magic(character->baseMagic);
+      */
+      msgNewCharacter.set_strength(10000);
+      msgNewCharacter.set_dexterity(10000);
+      msgNewCharacter.set_defense(10000);
+      msgNewCharacter.set_magic(10000);
 
-    // Old: Move through the body slots and send an equip message to show the initial equipment
-    ///// New: Move throug all inventory slots and add equipment
-    if (character->pCInventory) {
-      for (u32 i = 0; i <= 0x0C; i++) {
-        CEquipment* equipment = character->pCInventory->GetEquipmentFromSlot(i);
+      msgNewCharacter.set_alignment(character->alignment);
 
-        if (equipment) {
-          NetworkEntity* netEquipment = searchEquipmentByInternalObject(equipment);
+      // This will broadcast to all clients except the one we received it from
+      Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
 
-          if (netEquipment) {
-            NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
-            msgInventoryAddEquipment.set_equipmentid(netEquipment->getCommonId());
-            msgInventoryAddEquipment.set_guid(equipment->GUID);
-            msgInventoryAddEquipment.set_ownerid((*itr)->getCommonId());
-            msgInventoryAddEquipment.set_slot(i);
-            msgInventoryAddEquipment.set_unk0(1);
+      // Old: Move through the body slots and send an equip message to show the initial equipment
+      ///// New: Move throug all inventory slots and add equipment
+      if (character->pCInventory) {
+        for (u32 i = 0; i <= 0x0C; i++) {
+          CEquipment* equipment = character->pCInventory->GetEquipmentFromSlot(i);
 
-            Server::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(clientAddress, S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+          if (equipment) {
+            NetworkEntity* netEquipment = searchEquipmentByInternalObject(equipment);
+
+            if (netEquipment) {
+              NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+              msgInventoryAddEquipment.set_equipmentid(netEquipment->getCommonId());
+              msgInventoryAddEquipment.set_guid(equipment->GUID);
+              msgInventoryAddEquipment.set_ownerid((*itr)->getCommonId());
+              msgInventoryAddEquipment.set_slot(i);
+              msgInventoryAddEquipment.set_unk0(1);
+
+              Server::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(clientAddress, S_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+            }
           }
         }
+      } else {
+        log(L"Error: Character has no Inventory!");
+        multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
       }
-    } else {
-      log(L"Error: Character has no Inventory!");
-      multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
     }
-  }
 
-  // Send a request for character info
-  NetworkMessages::RequestCharacterInfo msgRequestCharacterInfo;
-  SendMessage<NetworkMessages::RequestCharacterInfo>(clientAddress, S_REQUEST_CHARINFO, &msgRequestCharacterInfo);
+    // Send a request for character info
+    NetworkMessages::RequestCharacterInfo msgRequestCharacterInfo;
+    SendMessage<NetworkMessages::RequestCharacterInfo>(clientAddress, S_REQUEST_CHARINFO, &msgRequestCharacterInfo);
+  } else {
+    log(L"~~~ Server: Client isn't in the same level: Diffs:");
+    log(L"    Server Name: %s, Client Name: %s", gameClient->pCDungeon->name0.c_str(), dungeonSection.c_str());
+    log(L"    Server RelLevel: %i, Client RelLevel: %i", gameClient->level, relativeLevel);
+    log(L"    Server AbsLevel: %i, Client AbsLevel: %i", gameClient->levelAbsolute, absoluteLevel);
+
+    // Send the current level to the Client to load
+    Helper_SendCurrentLevel(clientAddress);
+  }
 }
 
 // Server receives game exit from client
@@ -1514,4 +1538,18 @@ void Server::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEqui
   } else {
     log(L"Error: Could not find equipment of ID: %x", equipmentId);
   }
+}
+
+void Server::Helper_SendCurrentLevel(const SystemAddress clientAddress)
+{
+  NetworkMessages::CurrentLevel msgCurrentLevel;
+
+  string sDungeonSection(gameClient->pCDungeon->name0.begin(), gameClient->pCDungeon->name0.end());
+  sDungeonSection.assign(gameClient->pCDungeon->name0.begin(), gameClient->pCDungeon->name0.end());
+
+  msgCurrentLevel.set_dungeonsection(sDungeonSection);
+  msgCurrentLevel.set_relativelevel(gameClient->level);
+  msgCurrentLevel.set_absolutelevel(gameClient->levelAbsolute);
+
+  SendMessage<NetworkMessages::CurrentLevel>(clientAddress, S_PUSH_CURRENT_LEVEL, &msgCurrentLevel);
 }

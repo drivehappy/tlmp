@@ -32,6 +32,8 @@ namespace TLMP {
       C_PUSH_GAMEENTER,             // Inform Server that Client has entered the Game - Sent Post GameClient::LoadLevel
       C_PUSH_GAMEEXITED,            // Inform Server that Client has exited the Game - Sent on TitleScreenProcess after leaving game (for now)
 
+      S_PUSH_CURRENT_LEVEL,         // Server pushes the exact level for the client to load
+
       S_REQUEST_CHARINFO,           // Server Requests Client for Character Information (Name, Inventory, Class, Minions, etc.)
       C_REPLY_CHARINFO,             // Client Respone for Character Information Request
       S_REPLY_CHARID,               // Server Respone for setting Character Network ID
@@ -138,6 +140,8 @@ namespace TLMP {
 
       "C_PUSH_GAMEENTER",
       "C_PUSH_GAMEEXITED",
+
+      "S_PUSH_CURRENT_LEVEL",
 
       "S_REQUEST_CHARINFO",
       "C_REPLY_CHARINFO",

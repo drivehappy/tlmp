@@ -78,7 +78,14 @@ message GameStarted {
 message GameEnded {
 }
 
+message CurrentLevel {
+  required string   dungeonSection = 1;
+  required int32    relativeLevel = 2;
+  required int32    absoluteLevel = 3;
+}
+
 message GameEnter {
+  required CurrentLevel currentLevel = 1;
 }
 
 message GameExited {
@@ -226,6 +233,7 @@ message CharacterSetTarget {
 message EquipmentIdentify {
   required int32    equipmentId = 1;
 }
+
 
 
 
