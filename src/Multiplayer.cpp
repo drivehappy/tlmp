@@ -441,8 +441,9 @@ void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveSt
 
 void TLMP::EquipmentIdentifyPre(CEquipment* identifyScroll, CPlayer *player, CEquipment* equipment, bool& calloriginal)
 {
-  log(L"Equipment Idenfity Pre (%p)", equipment);
-  log(L"  (%s)", equipment->nameReal.c_str());
+  log(L"Equipment Identify Pre (%p)", equipment);
+  // Crashes when using a Town Portal Scroll
+  //log(L"  (%s)", equipment->nameReal.c_str());
 
   NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
 
@@ -640,31 +641,6 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 {
   log(L"CreateLevel Post");
 
-  if (NetworkState::getSingleton().GetState() == CLIENT ||
-    NetworkState::getSingleton().GetState() == SERVER)
-  {
-    /*
-    // Force load the Player into the Town
-    wstring Town(L"TOWN");
-
-    if (gameClient->pCDungeon->name0 == Town) {
-      multiplayerLogger.WriteLine(Info, L"Player already in town (%s) (%s) (%s)",
-        unk0.c_str(), unk1.c_str(), unk5.c_str());
-      logColor(B_RED, L"Player already in town (%s) (%s) (%s)",
-        unk0.c_str(), unk1.c_str(), unk5.c_str());
-    } else {
-      multiplayerLogger.WriteLine(Info, L"Player not in town (%s), force loading... (%s) (%s) (%s)",
-        gameClient->pCDungeon->name0.c_str(), unk0.c_str(), unk1.c_str(), unk5.c_str());
-      logColor(B_RED, L"Player not in town (%s), force loading... (%s) (%s) (%s)",
-        gameClient->pCDungeon->name0.c_str(), unk0.c_str(), unk1.c_str(), unk5.c_str());
-
-      NetworkState::getSingleton().SetSuppressed_LevelChange(false);
-      gameClient->ChangeLevel(-99);
-      NetworkState::getSingleton().SetSuppressed_LevelChange(true);
-    }
-    */
-  }
-
   // Do this in Post to ensure it loads at the right time
   // Send a Message to clients that the Server's game has started
   if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -679,6 +655,17 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
     Client::getSingleton().SetGameStarted(true);
 
     NetworkMessages::GameEnter msgGameEnter;
+    NetworkMessages::CurrentLevel *msgCurrentLevel = msgGameEnter.mutable_currentlevel();
+    
+    string sDungeonSection(gameClient->pCDungeon->name0.begin(), gameClient->pCDungeon->name0.end());
+    sDungeonSection.assign(gameClient->pCDungeon->name0.begin(), gameClient->pCDungeon->name0.end());
+
+    logColor(B_GREEN, L"Client: Sending GAME_ENTER: %s %i %i",
+      gameClient->pCDungeon->name0.c_str(), gameClient->level, gameClient->levelAbsolute);
+
+    msgCurrentLevel->set_dungeonsection(sDungeonSection);
+    msgCurrentLevel->set_relativelevel(gameClient->level);
+    msgCurrentLevel->set_absolutelevel(gameClient->levelAbsolute);
 
     Client::getSingleton().SendMessage<NetworkMessages::GameEnter>(C_PUSH_GAMEENTER, &msgGameEnter);
   }
@@ -720,7 +707,7 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   level->DumpItems();
 
   logColor(B_GREEN, L"Level: %i", client->level);
-  logColor(B_GREEN, L"LevelUnk: %x", client->levelUnk);
+  logColor(B_GREEN, L"levelAbsolute: %x", client->levelAbsolute);
   logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
   logColor(B_GREEN, L"Dungeon: %p", client->pCDungeon);
   logColor(B_GREEN, L"  Name0: %s", client->pCDungeon->name0.c_str());
@@ -752,6 +739,8 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   level->DumpCharacters2();
   level->DumpItems();
 
+  logColor(B_GREEN, L"  Level: %i", client->level);
+  logColor(B_GREEN, L"  levelAbsolute: %x", client->levelAbsolute);
   logColor(B_GREEN, L"  DungeonName: %s", client->dungeonName.c_str());
   logColor(B_GREEN, L"  Dungeon: %p", client->pCDungeon);
   logColor(B_GREEN, L"    Name0: %s", client->pCDungeon->name0.c_str());
@@ -781,6 +770,26 @@ void TLMP::GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & c
 {
   multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Post(%x)", unk0);
   logColor(B_GREEN, L"GameClient::LoadMap Post(%x)", unk0);
+
+  if (unk0 == 2) {
+    // Testing out speeding up Client load times and issues
+    if (NetworkState::getSingleton().GetState() == SERVER) {
+      // Force load the Player into the Town
+      wstring Town(L"TOWN");
+
+      if (gameClient->pCDungeon->name0 == Town) {
+        multiplayerLogger.WriteLine(Info, L"Player already in town");
+        logColor(B_RED, L"Player already in town");
+      } else {
+        multiplayerLogger.WriteLine(Info, L"Player not in town, force loading...");
+        logColor(B_RED, L"Player not in town, force loading...");
+
+        NetworkState::getSingleton().SetSuppressed_LevelChange(false);
+        gameClient->ForceToTown();
+        NetworkState::getSingleton().SetSuppressed_LevelChange(true);
+      }
+    }
+  }
 }
 
 void TLMP::MainMenuEventPre(CMainMenu* mainMenu, u32 unk0, wstring str, bool & calloriginal)
@@ -1038,27 +1047,6 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
 
 void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
 {
-  log(L"~~~ TEST: Equipment enhancementCount: %x", equipment->enhancementCount);
-  log(L"~~~ TEST: Equipment enchantList: %x", equipment->enchantList.size());
-  u32 offset = ((u32)&equipment->unk1008 - (u32)equipment);
-  log(L"~~~ unk1008 Offset: %x", offset);
-  log(L"~~~ unk1008: %x", equipment->unk1008);
-
-  /*
-  if (equipment->unk1008)
-    equipment->unk1008 = 0;
-  else
-    equipment->unk1008 = 1;
-  */
-
-  if (equipment->pCEffectManager) {
-    log(L"~~~ TEST: Equipment Effect Size: %x", equipment->pCEffectManager->effectList.size);
-  }
-
-  if (equipment->enhancementCount == 0) {
-    equipment->enhancementCount = equipment->enchantList.size();
-  }
-
   log(L"Inventory adding Equipment: %016I64X (%s) (slot = %x) (Owner = %s)",
     equipment->GUID, equipment->nameReal.c_str(), slot, inventory->pCCharacter->characterName.c_str());
 
@@ -1812,8 +1800,8 @@ void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, fl
 
 void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
 {
-  logColor(B_RED, L"GameClient::ChangeLevel (%s %i %x %x %s %x)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
-  multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel (%s %i %x %x %s %x)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
+  logColor(B_RED, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
+  multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
 
   // Remove any other player characters and equipment or else we'll crash
   // TODO: For my Destroyer "Drivehappy"

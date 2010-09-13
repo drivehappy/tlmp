@@ -243,6 +243,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_CURRENT_LEVEL:
+    {
+      NetworkMessages::CurrentLevel *msgCurrentLevel = ParseMessage<NetworkMessages::CurrentLevel>(m_pBitStream);
+
+      HandleCurrentLevel(msgCurrentLevel);
+    }
+    break;
+
   case S_REQUEST_CHARINFO:
     {
       NetworkMessages::RequestCharacterInfo *msgRequestCharacterInfo = ParseMessage<NetworkMessages::RequestCharacterInfo>(m_pBitStream);
@@ -1666,4 +1674,15 @@ void Client::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEqui
   } else {
     log(L"Error: Could not find equipment of ID: %x", equipmentId);
   }
+}
+
+void Client::HandleCurrentLevel(NetworkMessages::CurrentLevel *msgCurrentLevel)
+{
+  wstring dungeonSection = convertAsciiToWide(msgCurrentLevel->dungeonsection());
+  s32 relativeLevel = msgCurrentLevel->relativelevel();
+  s32 absoluteLevel = msgCurrentLevel->absolutelevel();
+
+  SetAllow_ChangeLevel(true);
+  gameClient->ChangeLevel(dungeonSection, relativeLevel, absoluteLevel, 0, L"", 0);
+  SetAllow_ChangeLevel(false);
 }

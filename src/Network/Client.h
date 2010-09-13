@@ -153,6 +153,7 @@ namespace TLMP {
       void HandleCharacterAlignment(NetworkMessages::CharacterAlignment*);
       void HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *);
       void HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *);
+      void HandleCurrentLevel(NetworkMessages::CurrentLevel *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 

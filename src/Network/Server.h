@@ -82,7 +82,7 @@ namespace TLMP {
       /** Functions for handling individual messages. */
       void HandleVersion(const SystemAddress clientAddress, u32 version);
       void HandleHasGameStarted(const SystemAddress clientAddress);
-      void HandleGameEnter(const SystemAddress clientAddress);
+      void HandleGameEnter(const SystemAddress clientAddress, NetworkMessages::GameEnter *);
       void HandleGameExited(const SystemAddress clientAddress);
       void HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo);
       void HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid);
@@ -105,6 +105,7 @@ namespace TLMP {
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);
+      void Helper_SendCurrentLevel(const SystemAddress clientAddress);
 
       static void Helper_RemoveBaseUnit(CBaseUnit*);
 
