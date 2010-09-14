@@ -126,6 +126,8 @@ namespace TLMP {
 
       C_REQUEST_CHARACTER_SETTARGET,// Client request the character set's the target
       S_PUSH_CHARACTER_SETTARGET,   // Server pushes the character set target
+
+      S_PUSH_TRIGGERUNIT_SYNC,      // Server pushes trigger unit IDs and names to sync
     };
 
     static const char* MessageString[] = {
@@ -227,6 +229,8 @@ namespace TLMP {
 
       "C_REQUEST_CHARACTER_SETTARGET",
       "S_PUSH_CHARACTER_SETTARGET",
+
+      "S_PUSH_TRIGGERUNIT_SYNC",
     };
 
   };

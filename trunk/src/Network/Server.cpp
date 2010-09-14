@@ -456,6 +456,11 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
     // Check for destroyed equipment and remove them
     RemoveDestroyedEquipmentFromNetwork();
 
+    // Send the Sync-Up for Trigger Units (since the server doesn't push these out,
+    //  the level is assumed to be generated the same (same seed value),
+    //  assuming they're created in the same order from the layout
+    Helper_SendTriggerUnitSync(clientAddress);
+
     // Send all of the existing equipment in the game to the client
     for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
       CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
@@ -1552,4 +1557,34 @@ void Server::Helper_SendCurrentLevel(const SystemAddress clientAddress)
   msgCurrentLevel.set_absolutelevel(gameClient->levelAbsolute);
 
   SendMessage<NetworkMessages::CurrentLevel>(clientAddress, S_PUSH_CURRENT_LEVEL, &msgCurrentLevel);
+}
+
+void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
+{
+  log(L"Server: Sending Trigger Units...\n");
+
+  NetworkMessages::TriggerUnitSync msgTriggerUnitSync;
+
+  CLevel *level = gameClient->pCLevel;
+  LinkedListNode* itr = *level->ppCTriggerUnits;
+  while (itr != NULL) {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+  
+    NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
+
+    if (entity) {
+      string sTriggerName(triggerUnit->name.begin(), triggerUnit->name.end());
+      sTriggerName.assign(triggerUnit->name.begin(), triggerUnit->name.end());
+
+      NetworkMessages::TriggerUnit *msgTriggerUnit = msgTriggerUnitSync.add_triggerunits();
+      msgTriggerUnit->set_triggername(sTriggerName);
+      msgTriggerUnit->set_triggerid(entity->getCommonId());
+    } else {
+      logColor(B_RED, "Server Error: Could not find Item ID for TriggerUnit: %s   Sync", triggerUnit->name.c_str());
+    }
+
+    itr = itr->pNext;
+  }
+
+  Server::getSingleton().SendMessage<NetworkMessages::TriggerUnitSync>(clientAddress, S_PUSH_TRIGGERUNIT_SYNC, &msgTriggerUnitSync);
 }

@@ -553,6 +553,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_TRIGGERUNIT_SYNC:
+    {
+      NetworkMessages::TriggerUnitSync *msgTriggerUnitSync = ParseMessage<NetworkMessages::TriggerUnitSync>(m_pBitStream);
+
+      HandleTriggerUnitSync(msgTriggerUnitSync);
+    }
+    break;
+
   }     
 }
 
@@ -716,8 +724,8 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 ru
   NetworkEntity *entity = searchCharacterByCommonID(commonId);
 
   if (!entity) {
-    multiplayerLogger.WriteLine(Error, L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
-    log(L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
+    //multiplayerLogger.WriteLine(Error, L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
+    //log(L"Error: Could not find internal object in shared characters from commonId: %x when receiving character destination.", commonId);
     return;
   }
 
@@ -1685,4 +1693,24 @@ void Client::HandleCurrentLevel(NetworkMessages::CurrentLevel *msgCurrentLevel)
   SetAllow_ChangeLevel(true);
   gameClient->ChangeLevel(dungeonSection, relativeLevel, absoluteLevel, 0, L"", 0);
   SetAllow_ChangeLevel(false);
+}
+
+void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerUnitSync)
+{
+  log(L"Client Handling Trigger Unit Sync.");
+
+  // Assume the server's trigger units are sync'd with ours
+  CLevel *level = gameClient->pCLevel;
+  LinkedListNode* itr = *level->ppCTriggerUnits;
+  for (u32 i = 0; i < (u32)msgTriggerUnitSync->triggerunits().size(); i++, itr++) {
+    NetworkMessages::TriggerUnit msgTriggerUnit = msgTriggerUnitSync->triggerunits().Get(i);
+    u32 triggerId = msgTriggerUnit.triggerid();
+
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+
+    logColor(B_GREEN, L"Syncing my TriggerUnit: %s  with Server: %s",
+      triggerUnit->name.c_str(), convertAsciiToWide(msgTriggerUnit.triggername()));
+
+    addItem(triggerUnit, triggerId);
+  }
 }
