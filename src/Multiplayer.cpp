@@ -314,7 +314,8 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
   const u64 BRINK = 0xBC1E373A723411DE;
-
+  const u64 STASH = 0x258372C33F2411DE;
+  const u64 SHAREDSTASH = 0xFC4F7F1F9D8E11DE;
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X %i", guid, noItems);
@@ -322,7 +323,7 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
 
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
       if (guid != CAT && guid != DOG && guid != DESTROYER && guid != ALCHEMIST && 
-        guid != VANQUISHER && guid != BRINK)
+        guid != VANQUISHER && guid != BRINK && guid != STASH && guid != SHAREDSTASH)
       {
         //calloriginal = false;
         //character = NULL;
@@ -477,6 +478,8 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
   const u64 BRINK = 0xBC1E373A723411DE;
+  const u64 STASH = 0x258372C33F2411DE;
+  const u64 SHAREDSTASH = 0xFC4F7F1F9D8E11DE;
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     log(L"Client: Level::CharInit: Level = %p Character = %p", level, character);
@@ -492,7 +495,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
       u64 guid = character->GUID;
 
       if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
-        guid == DOG || guid == CAT || guid == BRINK)
+        guid == DOG || guid == CAT || guid == BRINK || guid == STASH || guid == SHAREDSTASH)
       {
         log("Client: Detected CPlayer addition to CLevel, not suppressing load");
       } else {
@@ -917,19 +920,18 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
 
   //
   if (NetworkState::getSingleton().GetState() == CLIENT) {
-    /*
     // Suppress the Gold Drops
-    if (item->type__ == 0x22)
+    if (item->type__ == 0xAA ||
+        item->type__ == 0x80)
     {
-      calloriginal = false;
+      // allow it
     }
     else
     {
-    */
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
         calloriginal = false;
       }
-    //}
+    }
     
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
     /* Move to Post
@@ -1478,7 +1480,7 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
   // Network push it out
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (!Client::getSingleton().GetAllow_CharacterSetTarget()) {
-      calloriginal = false;
+      //calloriginal = false;
 
       Client::getSingleton().SendMessage<NetworkMessages::CharacterSetTarget>(C_REQUEST_CHARACTER_SETTARGET, &msgCharacterSetTarget);
     }
@@ -1963,7 +1965,6 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
 void TLMP::TriggerUnit_CtorPost(CTriggerUnit* triggerUnit, CLayout* layout, bool& calloriginal)
 {
   logColor(B_RED, L"TriggerUnit Created: %p", triggerUnit);
-  logColor(B_RED, L"   GUID: %016I64X", triggerUnit->GUID);
 }
 
 void TLMP::ItemGold_CtorPost(CItemGold* itemGold, PVOID _this, CResourceManager* resourceManager, u32 amount, bool&)

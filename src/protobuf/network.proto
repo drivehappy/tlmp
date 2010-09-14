@@ -235,5 +235,14 @@ message EquipmentIdentify {
 }
 
 
+message TriggerUnit {
+  required string   triggerName = 1;
+  required int32    triggerId = 2;
+}
+message TriggerUnitSync {
+  repeated TriggerUnit triggerUnits = 1;
+}
+
+
 
 

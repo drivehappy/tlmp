@@ -154,6 +154,7 @@ namespace TLMP {
       void HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *);
       void HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *);
       void HandleCurrentLevel(NetworkMessages::CurrentLevel *);
+      void HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
