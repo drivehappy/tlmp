@@ -236,7 +236,7 @@ message EquipmentIdentify {
 
 
 message TriggerUnit {
-  required string   triggerName = 1;
+  required Position triggerPosition = 1;	// Really only identifier I could think of to sync them
   required int32    triggerId = 2;
 }
 message TriggerUnitSync {

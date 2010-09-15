@@ -1697,20 +1697,61 @@ void Client::HandleCurrentLevel(NetworkMessages::CurrentLevel *msgCurrentLevel)
 
 void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerUnitSync)
 {
-  log(L"Client Handling Trigger Unit Sync.");
+  log(L"~~~~ Client Handling Trigger Unit Sync.");
 
   // Assume the server's trigger units are sync'd with ours
   CLevel *level = gameClient->pCLevel;
-  LinkedListNode* itr = *level->ppCTriggerUnits;
-  for (u32 i = 0; i < (u32)msgTriggerUnitSync->triggerunits().size(); i++, itr++) {
+  level->DumpTriggerUnits();
+
+  u32 triggerSize = (u32)msgTriggerUnitSync->triggerunits().size();
+  log(L"  TriggerUnit Size: %i", triggerSize);
+  for (u32 i = 0; i < triggerSize; i++) {
     NetworkMessages::TriggerUnit msgTriggerUnit = msgTriggerUnitSync->triggerunits().Get(i);
+    NetworkMessages::Position *msgPosition = msgTriggerUnit.mutable_triggerposition();
+
+    Vector3 serverTriggerPosition;
+    serverTriggerPosition.x = msgPosition->x();
+    serverTriggerPosition.y = msgPosition->y();
+    serverTriggerPosition.z = msgPosition->z();
+
     u32 triggerId = msgTriggerUnit.triggerid();
+    log(L"  TriggerID: %x", triggerId);
+    log(L"  TriggerPosition: %f %f %f",
+      serverTriggerPosition.x,
+      serverTriggerPosition.y,
+      serverTriggerPosition.z);
 
-    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
 
-    logColor(B_GREEN, L"Syncing my TriggerUnit: %s  with Server: %s",
-      triggerUnit->name.c_str(), convertAsciiToWide(msgTriggerUnit.triggername()));
+    LinkedListNode* itr = *level->ppCTriggerUnits;
+    while (itr != NULL) {
+      CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;  
 
-    addItem(triggerUnit, triggerId);
+      if (triggerUnit) {
+        logColor(B_GREEN, L"  My TriggerUnit: %p %s (%f, %f, %f)  with Server: (%f, %f, %f)",
+          triggerUnit,
+          triggerUnit->nameReal.c_str(),
+          triggerUnit->position.x,
+          triggerUnit->position.y,
+          triggerUnit->position.z,
+          serverTriggerPosition.x,
+          serverTriggerPosition.y,
+          serverTriggerPosition.z);
+
+        if (triggerUnit->position.x == serverTriggerPosition.x &&
+            triggerUnit->position.y == serverTriggerPosition.y &&
+            triggerUnit->position.z == serverTriggerPosition.z)
+        {
+          logColor(B_GREEN, L"Syncing triggerUnits");
+
+          addItem(triggerUnit, triggerId);
+
+          break;
+        }
+      } else {
+        log(L"TriggerUnit is bad: %p", triggerUnit);
+      }
+
+      itr = itr->pNext;
+    }
   }
 }

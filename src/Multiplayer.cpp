@@ -634,10 +634,27 @@ void TLMP::GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOI
 
 void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"GameClient::CreateLevel Pre (%s, %s, %s)",
-    unk0.c_str(), unk1.c_str(), unk5.c_str());
-  log(L"GameClient::CreateLevel Pre (%s, %s, %s)",
-    unk0.c_str(), unk1.c_str(), unk5.c_str());
+  multiplayerLogger.WriteLine(Info, L"GameClient::CreateLevel Pre (%s, %s, %s   %x %x %x)",
+    unk0.c_str(), unk1.c_str(), unk5.c_str(), unk2, unk3, unk4);
+  logColor(B_GREEN, L"GameClient::CreateLevel Pre (%s, %s, %s   %x %x %x)",
+    unk0.c_str(), unk1.c_str(), unk5.c_str(), unk2, unk3, unk4);
+
+  /*
+  logColor(B_GREEN, L"Level: %i", client->level);
+  logColor(B_GREEN, L"levelAbsolute: %x", client->levelAbsolute);
+  logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
+  logColor(B_GREEN, L"Dungeon: %p", client->pCDungeon);
+  logColor(B_GREEN, L"  Name0: %s", client->pCDungeon->name0.c_str());
+  logColor(B_GREEN, L"  Name1: %s", client->pCDungeon->name1.c_str());
+  logColor(B_GREEN, L"  Name2: %s", client->pCDungeon->name2.c_str());
+
+  static bool firstLevel = true;
+  if (firstLevel) {
+    firstLevel = false;
+    unk5.assign(L"TOWN");
+    gameClient->pCDungeon->name0.assign(L"TOWN");
+  }
+  */
 }
 
 void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)
@@ -918,36 +935,33 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     itr = itr->pNext;
   }
 
+  // TESTING
+  if (item->type__ == 0x28)
+  {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)item;
+    logColor(B_GREEN, L"~~~ Client: Level DropItem: %i", triggerUnit->type__);
+    logColor(B_GREEN, L"~~~ Client: Level DropItem: %s", triggerUnit->name.c_str());
+    logColor(B_GREEN, L"~~~ Client: Level DropItem: %s", triggerUnit->name2.c_str());
+    logColor(B_GREEN, L"~~~ Client: Level DropItem: %f %f %f",
+      triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
+  }
+
   //
   if (NetworkState::getSingleton().GetState() == CLIENT) {
-    // Suppress the Gold Drops
-    if (item->type__ == 0xAA ||
-        item->type__ == 0x80)
+    // Allow interactable and stash/shared stash (these may not be needed)
+    if (item->type__ == 0x28)
     {
-      // allow it
     }
     else
     {
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
         calloriginal = false;
+
+        logColor(B_GREEN, L"Client: AddedItem: %p %x %s", item, item->type__, item->nameReal.c_str());
       }
     }
     
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    /* Move to Post
-    NetworkEntity *entity = searchItemByInternalObject(item);
-
-    if (entity) {
-      NetworkMessages::LevelDropItem msgLevelDropItem;
-      NetworkMessages::Position *msgPosition = msgLevelDropItem.mutable_position();
-      msgPosition->set_x(position.x);
-      msgPosition->set_y(position.y);
-      msgPosition->set_z(position.z);
-      msgLevelDropItem.set_itemid(entity->getCommonId());
-
-      Server::getSingleton().BroadcastMessage<NetworkMessages::LevelDropItem>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
-    }
-    */
   }
 
   if (!calloriginal) {
@@ -1885,6 +1899,7 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
 
   NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
+
   if (entity && netCharacter) {
 
     // Client
@@ -1909,7 +1924,8 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
       Server::getSingleton().BroadcastMessage<NetworkMessages::TriggerUnitTriggered>(S_PUSH_TRIGGER_TRIGGERED, &msgTriggerUnitTrigger);
     }
   } else {
-    log(L"Error: Could not find breakable item in network shared list");
+    log(L"Error: Could not find triggerable item in network shared list: Character: %p (%p) Item: %p (%p)",
+      player, netCharacter, triggerUnit, entity);
   }
 }
 

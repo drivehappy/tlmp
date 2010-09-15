@@ -163,7 +163,9 @@ namespace TLMP {
 
       return newEntity;
     } else {
-      log(L"Error: Could not add Item to SharedLevelItems, CommonID of %x already exists!", commonId);
+      //log(L"Error: Could not add Item to SharedLevelItems, CommonID of %x already exists!", commonId);
+      log(L"CommonID Item already exists, replacing: %x %s", commonId, ((CItem *)entity->getInternalObject())->nameReal.c_str());
+      entity->SetNewInternalObject(equipment);
     }
     return entity;
   }
