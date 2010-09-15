@@ -1573,18 +1573,24 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
     NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
 
     if (entity) {
-      string sTriggerName(triggerUnit->name.begin(), triggerUnit->name.end());
-      sTriggerName.assign(triggerUnit->name.begin(), triggerUnit->name.end());
+      logColor(B_RED, L"Server: %s", triggerUnit->nameReal.c_str());
+      //string sTriggerName(triggerUnit->nameReal.begin(), triggerUnit->nameReal.end());
+      //sTriggerName.assign(triggerUnit->nameReal.begin(), triggerUnit->nameReal.end());
 
       NetworkMessages::TriggerUnit *msgTriggerUnit = msgTriggerUnitSync.add_triggerunits();
-      msgTriggerUnit->set_triggername(sTriggerName);
+      NetworkMessages::Position *msgPosition = msgTriggerUnit->mutable_triggerposition();
+
+      msgPosition->set_x(triggerUnit->position.x);
+      msgPosition->set_y(triggerUnit->position.y);
+      msgPosition->set_z(triggerUnit->position.z);
       msgTriggerUnit->set_triggerid(entity->getCommonId());
     } else {
-      logColor(B_RED, "Server Error: Could not find Item ID for TriggerUnit: %s   Sync", triggerUnit->name.c_str());
+      logColor(B_RED, L"Server Error: Could not find Item ID for TriggerUnit: %s   Sync", triggerUnit->nameReal.c_str());
     }
 
     itr = itr->pNext;
   }
+  logColor(B_RED, "Server sending trigger units...");
 
   Server::getSingleton().SendMessage<NetworkMessages::TriggerUnitSync>(clientAddress, S_PUSH_TRIGGERUNIT_SYNC, &msgTriggerUnitSync);
 }
