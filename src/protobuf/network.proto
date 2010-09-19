@@ -243,6 +243,10 @@ message TriggerUnitSync {
   repeated TriggerUnit triggerUnits = 1;
 }
 
+message CharacterResurrect {
+  required int32    characterId = 1;
+}
+
 
 
 

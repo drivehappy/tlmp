@@ -63,6 +63,7 @@ namespace TLMP
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
   void Character_StrikePre(CCharacter*, CLevel*, CCharacter*, PVOID, u32, float, float, u32, bool&);
+  void Character_ResurrectPre(CCharacter*, bool&);
 
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);

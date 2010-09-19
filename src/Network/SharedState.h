@@ -155,7 +155,7 @@ namespace TLMP {
   }
 
   static NetworkEntity* addItem(PVOID equipment, u32 commonId) {
-    NetworkEntity *entity = searchItemByInternalObject(equipment);
+    NetworkEntity *entity = searchItemByCommonID(commonId);
 
     if (!entity) {
       NetworkEntity *newEntity = new NetworkEntity(equipment, commonId);
