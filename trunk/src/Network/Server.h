@@ -102,6 +102,7 @@ namespace TLMP {
       void HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *);
       void HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *);
       void HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *);
+      void HandleCharacterResurrect(NetworkMessages::CharacterResurrect *);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);

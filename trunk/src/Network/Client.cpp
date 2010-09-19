@@ -47,6 +47,7 @@ void Client::Reset()
   m_bAllow_LevelItemDrop = false;
   m_bAllow_CharacterSetTarget = false;
   m_bAllow_EquipmentIdentify = false;
+  m_bAllow_CharacterResurrect = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -558,6 +559,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::TriggerUnitSync *msgTriggerUnitSync = ParseMessage<NetworkMessages::TriggerUnitSync>(m_pBitStream);
 
       HandleTriggerUnitSync(msgTriggerUnitSync);
+    }
+    break;
+
+  case S_PUSH_CHARACTER_RESURRECT:
+    {
+      NetworkMessages::CharacterResurrect *msgCharacterResurrect = ParseMessage<NetworkMessages::CharacterResurrect>(m_pBitStream);
+
+      HandleCharacterResurrect(msgCharacterResurrect);
     }
     break;
 
@@ -1572,18 +1581,33 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
-  if (entity && netCharacter) {
-    CTriggerUnit *trigger = (CTriggerUnit*)entity->getInternalObject();
-    CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
+  if (entity) {
+    if (netCharacter) {
+      CTriggerUnit *trigger = (CTriggerUnit*)entity->getInternalObject();
+      CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
 
-    if (trigger && character) {
-      SetSuppressed_SendTriggerUnitTriggered(true);
-      trigger->Trigger(character);
-      SetSuppressed_SendTriggerUnitTriggered(false);
+      if (trigger && character) {
+        SetSuppressed_SendTriggerUnitTriggered(true);
+        trigger->Trigger(character);
+        SetSuppressed_SendTriggerUnitTriggered(false);
+      }
+    } else {
+      log(L"Client: Error could not find character with common ID = %x",
+       characterId);
     }
   } else {
-    log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
-      itemId, characterId);
+    log(L"Client: Error could not find entity with common ID = %x",
+      itemId);
+    log(L"  Item List:");
+
+    vector<NetworkEntity*>::iterator itr;
+    for (itr = NetworkSharedLevelItems->begin(); itr != NetworkSharedLevelItems->end(); itr++) {
+      CTriggerUnit *triggerUnit = (CTriggerUnit*)(*itr)->getInternalObject();
+
+      if (triggerUnit) {
+        log(L"    Item: %x", (*itr)->getCommonId());
+      }
+    }
   }
 }
 
@@ -1753,5 +1777,20 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
 
       itr = itr->pNext;
     }
+  }
+}
+
+void Client::HandleCharacterResurrect(NetworkMessages::CharacterResurrect *msgCharacterResurrect)
+{
+  log(L"Client received character resurrection.");
+
+  NetworkEntity *entity = searchCharacterByCommonID(msgCharacterResurrect->characterid());
+
+  if (entity) {
+    CCharacter *character = (CCharacter*)entity->getInternalObject();
+
+    SetAllow_CharacterResurrect(true);
+    character->Resurrect();
+    SetAllow_CharacterResurrect(false);
   }
 }

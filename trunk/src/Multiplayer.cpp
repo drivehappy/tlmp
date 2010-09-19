@@ -67,6 +67,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
   CCharacter::RegisterEvent_CharacterStrike(Character_StrikePre, NULL);
+  CCharacter::RegisterEvent_PlayerResurrect(Character_ResurrectPre, NULL);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
@@ -936,7 +937,8 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
   }
 
   // TESTING
-  if (item->type__ == 0x28)
+  if (item->type__ == 0x28 ||     // Door
+      item->type__ == 0x20 )      // Plunger
   {
     CTriggerUnit* triggerUnit = (CTriggerUnit*)item;
     logColor(B_GREEN, L"~~~ Client: Level DropItem: %i", triggerUnit->type__);
@@ -949,9 +951,23 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
   //
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     // Allow interactable and stash/shared stash (these may not be needed)
-    if (item->type__ == 0x28)
+    if (item->type__ == 0x28 ||     // Door
+        item->type__ == 0x20 )      // Plunger
     {
+      if (!wcscmp(item->nameReal.c_str(), L"Barrel") ||
+          !wcscmp(item->nameReal.c_str(), L"Chest"))
+      {
+        calloriginal = false;
+      }
     }
+    /*
+    // Automatically disallow the following based on the name
+    else if (!wcscmp(item->nameReal.c_str(), L"Barrel") ||
+             !wcscmp(item->nameReal.c_str(), L"Chest"))
+    {
+      calloriginal = false;
+    }
+    */
     else
     {
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
@@ -1011,18 +1027,24 @@ void TLMP::Level_DropItemPost(CLevel* level, CItem* item, Vector3 & position, bo
     }
   } 
   else {
-    NetworkEntity *entity = searchItemByInternalObject(item);
+    if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      NetworkEntity *entity = searchItemByInternalObject(item);
 
-    if (entity) {
-      NetworkMessages::LevelDropItem msgLevelDropItem;
-      NetworkMessages::Position *msgPosition = msgLevelDropItem.mutable_position();
-      msgPosition->set_x(position.x);
-      msgPosition->set_y(position.y);
-      msgPosition->set_z(position.z);
-      msgLevelDropItem.set_itemid(entity->getCommonId());
-      msgLevelDropItem.set_unk0(unk0);
+      if (!entity) {
+        entity = addItem(item);
+      }
 
-      Server::getSingleton().BroadcastMessage<NetworkMessages::LevelDropItem>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
+      if (entity) {
+        NetworkMessages::LevelDropItem msgLevelDropItem;
+        NetworkMessages::Position *msgPosition = msgLevelDropItem.mutable_position();
+        msgPosition->set_x(position.x);
+        msgPosition->set_y(position.y);
+        msgPosition->set_z(position.z);
+        msgLevelDropItem.set_itemid(entity->getCommonId());
+        msgLevelDropItem.set_unk0(unk0);
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::LevelDropItem>(S_PUSH_LEVEL_ITEM_DROP, &msgLevelDropItem);
+      }
     }
   }
 }
@@ -1852,6 +1874,7 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
     removeAllNetworkBaseUnits();
 
     // Flush Network IDs
+    logColor(B_GREEN, L"Flushing item network IDs");
     clearAllNetworkIDs();
   }
 }
@@ -1896,6 +1919,8 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
 
   logColor(B_RED, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
   multiplayerLogger.WriteLine(Info, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
+
+  logColor(B_RED, L"  Type: %X", triggerUnit->type__);
 
   NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
@@ -2015,6 +2040,32 @@ void TLMP::Character_StrikePre(CCharacter* character, CLevel* level, CCharacter*
 {
   log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
     character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
+}
+
+void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
+{
+  log(L"PlayerResurrectPre (%s)", character->characterName.c_str());
+
+  NetworkEntity *entity = searchCharacterByInternalObject(character);
+
+  NetworkMessages::CharacterResurrect msgCharacterResurrect;
+  if (entity) {
+    msgCharacterResurrect.set_characterid(entity->getCommonId());
+  }
+
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_CharacterResurrect()) {
+      calloriginal = false;
+
+      if (entity) {
+        Client::getSingleton().SendMessage<NetworkMessages::CharacterResurrect>(C_REQUEST_CHARACTER_RESURRECT, &msgCharacterResurrect);
+      }
+    }
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    if (entity) {
+      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterResurrect>(S_PUSH_CHARACTER_RESURRECT, &msgCharacterResurrect);
+    }
+  }
 }
 
 

@@ -94,6 +94,9 @@ namespace TLMP {
                   
       inline bool GetAllow_EquipmentIdentify()             { return m_bAllow_EquipmentIdentify; }
       inline void SetAllow_EquipmentIdentify(bool value)   { m_bAllow_EquipmentIdentify = value; }
+                        
+      inline bool GetAllow_CharacterResurrect()             { return m_bAllow_CharacterResurrect; }
+      inline void SetAllow_CharacterResurrect(bool value)   { m_bAllow_CharacterResurrect = value; }
       
       
 
@@ -155,6 +158,7 @@ namespace TLMP {
       void HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *);
       void HandleCurrentLevel(NetworkMessages::CurrentLevel *);
       void HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *);
+      void HandleCharacterResurrect(NetworkMessages::CharacterResurrect *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -186,6 +190,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_SendEquipmentStack;
       bool m_bSuppressNetwork_SendBreakableTriggered;
       bool m_bSuppressNetwork_SendTriggerUnitTriggered;
+      bool m_bAllow_CharacterResurrect;
 
       bool m_bAllow_ChangeLevel;
       bool m_bAllow_HealthUpdate;

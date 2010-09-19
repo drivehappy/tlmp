@@ -403,6 +403,15 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+    
+  case C_REQUEST_CHARACTER_RESURRECT:
+    {
+      NetworkMessages::CharacterResurrect *msgCharacterResurrect = ParseMessage<NetworkMessages::CharacterResurrect>(m_pBitStream);
+
+      HandleCharacterResurrect(msgCharacterResurrect);
+    }
+    break;
+
   }
 }
 
@@ -1594,3 +1603,18 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
 
   Server::getSingleton().SendMessage<NetworkMessages::TriggerUnitSync>(clientAddress, S_PUSH_TRIGGERUNIT_SYNC, &msgTriggerUnitSync);
 }
+
+
+void Server::HandleCharacterResurrect(NetworkMessages::CharacterResurrect *msgCharacterResurrect)
+{
+  log(L"Client received character resurrection.");
+
+  NetworkEntity *entity = searchCharacterByCommonID(msgCharacterResurrect->characterid());
+
+  if (entity) {
+    CCharacter *character = (CCharacter*)entity->getInternalObject();
+
+    character->Resurrect();
+  }
+}
+
