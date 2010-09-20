@@ -955,19 +955,13 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
         item->type__ == 0x20 )      // Plunger
     {
       if (!wcscmp(item->nameReal.c_str(), L"Barrel") ||
-          !wcscmp(item->nameReal.c_str(), L"Chest"))
+          !wcscmp(item->nameReal.c_str(), L"Stairs Up") || 
+          !wcscmp(item->nameReal.c_str(), L"Stairs Down") ||
+          !wcscmp(item->nameReal.c_str(), L"Return to Dungeon"))
       {
         calloriginal = false;
       }
     }
-    /*
-    // Automatically disallow the following based on the name
-    else if (!wcscmp(item->nameReal.c_str(), L"Barrel") ||
-             !wcscmp(item->nameReal.c_str(), L"Chest"))
-    {
-      calloriginal = false;
-    }
-    */
     else
     {
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
