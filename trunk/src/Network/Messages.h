@@ -50,7 +50,7 @@ namespace TLMP {
       S_PUSH_EQUIPMENT_DROP,        // Server Pushes an Equipment Drop from Character
                                     // Note: These aren't requests, the Server will notify other clients of the action
 
-      C_PUSH_EQUIPMENT_PICKUP,      // Client Pushes an Equipment Pickup from Character
+      C_REQUEST_EQUIPMENT_PICKUP,   // Client Requests an Equipment Pickup from Character
       S_PUSH_EQUIPMENT_PICKUP,      // Server Pushes an Equipment Pickup from Character
                                     // Note: These aren't requests, the Server will notify other clients of the action
 
@@ -163,7 +163,7 @@ namespace TLMP {
       "C_PUSH_EQUIPMENT_DROP",
       "S_PUSH_EQUIPMENT_DROP",
       
-      "C_PUSH_EQUIPMENT_PICKUP",
+      "C_REQUEST_EQUIPMENT_PICKUP",
       "S_PUSH_EQUIPMENT_PICKUP",
 
       "C_PUSH_EQUIPMENT_EQUIP",

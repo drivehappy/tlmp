@@ -40,7 +40,7 @@ void TLMP::SetupNetwork()
 
   CMainMenu::RegisterEvent_MainMenu_Event(MainMenuEventPre, NULL);
 
-  CEquipment::RegisterEvent_EquipmentDtor(Equipment_Dtor, NULL);
+  CEquipment::RegisterEvent_EquipmentDtor(Equipment_DtorPre, Equipment_DtorPost);
   CEquipment::RegisterEvent_EquipmentInitialize(EquipmentInitialize, NULL);
   CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
   CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGemPre, NULL);
@@ -183,9 +183,9 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
   */
 }
 
-void TLMP::Equipment_Dtor(CEquipment* equipment)
+void TLMP::Equipment_DtorPre(CEquipment* equipment)
 {
-  log(L"Equipment::Dtor = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
+  log(L"Equipment::DtorPre = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
 
   vector<NetworkEntity*>::iterator itr;
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
@@ -195,6 +195,11 @@ void TLMP::Equipment_Dtor(CEquipment* equipment)
       break;
     }
   }
+}
+
+void TLMP::Equipment_DtorPost(CEquipment* equipment)
+{
+  log(L"Equipment::DtorPost = %p", equipment);
 }
 
 void TLMP::Character_Dtor(CCharacter* character)
@@ -1222,11 +1227,30 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
   //gameClient->pCLevel->DumpItems();
   //gameClient->pCLevel->DumpTriggerUnits();
 
+  // Make sure the item is in the level before attempting to pick it up
+  //   halts crashes on multiple CItemGold pickups after it's been destroyed
+  {
+    NetworkEntity *netEquipment = searchEquipmentByInternalObject((PVOID)equipment);
+    if (!netEquipment) {
+      netEquipment = searchItemByInternalObject((PVOID)equipment);
+    }
+
+    if (netEquipment) {
+      CItem *item = (CItem*)netEquipment->getInternalObject();
+      if (!gameClient->pCLevel->containsItem(item)) {
+        log("Couldn't find item in the level, jumping out before we crash...");
+        calloriginal = false;
+        return;
+      }
+    }
+  }
+
   // If the client is requesting a pickup, request the server first
   // The server will respond with a pickup message
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_EquipmentPickup()) {
-      if (!Client::getSingleton().Get_IsSendingPickup()) {
+      // Remove the IsSendingPickup since I'm putting in Requests to pickup item
+      //if (!Client::getSingleton().Get_IsSendingPickup()) {
         // Send the server a message requesting our character to pickup the item
         NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
         NetworkEntity *netEquipment = searchEquipmentByInternalObject((PVOID)equipment);
@@ -1246,15 +1270,18 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
           msgEquipmentPickup.set_characterid(netPlayer->getCommonId());
           msgEquipmentPickup.set_equipmentid(netEquipment->getCommonId());
 
-          Client::getSingleton().SendMessage<NetworkMessages::EquipmentPickup>(C_PUSH_EQUIPMENT_PICKUP, &msgEquipmentPickup);
+          Client::getSingleton().SendMessage<NetworkMessages::EquipmentPickup>(C_REQUEST_EQUIPMENT_PICKUP, &msgEquipmentPickup);
           Client::getSingleton().Set_IsSendingPickup(true);
         }
-      }
+      //}
 
       calloriginal = false;
-    } else {
+    }
+    /*
+    else {
       Client::getSingleton().SetSuppressed_EquipmentCreation(false);
     }
+    */
   }
   // Send the message off to the clients
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {

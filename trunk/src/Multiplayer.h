@@ -80,7 +80,8 @@ namespace TLMP
   void SkillManager_AddSkillPre(CSkillManager*, CSkill*, u32, u32, bool&);
 
   // Post Event for equipment initialization
-  void Equipment_Dtor(CEquipment*);
+  void Equipment_DtorPre(CEquipment*);
+  void Equipment_DtorPost(CEquipment*);
   void CreateItemPre(CItem*, CResourceManager*, u64, u32, u32, u32, bool&);
   void CreateItemPost(CItem*, CResourceManager*, u64, u32, u32, u32, bool&);
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
