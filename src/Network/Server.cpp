@@ -252,7 +252,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
-  case C_PUSH_EQUIPMENT_PICKUP:
+  case C_REQUEST_EQUIPMENT_PICKUP:
     {
       NetworkMessages::EquipmentPickup *msgEquipmentPickup = ParseMessage<NetworkMessages::EquipmentPickup>(m_pBitStream);
 
