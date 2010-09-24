@@ -1884,6 +1884,12 @@ void TLMP::Global_SetSeedValue0Post(u32 seed)
   //logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
 
+  // Ugly, but fix later
+  Seed1 = (u32*)EXEOFFSET(SeedOffset1);
+  Seed2 = (u32*)EXEOFFSET(SeedOffset2);
+  Seed3 = (u32*)EXEOFFSET(SeedOffset3);
+  Seed4 = (u32*)EXEOFFSET(SeedOffset4);
+
   *Seed1 = 1;
   *Seed2 = 1;
   *Seed3 = 1;
@@ -1895,6 +1901,12 @@ void TLMP::Global_SetSeedValue2Post(u32 seed)
   logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   
+  // Ugly, but fix later
+  Seed1 = (u32*)EXEOFFSET(SeedOffset1);
+  Seed2 = (u32*)EXEOFFSET(SeedOffset2);
+  Seed3 = (u32*)EXEOFFSET(SeedOffset3);
+  Seed4 = (u32*)EXEOFFSET(SeedOffset4);
+
   logColor(B_GREEN, L" Reseting to 1...");
   *Seed1 = 1;
   *Seed2 = 1;
