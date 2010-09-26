@@ -37,9 +37,9 @@ typedef unsigned char MessageID;
 typedef uint32_t BitSize_t;
 
 #if defined(_MSC_VER) && _MSC_VER > 0
-#define PRINTF_TIME_MODIFIER "I64"
+#define PRINTF_64_BIT_MODIFIER "I64"
 #else
-#define PRINTF_TIME_MODIFIER "ll"
+#define PRINTF_64_BIT_MODIFIER "ll"
 #endif
 
 /// Describes the local socket to use for RakPeer::Startup
@@ -77,7 +77,7 @@ struct RAK_DLL_EXPORT SystemAddress
 	unsigned short port;
 	// Used internally for fast lookup. Optional (use -1 to do regular lookup). Don't transmit this.
 	SystemIndex systemIndex;
-	static const int size() {return (int) sizeof(uint32_t)+sizeof(unsigned short);}
+	static int size() {return (int) sizeof(uint32_t)+sizeof(unsigned short);}
 
 	// Return the systemAddress as a string in the format <IP>:<Port>
 	// Returns a static string
@@ -183,8 +183,10 @@ struct RAK_DLL_EXPORT RakNetGUID
 //{
 //	0xFFFFFFFF, 0xFFFF
 //};
+#ifndef SWIG
 const SystemAddress UNASSIGNED_SYSTEM_ADDRESS(0xFFFFFFFF, 0xFFFF);
 const RakNetGUID UNASSIGNED_RAKNET_GUID((uint64_t)-1);
+#endif
 //{
 //	{0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF}
 //	0xFFFFFFFFFFFFFFFF
@@ -240,15 +242,16 @@ struct RAK_DLL_EXPORT AddressOrGUID
 
 struct RAK_DLL_EXPORT NetworkID
 {
+	// This is done because we don't know the global constructor order
 	NetworkID()
+		:
+#if NETWORK_ID_SUPPORTS_PEER_TO_PEER
+	guid((uint64_t)-1), systemAddress(0xFFFFFFFF, 0xFFFF),
+#endif // NETWORK_ID_SUPPORTS_PEER_TO_PEER
+		localSystemAddress(65535)
 	{
-#if NETWORK_ID_SUPPORTS_PEER_TO_PEER==1
-		guid = UNASSIGNED_RAKNET_GUID;
-		systemAddress=UNASSIGNED_SYSTEM_ADDRESS;
-#endif
-		localSystemAddress=65535;
 	}
-	~NetworkID() {}
+	~NetworkID() {} 
 
 	/// \deprecated Use NETWORK_ID_SUPPORTS_PEER_TO_PEER in RakNetDefines.h
 	// Set this to true to use peer to peer mode for NetworkIDs.
@@ -258,12 +261,13 @@ struct RAK_DLL_EXPORT NetworkID
 //	static bool peerToPeerMode;
 
 #if NETWORK_ID_SUPPORTS_PEER_TO_PEER==1
+
+	RakNetGUID guid;
+
 	// deprecated: Use guid instead
 	// In peer to peer, we use both systemAddress and localSystemAddress
 	// In client / server, we only use localSystemAddress
 	SystemAddress systemAddress;
-
-	RakNetGUID guid;
 #endif
 	unsigned short localSystemAddress;
 
@@ -398,8 +402,6 @@ const int PING_TIMES_ARRAY_SIZE = 5;
 /// \param[in] functionName The function name
 /// \deprecated Use RakNet::RPC3 instead
 #define UNREGISTER_CLASS_MEMBER_RPC(networkObject, className, functionName) (networkObject)->UnregisterAsRemoteProcedureCall((#className "_" #functionName))
-
-
 
 struct RAK_DLL_EXPORT uint24_t
 {

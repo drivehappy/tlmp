@@ -9,6 +9,8 @@
 #ifndef __PLUGIN_INTERFACE_2_H
 #define __PLUGIN_INTERFACE_2_H
 
+#include "NativeFeatureIncludes.h"
+
 class RakPeerInterface;
 class PacketizedTCP;
 struct Packet;
@@ -95,10 +97,10 @@ public:
 	virtual PluginReceiveResult OnReceive(Packet *packet) {(void) packet; return RR_CONTINUE_PROCESSING;}
 
 	/// Called when RakPeer is initialized
-	virtual void OnStartup(void) {}
+	virtual void OnRakPeerStartup(void) {}
 
 	/// Called when RakPeer is shutdown
-	virtual void OnShutdown(void) {}
+	virtual void OnRakPeerShutdown(void) {}
 
 	/// Called when a connection is dropped because the user called RakPeer::CloseConnection() for a particular system
 	/// \param[in] systemAddress The system whose connection was closed
@@ -113,9 +115,9 @@ public:
 	virtual void OnNewConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, bool isIncoming) {(void) systemAddress; (void) rakNetGUID; (void) isIncoming;}
 
 	/// Called when a connection attempt fails
-	/// \param[in] systemAddress Address of the connection
+	/// \param[in] packet Packet to be returned to the user
 	/// \param[in] failedConnectionReason Why the connection failed
-	virtual void OnFailedConnectionAttempt(SystemAddress systemAddress, PI2_FailedConnectionAttemptReason failedConnectionAttemptReason) {(void) systemAddress; (void) failedConnectionAttemptReason;}
+	virtual void OnFailedConnectionAttempt(Packet *packet, PI2_FailedConnectionAttemptReason failedConnectionAttemptReason) {(void) packet; (void) failedConnectionAttemptReason;}
 
 	/// Called on a send to the socket, per datagram, that does not go through the reliability layer
 	/// \param[in] data The data being sent
@@ -128,6 +130,11 @@ public:
 	/// \param[in] bitsUsed How many bits long \a data is
 	/// \param[in] remoteSystemAddress Which system this message is being sent to
 	virtual void OnDirectSocketReceive(const char *data, const BitSize_t bitsUsed, SystemAddress remoteSystemAddress) {(void) data; (void) bitsUsed; (void) remoteSystemAddress;}
+
+	/// Called when the reliability layer rejects a send or receive
+	/// \param[in] bitsUsed How many bits long \a data is
+	/// \param[in] remoteSystemAddress Which system this message is being sent to
+	virtual void OnReliabilityLayerPacketError(const char *errorMessage, const BitSize_t bitsUsed, SystemAddress remoteSystemAddress)  {(void) errorMessage; (void) bitsUsed; (void) remoteSystemAddress;}
 	
 	/// Called on a send or receive of a message within the reliability layer
 	/// \param[in] internalPacket The user message, along with all send data.
@@ -135,7 +142,7 @@ public:
 	/// \param[in] remoteSystemAddress The player we sent or got this packet from
 	/// \param[in] time The current time as returned by RakNet::GetTime()
 	/// \param[in] isSend Is this callback representing a send event or receive event?
-	virtual void OnInternalPacket(InternalPacket *internalPacket, unsigned frameNumber, SystemAddress remoteSystemAddress, RakNetTime time, bool isSend) {(void) internalPacket; (void) frameNumber; (void) remoteSystemAddress; (void) time; (void) isSend;}
+	virtual void OnInternalPacket(InternalPacket *internalPacket, unsigned frameNumber, SystemAddress remoteSystemAddress, RakNetTime time, int isSend) {(void) internalPacket; (void) frameNumber; (void) remoteSystemAddress; (void) time; (void) isSend;}
 
 	/// Called when we get an ack for a message we reliabily sent
 	/// \param[in] messageNumber The numerical identifier for which message this is
@@ -153,8 +160,11 @@ public:
 
 	/// \internal
 	void SetRakPeerInterface( RakPeerInterface *ptr );
+
+#if _RAKNET_SUPPORT_PacketizedTCP==1
 	/// \internal
 	void SetPacketizedTCP( PacketizedTCP *ptr );
+#endif
 protected:
 	// Send through either rakPeerInterface or packetizedTCP, whichever is available
 	void SendUnified( const RakNet::BitStream * bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast );
@@ -166,7 +176,9 @@ protected:
 
 	// Filled automatically in when attached
 	RakPeerInterface *rakPeerInterface;
+#if _RAKNET_SUPPORT_PacketizedTCP==1
 	PacketizedTCP *packetizedTCP;
+#endif
 };
 
 #endif

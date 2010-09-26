@@ -5,6 +5,8 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_ReadyEvent==1
 
 #ifndef __READY_EVENT_H
 #define __READY_EVENT_H
@@ -185,7 +187,7 @@ protected:
 	// --------------------------------------------------------------------------------------------
 	virtual PluginReceiveResult OnReceive(Packet *packet);
 	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
-	virtual void OnShutdown(void);
+	virtual void OnRakPeerShutdown(void);
 	
 	void Clear(void);
 	/*
@@ -220,3 +222,5 @@ protected:
 };
 
 #endif
+
+#endif // _RAKNET_SUPPORT_*

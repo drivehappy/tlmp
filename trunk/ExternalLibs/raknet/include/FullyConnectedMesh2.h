@@ -6,6 +6,8 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_FullyConnectedMesh2==1
 
 #ifndef __FULLY_CONNECTED_MESH_2_H
 #define __FULLY_CONNECTED_MESH_2_H
@@ -74,11 +76,11 @@ public:
 	/// \internal
 	virtual PluginReceiveResult OnReceive(Packet *packet);
 	/// \internal
-	virtual void OnStartup(void);
+	virtual void OnRakPeerStartup(void);
 	/// \internal
 	virtual void OnAttach(void);
 	/// \internal
-	virtual void OnShutdown(void);
+	virtual void OnRakPeerShutdown(void);
 	/// \internal
 	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
 	/// \internal
@@ -212,3 +214,4 @@ AssignTheirGuid()
 
 #endif
 
+#endif // _RAKNET_SUPPORT_*

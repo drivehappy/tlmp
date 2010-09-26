@@ -11,6 +11,9 @@
 /// http://www.jenkinssoftware.com/SingleApplicationLicense.html
 /// Custom license users are subject to the terms therein.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_UDPProxyServer==1
+
 #ifndef __UDP_PROXY_SERVER_H
 #define __UDP_PROXY_SERVER_H
 
@@ -29,6 +32,9 @@ class UDPProxyServer;
 /// \ingroup UDP_PROXY_GROUP
 struct UDPProxyServerResultHandler
 {
+	UDPProxyServerResultHandler() {}
+	virtual ~UDPProxyServerResultHandler() {}
+
 	/// Called when our login succeeds
 	/// \param[out] usedPassword The password we passed to UDPProxyServer::LoginToCoordinator()
 	/// \param[out] proxyServer The plugin calling this callback
@@ -85,8 +91,8 @@ public:
 	virtual void Update(void);
 	virtual PluginReceiveResult OnReceive(Packet *packet);
 	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
-	virtual void OnStartup(void);
-	virtual void OnShutdown(void);
+	virtual void OnRakPeerStartup(void);
+	virtual void OnRakPeerShutdown(void);
 
 protected:
 	void OnForwardingRequestFromCoordinatorToServer(Packet *packet);
@@ -101,3 +107,5 @@ protected:
 } // End namespace
 
 #endif
+
+#endif // _RAKNET_SUPPORT_*
