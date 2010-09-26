@@ -5,6 +5,8 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_TelnetTransport==1
 
 #ifndef __TELNET_TRANSPORT
 #define __TELNET_TRANSPORT
@@ -41,6 +43,7 @@ protected:
 	{
 		SystemAddress systemAddress;
 		char textInput[REMOTE_MAX_TEXT_INPUT];
+		char lastSentTextInput[REMOTE_MAX_TEXT_INPUT];
 		unsigned cursorPosition;
 	};
 
@@ -56,3 +59,5 @@ protected:
 };
 
 #endif
+
+#endif // _RAKNET_SUPPORT_*

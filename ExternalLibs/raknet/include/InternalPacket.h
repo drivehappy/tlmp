@@ -23,9 +23,10 @@
 #include "RakMemoryOverride.h"
 #include "RakNetDefines.h"
 #include "CCRakNetUDT.h"
+#include "NativeTypes.h"
 
-typedef unsigned short SplitPacketIdType;
-typedef unsigned int SplitPacketIndexType;
+typedef uint16_t SplitPacketIdType;
+typedef uint32_t SplitPacketIndexType;
 
 /// This is the counter used for holding packet numbers, so we can detect duplicate packets.  It should be large enough that if the variables
 /// Internally assumed to be 4 bytes, but written as 3 bytes in ReliabilityLayer::WriteToBitStreamFromInternalPacket
@@ -99,8 +100,10 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader
 	InternalPacketRefCountedData *refCountedData;
 	/// How many attempts we made at sending this message
 	unsigned char timesSent;
-	///The priority level of this packet
+	/// The priority level of this packet
 	PacketPriority priority;
+	/// If the reliability type requires a receipt, then return this number with it
+	uint32_t sendReceiptSerial;
 
 	// Used for the resend queue
 	// Linked list implementation so I can remove from the list via a pointer, without finding it in the list

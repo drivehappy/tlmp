@@ -18,6 +18,11 @@ enum OutOfBandIdentifiers
 	ID_NAT_ESTABLISH_UNIDIRECTIONAL,
 	ID_NAT_ESTABLISH_BIDIRECTIONAL,
 	ID_NAT_TYPE_DETECT,
+	ID_ROUTER_2_REPLY_TO_SENDER_PORT,
+	ID_ROUTER_2_REPLY_TO_SPECIFIED_PORT,
+	ID_ROUTER_2_MINI_PUNCH_REPLY,
+	ID_ROUTER_2_MINI_PUNCH_REPLY_BOUNCE,
+	ID_ROUTER_2_REROUTE,
 };
 
 /// You should not edit the file MessageIdentifiers.h as it is a part of RakNet static library
@@ -267,7 +272,7 @@ enum DefaultMessageIDTypes
 	ID_LOBBY2_SERVER_ERROR,
 
 
-	/// \internal For FullyConnectedMesh2 plugin
+	/// Informs user of a new host GUID. Packet::Guid contains this RakNetGuid
 	ID_FCM2_NEW_HOST,
 	/// \internal For FullyConnectedMesh2 plugin
 	ID_FCM2_REQUEST_FCMGUID,
@@ -298,11 +303,50 @@ enum DefaultMessageIDTypes
 	/// Events happening with SQLiteClientLoggerPlugin
 	ID_SQLLITE_LOGGER,
 
+	/// Used by the router2 plugin
+	ID_ROUTER_2_INTERNAL,
+	/// No path is available or can be established to the remote system
+	/// Packet::guid contains the endpoint guid that we were trying to reach
+	ID_ROUTER_2_FORWARDING_NO_PATH,
+	/// \brief You can now call connect, ping, or other operations to the destination system.
+	///
+	/// Connect as follows:
+	///
+	/// RakNet::BitStream bs(packet->data, packet->length, false);
+	/// bs.IgnoreBytes(sizeof(MessageID));
+	/// RakNetGUID endpointGuid;
+	/// bs.Read(endpointGuid);
+	/// unsigned short sourceToDestPort;
+	/// bs.Read(sourceToDestPort);
+	/// char ipAddressString[32];
+	/// packet->systemAddress.ToString(false, ipAddressString);
+	/// rakPeerInterface->Connect(ipAddressString, sourceToDestPort, 0,0);
+	ID_ROUTER_2_FORWARDING_ESTABLISHED,
+	/// The IP address for a forwarded connection has changed
+	/// Read endpointGuid and port as per ID_ROUTER_2_FORWARDING_ESTABLISHED
+	ID_ROUTER_2_REROUTED,
+
+	/// \internal Used by the team balancer plugin
+	ID_TEAM_BALANCER_INTERNAL,
+	/// Cannot switch to the desired team because it is full. However, if someone on that team leaves, you will get ID_TEAM_BALANCER_SET_TEAM later. Byte 1 contains the team you requested to join.
+	ID_TEAM_BALANCER_REQUESTED_TEAM_CHANGE_PENDING,
+	/// Cannot switch to the desired team because all teams are locked. However, if someone on that team leaves, you will get ID_TEAM_BALANCER_SET_TEAM later. Byte 1 contains the team you requested to join.
+	ID_TEAM_BALANCER_TEAMS_LOCKED,
+	/// Team balancer plugin informing you of your team. Byte 1 contains the team you requested to join.
+	ID_TEAM_BALANCER_TEAM_ASSIGNED,
+	/// Gamebryo Lightspeed
+	ID_LIGHTSPEED_INTEGRATION,
+
+	/// Plugin based replacement for old RPC system, no boost required, but only works with C functions
+	ID_RPC_4_PLUGIN,
+
+	/// If RakPeerInterface::Send() is called where PacketReliability contains _WITH_ACK_RECEIPT, then on a later call to RakPeerInterface::Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS. The message will be 5 bytes long, and bytes 1-4 inclusive will contain a number in native order containing a number that identifies this message. This number will be returned by RakPeerInterface::Send() or RakPeerInterface::SendList(). ID_SND_RECEIPT_ACKED means that the message arrived
+	ID_SND_RECEIPT_ACKED,
+
+	/// If RakPeerInterface::Send() is called where PacketReliability contains _WITH_ACK_RECEIPT, then on a later call to RakPeerInterface::Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS. The message will be 5 bytes long, and bytes 1-4 inclusive will contain a number in native order containing a number that identifies this message. This number will be returned by RakPeerInterface::Send() or RakPeerInterface::SendList(). ID_SND_RECEIPT_LOSS means that an ack for the message did not arrive (it may or may not have been delivered, probably not). On disconnect or shutdown, you will not get ID_SND_RECEIPT_LOSS for unsent messages, you should consider those messages as all lost.
+	ID_SND_RECEIPT_LOSS,
+
 	// So I can add more without changing user enumerations
-	ID_RESERVED_1,
-	ID_RESERVED_2,
-	ID_RESERVED_3,
-	ID_RESERVED_4,
 	ID_RESERVED_5,
 	ID_RESERVED_6,
 	ID_RESERVED_7,

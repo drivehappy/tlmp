@@ -5,6 +5,8 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_ReplicaManager2==1
 
 #ifndef __REPLICA_MANAGER_2_H
 #define __REPLICA_MANAGER_2_H
@@ -336,7 +338,7 @@ protected:
 	void OnAttach(void);
 	PluginReceiveResult OnReceive(Packet *packet);
 	void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
-	void OnShutdown(void);
+	void OnRakPeerShutdown(void);
 	void Update(void);
 	virtual void OnNewConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
 
@@ -855,3 +857,5 @@ protected:
 }
 
 #endif
+
+#endif // _RAKNET_SUPPORT_*

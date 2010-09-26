@@ -185,7 +185,7 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::Equipment_DtorPre(CEquipment* equipment)
 {
-  log(L"Equipment::DtorPre = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
+  //log(L"Equipment::DtorPre = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
 
   vector<NetworkEntity*>::iterator itr;
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
@@ -199,7 +199,7 @@ void TLMP::Equipment_DtorPre(CEquipment* equipment)
 
 void TLMP::Equipment_DtorPost(CEquipment* equipment)
 {
-  log(L"Equipment::DtorPost = %p", equipment);
+  //log(L"Equipment::DtorPost = %p", equipment);
 }
 
 void TLMP::Character_Dtor(CCharacter* character)
@@ -218,7 +218,7 @@ void TLMP::Character_Dtor(CCharacter* character)
 
       Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterDestroy>(S_PUSH_CHAR_DESTROY, &msgCharacterDestroy);
     } else {
-      log(L"Server: Error could not find network ID for character destroyed: %p", character);
+      //log(L"Server: Error could not find network ID for character destroyed: %p", character);
     }
   }
 
@@ -227,7 +227,7 @@ void TLMP::Character_Dtor(CCharacter* character)
   for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
     CCharacter* charItem = (CCharacter*)((*itr)->getInternalObject());
     if (charItem == character) {
-      log(L"  Found and removed character");
+      //log(L"  Found and removed character");
       NetworkSharedCharacters->erase(itr);
       break;
     }
@@ -236,18 +236,18 @@ void TLMP::Character_Dtor(CCharacter* character)
 
 void TLMP::Character_SetAlignmentPre(CCharacter* character, u32 alignment, bool& calloriginal)
 {
-  log(L"CharacterAlignment Pre: %x", character->alignment);
+  //log(L"CharacterAlignment Pre: %x", character->alignment);
 }
 
 void TLMP::Character_SetAlignmentPost(CCharacter* character, u32 alignment, bool& calloriginal)
 {
-  log(L"CharacterAlignment Post: %x", character->alignment);
-  log(L"Setting Character Alignment = %x", alignment);
+  //log(L"CharacterAlignment Post: %x", character->alignment);
+  //log(L"Setting Character Alignment = %x", alignment);
 
   multiplayerLogger.WriteLine(Info, L"Setting Character (%s) Alignment = %x",
     character->characterName.c_str(), alignment);
-  log(L"Setting Character (%s) Alignment = %x",
-    character->characterName.c_str(), alignment);
+  //log(L"Setting Character (%s) Alignment = %x",
+  //  character->characterName.c_str(), alignment);
 
   // Client would never send alignment, just worry about the server
   if (NetworkState::getSingleton().GetState() == SERVER) {
@@ -260,7 +260,7 @@ void TLMP::Character_SetAlignmentPost(CCharacter* character, u32 alignment, bool
 
       Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAlignment>(S_PUSH_CHARACTER_ALIGNMENT, &msgCharacterAlignment);
     } else {
-      log(L"Error: Cannot send alignment, could not find entity ID");
+      //log(L"Error: Cannot send alignment, could not find entity ID");
     }
   }
 
@@ -270,19 +270,19 @@ void TLMP::Character_SetAlignmentPost(CCharacter* character, u32 alignment, bool
 
 void TLMP::Game_Ctor(CGame* game)
 {
-  log(L"Game::Ctor = %p", game);
+  //log(L"Game::Ctor = %p", game);
 }
 
 void TLMP::GameClient_Ctor(CGameClient* client)
 {
-  log(L"GameClient::Ctor = %p", client);
+  //log(L"GameClient::Ctor = %p", client);
 
   gameClient = client;
 }
 
 void TLMP::CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk0, bool & calloriginal)
 {
-  logColor(B_RED, L"CreatePlayer: %s %x", type, unk0);
+  //logColor(B_RED, L"CreatePlayer: %s %x", type, unk0);
 }
 
 void TLMP::Character_UpdateHealthPre(CCharacter* character, float amount, bool& calloriginal)
@@ -306,7 +306,7 @@ void TLMP::Character_UpdateHealthPre(CCharacter* character, float amount, bool& 
 
         Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterUpdateHealth>(S_PUSH_CHAR_UPDATE_HEALTH, &msgCharacterUpdateHealth);
       } else {
-        log(L"Error: Could not find network ID for character");
+        //log(L"Error: Could not find network ID for character");
       }
     }
   }
@@ -325,7 +325,7 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
 
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X %i", guid, noItems);
-    log(L"Creating character: %016I64X %i", guid, noItems);
+    //log(L"Creating character: %016I64X %i", guid, noItems);
 
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
       if (guid != CAT && guid != DOG && guid != DESTROYER && guid != ALCHEMIST && 
@@ -344,8 +344,8 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
 
   if (calloriginal) {
     multiplayerLogger.WriteLine(Info, L"Creating character: %016I64X %i", guid, gameClient->flagLevelLoading);
-    log(L"Creating character: %016I64X %i %i %i %i", guid,
-      gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
+    //log(L"Creating character: %016I64X %i %i %i %i", guid,
+    //  gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
   }
 }
 
@@ -355,21 +355,21 @@ void TLMP::CreateItemPre(CItem* item, CResourceManager* resourceManager, u64 gui
     multiplayerLogger.WriteLine(Info, L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
       guid, level, item, unk0, unk1);
 
-    logColor(B_RED, L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
-      guid, level, item, unk0, unk1);
+    //logColor(B_RED, L"Creating equipment with guid of: %016I64X Level: %i (%p) %x %x",
+    //  guid, level, item, unk0, unk1);
   } else {
     multiplayerLogger.WriteLine(Info, L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
       guid, level, item, unk0, unk1);
-    logColor(B_RED, L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
-      guid, level, item, unk0, unk1);
+    //logColor(B_RED, L"Suppressing equipment creation with guid of: %016I64X Level: %i (%p) %x %x",
+    //  guid, level, item, unk0, unk1);
   }
 }
 
 void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
 {
   if (item) {
-    logColor(B_RED, L"Created equipment with guid of: %016I64X Level: %i (%p, %s) Type = %x",
-      guid, level, item, item->nameReal.c_str(), item->type__);
+    //logColor(B_RED, L"Created equipment with guid of: %016I64X Level: %i (%p, %s) Type = %x",
+    //  guid, level, item, item->nameReal.c_str(), item->type__);
     multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s) Type = %x",
       guid, level, item, item->nameReal.c_str(), item->type__);
 
@@ -382,7 +382,7 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
       // --
       if (Network::NetworkState::getSingleton().GetState() == SERVER) {
         if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
-          logColor(B_RED, L"Adding Regular Item of Type: %x  %s", item->type__, item->nameReal.c_str());
+          //logColor(B_RED, L"Adding Regular Item of Type: %x  %s", item->type__, item->nameReal.c_str());
 
           NetworkEntity *newEntity = addEquipment(item);
 
@@ -404,7 +404,7 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
       }
       else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
         if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
-          logColor(B_RED, L"Adding Special Item of Type: %x  %s", item->type__, item->nameReal.c_str());
+          //logColor(B_RED, L"Adding Special Item of Type: %x  %s", item->type__, item->nameReal.c_str());
 
           NetworkEntity *entity = addItem(item);
 
@@ -423,13 +423,13 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
 
 void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal)
 {
-  log(L"Equipment initializing: %p", equipment);
+  //log(L"Equipment initializing: %p", equipment);
 
-  log(L"  ItemSaveState: %s %s %s",
-    itemSaveState->name.c_str(), itemSaveState->name2.c_str(), itemSaveState->name3.c_str());
+  //log(L"  ItemSaveState: %s %s %s",
+  //  itemSaveState->name.c_str(), itemSaveState->name2.c_str(), itemSaveState->name3.c_str());
 
-  log(L"Equipment Initialized (GUID: %016I64X  %s)",
-    equipment->GUID, equipment->nameReal.c_str());
+  //log(L"Equipment Initialized (GUID: %016I64X  %s)",
+  //  equipment->GUID, equipment->nameReal.c_str());
   multiplayerLogger.WriteLine(Info, L"Equipment Initialized (GUID: %016I64X  %s)",
     equipment->GUID, equipment->nameReal.c_str());
 
@@ -448,14 +448,14 @@ void TLMP::EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveSt
 
 void TLMP::EquipmentIdentifyPre(CEquipment* identifyScroll, CPlayer *player, CEquipment* equipment, bool& calloriginal)
 {
-  log(L"Equipment Identify Pre (%p)", equipment);
+  //log(L"Equipment Identify Pre (%p)", equipment);
   // Crashes when using a Town Portal Scroll
   //log(L"  (%s)", equipment->nameReal.c_str());
 
   NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
 
   if (!entity) {
-    log(L"Error: Could not find Network Entity for Equipment");
+    //log(L"Error: Could not find Network Entity for Equipment");
     return;
   }
 
@@ -503,11 +503,11 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
       if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
         guid == DOG || guid == CAT || guid == BRINK || guid == STASH || guid == SHAREDSTASH)
       {
-        log("Client: Detected CPlayer addition to CLevel, not suppressing load");
+        //log("Client: Detected CPlayer addition to CLevel, not suppressing load");
       } else {
-        log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
-        calloriginal = false;
-        retval = NULL;
+        //log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
+        //calloriginal = false;
+        //retval = NULL;
 
         // TESTING - Destroy the character if we're not going to load it
         character->destroy = true;
@@ -518,14 +518,14 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
     if (gameClient->inGame) {
       multiplayerLogger.WriteLine(Info, L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
         character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
-      log(L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
-        character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+      //log(L"Level Character Initialized: %p %s (%f %f %f) unk0: %x",
+      //  character, character->characterName.c_str(), position->x, position->y, position->z, unk0);
 
       // Create a network ID to identify this character later
       NetworkEntity *newEntity = addCharacter(character);
 
       if (!newEntity) {
-        log(L"NetworkEntity is NULL");
+        //log(L"NetworkEntity is NULL");
         return;
       }
 
@@ -534,7 +534,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         // Send this character to be created on the clients if it isn't suppressed
         if (!Server::getSingleton().GetSuppressed_SendCharacterCreation()) {
           multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
-          log(L"Server: Pushing Initialized Character out to clients...");
+          //log(L"Server: Pushing Initialized Character out to clients...");
 
           string characterName(character->characterName.begin(), character->characterName.end());
           characterName.assign(character->characterName.begin(), character->characterName.end());
@@ -642,8 +642,8 @@ void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring 
 {
   multiplayerLogger.WriteLine(Info, L"GameClient::CreateLevel Pre (%s, %s, %s   %x %x %x)",
     unk0.c_str(), unk1.c_str(), unk5.c_str(), unk2, unk3, unk4);
-  logColor(B_GREEN, L"GameClient::CreateLevel Pre (%s, %s, %s   %x %x %x)",
-    unk0.c_str(), unk1.c_str(), unk5.c_str(), unk2, unk3, unk4);
+  //logColor(B_GREEN, L"GameClient::CreateLevel Pre (%s, %s, %s   %x %x %x)",
+  //  unk0.c_str(), unk1.c_str(), unk5.c_str(), unk2, unk3, unk4);
 
   /*
   logColor(B_GREEN, L"Level: %i", client->level);
@@ -665,7 +665,7 @@ void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring 
 
 void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)
 {
-  log(L"CreateLevel Post");
+  //log(L"CreateLevel Post");
 
   // Do this in Post to ensure it loads at the right time
   // Send a Message to clients that the Server's game has started
@@ -686,8 +686,8 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
     string sDungeonSection(gameClient->pCDungeon->name0.begin(), gameClient->pCDungeon->name0.end());
     sDungeonSection.assign(gameClient->pCDungeon->name0.begin(), gameClient->pCDungeon->name0.end());
 
-    logColor(B_GREEN, L"Client: Sending GAME_ENTER: %s %i %i",
-      gameClient->pCDungeon->name0.c_str(), gameClient->level, gameClient->levelAbsolute);
+    //logColor(B_GREEN, L"Client: Sending GAME_ENTER: %s %i %i",
+    //  gameClient->pCDungeon->name0.c_str(), gameClient->level, gameClient->levelAbsolute);
 
     msgCurrentLevel->set_dungeonsection(sDungeonSection);
     msgCurrentLevel->set_relativelevel(gameClient->level);
@@ -699,7 +699,7 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 
 void TLMP::Level_Dtor(CLevel* level, u32, bool&)
 {
-  logColor(B_RED, L"Level Dtor (%p)", level);
+  //logColor(B_RED, L"Level Dtor (%p)", level);
   multiplayerLogger.WriteLine(Info, L"Level Dtor (%p)", level);
 
   level->DumpCharacters1();
@@ -710,19 +710,21 @@ void TLMP::Level_Dtor(CLevel* level, u32, bool&)
 
 void TLMP::Level_Ctor(wstring name, CSettings* settings, CGameClient* gameClient, CResourceManager* resourceManager, PVOID OctreeSM, CSoundManager* soundManager, u32 unk0, u32 unk1, bool&)
 {
-  logColor(B_RED, L"Level Ctor");
+  //logColor(B_RED, L"Level Ctor");
   multiplayerLogger.WriteLine(Info, L"Level Ctor");
 
+  /*
   log(L"  Name: %s", name.c_str());
   log(L"  Settings: %p", settings);
   log(L"  GameClient: %p", gameClient);
   log(L"  ResourceManager: %p", resourceManager);
   log(L"  SoundManager: %p", soundManager);
+  */
 }
 
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
-  logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
+  //logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
   multiplayerLogger.WriteLine(Info, L"LoadLevelPre (GameClient = %p)", client);
 
   
@@ -732,6 +734,7 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   level->DumpCharacters2();
   level->DumpItems();
 
+  /*
   logColor(B_GREEN, L"Level: %i", client->level);
   logColor(B_GREEN, L"levelAbsolute: %x", client->levelAbsolute);
   logColor(B_GREEN, L"DungeonName: %s", client->dungeonName.c_str());
@@ -739,6 +742,7 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   logColor(B_GREEN, L"  Name0: %s", client->pCDungeon->name0.c_str());
   logColor(B_GREEN, L"  Name1: %s", client->pCDungeon->name1.c_str());
   logColor(B_GREEN, L"  Name2: %s", client->pCDungeon->name2.c_str());
+  */
 
   LevelLoading = true;
 
@@ -750,13 +754,13 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 
   if (!calloriginal) {
     multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
-    logColor(B_GREEN, L"GameClient::LoadLevel Suppressed");
+    //logColor(B_GREEN, L"GameClient::LoadLevel Suppressed");
   }
 }
 
 void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
 {
-  logColor(B_GREEN, L"GameClient_LoadLevelPost");
+  //logColor(B_GREEN, L"GameClient_LoadLevelPost");
   multiplayerLogger.WriteLine(Info, L"GameClient_LoadLevelPost");
 
   CLevel *level = client->pCLevel;
@@ -765,6 +769,7 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   level->DumpCharacters2();
   level->DumpItems();
 
+  /*
   logColor(B_GREEN, L"  Level: %i", client->level);
   logColor(B_GREEN, L"  levelAbsolute: %x", client->levelAbsolute);
   logColor(B_GREEN, L"  DungeonName: %s", client->dungeonName.c_str());
@@ -772,14 +777,15 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   logColor(B_GREEN, L"    Name0: %s", client->pCDungeon->name0.c_str());
   logColor(B_GREEN, L"    Name1: %s", client->pCDungeon->name1.c_str());
   logColor(B_GREEN, L"    Name2: %s", client->pCDungeon->name2.c_str());
-  
+  */
+
   LevelLoading = false;
 }
 
 void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Pre(%x)", unk0);
-  logColor(B_GREEN, L"GameClient::LoadMap Pre(%x)", unk0);
+  //logColor(B_GREEN, L"GameClient::LoadMap Pre(%x)", unk0);
 
   // This will suppress the game load if the Server hasn't setup the game yet
   // TODO: Re-show the UI and Display an Error dialog
@@ -795,7 +801,7 @@ void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & ca
 void TLMP::GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Post(%x)", unk0);
-  logColor(B_GREEN, L"GameClient::LoadMap Post(%x)", unk0);
+  //logColor(B_GREEN, L"GameClient::LoadMap Post(%x)", unk0);
 
   if (unk0 == 2) {
     // Testing out speeding up Client load times and issues
@@ -805,10 +811,10 @@ void TLMP::GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & c
 
       if (gameClient->pCDungeon->name0 == Town) {
         multiplayerLogger.WriteLine(Info, L"Player already in town");
-        logColor(B_RED, L"Player already in town");
+        //logColor(B_RED, L"Player already in town");
       } else {
         multiplayerLogger.WriteLine(Info, L"Player not in town, force loading...");
-        logColor(B_RED, L"Player not in town, force loading...");
+        //logColor(B_RED, L"Player not in town, force loading...");
 
         NetworkState::getSingleton().SetSuppressed_LevelChange(false);
         gameClient->ForceToTown();
@@ -926,15 +932,15 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
 {
   multiplayerLogger.WriteLine(Info, L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
     item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
-  log(L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
-    item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
+  //log(L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
+  //  item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
 
   // Iterate over the existing items on the level and ensure the same item doesn't already exist
   LinkedListNode* itr = *level->ppCItems;
   while (itr != NULL) {
     CItem* itemLevel = (CItem*)itr->pCBaseUnit;
     if (itemLevel == item) {
-      log(L"Level Drop Found Identical Item already on the Ground! Suppressing the drop.");
+      //log(L"Level Drop Found Identical Item already on the Ground! Suppressing the drop.");
       calloriginal = false;
       break;
     }
@@ -946,11 +952,11 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
       item->type__ == 0x20 )      // Plunger
   {
     CTriggerUnit* triggerUnit = (CTriggerUnit*)item;
-    logColor(B_GREEN, L"~~~ Client: Level DropItem: %i", triggerUnit->type__);
-    logColor(B_GREEN, L"~~~ Client: Level DropItem: %s", triggerUnit->name.c_str());
-    logColor(B_GREEN, L"~~~ Client: Level DropItem: %s", triggerUnit->name2.c_str());
-    logColor(B_GREEN, L"~~~ Client: Level DropItem: %f %f %f",
-      triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
+    //logColor(B_GREEN, L"~~~ Client: Level DropItem: %i", triggerUnit->type__);
+    //logColor(B_GREEN, L"~~~ Client: Level DropItem: %s", triggerUnit->name.c_str());
+    //logColor(B_GREEN, L"~~~ Client: Level DropItem: %s", triggerUnit->name2.c_str());
+    //logColor(B_GREEN, L"~~~ Client: Level DropItem: %f %f %f",
+    //  triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
   }
 
   //
@@ -972,7 +978,7 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
         calloriginal = false;
 
-        logColor(B_GREEN, L"Client: AddedItem: %p %x %s", item, item->type__, item->nameReal.c_str());
+        //logColor(B_GREEN, L"Client: AddedItem: %p %x %s", item, item->type__, item->nameReal.c_str());
       }
     }
     
@@ -980,7 +986,7 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
   }
 
   if (!calloriginal) {
-    log(L"  Suppressing level drop item: type = %i", item->type__);
+    //log(L"  Suppressing level drop item: type = %i", item->type__);
   }
 }
 
@@ -988,8 +994,8 @@ void TLMP::Level_DropItemPost(CLevel* level, CItem* item, Vector3 & position, bo
 {
   multiplayerLogger.WriteLine(Info, L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
     item->nameReal.c_str(), position.x, position.y, position.z, unk0);
-  log(L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
-    item->nameReal.c_str(), position.x, position.y, position.z, unk0);
+  //log(L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
+  //  item->nameReal.c_str(), position.x, position.y, position.z, unk0);
 
   // Bump out before sending the network message if we're not supposed to
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1055,8 +1061,8 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
 
   multiplayerLogger.WriteLine(Info, L"Character (%s) Adding Equipment to Inventory: %s (Slot=%i) (Unk = %i)",
     owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
-  log(L"Character (%s) Adding Equipment to Inventory: %s (Slot=%i) (Unk = %i)",
-    owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
+  //log(L"Character (%s) Adding Equipment to Inventory: %s (Slot=%i) (Unk = %i)",
+  //  owner->characterName.c_str(), equipment->nameReal.c_str(), slot, unk);
 
   if (ownerEntity) {
     // If the equipment hasn't yet been created for network use
@@ -1077,8 +1083,8 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
   } else {
     multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: %p (%s)",
       owner, owner->characterName.c_str());
-    log(L"Could not find NetworkEntity for inventory owner: %p (%s)",
-      owner, owner->characterName.c_str());
+    //log(L"Could not find NetworkEntity for inventory owner: %p (%s)",
+    //  owner, owner->characterName.c_str());
   }
 }
 
@@ -1121,24 +1127,24 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
           } else {
             multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
               equipment);
-            log(L"Could not find NetworkEntity for equipment: %p",
-              equipment);
+            //log(L"Could not find NetworkEntity for equipment: %p",
+            //  equipment);
           }
         } else {
           multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
             inventory, owner);
-          log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
-            inventory, owner);
+          //log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
+          //  inventory, owner);
         }
       }
     }
     
     multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
       inventory, equipment, equipment->nameReal.c_str());
-    log(L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
-      inventory, equipment, equipment->nameReal.c_str());
+    //log(L"Inventory::AddEquipmentPre(%p) (%p) (%s)",
+    //  inventory, equipment, equipment->nameReal.c_str());
   } else {
-    log(L"Error: Character has no Inventory!");
+    //log(L"Error: Character has no Inventory!");
     multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
   }
 }
@@ -1147,23 +1153,23 @@ void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory,
 {
   multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
     inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
-  log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
-    inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
+  //log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
+  //  inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
 }
 
 void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
 {
-  log(L"Inventory removing Equipment Pre:");
+  //log(L"Inventory removing Equipment Pre:");
 
   multiplayerLogger.WriteLine(Info, L"Inventory::RemoveEquipment(%p) (%s)",
     inventory, equipment->nameReal.c_str());
-  log(L"Inventory::RemoveEquipment(%p) (%s)",
-    inventory, equipment->nameReal.c_str());
+  //log(L"Inventory::RemoveEquipment(%p) (%s)",
+  //  inventory, equipment->nameReal.c_str());
 }
 
 void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equipment)
 {
-  log(L"Inventory removing Equipment Post:");
+  //log(L"Inventory removing Equipment Post:");
 
   //
   CCharacter *owner = inventory->pCCharacter;
@@ -1174,14 +1180,14 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
   if (!ownerEntity) {
     multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for inventory owner: (%p) %p",
       inventory, owner);
-    log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
-      inventory, owner);
+    //log(L"Could not find NetworkEntity for inventory owner: (%p) %p",
+    //  inventory, owner);
     return;
   } else if (!equipmentEntity) {
     multiplayerLogger.WriteLine(Error, L"Could not find NetworkEntity for equipment: %p",
       equipment);
-    log(L"Could not find NetworkEntity for equipment: %p",
-      equipment);
+    //log(L"Could not find NetworkEntity for equipment: %p",
+    //  equipment);
     return;
   }
 
@@ -1216,12 +1222,12 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
 
 void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  log(L"Character picking up Equipment Pre: %p", equipment);
+  //log(L"Character picking up Equipment Pre: %p", equipment);
 
   multiplayerLogger.WriteLine(Info, L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
     character, equipment, equipment->nameReal.c_str(), level);
-  log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
-    character, equipment, equipment->nameReal.c_str(), level);
+  //log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
+  //  character, equipment, equipment->nameReal.c_str(), level);
 
   //log(L"Dumping Level Items...");
   //gameClient->pCLevel->DumpItems();
@@ -1238,7 +1244,7 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
     if (netEquipment) {
       CItem *item = (CItem*)netEquipment->getInternalObject();
       if (!gameClient->pCLevel->containsItem(item)) {
-        log("Couldn't find item in the level, jumping out before we crash...");
+        //log("Couldn't find item in the level, jumping out before we crash...");
         calloriginal = false;
         return;
       }
@@ -1261,10 +1267,10 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 
         if (!netPlayer) {
           multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
-          log(L"Error: Could not retrieve network entity of character for equipment pickup!");
+          //log(L"Error: Could not retrieve network entity of character for equipment pickup!");
         } else if (!netEquipment) {
           multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of equipment for equipment pickup!");
-          log(L"Error: Could not retrieve network entity of equipment for equipment pickup!");
+          //log(L"Error: Could not retrieve network entity of equipment for equipment pickup!");
         } else {
           NetworkMessages::EquipmentPickup msgEquipmentPickup;
           msgEquipmentPickup.set_characterid(netPlayer->getCommonId());
@@ -1312,21 +1318,21 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
       } else {
         multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Character (%s)",
           character->characterName.c_str());
-        log(L"Error: Could not find Network Entity for Character (%s)",
-          character->characterName.c_str());
+        //log(L"Error: Could not find Network Entity for Character (%s)",
+        //  character->characterName.c_str());
       }
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Network Entity for Equipment (%s)",
         equipment->nameReal.c_str());
-      log(L"Error: Could not find Network Entity for Equipment (%s)",
-        equipment->nameReal.c_str());
+      //log(L"Error: Could not find Network Entity for Equipment (%s)",
+      //  equipment->nameReal.c_str());
     }
   }
 }
 
 void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  log(L" Character picking up Equipment Post");
+  //log(L" Character picking up Equipment Post");
 
   //log(L"Dumping Level Items...");
   //gameClient->pCLevel->DumpItems();
@@ -1345,7 +1351,7 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
   }
 
-  log(L"Character Done Picking up Item");
+  //log(L"Character Done Picking up Item");
 }
 
 void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & calloriginal)
@@ -1394,8 +1400,8 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
 
 void TLMP::SkillManager_AddSkillPre(CSkillManager* skillManager, CSkill* skill, u32 unk0, u32 unk1, bool& calloriginal)
 {
-  log(L"SkillManager (%p) AddSkill: %p", skillManager, skill);
-  log(L"   unk0: %x   unk1: %x  GUID: %016I64X", unk0, unk1, skill->GUID);
+  //log(L"SkillManager (%p) AddSkill: %p", skillManager, skill);
+  //log(L"   unk0: %x   unk1: %x  GUID: %016I64X", unk0, unk1, skill->GUID);
 }
 
 void TLMP::Character_SetupSkillsPre(CCharacter* character, CDataGroup* dataGroup, u32 unk0, bool& calloriginal)
@@ -1415,21 +1421,24 @@ void TLMP::Character_AddSkillPre(CCharacter* character, wstring* skillName, u32 
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    log(L"Test: Character Mana max: %i", character->manaMax);
+    //log(L"Test: Character Mana max: %i", character->manaMax);
 
     multiplayerLogger.WriteLine(Info, L"Character (%s) used skill pre: (%016I64X)",
       character->characterName.c_str(), skillGUID);
-    log(L"Character (%s) used skill pre: (%016I64X)",
-      character->characterName.c_str(), skillGUID);
+    //log(L"Character (%s) used skill pre: (%016I64X)",
+    //  character->characterName.c_str(), skillGUID);
 
     // Testing for Skill Graphic Effect
     if (!character->usingSkill) {
+      /*
       log(L"  EffectManager: %p", character->pCEffectManager);
       log(L"  Type: %x", character->type__);
       log(L"  Skill: %p", character->pCSkill);
       log(L"  ResourceManager: %p", character->pCResourceManager);
       log(L"  pCSkillManager: %p", character->pCSkillManager);
       log(L"  UsingSkill: %i", character->usingSkill);
+      */
+      
       //character->pCSkillManager->dumpSkillManager();
     } else {
       // Save us the trouble of the constant keydown function spam
@@ -1441,7 +1450,7 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
 
     if (!netPlayer) {
       multiplayerLogger.WriteLine(Error, L"Error: Could not retrieve network entity of character for equipment pickup!");
-      log(L"Error: Could not retrieve network entity of character for equipment pickup!");
+      //log(L"Error: Could not retrieve network entity of character for equipment pickup!");
       return;
     }
 
@@ -1474,12 +1483,12 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
 void TLMP::Character_UseSkillPost(CCharacter* character, u64 skillGUID, bool & calloriginal)
 {
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
-    log(L"Character_UseSkillPost: Character Mana: %f / %i", character->manaCurrent, character->manaMax);
+    //log(L"Character_UseSkillPost: Character Mana: %f / %i", character->manaCurrent, character->manaMax);
 
     multiplayerLogger.WriteLine(Info, L"Character (%s) used skill post: (%016I64X)",
       character->characterName.c_str(), skillGUID);
-    log(L"Character (%s) used skill post: (%016I64X)",
-      character->characterName.c_str(), skillGUID);
+    //log(L"Character (%s) used skill post: (%016I64X)",
+    //  character->characterName.c_str(), skillGUID);
 
     // Turn on suppression again if we're the client
     if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1512,7 +1521,7 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
 {
   if (target != NULL) {
     multiplayerLogger.WriteLine(Info, L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
-    log(L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
+    //log(L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
   }
 
   // Setup the information
@@ -1530,7 +1539,7 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
     msgCharacterSetTarget.set_characterid(netCharacter->getCommonId());
     msgCharacterSetTarget.set_targetid(targetID);
   } else {
-    log(L"Error: Could not find network entity for character: %s", character->characterName.c_str());
+    //log(L"Error: Could not find network entity for character: %s", character->characterName.c_str());
     return;
   }
 
@@ -1548,13 +1557,13 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
 
 void TLMP::Character_AttackPost(CCharacter* character, bool & calloriginal)
 {
-  log(L"Character Attack Post");
+  //log(L"Character Attack Post");
 }
 
 void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"Character (%s) Set Attack Pre", character->characterName.c_str());
-  log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
+  //log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
 
   // Client - Requests the set action from the server
   if (NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1570,7 +1579,7 @@ void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
         Client::getSingleton().SendMessage<NetworkMessages::CharacterAttack>(C_PUSH_CHARACTER_ATTACK, &msgCharacterAttack);
       } else {
         multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
-        log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
+        //log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
       }
     }
   }
@@ -1588,14 +1597,14 @@ void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
       }
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
-      log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
+      //log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
     }
   }
 }
 
 void TLMP::EquipmentAddStackCountPost(CEquipment *equipment, u32 amount)
 {
-  logColor(B_RED, L"Add StackCount: %s %i", equipment->nameReal.c_str(), amount);
+  //logColor(B_RED, L"Add StackCount: %s %i", equipment->nameReal.c_str(), amount);
 
   NetworkEntity *netEquipment = searchEquipmentByInternalObject(equipment);
 
@@ -1619,13 +1628,13 @@ void TLMP::EquipmentAddStackCountPost(CEquipment *equipment, u32 amount)
     }
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for equipment: %s", equipment->nameReal.c_str());
-    log(L"Error: Could not find network id for equipment: %s", equipment->nameReal.c_str());
+    //log(L"Error: Could not find network id for equipment: %s", equipment->nameReal.c_str());
   }
 }
 
 void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal)
 {
-  log(L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
+  //log(L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
   multiplayerLogger.WriteLine(Info, L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
 
   callOriginal = false;
@@ -1652,7 +1661,7 @@ void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bo
 
 void TLMP::GameClientSaveGamePost(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal)
 {
-  log(L"Suppressed Game Save Successful");
+  //log(L"Suppressed Game Save Successful");
   multiplayerLogger.WriteLine(Info, L"Suppressed Game Save Successful");
 
 }
@@ -1670,24 +1679,24 @@ void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
 void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
-  log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
+  //log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
   
   // !!!
   // This is assuming the gameClient->Player is the Owner
   CInventory *inventory = gameClient->pCPlayer->pCInventory;
   CEquipment *equipment = inventory->GetEquipmentFromSlot(0xE);
-  log(L"  Acting on Equipment: %s", equipment->nameReal.c_str());
+  //log(L"  Acting on Equipment: %s", equipment->nameReal.c_str());
   multiplayerLogger.WriteLine(Info, L"  Acting on Equipment: %s", equipment->nameReal.c_str());
 
   if (!inventory) {
-    log(L"  Inventory is null!");
+    //log(L"  Inventory is null!");
     multiplayerLogger.WriteLine(Error, L"  Inventory is null!");
   }
 
   NetworkEntity* netEntity = searchEquipmentByInternalObject(equipment);
   if (netEntity) {
     if (enchantMenu->EnchantType == 0x19) {
-      log(L"Destroying gems from Equipment...");
+      //log(L"Destroying gems from Equipment...");
       multiplayerLogger.WriteLine(Info, L"Destroying gems from Equipment...");
 
       NetworkMessages::EquipmentRemoveGems msgEquipmentRemoveGems;
@@ -1700,18 +1709,18 @@ void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu, bool & callorigi
         Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentRemoveGems>(S_PUSH_EQUIPMENT_REMOVE_GEMS, &msgEquipmentRemoveGems);
       }
     } else if (enchantMenu->EnchantType == 0x1A) {
-      log(L"Removing gems and destroying equipment...");
+      //log(L"Removing gems and destroying equipment...");
       multiplayerLogger.WriteLine(Info, L"Removing gems and destroying equipment...");
     }
   } else {
-    log(L"Error: Could not find NetworkEntity for equipment");
+    //log(L"Error: Could not find NetworkEntity for equipment");
     multiplayerLogger.WriteLine(Error, L"Error: Could not find NetworkEntity for equipment");
   }
 }
 
 void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & calloriginal)
 {
-  log(L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
+  //log(L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
   multiplayerLogger.WriteLine(Info, L"Equipment (%s) Adding Gem (%s)", equipment->nameReal.c_str(), gem->nameReal.c_str());
 
   if (NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1730,8 +1739,8 @@ void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & cal
 
           Client::getSingleton().SendMessage<NetworkMessages::EquipmentAddGem>(C_PUSH_EQUIPMENT_ADD_GEM, &msgEquipmentAddGem);
         } else {
-          log(L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
-            netEquipment, netGem);
+          //log(L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+          //  netEquipment, netGem);
           multiplayerLogger.WriteLine(Error, L"Error: Client could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
             netEquipment, netGem);
         }
@@ -1749,8 +1758,8 @@ void TLMP::EquipmentAddGemPre(CEquipment* equipment, CEquipment* gem, bool & cal
 
         Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentAddGem>(S_PUSH_EQUIPMENT_ADD_GEM, &msgEquipmentAddGem);
       } else {
-        log(L"Error: Server could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
-          netEquipment, netGem);
+        //log(L"Error: Server could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
+        //  netEquipment, netGem);
         multiplayerLogger.WriteLine(Error, L"Error: Server could not send off EquipmentAddGem - Could not find NetworkEntity for either Equipment (%p) or Gem (%p)",
           netEquipment, netGem);
       }
@@ -1823,7 +1832,7 @@ void TLMP::MouseManager_HandleInputPre(CMouseManager* mouseManager, u32 wParam, 
     CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
     if (pInGameChatEntry) {
       if (pInGameChatEntry->hasInputFocus()) {
-        log(L"Suppressing Mouse Input - ChatEntry has focus");
+        //log(L"Suppressing Mouse Input - ChatEntry has focus");
         calloriginal = false;
       }
     } else {
@@ -1846,7 +1855,7 @@ void TLMP::MouseManager_HandleInputPre(CMouseManager* mouseManager, u32 wParam, 
 
 void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
 {
-  log(L"Window Resized");
+  //log(L"Window Resized");
   multiplayerLogger.WriteLine(Info, L"Window Resized");
   
   ResizeUI();
@@ -1859,7 +1868,7 @@ void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, fl
 
 void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
 {
-  logColor(B_RED, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
+  //logColor(B_RED, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
   multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
 
   // Remove any other player characters and equipment or else we'll crash
@@ -1895,14 +1904,14 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
     removeAllNetworkBaseUnits();
 
     // Flush Network IDs
-    logColor(B_GREEN, L"Flushing item network IDs");
+    //logColor(B_GREEN, L"Flushing item network IDs");
     clearAllNetworkIDs();
   }
 }
 
 void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
 {
-  log(L"GameClient::ChangeLevel Post");
+  //log(L"GameClient::ChangeLevel Post");
   multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel Post");
 }
 
@@ -1925,7 +1934,7 @@ void TLMP::Global_SetSeedValue0Post(u32 seed)
 
 void TLMP::Global_SetSeedValue2Post(u32 seed)
 {
-  logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
+  //logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   
   // Ugly, but fix later
@@ -1943,17 +1952,17 @@ void TLMP::Global_SetSeedValue2Post(u32 seed)
 
 void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, bool& calloriginal)
 {
-  log(L"TriggerUnit: %p %p", triggerUnit, player);
+  //log(L"TriggerUnit: %p %p", triggerUnit, player);
 
   // Breakable was null on client, adding here to be safe -
   // Can this be NULL and still be Ok to call org function?
   if (!player)
     return;
 
-  logColor(B_RED, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
+  //logColor(B_RED, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
   multiplayerLogger.WriteLine(Info, L"TriggerUnit (%s) trigger by player (%s)", triggerUnit->nameReal.c_str(), player->characterName.c_str());
 
-  logColor(B_RED, L"  Type: %X", triggerUnit->type__);
+  //logColor(B_RED, L"  Type: %X", triggerUnit->type__);
 
   NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
@@ -1989,7 +1998,7 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
 
 void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& calloriginal)
 {
-  log(L"Breakable: %p %p", breakable, player);
+  //log(L"Breakable: %p %p", breakable, player);
 
   if (player) {
     logColor(B_RED, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
@@ -2038,14 +2047,14 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
 
 void TLMP::TriggerUnit_CtorPost(CTriggerUnit* triggerUnit, CLayout* layout, bool& calloriginal)
 {
-  logColor(B_RED, L"TriggerUnit Created: %p", triggerUnit);
+  //logColor(B_RED, L"TriggerUnit Created: %p", triggerUnit);
 }
 
 void TLMP::ItemGold_CtorPost(CItemGold* itemGold, PVOID _this, CResourceManager* resourceManager, u32 amount, bool&)
 {
-  logColor(B_RED, L"ItemGold Created: %p %p %i", itemGold, resourceManager, amount);
-  logColor(B_RED, L"   GUID: %016I64X", itemGold->GUID);
-  logColor(B_RED, L"   Amount: %i", itemGold->amount);
+  //logColor(B_RED, L"ItemGold Created: %p %p %i", itemGold, resourceManager, amount);
+  //logColor(B_RED, L"   GUID: %016I64X", itemGold->GUID);
+  //logColor(B_RED, L"   Amount: %i", itemGold->amount);
 
   if (NetworkState::getSingleton().GetState() == SERVER) {
     NetworkEntity *entity = addItem(itemGold);
@@ -2055,14 +2064,14 @@ void TLMP::ItemGold_CtorPost(CItemGold* itemGold, PVOID _this, CResourceManager*
     msgItemGoldCreate.set_amount(itemGold->amount);
     Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_ITEM_GOLD, &msgItemGoldCreate);
 
-    logColor(B_RED, L"   ID: %x", entity->getCommonId());
+    //logColor(B_RED, L"   ID: %x", entity->getCommonId());
   }
 }
 
 void TLMP::ItemGold_CtorPre(CItemGold* itemRetval, PVOID _this, CResourceManager* resourceManager, u32 amount, bool& calloriginal)
 {
   if (!calloriginal) {
-    logColor(B_RED, L"ItemGold Ctor Suppressed for Testing");
+    //logColor(B_RED, L"ItemGold Ctor Suppressed for Testing");
   }
 
   //calloriginal = false;
@@ -2071,13 +2080,13 @@ void TLMP::ItemGold_CtorPre(CItemGold* itemRetval, PVOID _this, CResourceManager
 
 void TLMP::Character_StrikePre(CCharacter* character, CLevel* level, CCharacter* characterOther, PVOID unk0, u32 unk1, float unk2, float unk3, u32 unk4, bool& calloriginal)
 {
-  log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
-    character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
+  //log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
+  //  character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
 }
 
 void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
 {
-  log(L"PlayerResurrectPre (%s)", character->characterName.c_str());
+  //log(L"PlayerResurrectPre (%s)", character->characterName.c_str());
 
   NetworkEntity *entity = searchCharacterByInternalObject(character);
 
@@ -2111,7 +2120,7 @@ void TLMP::ServerOnClientConnected(void *arg)
     msgVersion.set_version(MessageVersion);
 
     multiplayerLogger.WriteLine(Info, L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
-    log(L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
+    //log(L"Client connected - sending S_VERSION push to: %x:%i", address.binaryAddress, address.port);
 
     Server::getSingleton().SendMessage<NetworkMessages::Version>(address, S_VERSION, &msgVersion);
   }
@@ -2123,7 +2132,7 @@ void TLMP::ServerOnClientDisconnect(void *arg)
     SystemAddress address = *(SystemAddress *)arg;
 
     multiplayerLogger.WriteLine(Info, L"Client disconnected: %x:%i", address.binaryAddress, address.port);
-    log(L"Client disconnected: %x:%i", address.binaryAddress, address.port);
+    //log(L"Client disconnected: %x:%i", address.binaryAddress, address.port);
   }
   // TODO: Cleanup client characters.
 }
@@ -2136,7 +2145,7 @@ void TLMP::ClientOnConnect(void *arg)
     SystemAddress address = *(SystemAddress *)arg;
 
     multiplayerLogger.WriteLine(Info, L"Client connected: %x:%i", address.binaryAddress, address.port);
-    log(L"Client connected: %x:%i", address.binaryAddress, address.port);
+    //log(L"Client connected: %x:%i", address.binaryAddress, address.port);
   }
 }
 // --

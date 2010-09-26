@@ -5,6 +5,8 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_TCPInterface==1
 
 #ifndef __SIMPLE_TCP_SERVER
 #define __SIMPLE_TCP_SERVER
@@ -65,6 +67,9 @@ public:
 
 	// Get how many bytes are waiting to be sent. If too many, you may want to skip sending
 	unsigned int GetOutgoingDataBufferSize(SystemAddress systemAddress) const;
+
+	/// Returns if Receive() will return data
+	bool ReceiveHasPackets( void );
 
 	/// Returns data received
 	Packet* Receive( void );
@@ -159,7 +164,7 @@ protected:
 #if defined(OPEN_SSL_CLIENT_SUPPORT)
 	SSL_CTX* ctx;
 	SSL_METHOD *meth;
-	DataStructures::SingleProducerConsumer<SystemAddress> startSSL;
+	DataStructures::ThreadsafeAllocatingQueue<SystemAddress> startSSL;
 	DataStructures::List<SystemAddress> activeSSLConnections;
 #endif
 };
@@ -203,3 +208,6 @@ struct RemoteClient
 };
 
 #endif
+
+#endif // _RAKNET_SUPPORT_*
+

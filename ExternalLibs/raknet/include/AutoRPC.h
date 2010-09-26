@@ -5,6 +5,8 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_AutoRPC==1
 
 #ifndef __AUTO_RPC_H
 #define __AUTO_RPC_H
@@ -23,6 +25,7 @@ class NetworkIDManager;
 #pragma warning( push )
 #endif
 
+/// \deprecated
 /// \defgroup AUTO_RPC_GROUP AutoRPC
 /// \brief Deprecated. Uses Assembly to do RPC
 /// \details
@@ -625,7 +628,7 @@ protected:
 	virtual void OnRPCRemoteIndex(SystemAddress systemAddress, unsigned char *data, unsigned int lengthInBytes);
 	virtual void OnRPCUnknownRemoteIndex(SystemAddress systemAddress, unsigned char *data, unsigned int lengthInBytes, RakNetTime timestamp);
 	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
-	virtual void OnShutdown(void);
+	virtual void OnRakPeerShutdown(void);
 
 	void Clear(void);
 
@@ -661,3 +664,5 @@ protected:
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
+
+#endif // _RAKNET_SUPPORT_*

@@ -11,6 +11,9 @@
 /// http://www.jenkinssoftware.com/SingleApplicationLicense.html
 /// Custom license users are subject to the terms therein.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_UDPProxyClient==1
+
 #ifndef __UDP_PROXY_CLIENT_H
 #define __UDP_PROXY_CLIENT_H
 
@@ -32,6 +35,9 @@ class UDPProxyClient;
 /// \ingroup UDP_PROXY_GROUP
 struct UDPProxyClientResultHandler
 {
+	UDPProxyClientResultHandler() {}
+	virtual ~UDPProxyClientResultHandler() {}
+
 	/// Called when our forwarding request was completed. We can now connect to \a targetAddress by using \a proxyAddress instead
 	/// \param[out] proxyIPAddress IP Address of the proxy server, which will forward messages to targetAddress
 	/// \param[out] proxyPort Remote port to use on the proxy server, which will forward messages to targetAddress
@@ -127,7 +133,7 @@ public:
 	/// \internal
 	virtual void Update(void);
 	virtual PluginReceiveResult OnReceive(Packet *packet);
-	virtual void OnShutdown(void);
+	virtual void OnRakPeerShutdown(void);
 	
 	struct ServerWithPing
 	{
@@ -160,3 +166,5 @@ protected:
 } // End namespace
 
 #endif
+
+#endif // _RAKNET_SUPPORT_*
