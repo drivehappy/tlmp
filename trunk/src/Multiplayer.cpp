@@ -27,6 +27,7 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_LevelDropItem(Level_DropItemPre, Level_DropItemPost);
   CLevel::RegisterEvent_Level_Dtor(Level_Dtor, NULL);
   CLevel::RegisterEvent_Level_Ctor(Level_Ctor, NULL);
+  CLevel::RegisterEvent_Level_Update(Level_UpdatePre, Level_UpdatePost);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
@@ -46,12 +47,17 @@ void TLMP::SetupNetwork()
   CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGemPre, NULL);
   CEquipment::RegisterEvent_EquipmentIdentify(EquipmentIdentifyPre, NULL);
 
+  CEquipmentRef::RegisterEvent_EquipmentRef_Dtor(EquipmentRefDtorPre, EquipmentRefDtorPost);
+
   CEnchantMenu::RegisterEvent_EnchantMenu_EnchantItem(EnchantMenuEnchantItemPre, NULL);
 
   CItemGold::RegisterEvent_ItemGold_Ctor(ItemGold_CtorPre, ItemGold_CtorPost);
 
-  CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI, NULL);
+  CMonster::RegisterEvent_MonsterProcessAI(Monster_ProcessAIPre, NULL);
+  CMonster::RegisterEvent_MonsterProcessAI2(Monster_ProcessAI2Pre, NULL);
+  CMonster::RegisterEvent_MonsterProcessAI3(Monster_ProcessAI3Pre, NULL);
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
+  CMonster::RegisterEvent_MonsterGetCharacterClose(NULL, Monster_GetCharacterClosePost);
 
   CCharacter::RegisterEvent_CharacterDtor(Character_Dtor, NULL);
   CCharacter::RegisterEvent_CharacterSetAction(Character_SetActionPre, NULL);
@@ -68,6 +74,8 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
   CCharacter::RegisterEvent_CharacterStrike(Character_StrikePre, NULL);
   CCharacter::RegisterEvent_PlayerResurrect(Character_ResurrectPre, NULL);
+  CCharacter::RegisterEvent_Character_Update_Level(Character_Update_LevelPre, NULL);
+  CCharacter::RegisterEvent_Character_Update_Character(Character_Update_CharacterPre, NULL);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
@@ -98,23 +106,31 @@ void TLMP::SetupNetwork()
 
   Hook(GetProcAddress(GetModuleHandle("OgreMain.dll"), "?isActive@RenderWindow@Ogre@@UBE_NXZ"), OgreIsActive, 0, HOOK_THISCALL, 0);
 
-  log(L"Adding Resource Location...");
-  multiplayerLogger.WriteLine(Info, L"Adding Resource Location...");
-
   const char *mangledResourceLocationFunc = "?addResourceLocation@ResourceGroupManager@Ogre@@QAEXABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@00_N@Z";
-  void (__thiscall *addResourceLocation)(PVOID, std::string&, std::string&, std::string&, bool) = 
-    (void (__thiscall *)(PVOID, std::string&, std::string&, std::string&, bool))GetProcAddress(GetModuleHandle("OgreMain.dll"), mangledResourceLocationFunc);
-  
-  Hook(addResourceLocation, OgreAddResourceLocation, 0, HOOK_THISCALL, 4);
+  void (__thiscall *addResourceLocation)(PVOID, Ogre::String&, Ogre::String&, Ogre::String&, bool) = 
+    (void (__thiscall *)(PVOID, Ogre::String&, Ogre::String&, Ogre::String&, bool))GetProcAddress(GetModuleHandle("OgreMain.dll"), mangledResourceLocationFunc);
+  Hook(addResourceLocation, 0, OgreAddResourceLocation, HOOK_THISCALL, 4);
+
+  log(L"Done.");
 }
 
 void TLMP::OgreAddResourceLocation STDARG
 {
   static bool setup = false;
-  std::string *name = *(std::string**)&Pz[0];
-  std::string *loc = *(std::string**)&Pz[1];
-  std::string *resGroup = *(std::string**)&Pz[2];
+  Ogre::String *name = *(Ogre::String**)&Pz[0];
+  Ogre::String *loc = *(Ogre::String**)&Pz[1];
+  Ogre::String *resGroup = *(Ogre::String**)&Pz[2];
+  
+  /*
+  printf("DEBUG:\n");
+  for (int i = 0; i < 16; i++) {
+	char *temp = (char*)name + i;
+	printf("%c %x\n", *temp, *temp);
+  }
+  printf("\n");
+  */
 
+  /*
   // Setup the resource location for our TLAPI folder to correctly load our UI layouts
   if (!setup) {
     const char *mangledResourceLocationFunc = "?addResourceLocation@ResourceGroupManager@Ogre@@QAEXABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@00_N@Z";
@@ -124,15 +140,27 @@ void TLMP::OgreAddResourceLocation STDARG
     setup = true;
     addResourceLocation(e->_this, std::string("TLAPI/"), std::string("FileSystem"), std::string("General"), false);
   }
+  */
 
-  /*
+  log("%x %x %x %x");
+
   log("AddResourceLocation: (%p) (%s %s %s)", e->_this, name->c_str(), loc->c_str(), resGroup->c_str());
 
-  PVOID (*ResourceGroupManager)() = (PVOID (*)())GetProcAddress(GetModuleHandle("OgreMain.dll"), "?getSingleton@ResourceGroupManager@Ogre@@SAAAV12@XZ");
-  log(L"func ResourceGroupManager = %p", ResourceGroupManager);
-  PVOID singletonResourceGM = ResourceGroupManager();
-  log(L"singleton ResourceGroupManager = %p", singletonResourceGM);
-  */
+  if (!setup) {
+	  setup = true;
+
+	  log(L"Adding Ogre Resource Location...");
+
+	  try {
+		  Ogre::ResourceGroupManager::getSingletonPtr()->addResourceLocation(Ogre::String("TLAPI/"), Ogre::String("FileSystem")); //, std::string("General"), false);
+	  } catch (Ogre::ItemIdentityException &ex) {
+		log("Ogre Exception: %s", ex.what());
+	  }
+	  
+	  log(L"Done.\n");
+  }
+
+ 
 }
 
 void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk)
@@ -500,7 +528,12 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
       u64 guid = character->GUID;
 
-      if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
+      log("Client Character Initialize");
+      
+      // Remove the stash or shared stash if we're not in the town
+      if (wcscmp(level->levelName.c_str(), L"TOWN") && (guid == STASH || guid == SHAREDSTASH) ) {
+        character->destroy = true;
+      } else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
         guid == DOG || guid == CAT || guid == BRINK || guid == STASH || guid == SHAREDSTASH)
       {
         //log("Client: Detected CPlayer addition to CLevel, not suppressing load");
@@ -862,22 +895,6 @@ void TLMP::Monster_Idle(CMonster* monster, float dTime, bool & calloriginal)
   }
 }
 
-void TLMP::Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal)
-{
-  const u64 DESTROYER = 0xD3A8F9982FA111DE;
-  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
-  const u64 VANQUISHER = 0xAA472CC2629611DE;
-
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    calloriginal = false;
-  }
-  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    if (monster->GUID == DESTROYER || monster->GUID == ALCHEMIST || monster->GUID == VANQUISHER) {
-      calloriginal = false;
-    }
-  }
-}
-
 void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float x, float z)
 {
   if (Network::NetworkState::getSingleton().GetState() == SINGLEPLAYER) {
@@ -1090,8 +1107,8 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
 
 void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
 {
-  log(L"Inventory adding Equipment: %016I64X (%s) (slot = %x) (Owner = %s)",
-    equipment->GUID, equipment->nameReal.c_str(), slot, inventory->pCCharacter->characterName.c_str());
+  log(L"Inventory adding Equipment: %016I64X (%s %p) (slot = %x) (Owner = %s)",
+    equipment->GUID, equipment->nameReal.c_str(), equipment, slot, inventory->pCCharacter->characterName.c_str());
 
   if (inventory) {
     CCharacter *owner = inventory->pCCharacter;
@@ -1102,6 +1119,8 @@ void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, 
         // If we're suppressing this, we need to send it to the Server
         // The server will create, add the equipment and send the message back to us with the network id
         SendInventoryAddEquipmentToServer(owner, equipment, slot, unk0);
+
+        //calloriginal = false;
       }
     }
 
@@ -1153,8 +1172,8 @@ void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory,
 {
   multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
     inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
-  //log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
-  //  inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
+  log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
+    inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
 }
 
 void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
@@ -1283,11 +1302,9 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 
       calloriginal = false;
     }
-    /*
     else {
       Client::getSingleton().SetSuppressed_EquipmentCreation(false);
     }
-    */
   }
   // Send the message off to the clients
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -1563,7 +1580,19 @@ void TLMP::Character_AttackPost(CCharacter* character, bool & calloriginal)
 void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"Character (%s) Set Attack Pre", character->characterName.c_str());
-  //log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
+
+  /*
+  log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
+
+  if (character->pCAttackDescription)
+    character->pCAttackDescription->dumpAttack();
+  log(L"Character Attack Descriptions: %i", character->attackDescriptions.size());
+  vector<CAttackDescription*>::iterator itr;
+  for (itr = character->attackDescriptions.begin(); itr != character->attackDescriptions.end(); itr++) {
+    log(L"  Character Attack Desc:");
+    (*itr)->dumpAttack();
+  }
+  */
 
   // Client - Requests the set action from the server
   if (NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1863,7 +1892,6 @@ void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
 
 void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
 {
-
 }
 
 void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
@@ -1926,10 +1954,10 @@ void TLMP::Global_SetSeedValue0Post(u32 seed)
   Seed3 = (u32*)EXEOFFSET(SeedOffset3);
   Seed4 = (u32*)EXEOFFSET(SeedOffset4);
 
-  *Seed1 = 1;
-  *Seed2 = 1;
-  *Seed3 = 1;
-  *Seed4 = 1;
+  *Seed1 = 2;
+  *Seed2 = 2;
+  *Seed3 = 2;
+  *Seed4 = 2;
 }
 
 void TLMP::Global_SetSeedValue2Post(u32 seed)
@@ -1944,10 +1972,10 @@ void TLMP::Global_SetSeedValue2Post(u32 seed)
   Seed4 = (u32*)EXEOFFSET(SeedOffset4);
 
   logColor(B_GREEN, L" Reseting to 1...");
-  *Seed1 = 1;
-  *Seed2 = 1;
-  *Seed3 = 1;
-  *Seed4 = 1;
+  *Seed1 = 2;
+  *Seed2 = 2;
+  *Seed3 = 2;
+  *Seed4 = 2;
 }
 
 void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, bool& calloriginal)
@@ -1998,7 +2026,7 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
 
 void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& calloriginal)
 {
-  //log(L"Breakable: %p %p", breakable, player);
+  log(L"Breakable: %p %p", breakable, player);
 
   if (player) {
     logColor(B_RED, L"Breakable item (%s) triggered by Player (%s)", breakable->nameReal.c_str(), player->characterName.c_str());
@@ -2110,6 +2138,98 @@ void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
   }
 }
 
+void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
+{
+  log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
+
+  if (equipmentRef->pCEquipment) {
+    log(L"  Equipment: %p", equipmentRef->pCEquipment);
+    log(L"    Equipment: %s", equipmentRef->pCEquipment->nameReal.c_str());
+    log(L"    Equipment Slot: %i", equipmentRef->slot);
+  }
+}
+
+void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
+{
+  log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting");
+
+  if (equipmentRef->pCEquipment) {
+    equipmentRef->pCEquipment = NULL;
+  }
+
+  log(L"Done.");
+}
+
+void TLMP::Monster_GetCharacterClosePost(CCharacter* retval, CMonster* monster, float unk0, u32 unk1, bool& calloriginal)
+{
+  if (retval) {
+    //log(L"Monster GetCharacterClose: %s, %f %i  to: %s", monster->characterName.c_str(), unk0, unk1, retval->characterName.c_str());
+  }
+}
+
+void TLMP::Monster_ProcessAIPre(CMonster* monster, float dTime, u32 unk0, bool & calloriginal)
+{
+  //log(L"Monster_ProcessAIPre (%s), %f %i", monster->characterName.c_str(), dTime, unk0);
+}
+
+void TLMP::Monster_ProcessAI2Pre(CMonster* monster, float dTime, u32 unk0, u32 unk1, bool & calloriginal)
+{
+  //log(L"Monster_ProcessAI2Pre (%s), %f %i %i", monster->characterName.c_str(), dTime, unk0, unk1);
+
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    calloriginal = false;
+  }
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    if (monster->GUID == DESTROYER || monster->GUID == ALCHEMIST || monster->GUID == VANQUISHER) {
+      calloriginal = false;
+    }
+  }
+}
+void TLMP::Monster_ProcessAI3Pre(CMonster* monster, u32 unk0, bool & calloriginal)
+{
+  //log(L"Monster_ProcessAI3Pre (%s), %i", monster->characterName.c_str(), unk0);
+
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    calloriginal = false;
+  }
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    if (monster->GUID == DESTROYER || monster->GUID == ALCHEMIST || monster->GUID == VANQUISHER) {
+      calloriginal = false;
+    }
+  }
+}
+
+void TLMP::Character_Update_LevelPre(CCharacter* character, CLevel* level, float unk0, bool& calloriginal)
+{
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    calloriginal = false;
+  }
+}
+
+void TLMP::Character_Update_CharacterPre(CCharacter*, CCharacter*, bool& calloriginal)
+{
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    calloriginal = false;
+  }
+}
+
+void TLMP::Level_UpdatePre(CLevel*, Vector3*, u32, float, bool&)
+{
+  LevelUpdateTime.reset();
+}
+
+void TLMP::Level_UpdatePost(CLevel*, Vector3*, u32, float, bool&)
+{
+  log("Level_UpdatePost: %f", LevelUpdateTime.getTime());
+}
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)

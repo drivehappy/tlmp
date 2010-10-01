@@ -779,11 +779,46 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   string characterName = msgCharacter->name();
   u32 alignment = msgCharacter->alignment();
 
-
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
-  //log(L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
-  //  commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
+  log(L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
+    commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
+
+
+  /*
+  //
+  // DEBUGGING CLIENT SLOWDOWN
+  const u64 validGUIDChars[] = {
+    // Dog, cat, alch, etc.
+    0x5C5BBC74483A11DE,
+    0xD3A8F9832FA111DE,
+    0xD3A8F9982FA111DE,
+    0x8D3EE5363F7611DE,
+    0xAA472CC2629611DE,
+
+    // Other monsters I'm testing, one of these is slowing down the game
+    0xD3A8F9842FA111DE, // Ulrec
+    //0xD3A8F97E2FA111DE, // Skeletal Warrior
+    0x981973426D2311DE, // Rat
+    0xD3A8F9942FA111DE, // Zombie
+    0xD3A8F9802FA111DE, // Skeletal Archer
+  };
+  const u32 validSize = sizeof(validGUIDChars) / sizeof(u64);
+  bool invalid = true;
+
+  for (u32 i = 0; i < validSize; i++) {
+    if (guidCharacter == validGUIDChars[i]) {
+      invalid = false;
+      break;
+    }
+  }
+
+  if ( invalid ) {
+    return;
+  }
+  //
+  // ----
+  */
 
   NetworkEntity *existingEntity = searchCharacterByCommonID(commonId);
 

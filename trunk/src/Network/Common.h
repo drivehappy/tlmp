@@ -2,9 +2,13 @@
 
 #pragma comment(lib, "../ExternalLibs/tlapi/out/tlapi.lib")
 #pragma comment(lib, "ws2_32.lib")
+
+#if (_MSC_VER == 1500)
 #pragma comment(lib, "../ExternalLibs/google/lib/libprotobuf.lib")
 #pragma comment(lib, "../ExternalLibs/raknet/lib/RakNetLibStatic.lib")
-
+#else
+#error Your compiler isn't supported - the libraries to build will need to be built manually.
+#endif
 
 #include "DataTypes.h"
 #include "Common.h"

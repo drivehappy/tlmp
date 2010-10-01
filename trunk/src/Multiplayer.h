@@ -11,6 +11,8 @@ using namespace TLAPI;
 namespace TLMP
 {
 
+  static Timer LevelUpdateTime;
+
   void SetupNetwork();
 
   // Server Events
@@ -42,7 +44,10 @@ namespace TLMP
 
   // Pre Event for Monster AI and Idle
   void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);
-  void Monster_ProcessAI(CMonster* monster, float dTime, bool & calloriginal);
+  void Monster_ProcessAIPre(CMonster* monster, float dTime, u32 unk0, bool & calloriginal);
+  void Monster_ProcessAI2Pre(CMonster* monster, float dTime, u32 unk0, u32 unk1, bool & calloriginal);
+  void Monster_ProcessAI3Pre(CMonster* monster, u32 unk0, bool & calloriginal);
+  void Monster_GetCharacterClosePost(CCharacter*, CMonster*, float, u32, bool&);
 
   // Pre Event for Character SetDestination
   void Character_Dtor(CCharacter*);
@@ -64,6 +69,8 @@ namespace TLMP
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
   void Character_StrikePre(CCharacter*, CLevel*, CCharacter*, PVOID, u32, float, float, u32, bool&);
   void Character_ResurrectPre(CCharacter*, bool&);
+  void Character_Update_LevelPre(CCharacter*, CLevel*, float, bool&);
+  void Character_Update_CharacterPre(CCharacter*, CCharacter*, bool&);
 
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);
@@ -89,6 +96,9 @@ namespace TLMP
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
   void EquipmentIdentifyPre(CEquipment*, CPlayer*, CEquipment*, bool&);
 
+  void EquipmentRefDtorPre(CEquipmentRef*, u32);
+  void EquipmentRefDtorPost(CEquipmentRef*, u32);
+
   // Pre event for seed
   void Global_SetSeedValue0Post(u32);
   void Global_SetSeedValue2Post(u32);
@@ -102,6 +112,8 @@ namespace TLMP
   void Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
   void Level_Dtor(CLevel* level, u32, bool&);
   void Level_Ctor(wstring name, CSettings*, CGameClient*, CResourceManager*, PVOID OctreeSM, CSoundManager*, u32, u32, bool&);
+  void Level_UpdatePre(CLevel*, Vector3*, u32, float, bool&);
+  void Level_UpdatePost(CLevel*, Vector3*, u32, float, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);

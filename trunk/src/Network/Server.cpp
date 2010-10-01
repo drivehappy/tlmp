@@ -447,8 +447,6 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
 
   vector<NetworkEntity*>::iterator itr;
 
-  
-
   // Grab the client's current level information
   NetworkMessages::CurrentLevel msgCurrentLevel = msgGameEnter->currentlevel();
   wstring dungeonSection = convertAsciiToWide(msgCurrentLevel.dungeonsection());
@@ -465,10 +463,21 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
     // Check for destroyed equipment and remove them
     RemoveDestroyedEquipmentFromNetwork();
 
+    log("1");
+
+    CLevel *level = gameClient->pCLevel;
+    u32 offset = (u32)&level->levelName - (u32)level;
+    log("  offset level name: %x", offset);
+    offset = (u32)&level->ppCCharacters1 - (u32)level;
+    log("  offset ppCCharacters1: %x", offset);
+    log("  level: %p", level);
+
     // Send the Sync-Up for Trigger Units (since the server doesn't push these out,
     //  the level is assumed to be generated the same (same seed value),
     //  assuming they're created in the same order from the layout
     Helper_SendTriggerUnitSync(clientAddress);
+
+    log("2");
 
     // Send all of the existing equipment in the game to the client
     for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
@@ -504,6 +513,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
         Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
       //}
     }
+
 
     // Send all of the existing characters in the game to the client
     for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
@@ -593,6 +603,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
     // Send the current level to the Client to load
     Helper_SendCurrentLevel(clientAddress);
   }
+
 }
 
 // Server receives game exit from client
@@ -1571,7 +1582,10 @@ void Server::Helper_SendCurrentLevel(const SystemAddress clientAddress)
 
 void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
 {
-  //log(L"Server: Sending Trigger Units...\n");
+  log(L"Server: Sending Trigger Units...: %p", gameClient->pCLevel);
+  
+  u32 offset = (u32)&gameClient->pCLevel->ppCTriggerUnits - (u32)gameClient->pCLevel;
+  log(L"  offset of triggerUnits = %x", offset);
 
   NetworkMessages::TriggerUnitSync msgTriggerUnitSync;
 
@@ -1600,9 +1614,10 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
 
     itr = itr->pNext;
   }
-  //logColor(B_RED, "Server sending trigger units...");
-
+ 
   Server::getSingleton().SendMessage<NetworkMessages::TriggerUnitSync>(clientAddress, S_PUSH_TRIGGERUNIT_SYNC, &msgTriggerUnitSync);
+
+  logColor(B_RED, "Server done sending trigger units...");
 }
 
 
