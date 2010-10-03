@@ -842,6 +842,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
       monster->baseDefense = defense;
       monster->baseMagic = magic;
     } else {
+      Client::getSingleton().SetSuppressed_CharacterCreation(true);
       multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
       //logColor(B_RED, L"Error: Character created was null!");
       return;
@@ -1610,6 +1611,8 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
     //log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
     //  itemId, characterId);
   }
+
+  log(L"Done handling Breakable Triggered");
 }
 
 void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTrigger)

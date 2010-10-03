@@ -19,6 +19,8 @@ void TLMP::SetupNetwork()
   CGame::RegisterEvent_GameCtor(Game_Ctor, NULL);
   CGame::RegisterEvent_Game_CreateUI(NULL, GameClient_CreateUI);
 
+  CEffect::RegisterEvent_Effect_Effect_Something(Effect_EffectSomethingPre, Effect_EffectSomethingPost);
+
   CResourceManager::RegisterEvent_ResourceManagerCreatePlayer(CreatePlayer, NULL);
   CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
   CResourceManager::RegisterEvent_ResourceManagerCreateItem(CreateItemPre, CreateItemPost);
@@ -67,7 +69,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterUseSkill(Character_UseSkillPre, Character_UseSkillPost);
   CCharacter::RegisterEvent_CharacterSetDestination(NULL, Character_SetDestination);
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
-  CCharacter::RegisterEvent_Character_Update(Character_Character_UpdatePre, NULL);
+  CCharacter::RegisterEvent_Character_Update(Character_Character_UpdatePre, Character_Character_UpdatePost);
   CCharacter::RegisterEvent_Character_SetOrientation(Character_SetOrientationPre, NULL);
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
@@ -221,6 +223,26 @@ void TLMP::Equipment_DtorPre(CEquipment* equipment)
     if (equipment == equipment2) {
       NetworkSharedEquipment->erase(itr);
       break;
+    }
+  }
+
+  // Attempt to duct-tape a bug with item duping, move across our player's inventory
+  // and cleanup the equipment in any equipmentRef's that are tied to the equipment
+  if (gameClient) {
+    CPlayer* player = gameClient->pCPlayer;
+    if (player) {
+      CInventory *inventory = gameClient->pCPlayer->pCInventory;
+      if (inventory) {
+        for (u32 i = 0; i < inventory->equipmentList.size; i++) {
+          CEquipmentRef *equipmentRef = inventory->equipmentList[i];
+          if (equipmentRef) {
+            if (equipmentRef->pCEquipment == equipment) {
+              // Null it so the destructor plays nice
+              equipmentRef->pCEquipment = NULL;
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -545,6 +567,8 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         // TESTING - Destroy the character if we're not going to load it
         character->destroy = true;
       }
+
+      log("Character destroy = %s", character->destroy ? "true" : "false");
     }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -732,13 +756,15 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
 
 void TLMP::Level_Dtor(CLevel* level, u32, bool&)
 {
-  //logColor(B_RED, L"Level Dtor (%p)", level);
+  logColor(B_RED, L"Level Dtor (%p)", level);
   multiplayerLogger.WriteLine(Info, L"Level Dtor (%p)", level);
 
-  level->DumpCharacters1();
-  level->DumpTriggerUnits();
-  level->DumpCharacters2();
+  //level->DumpCharacters1();
+  //level->DumpTriggerUnits();
+  //level->DumpCharacters2();
   level->DumpItems();
+
+  log(L"Level::Dtor Done Dumping Level Info");
 }
 
 void TLMP::Level_Ctor(wstring name, CSettings* settings, CGameClient* gameClient, CResourceManager* resourceManager, PVOID OctreeSM, CSoundManager* soundManager, u32 unk0, u32 unk1, bool&)
@@ -757,15 +783,16 @@ void TLMP::Level_Ctor(wstring name, CSettings* settings, CGameClient* gameClient
 
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
-  //logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
+  logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
   multiplayerLogger.WriteLine(Info, L"LoadLevelPre (GameClient = %p)", client);
 
   
   CLevel *level = client->pCLevel;
-  level->DumpCharacters1();
-  level->DumpTriggerUnits();
-  level->DumpCharacters2();
+  //level->DumpCharacters1();
+  //level->DumpTriggerUnits();
+  //level->DumpCharacters2();
   level->DumpItems();
+
 
   /*
   logColor(B_GREEN, L"Level: %i", client->level);
@@ -789,11 +816,13 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
     multiplayerLogger.WriteLine(Info, L"GameClient::LoadLevel Suppressed");
     //logColor(B_GREEN, L"GameClient::LoadLevel Suppressed");
   }
+
+  log(L"GameClient_LoadLevelPre Done Dumping Info.");
 }
 
 void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
 {
-  //logColor(B_GREEN, L"GameClient_LoadLevelPost");
+  logColor(B_GREEN, L"GameClient_LoadLevelPost");
   multiplayerLogger.WriteLine(Info, L"GameClient_LoadLevelPost");
 
   CLevel *level = client->pCLevel;
@@ -813,6 +842,8 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   */
 
   LevelLoading = false;
+
+  log(L"GameClient_LoadLevelPost Done Dumping Info.");
 }
 
 void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
@@ -1892,6 +1923,19 @@ void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
 
 void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
 {
+  CharacterUpdateTime[character].reset();
+}
+
+void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
+{
+  //log(L"  CharacterUpdateTime: %s %f  (%f, %f, %f)", character->characterName.c_str(), CharacterUpdateTime[character].getTime(),
+  //  character->position.x, character->position.y, character->position.z);
+
+  // Off weird characters that may have been setup by the client... don't know how these got created but they're all at Y=100.0
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (character->position.y >= 100.0)
+      character->destroy = true;
+  }
 }
 
 void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
@@ -2140,12 +2184,12 @@ void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
 
 void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
+  //log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
 
   if (equipmentRef->pCEquipment) {
     log(L"  Equipment: %p", equipmentRef->pCEquipment);
     log(L"    Equipment: %s", equipmentRef->pCEquipment->nameReal.c_str());
-    log(L"    Equipment Slot: %i", equipmentRef->slot);
+    //log(L"    Equipment Slot: %i", equipmentRef->slot);
   }
 }
 
@@ -2157,7 +2201,7 @@ void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
     equipmentRef->pCEquipment = NULL;
   }
 
-  log(L"Done.");
+  //log(L"Done.");
 }
 
 void TLMP::Monster_GetCharacterClosePost(CCharacter* retval, CMonster* monster, float unk0, u32 unk1, bool& calloriginal)
@@ -2209,26 +2253,68 @@ void TLMP::Monster_ProcessAI3Pre(CMonster* monster, u32 unk0, bool & callorigina
 
 void TLMP::Character_Update_LevelPre(CCharacter* character, CLevel* level, float unk0, bool& calloriginal)
 {
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    calloriginal = false;
-  }
+  //if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+  //  calloriginal = false;
+  //}
 }
 
 void TLMP::Character_Update_CharacterPre(CCharacter*, CCharacter*, bool& calloriginal)
 {
-  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
-    calloriginal = false;
-  }
+  //if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+  //  calloriginal = false;
+  //}
 }
 
-void TLMP::Level_UpdatePre(CLevel*, Vector3*, u32, float, bool&)
+void TLMP::Level_UpdatePre(CLevel*, Vector3*, u32, float, bool& calloriginal)
 {
   LevelUpdateTime.reset();
 }
 
-void TLMP::Level_UpdatePost(CLevel*, Vector3*, u32, float, bool&)
+void TLMP::Level_UpdatePost(CLevel* level, Vector3* position, u32 unk0, float unk1, bool&)
 {
+  /*
   log("Level_UpdatePost: %f", LevelUpdateTime.getTime());
+  log("  Position: %f %f %f", position->x, position->y, position->z);
+  log("  unk0: %i   unk1: %f", unk0, unk1);
+  log("  Character Count: %i", level->GetCharacterCount());
+  */
+}
+
+void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal)
+{
+  // Check if the vtable is correct for _this
+  //if (*(u32*)effect != 0xA7B36C) {
+    //log(L"Bypassing weird client bug with effects... vtable is incorrect...");
+  {
+    calloriginal = false;
+    return;
+  }
+
+  log(L"EffectSomethingPre: %p %p", effect, other);
+  effect->dumpEffect();
+  other->dumpEffect();
+
+  log(L"  BaseUnit: %p %p", effect->pCBaseUnit, other->pCBaseUnit);
+
+  if (effect->pCBaseUnit) {
+    log(L"  BaseUnit1 Type: %x (%016I64X)", effect->pCBaseUnit->type__, effect->pCBaseUnit->GUID);
+    if (effect->pCBaseUnit->type__ == 0x1B) {
+      CCharacter* character = (CCharacter*)effect->pCBaseUnit;
+      log(L"    Name: %s", character->characterName.c_str());
+    }
+  }
+  if (other->pCBaseUnit) {
+    log(L"  BaseUnit2 Type: %x (%016I64X)", other->pCBaseUnit->type__, other->pCBaseUnit->GUID);
+    if (other->pCBaseUnit->type__ == 0x1B) {
+      CCharacter* character = (CCharacter*)other->pCBaseUnit;
+      log(L"    Name: %s", character->characterName.c_str());
+    }
+  }
+}
+
+void TLMP::Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal)
+{
+  log(L"EffectSomethingPost: %p %p", effect, other);
 }
 
 // Server Events
