@@ -10,8 +10,9 @@ using namespace TLAPI;
 
 namespace TLMP
 {
-
+  // Debugging client slowdown
   static Timer LevelUpdateTime;
+  static map<CCharacter*, Timer> CharacterUpdateTime;
 
   void SetupNetwork();
 
@@ -42,6 +43,10 @@ namespace TLMP
   void CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
   void CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk, bool & calloriginal);
 
+  // Effect event, debugging client, it crashes on this function
+  void Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal);
+  void Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal);
+
   // Pre Event for Monster AI and Idle
   void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);
   void Monster_ProcessAIPre(CMonster* monster, float dTime, u32 unk0, bool & calloriginal);
@@ -63,6 +68,7 @@ namespace TLMP
   void Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
   void Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool&);
   void Character_Character_UpdatePre(CCharacter*, PVOID, float*, float, bool&);
+  void Character_Character_UpdatePost(CCharacter*, PVOID, float*, float, bool&);
   void Character_SetOrientationPre(CCharacter*, Vector3*, float, bool&);
   void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
