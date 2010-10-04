@@ -53,6 +53,10 @@ namespace TLMP {
       inline bool GetSuppressed_SendCharacterAttack()              { return m_bSuppressNetwork_SendCharacterAttack; }
       inline void SetSuppressed_SendCharacterAttack(bool value)    { m_bSuppressNetwork_SendCharacterAttack = value; }
 
+      inline bool GetSuppressed_SendAddExperience()                { return m_bSuppressNetwork_AddExperience; }
+      inline void SetSuppressed_SendAddExperience(bool value)      { m_bSuppressNetwork_AddExperience = value; }
+
+      
 
 
       void Helper_PopulateEquipmentMessage(TLMP::NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
@@ -141,6 +145,7 @@ namespace TLMP {
       bool m_bSuppressNetwork_SendEquipmentUnequip;
       bool m_bSuppressNetwork_SendEquipmentStack;
       bool m_bSuppressNetwork_SendCharacterAttack;
+      bool m_bSuppressNetwork_AddExperience;
     };
 
   };

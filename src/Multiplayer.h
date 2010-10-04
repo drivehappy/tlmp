@@ -77,6 +77,8 @@ namespace TLMP
   void Character_ResurrectPre(CCharacter*, bool&);
   void Character_Update_LevelPre(CCharacter*, CLevel*, float, bool&);
   void Character_Update_CharacterPre(CCharacter*, CCharacter*, bool&);
+  void Character_Player_KillMonsterExperiencePre(CCharacter*, CLevel*, CCharacter*, u32, u32, bool&);
+  void Character_Player_KillMonsterExperiencePost(CCharacter*, CLevel*, CCharacter*, u32, u32, bool&);
 
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);
@@ -120,6 +122,8 @@ namespace TLMP
   void Level_Ctor(wstring name, CSettings*, CGameClient*, CResourceManager*, PVOID OctreeSM, CSoundManager*, u32, u32, bool&);
   void Level_UpdatePre(CLevel*, Vector3*, u32, float, bool&);
   void Level_UpdatePost(CLevel*, Vector3*, u32, float, bool&);
+  void Level_CleanupPre(CLevel*, u32, u32, bool&);
+  void Level_CleanupPost(CLevel*, u32, u32, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);

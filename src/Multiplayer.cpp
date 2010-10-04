@@ -32,7 +32,7 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_Level_Update(Level_UpdatePre, Level_UpdatePost);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
-  CGameClient::RegisterEvent_GameClientProcessObjects(NULL, GameClient_ProcessObjects);
+  CGameClient::RegisterEvent_GameClientProcessObjects(GameClient_ProcessObjects, NULL);
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
   CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, GameClient_CreateLevelPost);
   CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, GameClient_LoadLevelPost);
@@ -78,6 +78,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_PlayerResurrect(Character_ResurrectPre, NULL);
   CCharacter::RegisterEvent_Character_Update_Level(Character_Update_LevelPre, NULL);
   CCharacter::RegisterEvent_Character_Update_Character(Character_Update_CharacterPre, NULL);
+  CCharacter::RegisterEvent_Player_KillMonsterExperience(Character_Player_KillMonsterExperiencePre, Character_Player_KillMonsterExperiencePost);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
@@ -555,20 +556,26 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
       // Remove the stash or shared stash if we're not in the town
       if (wcscmp(level->levelName.c_str(), L"TOWN") && (guid == STASH || guid == SHAREDSTASH) ) {
         character->destroy = true;
-      } else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
-        guid == DOG || guid == CAT || guid == BRINK || guid == STASH || guid == SHAREDSTASH)
+      } 
+      else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
+        guid == DOG || guid == CAT || guid == BRINK)
       {
         //log("Client: Detected CPlayer addition to CLevel, not suppressing load");
       } else {
-        //log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
-        //calloriginal = false;
-        //retval = NULL;
-
-        // TESTING - Destroy the character if we're not going to load it
-        character->destroy = true;
+        // Town characters won't be destroyed, so just don't call this.
+        if (!wcscmp(level->levelName.c_str(), L"TOWN")) {
+          log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
+          calloriginal = false;
+          retval = NULL;
+        }
+        // However, any characters in the level will still be present but unselectable, so destroy them this way
+        else {
+          // TESTING - Destroy the character if we're not going to load it
+          character->destroy = true;
+        }
       }
 
-      log("Character destroy = %s", character->destroy ? "true" : "false");
+      //log("Character destroy = %s", character->destroy ? "true" : "false");
     }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
@@ -1016,18 +1023,16 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
       if (!wcscmp(item->nameReal.c_str(), L"Barrel") ||
           !wcscmp(item->nameReal.c_str(), L"Stairs Up") || 
           !wcscmp(item->nameReal.c_str(), L"Stairs Down") ||
-          !wcscmp(item->nameReal.c_str(), L"Return to Dungeon"))
+          !wcscmp(item->nameReal.c_str(), L"Return to Dungeon") ||
+          !wcscmp(item->nameReal.c_str(), L"Waygate to Town"))
       {
         calloriginal = false;
       }
     }
-    else
-    {
-      if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
-        calloriginal = false;
+    else if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
+      calloriginal = false;
 
-        //logColor(B_GREEN, L"Client: AddedItem: %p %x %s", item, item->type__, item->nameReal.c_str());
-      }
+      //logColor(B_GREEN, L"Client: AddedItem: %p %x %s", item, item->type__, item->nameReal.c_str());
     }
     
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
@@ -1570,6 +1575,8 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
   if (target != NULL) {
     multiplayerLogger.WriteLine(Info, L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
     //log(L"Character (%s) Set Target: %s", character->characterName.c_str(), target->characterName.c_str());
+  } else {
+    multiplayerLogger.WriteLine(Info, L"Character (%s) Set Target: null", character->characterName.c_str());
   }
 
   // Setup the information
@@ -2282,14 +2289,16 @@ void TLMP::Level_UpdatePost(CLevel* level, Vector3* position, u32 unk0, float un
 
 void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal)
 {
-  // Check if the vtable is correct for _this
-  //if (*(u32*)effect != 0xA7B36C) {
-    //log(L"Bypassing weird client bug with effects... vtable is incorrect...");
-  {
-    calloriginal = false;
-    return;
+  // This will sometimes cause a crash on the client... are we not adding effects properly to items?
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_AddEffect()) {
+      log(L"Suppressing Effect_Effect");
+      calloriginal = false;
+      return;
+    }
   }
 
+  /*
   log(L"EffectSomethingPre: %p %p", effect, other);
   effect->dumpEffect();
   other->dumpEffect();
@@ -2310,12 +2319,82 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
       log(L"    Name: %s", character->characterName.c_str());
     }
   }
+  */
 }
 
 void TLMP::Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal)
 {
-  log(L"EffectSomethingPost: %p %p", effect, other);
+  //log(L"EffectSomethingPost: %p %p", effect, other);
 }
+
+void TLMP::Level_CleanupPre(CLevel* level, u32 unk0, u32 unk1, bool& calloriginal)
+{
+  log(L"Level::Cleanup Pre: %s %x %x", level->levelName.c_str(), unk0, unk1);
+}
+
+void TLMP::Level_CleanupPost(CLevel* level, u32 unk0, u32 unk1, bool& calloriginal)
+{
+  log(L"Level::Cleanup Post: %s %x %x", level->levelName.c_str(), unk0, unk1);
+}
+
+
+void TLMP::Character_Player_KillMonsterExperiencePre(CCharacter* player, CLevel* level, CCharacter* monster, u32 experience, u32 unk0, bool& calloriginal)
+{
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  log(L"Player Killed Monster Pre: %s %p", player->characterName.c_str(), monster);
+
+  if (monster) {
+    log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
+  }
+
+  // Work on network messages
+  NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
+  if (!netCharacter) {
+    log(L"Error: Could not find network id for player: %s", player->characterName.c_str());
+    return;
+  }
+
+  // Client
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_AddExperience()) {
+      calloriginal = false;
+    }
+  }
+  // Server
+  else if (NetworkState::getSingleton().GetState() == SERVER) {
+    if (!Server::getSingleton().GetSuppressed_SendAddExperience()) {
+      // Only send experience when the player is tagged as a killer (should always happen, and only 1 player should be tagged so)
+      if (player->GUID == ALCHEMIST || player->GUID == DESTROYER || player->GUID == VANQUISHER) {
+        NetworkMessages::CharacterAddExperience msgCharacterAddExperience;
+        msgCharacterAddExperience.set_characterid(netCharacter->getCommonId());
+        msgCharacterAddExperience.set_experience(experience);
+        msgCharacterAddExperience.set_unk0(unk0);
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterAddExperience>(S_PUSH_ADDEXPERIENCE, &msgCharacterAddExperience);
+
+        // If the player isn't ours, go ahead and give our player the experience too
+        if (gameClient->pCPlayer != player) {
+          Server::getSingleton().SetSuppressed_SendAddExperience(true);
+          gameClient->pCPlayer->KillMonsterExperience(level, NULL, experience, unk0);
+          Server::getSingleton().SetSuppressed_SendAddExperience(false);
+        }
+      }
+    }
+  }
+}
+
+void TLMP::Character_Player_KillMonsterExperiencePost(CCharacter* player, CLevel* level, CCharacter* monster, u32 experience, u32 unk0, bool& calloriginal)
+{
+  log(L"Player Killed Monster Post: %p", monster);
+  
+  if (monster) {
+    log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
+  }
+}
+
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)

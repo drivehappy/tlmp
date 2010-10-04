@@ -92,15 +92,18 @@ namespace TLMP {
       inline bool GetAllow_CharacterSetTarget()             { return m_bAllow_CharacterSetTarget; }
       inline void SetAllow_CharacterSetTarget(bool value)   { m_bAllow_CharacterSetTarget = value; }
                   
-      inline bool GetAllow_EquipmentIdentify()             { return m_bAllow_EquipmentIdentify; }
-      inline void SetAllow_EquipmentIdentify(bool value)   { m_bAllow_EquipmentIdentify = value; }
+      inline bool GetAllow_EquipmentIdentify()              { return m_bAllow_EquipmentIdentify; }
+      inline void SetAllow_EquipmentIdentify(bool value)    { m_bAllow_EquipmentIdentify = value; }
                         
       inline bool GetAllow_CharacterResurrect()             { return m_bAllow_CharacterResurrect; }
       inline void SetAllow_CharacterResurrect(bool value)   { m_bAllow_CharacterResurrect = value; }
-      
-      
 
-      
+      inline bool GetAllow_AddEffect()                      { return m_bAllow_AddEffect; }
+      inline void SetAllow_AddEffect(bool value)            { m_bAllow_AddEffect = value; }
+
+      inline bool GetAllow_AddExperience()                  { return m_bAllow_AddExperience; }
+      inline void SetAllow_AddExperience(bool value)        { m_bAllow_AddExperience = value; }
+
 
       void ReceiveMessages();
 
@@ -159,6 +162,7 @@ namespace TLMP {
       void HandleCurrentLevel(NetworkMessages::CurrentLevel *);
       void HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *);
       void HandleCharacterResurrect(NetworkMessages::CharacterResurrect *);
+      void HandleCharacterAddExperience(NetworkMessages::CharacterAddExperience *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -201,6 +205,8 @@ namespace TLMP {
       bool m_bAllow_LevelItemDrop;
       bool m_bAllow_CharacterSetTarget;
       bool m_bAllow_EquipmentIdentify;
+      bool m_bAllow_AddEffect;
+      bool m_bAllow_AddExperience;
     };
 
   };
