@@ -131,6 +131,8 @@ namespace TLMP {
 
       C_REQUEST_CHARACTER_RESURRECT,// Client request resurrect
       S_PUSH_CHARACTER_RESURRECT,   // Server pushes resurrect
+
+      S_PUSH_ADDEXPERIENCE,         // Server pushes player experience gain
     };
 
     static const char* MessageString[] = {
@@ -237,6 +239,8 @@ namespace TLMP {
 
       "C_REQUEST_CHARACTER_RESURRECT",
       "S_PUSH_CHARACTER_RESURRECT",
+
+      "S_PUSH_ADDEXPERIENCE",
     };
 
   };

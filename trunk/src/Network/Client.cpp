@@ -48,6 +48,8 @@ void Client::Reset()
   m_bAllow_CharacterSetTarget = false;
   m_bAllow_EquipmentIdentify = false;
   m_bAllow_CharacterResurrect = false;
+  m_bAllow_AddEffect = false;
+  m_bAllow_AddExperience = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -572,6 +574,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_ADDEXPERIENCE:
+    {
+      NetworkMessages::CharacterAddExperience *msgCharacterAddExperience = ParseMessage<NetworkMessages::CharacterAddExperience>(m_pBitStream);
+
+      HandleCharacterAddExperience(msgCharacterAddExperience);
+    }
+    break;
+
   }     
 }
 
@@ -951,7 +961,9 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
       multiplayerLogger.WriteLine(Info, L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
       //log(L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
 
+      SetAllow_AddEffect(true);
       equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
+      SetAllow_AddEffect(false);
     }
 
     multiplayerLogger.WriteLine(Info, L"Client: Adding equipment to shared network equipment");
@@ -1837,4 +1849,33 @@ void Client::HandleCharacterResurrect(NetworkMessages::CharacterResurrect *msgCh
     character->Resurrect();
     SetAllow_CharacterResurrect(false);
   }
+}
+
+void Client::HandleCharacterAddExperience(NetworkMessages::CharacterAddExperience *msgCharacterAddExperience)
+{
+  log(L"Client received character add experience.");
+
+  // Ignore the character sent, just update our experience and our pet's
+  //NetworkEntity *entity = searchCharacterByCommonID(msgCharacterAddExperience->characterid());
+  u32 experience = msgCharacterAddExperience->experience();
+  u32 unk0 = msgCharacterAddExperience->unk0();
+
+  //if (entity) {
+  //CCharacter *character = (CCharacter*)entity->getInternalObject();
+
+  SetAllow_AddExperience(true);
+  
+  //character->KillMonsterExperience(gameClient->pCLevel, NULL, experience, unk0);
+  
+  gameClient->pCPlayer->KillMonsterExperience(gameClient->pCLevel, NULL, experience, unk0);
+  /*
+  // Update minion experience
+  vector<CCharacter*> *minions = gameClient->pCPlayer->GetMinions();
+  vector<CCharacter*>::iterator itr;
+  for (itr = minions->begin(); itr != minions->end(); itr++) {
+    (*itr)->KillMonsterExperience(gameClient->pCLevel, NULL, experience, unk0);
+  }
+  */
+  
+  SetAllow_AddExperience(false);
 }

@@ -35,6 +35,7 @@ void Server::Reset()
   m_bSuppressNetwork_SendEquipmentCreation = false;
   m_bSuppressNetwork_SendEquipmentStack = false;
   m_bSuppressNetwork_SendCharacterAttack = false;
+  m_bSuppressNetwork_AddExperience = false;
 }
 
 void Server::Listen(u16 port, u16 maxconnections)
