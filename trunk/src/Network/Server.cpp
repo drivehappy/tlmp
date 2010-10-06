@@ -464,37 +464,46 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
     // Check for destroyed equipment and remove them
     RemoveDestroyedEquipmentFromNetwork();
 
-    log("1");
-
     CLevel *level = gameClient->pCLevel;
-    u32 offset = (u32)&level->levelName - (u32)level;
-    log("  offset level name: %x", offset);
-    offset = (u32)&level->ppCCharacters1 - (u32)level;
-    log("  offset ppCCharacters1: %x", offset);
-    log("  level: %p", level);
 
     // Send the Sync-Up for Trigger Units (since the server doesn't push these out,
     //  the level is assumed to be generated the same (same seed value),
     //  assuming they're created in the same order from the layout
     Helper_SendTriggerUnitSync(clientAddress);
 
-    log("2");
-
     // Send all of the existing equipment in the game to the client
+    LinkedListNode* itrInv = *level->ppCCharacters2;
+    while (itrInv != NULL) {
+      CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
+
+      CInventory* inventory = character->pCInventory;
+      for (u32 i = 0; i < inventory->equipmentList.size; i++) {
+        CEquipmentRef *equipmentRef = inventory->equipmentList[i];
+        CEquipment* equipment = equipmentRef->pCEquipment;
+
+        NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
+
+        if (!entity) {
+          entity = addEquipment(equipment);
+        }
+
+        if (equipment) {
+          Helper_SendEquipmentToClient(clientAddress, equipment, entity);
+        }
+      }
+
+      itrInv = itrInv->pNext;
+    }
+    
+
+    /* Use the Level's character's inventories instead
     for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
       CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
 
-      /*
-      // Suppress Waypoint and Return to Dungeon
-      if (equipment->GUID != 0x761772BDA01D11DE &&
-        equipment->GUID != 0xD3A8F99E2FA111DE &&
-        equipment->GUID != 0xD3A8F9992FA111DE &&
-        equipment->GUID != 0xFFFFFFFFFFFFFFFF &&
-        equipment->GUID != 0xEBE0D78E6D7F11DE)
-      {*/
-        Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
-      //}
+      Helper_SendEquipmentToClient(clientAddress, equipment, (*itr));
+      log(L"Server: Sending Equipment To New Client: %s", equipment->nameReal.c_str());
     }
+    */
     
     // Send all of the Equipment on the Ground in the game
     for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {

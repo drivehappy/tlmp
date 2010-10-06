@@ -133,6 +133,8 @@ namespace TLMP {
       S_PUSH_CHARACTER_RESURRECT,   // Server pushes resurrect
 
       S_PUSH_ADDEXPERIENCE,         // Server pushes player experience gain
+
+      S_PUSH_CHARACTERKILLED,       // Push a character kill
     };
 
     static const char* MessageString[] = {
@@ -241,6 +243,9 @@ namespace TLMP {
       "S_PUSH_CHARACTER_RESURRECT",
 
       "S_PUSH_ADDEXPERIENCE",
+
+      "S_PUSH_CHARACTERKILLED",
+      
     };
 
   };

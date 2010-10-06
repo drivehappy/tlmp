@@ -582,6 +582,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_CHARACTERKILLED:
+    {
+      NetworkMessages::CharacterKilledCharacter *msgCharacterKilledCharacter = ParseMessage<NetworkMessages::CharacterKilledCharacter>(m_pBitStream);
+
+      HandleCharacterKillCharacter(msgCharacterKilledCharacter);
+    }
+    break;
+
   }     
 }
 
@@ -1724,7 +1732,7 @@ void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
     if (netTarget) {
       target = (CCharacter*)netTarget->getInternalObject();
     } else {
-      //log(L"Error: Could not find Target character of ID: %x", targetId);
+      log(L"Error: Could not find Target character of ID: %x", targetId);
       return;
     }
   }
@@ -1738,7 +1746,7 @@ void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
       SetAllow_CharacterSetTarget(false);
     }
   } else {
-    //log(L"Error: Could not find Character of ID: %x", characterId);
+    log(L"Error: Could not find Character of ID: %x", characterId);
   }
 }
 
@@ -1878,4 +1886,39 @@ void Client::HandleCharacterAddExperience(NetworkMessages::CharacterAddExperienc
   */
   
   SetAllow_AddExperience(false);
+}
+
+void Client::HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharacter *msgCharacterKilledCharacter)
+{
+  u32 unk0 = msgCharacterKilledCharacter->unk0();
+  u32 characterId = msgCharacterKilledCharacter->characterid();
+  u32 otherId = msgCharacterKilledCharacter->otherid();
+
+  NetworkMessages::Position msgPosition = msgCharacterKilledCharacter->position();
+
+  NetworkEntity *entityCharacter = searchCharacterByCommonID(characterId);
+  NetworkEntity *entityOther = searchCharacterByCommonID(otherId);
+
+  if (!entityCharacter) {
+    log(L"Could not find character with common id: %x", characterId);
+    return;
+  }
+
+  if (!entityOther) {
+    log(L"Could not find other character with common id: %x", otherId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entityCharacter->getInternalObject();
+  CCharacter *other = (CCharacter*)entityOther->getInternalObject();
+  CLevel *level = gameClient->pCLevel;
+  Vector3 position;
+  position.x = msgPosition.x();
+  position.y = msgPosition.y();
+  position.z = msgPosition.z();
+
+  if (level) {
+    level->CharacterKill(character, other, &position, unk0);
+  }
+
 }

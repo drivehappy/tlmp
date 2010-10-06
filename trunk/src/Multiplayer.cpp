@@ -30,6 +30,7 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_Level_Dtor(Level_Dtor, NULL);
   CLevel::RegisterEvent_Level_Ctor(Level_Ctor, NULL);
   CLevel::RegisterEvent_Level_Update(Level_UpdatePre, Level_UpdatePost);
+  CLevel::RegisterEvent_Level_CharacterKilledCharacter(Level_Level_CharacterKilledCharacterPre, Level_Level_CharacterKilledCharacterPost);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(GameClient_ProcessObjects, NULL);
@@ -79,6 +80,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_Character_Update_Level(Character_Update_LevelPre, NULL);
   CCharacter::RegisterEvent_Character_Update_Character(Character_Update_CharacterPre, NULL);
   CCharacter::RegisterEvent_Player_KillMonsterExperience(Character_Player_KillMonsterExperiencePre, Character_Player_KillMonsterExperiencePost);
+  CCharacter::RegisterEvent_Character_Killed(Character_KilledPre, Character_KilledPost);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
@@ -1612,12 +1614,22 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
 
 void TLMP::Character_AttackPost(CCharacter* character, bool & calloriginal)
 {
-  //log(L"Character Attack Post");
+  /*
+  log(L"Character (%s) Set Attack Post", character->characterName.c_str());
+  log(L"  Test: %x %x %x %x", character->destroy, character->destroy1, character->destroy2, character->destroy3);
+  log(L"  Test: %x %x %x %x", character->moving, character->unkBool0, character->attacking, character->usingSkill);
+  */
 }
 
 void TLMP::Character_AttackPre(CCharacter* character, bool & calloriginal)
 {
   multiplayerLogger.WriteLine(Info, L"Character (%s) Set Attack Pre", character->characterName.c_str());
+
+  /*
+  log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
+  log(L"  Test: %x %x %x %x", character->destroy, character->destroy1, character->destroy2, character->destroy3);
+  log(L"  Test: %x %x %x %x", character->moving, character->unkBool0, character->attacking, character->usingSkill);
+  */
 
   /*
   log(L"Character (%s) Set Attack Pre", character->characterName.c_str());
@@ -2344,10 +2356,12 @@ void TLMP::Character_Player_KillMonsterExperiencePre(CCharacter* player, CLevel*
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
 
-  log(L"Player Killed Monster Pre: %s %p", player->characterName.c_str(), monster);
+  //log(L"Player Killed Monster Pre: %s %p", player->characterName.c_str(), monster);
 
   if (monster) {
-    log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
+    //log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
+    //log(L"  Test: %x %x %x %x", monster->destroy, monster->destroy1, monster->destroy2, monster->destroy3);
+    //log(L"  Test: %x %x %x %x", monster->moving, monster->unkBool0, monster->attacking, monster->usingSkill);
   }
 
   // Work on network messages
@@ -2388,13 +2402,77 @@ void TLMP::Character_Player_KillMonsterExperiencePre(CCharacter* player, CLevel*
 
 void TLMP::Character_Player_KillMonsterExperiencePost(CCharacter* player, CLevel* level, CCharacter* monster, u32 experience, u32 unk0, bool& calloriginal)
 {
-  log(L"Player Killed Monster Post: %p", monster);
-  
+  //log(L"Player Killed Monster Post: %p  experience: %i", monster, experience);
+
   if (monster) {
-    log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
+    //log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
+    //log(L"  Test: %x %x %x %x", monster->destroy, monster->destroy1, monster->destroy2, monster->destroy3);
+    //log(L"  Test: %x %x %x %x", monster->moving, monster->unkBool0, monster->attacking, monster->usingSkill);
   }
 }
 
+void TLMP::Level_Level_CharacterKilledCharacterPre(CLevel* level, CCharacter* character, CCharacter* other, Vector3* position, u32 unk0, bool& calloriginal)
+{
+  log(L"Level_CharacterKilledCharacterPre: %p, %s, %f %f %f,  unk0: %x",
+    level, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+
+  // Skip sending, this is probably a barrel and we sync it up anyways
+  if (!other) {
+    return;
+  }
+
+  // 
+  if (NetworkState::getSingleton().GetState() == SERVER) {
+    NetworkEntity *entityCharacter = searchCharacterByInternalObject(character);
+    NetworkEntity *entityOther = searchCharacterByInternalObject(other);
+
+    if (!entityCharacter) {
+      log(L"Error: Could not find network ID for : %s", character->characterName.c_str());
+      return;
+    }
+
+    if (!entityOther) {
+      log(L"Error: Could not find network ID for character: %s", other->characterName.c_str());
+      return;
+    }
+
+    NetworkMessages::CharacterKilledCharacter msgCharacterKilledCharacter;
+    NetworkMessages::Position *msgPosition = msgCharacterKilledCharacter.mutable_position();
+
+    msgPosition->set_x(position->x);
+    msgPosition->set_y(position->y);
+    msgPosition->set_z(position->z);
+
+    msgCharacterKilledCharacter.set_characterid(entityCharacter->getCommonId());
+    msgCharacterKilledCharacter.set_otherid(entityOther->getCommonId());
+    msgCharacterKilledCharacter.set_unk0(unk0);
+
+    Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterKilledCharacter>(S_PUSH_CHARACTERKILLED, &msgCharacterKilledCharacter);
+  }
+}
+
+void TLMP::Level_Level_CharacterKilledCharacterPost(CLevel* level, CCharacter* character, CCharacter* other, Vector3* position, u32 unk0, bool& calloriginal)
+{
+  log(L"Level_CharacterKilledCharacterPost");
+}
+
+void TLMP::Character_KilledPre(CCharacter* charKilled, CCharacter* charKillingBlow, Ogre::Vector3* direction, float unk0, u32 unk1, bool& calloriginal)
+{
+  if (charKillingBlow) {
+    log(L"  Character KilledPre: %s   %s, %f %f %f  %f %x",
+      charKilled->characterName.c_str(), charKillingBlow->characterName.c_str(), direction->x, direction->y, direction->z, unk0, unk1);
+  }
+
+  //calloriginal = false;
+}
+
+void TLMP::Character_KilledPost(CCharacter* charKilled, CCharacter* charKillingBlow, Ogre::Vector3* direction, float unk0, u32 unk1, bool& calloriginal)
+{
+  if (charKillingBlow) {
+    log(L"  Character KilledPost: %s   %s, %f %f %f  %f %x",
+      charKilled->characterName.c_str(), charKillingBlow->characterName.c_str(), direction->x, direction->y, direction->z, unk0, unk1);
+  }
+}
 
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
