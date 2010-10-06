@@ -163,6 +163,7 @@ namespace TLMP {
       void HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *);
       void HandleCharacterResurrect(NetworkMessages::CharacterResurrect *);
       void HandleCharacterAddExperience(NetworkMessages::CharacterAddExperience *);
+      void HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharacter *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 

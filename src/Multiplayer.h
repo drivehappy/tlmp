@@ -79,6 +79,8 @@ namespace TLMP
   void Character_Update_CharacterPre(CCharacter*, CCharacter*, bool&);
   void Character_Player_KillMonsterExperiencePre(CCharacter*, CLevel*, CCharacter*, u32, u32, bool&);
   void Character_Player_KillMonsterExperiencePost(CCharacter*, CLevel*, CCharacter*, u32, u32, bool&);
+  void Character_KilledPre(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
+  void Character_KilledPost(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
 
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);
@@ -124,6 +126,8 @@ namespace TLMP
   void Level_UpdatePost(CLevel*, Vector3*, u32, float, bool&);
   void Level_CleanupPre(CLevel*, u32, u32, bool&);
   void Level_CleanupPost(CLevel*, u32, u32, bool&);
+  void Level_Level_CharacterKilledCharacterPre(CLevel*, CCharacter*, CCharacter*, Vector3*, u32, bool&);
+  void Level_Level_CharacterKilledCharacterPost(CLevel*, CCharacter*, CCharacter*, Vector3*, u32, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
