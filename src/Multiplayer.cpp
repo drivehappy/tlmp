@@ -14,6 +14,8 @@ void TLMP::SetupNetwork()
 
   //
   // Register event callbacks we need
+  _GLOBAL::RegisterEvent_WndProc(WndProcPre, NULL);
+
   CCharacterSaveState::RegisterEvent_CharacterSaveState_LoadFromFile(NULL, CharacterSaveState_ReadFromFile);
 
   CGame::RegisterEvent_GameCtor(Game_Ctor, NULL);
@@ -2356,6 +2358,7 @@ void TLMP::Character_Player_KillMonsterExperiencePre(CCharacter* player, CLevel*
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
 
+  log(L"Player Kill Monster Experience Pre");
   //log(L"Player Killed Monster Pre: %s %p", player->characterName.c_str(), monster);
 
   if (monster) {
@@ -2402,7 +2405,7 @@ void TLMP::Character_Player_KillMonsterExperiencePre(CCharacter* player, CLevel*
 
 void TLMP::Character_Player_KillMonsterExperiencePost(CCharacter* player, CLevel* level, CCharacter* monster, u32 experience, u32 unk0, bool& calloriginal)
 {
-  //log(L"Player Killed Monster Post: %p  experience: %i", monster, experience);
+  log(L"Player Killed Monster Post: %p  experience: %i", monster, experience);
 
   if (monster) {
     //log(L"Player Killed Monster Pre: %s worth %i experience, unk0: %x", monster->characterName.c_str(), experience, unk0);
@@ -2413,6 +2416,8 @@ void TLMP::Character_Player_KillMonsterExperiencePost(CCharacter* player, CLevel
 
 void TLMP::Level_Level_CharacterKilledCharacterPre(CLevel* level, CCharacter* character, CCharacter* other, Vector3* position, u32 unk0, bool& calloriginal)
 {
+  log(L"Level_CharacterKilledCharacterPre");
+
   log(L"Level_CharacterKilledCharacterPre: %p, %s, %f %f %f,  unk0: %x",
     level, character->characterName.c_str(), position->x, position->y, position->z, unk0);
 
@@ -2458,6 +2463,8 @@ void TLMP::Level_Level_CharacterKilledCharacterPost(CLevel* level, CCharacter* c
 
 void TLMP::Character_KilledPre(CCharacter* charKilled, CCharacter* charKillingBlow, Ogre::Vector3* direction, float unk0, u32 unk1, bool& calloriginal)
 {
+  log(L"Character KilledPre");
+
   if (charKillingBlow) {
     log(L"  Character KilledPre: %s   %s, %f %f %f  %f %x",
       charKilled->characterName.c_str(), charKillingBlow->characterName.c_str(), direction->x, direction->y, direction->z, unk0, unk1);
@@ -2472,6 +2479,8 @@ void TLMP::Character_KilledPost(CCharacter* charKilled, CCharacter* charKillingB
     log(L"  Character KilledPost: %s   %s, %f %f %f  %f %x",
       charKilled->characterName.c_str(), charKillingBlow->characterName.c_str(), direction->x, direction->y, direction->z, unk0, unk1);
   }
+
+  log(L"Character KilledPost");
 }
 
 // Server Events
@@ -2512,3 +2521,43 @@ void TLMP::ClientOnConnect(void *arg)
   }
 }
 // --
+
+void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  if (!(msg == 0x100 || msg == 0x101 || msg == 0x102 || msg == 0x201))
+    return;
+
+  switch (msg) {
+  case WM_KEYUP:
+    switch (wParam) {
+
+    // R =
+    case 'R':
+    case 'r':
+      static u32* petData = NULL;
+      static u32 petDataSize = 0;
+
+      log("\n");
+
+      // Send all of the existing equipment in the game to the client
+      CLevel *level = gameClient->pCLevel;
+      LinkedListNode* itrInv = *level->ppCCharacters2;
+      while (itrInv != NULL) {
+        CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
+        log(L"(%p) %s Visibility: %x", character, character->characterName.c_str(), character->state);
+        itrInv = itrInv->pNext;
+      }
+
+      /*
+      CCharacter *pet = gameClient->pCPlayer->GetMinions()->operator [](0);
+      if (pet) {
+        log("Pet: %p", pet);
+        log("Pet Visibility Test: %x", pet->visibility_test2);
+        pet->visibility_test = 0;
+        pet->dumpCharacter(petData, petDataSize);
+      }
+      */
+      break;
+    }
+  }
+}

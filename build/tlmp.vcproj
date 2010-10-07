@@ -28,6 +28,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto"
+				ExcludedFromBuild="false"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

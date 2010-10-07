@@ -36,6 +36,8 @@ namespace TLMP
 
   extern bool LevelLoading;
 
+  void WndProcPre(HWND, UINT, WPARAM, LPARAM);
+
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
