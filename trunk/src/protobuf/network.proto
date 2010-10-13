@@ -260,5 +260,6 @@ message CharacterKilledCharacter {
   required int32    unk0 = 4;
 }
 
-
-
+message RandomSeed {
+  required int32    seed = 1;
+}

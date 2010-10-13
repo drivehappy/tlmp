@@ -104,6 +104,9 @@ namespace TLMP {
       inline bool GetAllow_AddExperience()                  { return m_bAllow_AddExperience; }
       inline void SetAllow_AddExperience(bool value)        { m_bAllow_AddExperience = value; }
 
+      inline bool GetAllow_RandomSeed()                     { return m_bAllow_RandomSeed; }
+      inline void SetAllow_RandomSeed(bool value)           { m_bAllow_RandomSeed = value; }
+
 
       void ReceiveMessages();
 
@@ -164,6 +167,7 @@ namespace TLMP {
       void HandleCharacterResurrect(NetworkMessages::CharacterResurrect *);
       void HandleCharacterAddExperience(NetworkMessages::CharacterAddExperience *);
       void HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharacter *);
+      void HandleRandomSeed(NetworkMessages::RandomSeed *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -208,6 +212,7 @@ namespace TLMP {
       bool m_bAllow_EquipmentIdentify;
       bool m_bAllow_AddEffect;
       bool m_bAllow_AddExperience;
+      bool m_bAllow_RandomSeed;
     };
 
   };

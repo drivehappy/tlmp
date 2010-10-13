@@ -112,7 +112,8 @@ namespace TLMP
   void EquipmentRefDtorPost(CEquipmentRef*, u32);
 
   // Pre event for seed
-  void Global_SetSeedValue0Post(u32);
+  void Global_SetSeedValue0Pre(u32, bool&);
+  void Global_SetSeedValue0Post(u32, bool&);
   void Global_SetSeedValue2Post(u32);
 
   // Pre event for enchant menu

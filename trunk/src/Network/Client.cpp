@@ -50,6 +50,7 @@ void Client::Reset()
   m_bAllow_CharacterResurrect = false;
   m_bAllow_AddEffect = false;
   m_bAllow_AddExperience = false;
+  m_bAllow_RandomSeed = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -587,6 +588,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::CharacterKilledCharacter *msgCharacterKilledCharacter = ParseMessage<NetworkMessages::CharacterKilledCharacter>(m_pBitStream);
 
       HandleCharacterKillCharacter(msgCharacterKilledCharacter);
+    }
+    break;
+
+  case S_PUSH_RANDOM_SEED:
+    {
+      NetworkMessages::RandomSeed *msgRandomSeed = ParseMessage<NetworkMessages::RandomSeed>(m_pBitStream);
+
+      HandleRandomSeed(msgRandomSeed);
     }
     break;
 
@@ -1921,4 +1930,17 @@ void Client::HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharac
     level->CharacterKill(character, other, &position, unk0);
   }
 
+}
+
+void Client::HandleRandomSeed(NetworkMessages::RandomSeed *msgRandomSeed)
+{
+  u32 seed = msgRandomSeed->seed();
+
+  log(L"Client received seed from server: %x", seed);
+
+  SetAllow_RandomSeed(true);
+  _GLOBAL::SetSeed0(seed);
+  SetAllow_RandomSeed(false);
+
+  log(L"Client done setting seed.");
 }

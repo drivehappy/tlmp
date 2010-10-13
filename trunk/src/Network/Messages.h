@@ -135,6 +135,8 @@ namespace TLMP {
       S_PUSH_ADDEXPERIENCE,         // Server pushes player experience gain
 
       S_PUSH_CHARACTERKILLED,       // Push a character kill
+
+      S_PUSH_RANDOM_SEED,           // Push the random seed value across to client
     };
 
     static const char* MessageString[] = {
@@ -245,6 +247,8 @@ namespace TLMP {
       "S_PUSH_ADDEXPERIENCE",
 
       "S_PUSH_CHARACTERKILLED",
+
+      "S_PUSH_RANDOM_SEED",
       
     };
 
