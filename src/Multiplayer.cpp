@@ -89,6 +89,8 @@ void TLMP::SetupNetwork()
 
   CBreakable::RegisterEvent_BreakableTriggered(Breakable_TriggeredPre, NULL);
   
+  //_GLOBAL::RegisterEvent_SetSeedValue0(Global_SetSeedValue0Pre, Global_SetSeedValue0Post);
+  //_GLOBAL::RegisterEvent_SetSeedValue0(Global_SetSeedValue0Pre, NULL);
   _GLOBAL::RegisterEvent_SetSeedValue0(NULL, Global_SetSeedValue0Post);
   _GLOBAL::RegisterEvent_SetSeedValue2(NULL, Global_SetSeedValue2Post);
 
@@ -2008,9 +2010,23 @@ void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, 
   multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel Post");
 }
 
-void TLMP::Global_SetSeedValue0Post(u32 seed)
+void TLMP::Global_SetSeedValue0Pre(u32 seed, bool& calloriginal)
 {
-  //logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
+  // Ugly, but fix later
+  Seed1 = (u32*)EXEOFFSET(SeedOffset1);
+  Seed2 = (u32*)EXEOFFSET(SeedOffset2);
+  Seed3 = (u32*)EXEOFFSET(SeedOffset3);
+  Seed4 = (u32*)EXEOFFSET(SeedOffset4);
+
+  logColor(B_GREEN, L"GameClient SetSeedValue0 Pre: %x (%i)", seed, seed);
+  multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue0 Pre: %x (%i)", seed, seed);  
+}
+
+void TLMP::Global_SetSeedValue0Post(u32 seed, bool &calloriginal)
+{
+  static u32 rand = time(NULL);
+
+  logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
 
   // Ugly, but fix later
@@ -2019,10 +2035,22 @@ void TLMP::Global_SetSeedValue0Post(u32 seed)
   Seed3 = (u32*)EXEOFFSET(SeedOffset3);
   Seed4 = (u32*)EXEOFFSET(SeedOffset4);
 
-  *Seed1 = 2;
-  *Seed2 = 2;
-  *Seed3 = 2;
-  *Seed4 = 2;
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (Client::getSingleton().GetAllow_RandomSeed()) {
+      logColor(B_GREEN, L"Client setting random seed to: %x", seed);
+      *Seed1 = seed;
+      *Seed2 = seed;
+      *Seed3 = seed;
+      *Seed4 = seed;
+    }
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    seed = rand;
+
+    NetworkMessages::RandomSeed msgRandomSeed;
+    msgRandomSeed.set_seed(seed);
+    
+    Server::getSingleton().BroadcastMessage<NetworkMessages::RandomSeed>(S_PUSH_RANDOM_SEED, &msgRandomSeed);
+  }
 }
 
 void TLMP::Global_SetSeedValue2Post(u32 seed)
@@ -2036,11 +2064,13 @@ void TLMP::Global_SetSeedValue2Post(u32 seed)
   Seed3 = (u32*)EXEOFFSET(SeedOffset3);
   Seed4 = (u32*)EXEOFFSET(SeedOffset4);
 
+  /*
   logColor(B_GREEN, L" Reseting to 1...");
   *Seed1 = 2;
   *Seed2 = 2;
   *Seed3 = 2;
   *Seed4 = 2;
+  */
 }
 
 void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, bool& calloriginal)
