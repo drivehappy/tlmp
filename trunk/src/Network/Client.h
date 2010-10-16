@@ -167,6 +167,7 @@ namespace TLMP {
       void HandleCharacterResurrect(NetworkMessages::CharacterResurrect *);
       void HandleCharacterAddExperience(NetworkMessages::CharacterAddExperience *);
       void HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharacter *);
+      void HandleCharacterAddSkill(NetworkMessages::BaseUnitAddSkill *);
       void HandleRandomSeed(NetworkMessages::RandomSeed *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);

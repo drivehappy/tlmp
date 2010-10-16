@@ -591,6 +591,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case S_PUSH_CHARACTER_ADD_SKILL:
+    {
+      NetworkMessages::BaseUnitAddSkill *msgCharacterAddSkill = ParseMessage<NetworkMessages::BaseUnitAddSkill>(m_pBitStream);
+
+      HandleCharacterAddSkill(msgCharacterAddSkill);
+    }
+    break;
+
   case S_PUSH_RANDOM_SEED:
     {
       NetworkMessages::RandomSeed *msgRandomSeed = ParseMessage<NetworkMessages::RandomSeed>(m_pBitStream);
@@ -1286,9 +1294,9 @@ void Client::HandleCharacterSetAction(NetworkMessages::CharacterAction* msgChara
     CCharacter* character = (CCharacter*)networkCharacter->getInternalObject();
 
     // Stop the suppress and network request
-    Client::getSingleton().SetSuppressed_CharacterAction(false);
+    SetSuppressed_CharacterAction(false);
     character->SetAction(action);
-    Client::getSingleton().SetSuppressed_CharacterAction(true);
+    SetSuppressed_CharacterAction(true);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find character with common id = %x", id);
     //log(L"Error: Could not find character with common id = %x", id);
@@ -1931,6 +1939,26 @@ void Client::HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharac
   }
 
 }
+<<<<<<< .mine
+
+void Client::HandleCharacterAddSkill(NetworkMessages::BaseUnitAddSkill *msgCharacterAddSkill)
+{
+  u32 characterId = msgCharacterAddSkill->characterid();
+  string skillName = msgCharacterAddSkill->skillname();
+
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+
+  if (netCharacter) {
+    CBaseUnit *character = (CBaseUnit*)netCharacter->getInternalObject();
+    wstring skillNameWide = convertAsciiToWide(skillName);
+
+    log(L"Client: Adding skillName: %s to character: %s", skillNameWide.c_str(), ((CCharacter*)character)->characterName.c_str());
+    character->addSkill(&skillNameWide, 0);
+  } else {
+    log(L"Error: Could could not find character with network ID = %x", characterId);
+  }
+}
+=======
 
 void Client::HandleRandomSeed(NetworkMessages::RandomSeed *msgRandomSeed)
 {
@@ -1944,3 +1972,4 @@ void Client::HandleRandomSeed(NetworkMessages::RandomSeed *msgRandomSeed)
 
   log(L"Client done setting seed.");
 }
+>>>>>>> .r162

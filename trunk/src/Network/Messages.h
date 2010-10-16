@@ -136,6 +136,10 @@ namespace TLMP {
 
       S_PUSH_CHARACTERKILLED,       // Push a character kill
 
+      S_PUSH_CHARACTER_ADD_SKILL,   // Push character add skill
+
+      C_PUSH_CHARACTER_STRIKE,      // Client pushes a strike
+
       S_PUSH_RANDOM_SEED,           // Push the random seed value across to client
     };
 
@@ -247,9 +251,12 @@ namespace TLMP {
       "S_PUSH_ADDEXPERIENCE",
 
       "S_PUSH_CHARACTERKILLED",
+      
+      "S_PUSH_CHARACTER_ADD_SKILL",
+
+      "C_PUSH_CHARACTER_STRIKE",
 
       "S_PUSH_RANDOM_SEED",
-      
     };
 
   };
