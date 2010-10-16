@@ -19,6 +19,9 @@ Server::Server()
 
   SetCallback_OnClientConnect(&OnClientConnected);
   SetCallback_OnClientDisconnect(&OnClientDisconnected);
+
+  srand(time(NULL));
+  m_Seed = rand();
 }
 
 Server::~Server()
@@ -447,6 +450,12 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
   multiplayerLogger.WriteLine(Info, L"Client has Entered the Game");
 
   vector<NetworkEntity*>::iterator itr;
+
+  // Send the seed
+  NetworkMessages::RandomSeed msgRandomSeed;
+  msgRandomSeed.set_seed(m_Seed);
+  
+  Server::getSingleton().SendMessage<NetworkMessages::RandomSeed>(clientAddress, S_PUSH_RANDOM_SEED, &msgRandomSeed);
 
   // Grab the client's current level information
   NetworkMessages::CurrentLevel msgCurrentLevel = msgGameEnter->currentlevel();

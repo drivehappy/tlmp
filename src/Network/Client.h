@@ -117,6 +117,8 @@ namespace TLMP {
       void Helper_ClientPushEquipment(CEquipment *equipment);
       vector<CCharacter*>* Helper_ProduceClientSideCharacters(CCharacter *character);
 
+      u32 GetSeed() const { return m_Seed; }
+
     protected:
       Client();
       Client(const Client&);
@@ -187,6 +189,8 @@ namespace TLMP {
       bool m_bWaitingForGame;
       bool m_bGameStarted;
       bool m_bServerGameStarted;
+
+      u32 m_Seed;
 
       bool m_bSuppressNetwork_SetDestination;
       bool m_bSuppressNetwork_CharacterCreation;
