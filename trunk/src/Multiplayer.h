@@ -124,7 +124,8 @@ namespace TLMP
   // Pre event for seed
   void Global_SetSeedValue0Pre(u32, bool&);
   void Global_SetSeedValue0Post(u32, bool&);
-  void Global_SetSeedValue2Post(u32);
+  void Global_SetSeedValue2Pre(u32, bool&);
+  void Global_SetSeedValue2Post(u32, bool&);
 
   // Pre event for enchant menu
   void EnchantMenuEnchantItemPre(CEnchantMenu*, bool&);

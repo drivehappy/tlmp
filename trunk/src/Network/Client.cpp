@@ -1939,7 +1939,6 @@ void Client::HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharac
   }
 
 }
-<<<<<<< .mine
 
 void Client::HandleCharacterAddSkill(NetworkMessages::BaseUnitAddSkill *msgCharacterAddSkill)
 {
@@ -1958,18 +1957,30 @@ void Client::HandleCharacterAddSkill(NetworkMessages::BaseUnitAddSkill *msgChara
     log(L"Error: Could could not find character with network ID = %x", characterId);
   }
 }
-=======
 
 void Client::HandleRandomSeed(NetworkMessages::RandomSeed *msgRandomSeed)
 {
-  u32 seed = msgRandomSeed->seed();
+  m_Seed = msgRandomSeed->seed();
 
-  log(L"Client received seed from server: %x", seed);
+  log(L"Client received seed from server: %x", m_Seed);
 
+  Seed1 = (u32*)EXEOFFSET(SeedOffset1);
+  Seed2 = (u32*)EXEOFFSET(SeedOffset2);
+  Seed3 = (u32*)EXEOFFSET(SeedOffset3);
+  Seed4 = (u32*)EXEOFFSET(SeedOffset4);
+
+  /*
+  *Seed1 = m_Seed;
+  *Seed2 = m_Seed;
+  *Seed3 = m_Seed;
+  *Seed4 = m_Seed;
+  */
+
+  /*
   SetAllow_RandomSeed(true);
   _GLOBAL::SetSeed0(seed);
   SetAllow_RandomSeed(false);
+  */
 
   log(L"Client done setting seed.");
 }
->>>>>>> .r162

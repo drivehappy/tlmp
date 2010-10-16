@@ -96,8 +96,8 @@ void TLMP::SetupNetwork()
   
   //_GLOBAL::RegisterEvent_SetSeedValue0(Global_SetSeedValue0Pre, Global_SetSeedValue0Post);
   //_GLOBAL::RegisterEvent_SetSeedValue0(Global_SetSeedValue0Pre, NULL);
-  _GLOBAL::RegisterEvent_SetSeedValue0(NULL, Global_SetSeedValue0Post);
-  _GLOBAL::RegisterEvent_SetSeedValue2(NULL, Global_SetSeedValue2Post);
+  _GLOBAL::RegisterEvent_SetSeedValue0(Global_SetSeedValue0Pre, Global_SetSeedValue0Post);
+  _GLOBAL::RegisterEvent_SetSeedValue2(Global_SetSeedValue2Post, Global_SetSeedValue2Post);
 
   CSkillManager::RegisterEvent_SkillManagerAddSkill(SkillManager_AddSkillPre, NULL);
 
@@ -2048,18 +2048,30 @@ void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, 
 
 void TLMP::Global_SetSeedValue0Pre(u32 seed, bool& calloriginal)
 {
-  // Ugly, but fix later
   Seed1 = (u32*)EXEOFFSET(SeedOffset1);
   Seed2 = (u32*)EXEOFFSET(SeedOffset2);
   Seed3 = (u32*)EXEOFFSET(SeedOffset3);
   Seed4 = (u32*)EXEOFFSET(SeedOffset4);
 
-  logColor(B_GREEN, L"GameClient SetSeedValue0 Pre: %x (%i)", seed, seed);
-  multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue0 Pre: %x (%i)", seed, seed);  
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    seed = Client::getSingleton().GetSeed();
+    logColor(B_GREEN, L"Client reseting seed to:: %x (%i)", seed, seed);
+
+    *Seed1 = seed;
+    *Seed2 = 0;
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    logColor(B_GREEN, L"Server reseting seed to:: %x (%i)", *Seed1, *Seed1);
+    
+    *Seed1 = Server::getSingleton().GetSeed();
+    *Seed2 = 0; 
+  }
+
+  calloriginal = false;
 }
 
 void TLMP::Global_SetSeedValue0Post(u32 seed, bool &calloriginal)
 {
+  /*
   static u32 rand = time(NULL);
 
   logColor(B_GREEN, L"GameClient SetSeedValue0 Post: %x (%i)", seed, seed);
@@ -2087,25 +2099,27 @@ void TLMP::Global_SetSeedValue0Post(u32 seed, bool &calloriginal)
     
     Server::getSingleton().BroadcastMessage<NetworkMessages::RandomSeed>(S_PUSH_RANDOM_SEED, &msgRandomSeed);
   }
+  */
 }
 
-void TLMP::Global_SetSeedValue2Post(u32 seed)
+
+void TLMP::Global_SetSeedValue2Pre(u32 seed, bool& calloriginal)
 {
-  //logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
+  logColor(B_GREEN, L"GameClient SetSeedValue2 Pre: %x (%i)", seed, seed);
+  //calloriginal = false;
+}
+
+void TLMP::Global_SetSeedValue2Post(u32 seed, bool& calloriginal)
+{
+  logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   
+  /*
   // Ugly, but fix later
   Seed1 = (u32*)EXEOFFSET(SeedOffset1);
   Seed2 = (u32*)EXEOFFSET(SeedOffset2);
   Seed3 = (u32*)EXEOFFSET(SeedOffset3);
   Seed4 = (u32*)EXEOFFSET(SeedOffset4);
-
-  /*
-  logColor(B_GREEN, L" Reseting to 1...");
-  *Seed1 = 2;
-  *Seed2 = 2;
-  *Seed3 = 2;
-  *Seed4 = 2;
   */
 }
 

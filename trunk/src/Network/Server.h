@@ -70,6 +70,8 @@ namespace TLMP {
       template<typename T>
       void SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
 
+      u32 GetSeed() const { return m_Seed; }
+
     protected:
       Server();
       Server(const Server&);
@@ -82,6 +84,8 @@ namespace TLMP {
 
       /** Work on received packet data. */
       void WorkMessage(const SystemAddress clientAddress, Message msg, RakNet::BitStream *bitStream);
+
+      u32 m_Seed;
 
       /** Functions for handling individual messages. */
       void HandleVersion(const SystemAddress clientAddress, u32 version);
