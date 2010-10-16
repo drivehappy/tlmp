@@ -21,7 +21,12 @@ void TLMP::SetupNetwork()
   CGame::RegisterEvent_GameCtor(Game_Ctor, NULL);
   CGame::RegisterEvent_Game_CreateUI(NULL, GameClient_CreateUI);
 
+  CBaseUnit::RegisterEvent_BaseUnit_AddSkill(BaseUnit_AddSkillPre, BaseUnit_AddSkillPost);
+
   CEffect::RegisterEvent_Effect_Effect_Something(Effect_EffectSomethingPre, Effect_EffectSomethingPost);
+
+  CEffectManager::RegisterEvent_EffectManagerCreateEffect(Effect_EffectManagerCreateEffectPre, Effect_EffectManagerCreateEffectPost);
+  CEffectManager::RegisterEvent_EffectManager_AddEffectToEquipment(EffectManager_AddEffectToEquipmentPre, EffectManager_AddEffectToEquipmentPost);
 
   CResourceManager::RegisterEvent_ResourceManagerCreatePlayer(CreatePlayer, NULL);
   CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
@@ -1149,8 +1154,8 @@ void TLMP::SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equi
 
 void TLMP::Inventory_AddEquipmentPre(CEquipment* retval, CInventory* inventory, CEquipment* equipment, u32& slot, u32 unk0, bool& calloriginal)
 {
-  log(L"Inventory adding Equipment: %016I64X (%s %p) (slot = %x) (Owner = %s)",
-    equipment->GUID, equipment->nameReal.c_str(), equipment, slot, inventory->pCCharacter->characterName.c_str());
+  //log(L"Inventory adding Equipment: %016I64X (%s %p) (slot = %x) (Owner = %s)",
+  //  equipment->GUID, equipment->nameReal.c_str(), equipment, slot, inventory->pCCharacter->characterName.c_str());
 
   if (inventory) {
     CCharacter *owner = inventory->pCCharacter;
@@ -1214,8 +1219,8 @@ void TLMP::Inventory_AddEquipmentPost(CEquipment* retval, CInventory* inventory,
 {
   multiplayerLogger.WriteLine(Info, L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
     inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
-  log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
-    inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
+  //log(L"Inventory::AddEquipmentPost(%p) (%p) (%s) (slot = %x) (unk0 = %x)",
+  //  inventory, equipment, equipment->nameReal.c_str(), slot, unk0);
 }
 
 void TLMP::Inventory_RemoveEquipmentPre(CInventory* inventory, CEquipment* equipment)
@@ -1415,6 +1420,10 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
 
 void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & calloriginal)
 {
+  // The below doesn't work too well when transferring over the network.
+  // The client will receive the state (or action) with creature deathes and the creatures will appear to be still
+  //   alive but unattackable.
+
   /*
   multiplayerLogger.WriteLine(Info, L"Character::SetActionPre(%s, %x)", character->characterName.c_str(), action);
   log(L"Character::SetActionPre(%s %x)", character->characterName.c_str(), action);
@@ -1423,19 +1432,6 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (Client::getSingleton().GetSuppressed_CharacterAction()) {
       calloriginal = false;
-
-      NetworkEntity *networkCharacter = searchCharacterByInternalObject(character);
-
-      if (networkCharacter) {
-        NetworkMessages::CharacterAction msgCharacterAction;
-        msgCharacterAction.set_characterid(networkCharacter->getCommonId());
-        msgCharacterAction.set_action(action);
-
-        Client::getSingleton().SendMessage<NetworkMessages::CharacterAction>(C_PUSH_CHARACTER_ACTION, &msgCharacterAction);
-      } else {
-        multiplayerLogger.WriteLine(Error, L"Error: Could not find network id for character: %s", character->characterName.c_str());
-        //log(L"Error: Could not find network id for character: %s", character->characterName.c_str());
-      }
     }
   }
 
@@ -1457,10 +1453,15 @@ void TLMP::Character_SetActionPre(CCharacter* character, u32 action, bool & call
   */
 }
 
-void TLMP::SkillManager_AddSkillPre(CSkillManager* skillManager, CSkill* skill, u32 unk0, u32 unk1, bool& calloriginal)
+void TLMP::SkillManager_AddSkillPre(CSkillManager* skillManager, CSkill* skill, bool skillAlreadyCreated, u32 unk1, bool& calloriginal)
 {
   //log(L"SkillManager (%p) AddSkill: %p", skillManager, skill);
-  //log(L"   unk0: %x   unk1: %x  GUID: %016I64X", unk0, unk1, skill->GUID);
+  //log(L"   skillAlreadyCreated: %x   unk1: %x  GUID: %016I64X", skillAlreadyCreated, unk1, skill->GUID);
+
+  //log(L"   baseUnit: %p", skillManager->pCBaseUnit);
+  //log(L"   name: %s", ((CCharacter*)(skillManager->pCBaseUnit))->characterName.c_str());
+
+  //skillManager->dumpSkillManager();
 }
 
 void TLMP::Character_SetupSkillsPre(CCharacter* character, CDataGroup* dataGroup, u32 unk0, bool& calloriginal)
@@ -1947,6 +1948,12 @@ void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
 void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
 {
   CharacterUpdateTime[character].reset();
+
+  if (!wcscmp(L"Shade", character->characterName.c_str())) 
+  {
+    log(L" Pre: unkPos[1]: %i", character->unkPositionable[1]);
+    character->unkPositionable[1] = 0;
+  }
 }
 
 void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
@@ -1958,6 +1965,35 @@ void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, f
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (character->position.y >= 100.0)
       character->destroy = true;
+  }
+
+  // Testing Visibility
+  if (!wcscmp(L"Shade", character->characterName.c_str())) 
+  {
+    static u8 oldVis = character->visibility_test2;
+    static u32* petData = NULL;
+    static u32 petDataSize = 0;
+
+    log(L"    Post: unkPos[1]: %i", character->unkPositionable[1]);
+
+    if (character->visibility_test2 != oldVis) {
+      oldVis = character->visibility_test2;
+      log(L"Dumping Shade, visibility changed to: %i  offset: %x", character->visibility_test2, (u32*)&character->unkPositionable - (u32*)character);
+      character->dumpCharacter(petData, petDataSize);
+
+      log(L"  Flags: %x %x %x %x", character->unkFlags[0], character->unkFlags[1], character->unkFlags[2], character->unkFlags[3]);
+      character->unkPositionable[1] = 0;
+    }
+
+    /*
+    log(L"%s Update: vis: %i  state: %i  check: %x   %i %i %i %i   %i %i %i (offset: %x)", character->characterName.c_str(), character->visibility_test2,
+      character->state,
+      character->unk6,
+      character->unk06[0], character->unk06[1], character->unk06[2], character->unk06[3], 
+      character->destroy1, character->destroy2, character->destroy3,
+      &character->unk06[1] - (u8*)character);
+      */
+   
   }
 }
 
@@ -2203,8 +2239,8 @@ void TLMP::ItemGold_CtorPre(CItemGold* itemRetval, PVOID _this, CResourceManager
 
 void TLMP::Character_StrikePre(CCharacter* character, CLevel* level, CCharacter* characterOther, PVOID unk0, u32 unk1, float unk2, float unk3, u32 unk4, bool& calloriginal)
 {
-  //log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
-  //  character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
+  log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
+    character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
 }
 
 void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
@@ -2446,10 +2482,12 @@ void TLMP::Character_Player_KillMonsterExperiencePost(CCharacter* player, CLevel
 
 void TLMP::Level_Level_CharacterKilledCharacterPre(CLevel* level, CCharacter* character, CCharacter* other, Vector3* position, u32 unk0, bool& calloriginal)
 {
-  log(L"Level_CharacterKilledCharacterPre");
+  log(L"Level_CharacterKilledCharacterPre: character = %p", character);
 
-  log(L"Level_CharacterKilledCharacterPre: %p, %s, %f %f %f,  unk0: %x",
-    level, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+  if (character) {
+    log(L"Level_CharacterKilledCharacterPre: %p, %s, %f %f %f,  unk0: %x",
+      level, character->characterName.c_str(), position->x, position->y, position->z, unk0);
+  }
 
   // Skip sending, this is probably a barrel and we sync it up anyways
   if (!other) {
@@ -2513,6 +2551,68 @@ void TLMP::Character_KilledPost(CCharacter* charKilled, CCharacter* charKillingB
   log(L"Character KilledPost");
 }
 
+void TLMP::Effect_EffectManagerCreateEffectPre(CEffect* retval, CEffectManager* effectManager)
+{
+  //log(L"EffectManagerCreate EffectPre: %p  Effects in Manager: %i", effectManager, effectManager->effectList.size);
+}
+
+void TLMP::Effect_EffectManagerCreateEffectPost(CEffect* retval, CEffectManager* effectManager)
+{
+  //log(L"EffectManagerCreate EffectPost: %p  Effects in Manager: %i", effectManager, effectManager->effectList.size);
+  //log(L"      BaseUnit: %p", retval->pCBaseUnit);
+}
+
+void TLMP::EffectManager_AddEffectToEquipmentPre(CEffectManager* manager, CEquipment* equipment, CEffect* effect)
+{
+  log(L"EffectManager_AddEffectToEquipmentPre: %p %p %p", manager, equipment, effect);
+}
+
+void TLMP::EffectManager_AddEffectToEquipmentPost(CEffectManager* manager, CEquipment* equipment, CEffect* effect)
+{
+  log(L"EffectManager_AddEffectToEquipmentPost: %p %p %p", manager, equipment, effect);
+  log(L"   Effect Name: %s", effect->name.c_str());
+}
+
+void TLMP::BaseUnit_AddSkillPre(CBaseUnit* baseUnit, wstring* skillName, u32 unk0, bool& calloriginal)
+{
+  const u32 PLAYER = 0x1C;
+  
+  if (baseUnit->type__ != PLAYER) {
+    return;
+  }
+
+  log(L"BaseUnit AddSkillPre: %p %s %x", baseUnit, skillName->c_str(), unk0);
+
+  
+  // Get the character
+  CCharacter *character = (CCharacter*)baseUnit;
+
+  NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+  if (!netCharacter) {
+    log("Error: Could not find network ID for character: %s", character->characterName.c_str());
+    return;
+  }
+
+  // Network push it out
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    // Do Nothing for now
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    string skillNameAscii(skillName->begin(), skillName->end());
+    skillNameAscii.assign(skillName->begin(), skillName->end());
+
+    NetworkMessages::BaseUnitAddSkill msgBaseUnitAddSkill;
+    msgBaseUnitAddSkill.set_characterid(netCharacter->getCommonId());
+    msgBaseUnitAddSkill.set_skillname(skillNameAscii.c_str());
+
+    Server::getSingleton().BroadcastMessage<NetworkMessages::BaseUnitAddSkill>(S_PUSH_CHARACTER_ADD_SKILL, &msgBaseUnitAddSkill);
+  }
+}
+
+void TLMP::BaseUnit_AddSkillPost(CBaseUnit* baseUnit, wstring* skillName, u32 unk0, bool& calloriginal)
+{
+  log(L"BaseUnit AddSkillPost: %p %s %x", baseUnit, skillName->c_str(), unk0);
+}
+
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
 {
@@ -2574,7 +2674,14 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
       LinkedListNode* itrInv = *level->ppCCharacters2;
       while (itrInv != NULL) {
         CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
-        log(L"(%p) %s Visibility: %x", character, character->characterName.c_str(), character->state);
+
+        u32 offset = (u32*)&character->visibility_test2 - (u32*)character;
+        log(L"(%p) %s Visibility: %x (offset: %x  address: %x)", character, character->characterName.c_str(), character->visibility_test2, offset, (u32*)&character->visibility_test2);
+
+        if (!wcscmp(L"Shade", character->characterName.c_str())) {
+          character->dumpCharacter(petData, petDataSize);
+        }
+
         itrInv = itrInv->pNext;
       }
 
@@ -2582,8 +2689,8 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
       CCharacter *pet = gameClient->pCPlayer->GetMinions()->operator [](0);
       if (pet) {
         log("Pet: %p", pet);
-        log("Pet Visibility Test: %x", pet->visibility_test2);
-        pet->visibility_test = 0;
+        log("Pet Visibility Test: %x", pet->visibility_test);
+        //pet->visibility_test = 0;
         pet->dumpCharacter(petData, petDataSize);
       }
       */

@@ -260,6 +260,17 @@ message CharacterKilledCharacter {
   required int32    unk0 = 4;
 }
 
+message BaseUnitAddSkill {
+  required int32    characterId = 1;
+  required string   skillName = 2;
+}
+
+message CharacterStrikeCharacter {
+  required int32    characterIdSource = 1;
+  required int32    characterIdTarget = 2;
+}
+
 message RandomSeed {
   required int32    seed = 1;
 }
+

@@ -45,6 +45,12 @@ namespace TLMP
   void CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
   void CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk, bool & calloriginal);
 
+  // EffectManager
+  void Effect_EffectManagerCreateEffectPre(CEffect* retval, CEffectManager* effectManager);
+  void Effect_EffectManagerCreateEffectPost(CEffect* retval, CEffectManager* effectManager);
+  void EffectManager_AddEffectToEquipmentPre(CEffectManager*, CEquipment*, CEffect*);
+  void EffectManager_AddEffectToEquipmentPost(CEffectManager*, CEquipment*, CEffect*);
+
   // Effect event, debugging client, it crashes on this function
   void Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal);
   void Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal);
@@ -92,11 +98,15 @@ namespace TLMP
   void TriggerUnit_TriggeredPre(CTriggerUnit*, CPlayer*, bool&);
   void TriggerUnit_CtorPost(CTriggerUnit*, CLayout*, bool&);
 
+  // BaseUnit
+  void BaseUnit_AddSkillPre(CBaseUnit*, wstring*, u32, bool&);
+  void BaseUnit_AddSkillPost(CBaseUnit*, wstring*, u32, bool&);
+
   // Breakable
   void Breakable_TriggeredPre(CBreakable*, CPlayer*, bool&);
 
   // Skill Manager
-  void SkillManager_AddSkillPre(CSkillManager*, CSkill*, u32, u32, bool&);
+  void SkillManager_AddSkillPre(CSkillManager*, CSkill*, bool, u32, bool&);
 
   // Post Event for equipment initialization
   void Equipment_DtorPre(CEquipment*);
