@@ -274,3 +274,7 @@ message RandomSeed {
   required int32    seed = 1;
 }
 
+message CharacterOrientation {
+  required int32    characterId = 1;
+  required Position orientation = 2;
+}

@@ -141,6 +141,9 @@ namespace TLMP {
       C_PUSH_CHARACTER_STRIKE,      // Client pushes a strike
 
       S_PUSH_RANDOM_SEED,           // Push the random seed value across to client
+
+      C_REQUEST_ORIENTATION,        // Client requests orientation
+      S_PUSH_ORIENTATION,           // Push orientation out
     };
 
     static const char* MessageString[] = {
@@ -257,6 +260,9 @@ namespace TLMP {
       "C_PUSH_CHARACTER_STRIKE",
 
       "S_PUSH_RANDOM_SEED",
+
+      "C_REQUEST_ORIENTATION",
+      "S_PUSH_ORIENTATION",
     };
 
   };

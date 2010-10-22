@@ -51,6 +51,7 @@ void Client::Reset()
   m_bAllow_AddEffect = false;
   m_bAllow_AddExperience = false;
   m_bAllow_RandomSeed = false;
+  m_bAllow_UpdateOrientation = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -604,6 +605,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::RandomSeed *msgRandomSeed = ParseMessage<NetworkMessages::RandomSeed>(m_pBitStream);
 
       HandleRandomSeed(msgRandomSeed);
+    }
+    break;
+
+  case S_PUSH_ORIENTATION:
+    {
+      NetworkMessages::CharacterOrientation *msgCharacterOrientation = ParseMessage<NetworkMessages::CharacterOrientation>(m_pBitStream);
+
+      HandleCharacterOrientation(msgCharacterOrientation);
     }
     break;
 
@@ -1983,4 +1992,21 @@ void Client::HandleRandomSeed(NetworkMessages::RandomSeed *msgRandomSeed)
   */
 
   log(L"Client done setting seed.");
+}
+
+void Client::HandleCharacterOrientation(NetworkMessages::CharacterOrientation *msgCharacterOrientation)
+{
+  u32 characterId = msgCharacterOrientation->characterid();
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+  NetworkMessages::Position msgOrientation = msgCharacterOrientation->orientation();
+
+  if (!entity) {
+    log("Error: Could not find character for network ID: %x", characterId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entity->getInternalObject();
+  SetAllow_UpdateOrientation(true);
+  character->UpdateOrientation(msgOrientation.x(), msgOrientation.z());
+  SetAllow_UpdateOrientation(false);
 }

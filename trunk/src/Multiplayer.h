@@ -38,6 +38,10 @@ namespace TLMP
 
   void WndProcPre(HWND, UINT, WPARAM, LPARAM);
 
+  // Path
+  void Path_GetNextNodePre(CPath*, Vector3*, float);
+  void Path_GetNextNodePost(CPath*, Vector3*, float);
+
   // Post Event for character save state creation
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
@@ -78,6 +82,7 @@ namespace TLMP
   void Character_Character_UpdatePre(CCharacter*, PVOID, float*, float, bool&);
   void Character_Character_UpdatePost(CCharacter*, PVOID, float*, float, bool&);
   void Character_SetOrientationPre(CCharacter*, Vector3*, float, bool&);
+  void Character_UpdateOrientationPre(CCharacter*, float, float, bool&);
   void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
