@@ -594,7 +594,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       // Old: Move through the body slots and send an equip message to show the initial equipment
       ///// New: Move throug all inventory slots and add equipment
       if (character->pCInventory) {
-        for (u32 i = 0; i <= 0x0C; i++) {
+        //for (u32 i = 0; i <= 0x0C; i++) {
+        for (u32 i = 0; i <= 0x100; i++) {
           CEquipment* equipment = character->pCInventory->GetEquipmentFromSlot(i);
 
           if (equipment) {
