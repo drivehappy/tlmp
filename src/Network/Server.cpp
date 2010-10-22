@@ -416,6 +416,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_REQUEST_ORIENTATION:
+    {
+      NetworkMessages::CharacterOrientation *msgCharacterOrientation = ParseMessage<NetworkMessages::CharacterOrientation>(m_pBitStream);
+
+      HandleCharacterOrientation(msgCharacterOrientation);
+    }
+    break;
+
   }
 }
 
@@ -1653,3 +1661,17 @@ void Server::HandleCharacterResurrect(NetworkMessages::CharacterResurrect *msgCh
   }
 }
 
+void Server::HandleCharacterOrientation(NetworkMessages::CharacterOrientation *msgCharacterOrientation)
+{
+  u32 characterId = msgCharacterOrientation->characterid();
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+  NetworkMessages::Position msgOrientation = msgCharacterOrientation->orientation();
+
+  if (!entity) {
+    log("Error: Could not find character for network ID: %x", characterId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entity->getInternalObject();
+  character->UpdateOrientation(msgOrientation.x(), msgOrientation.z());
+}

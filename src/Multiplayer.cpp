@@ -18,6 +18,8 @@ void TLMP::SetupNetwork()
 
   CCharacterSaveState::RegisterEvent_CharacterSaveState_LoadFromFile(NULL, CharacterSaveState_ReadFromFile);
 
+  CPath::RegisterEvent_Path_GetNextNode(Path_GetNextNodePre, Path_GetNextNodePost);
+
   CGame::RegisterEvent_GameCtor(Game_Ctor, NULL);
   CGame::RegisterEvent_Game_CreateUI(NULL, GameClient_CreateUI);
 
@@ -79,6 +81,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_CharacterPickupEquipment(Character_PickupEquipmentPre, Character_PickupEquipmentPost);
   CCharacter::RegisterEvent_Character_Update(Character_Character_UpdatePre, Character_Character_UpdatePost);
   CCharacter::RegisterEvent_Character_SetOrientation(Character_SetOrientationPre, NULL);
+  CCharacter::RegisterEvent_Character_UpdateOrientation(Character_UpdateOrientationPre, NULL);
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
   CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
@@ -2627,6 +2630,89 @@ void TLMP::BaseUnit_AddSkillPost(CBaseUnit* baseUnit, wstring* skillName, u32 un
   log(L"BaseUnit AddSkillPost: %p %s %x", baseUnit, skillName->c_str(), unk0);
 }
 
+void TLMP::Path_GetNextNodePre(CPath* path, Vector3* vec, float unk0)
+{
+  return;
+
+  if (path == gameClient->pCPlayer->pCPath)
+  {
+    log(L"Path::GetNextNode Pre (%p) %f %f %f,  %f", path, vec->x, vec->y, vec->z, unk0);
+  }
+}
+
+void TLMP::Path_GetNextNodePost(CPath* path, Vector3* vec, float unk0)
+{
+  return; 
+
+  if (path == gameClient->pCPlayer->pCPath)
+  {
+    log(L"Path::GetNextNode Post (%p) %f %f %f,  %f", path, vec->x, vec->y, vec->z, unk0);
+    
+    log(L" unk3:");
+    vector<Vector3>::iterator itr;
+    for (itr = path->unk3.begin(); itr != path->unk3.end(); itr++) {
+      log(L"  %f, %f, %f", (*itr).x, (*itr).y, (*itr).z);
+    }
+
+    log(L" unk4:");
+    vector<float>::iterator itr2;
+    for (itr2 = path->unk4.begin(); itr2 != path->unk4.end(); itr2++) {
+      log(L"  %f", (*itr2));
+    }
+
+    log(L" unk5:");
+    for (itr2 = path->unk5.begin(); itr2 != path->unk5.end(); itr2++) {
+      log(L"  %f", (*itr2));
+    }
+
+    log(L" unk6:");
+    vector<u32>::iterator itr3;
+    for (itr3 = path->unk6.begin(); itr3 != path->unk6.end(); itr3++) {
+      log(L"  %x", (*itr3));
+    }
+
+    log(L" unk7:");
+    for (itr2 = path->unk7.begin(); itr2 != path->unk7.end(); itr2++) {
+      log(L"  %f", (*itr2));
+    }
+  }
+}
+
+void TLMP::Character_UpdateOrientationPre(CCharacter* character, float x, float z, bool& calloriginal)
+{
+  // Check if the new values differ before bothering to continue
+  if (character->orientation.x != x || character->orientation.z != z) {
+    log(L"Character updated orientation: %p  %f %f", character, x, z);
+
+    NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+    if (!netCharacter) {
+      log(L"Could not find network ID for character!");
+      return;
+    }
+
+    u32 characterId = netCharacter->getCommonId();
+
+    NetworkMessages::CharacterOrientation msgCharacterOrientation;
+    NetworkMessages::Position *msgOrientation = msgCharacterOrientation.mutable_orientation();
+    msgCharacterOrientation.set_characterid(characterId);
+    msgOrientation->set_x(x);
+    msgOrientation->set_y(0);
+    msgOrientation->set_z(z);
+
+    //
+    if (NetworkState::getSingleton().GetState() == CLIENT) {
+      if (Client::getSingleton().GetAllow_UpdateOrientation()) {
+      } else {
+        calloriginal = false;
+        Client::getSingleton().SendMessage<NetworkMessages::CharacterOrientation>(C_REQUEST_ORIENTATION, &msgCharacterOrientation);
+      }
+    } else if (NetworkState::getSingleton().GetState() == SERVER) {
+      // Push it out to clients
+      Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterOrientation>(S_PUSH_ORIENTATION, &msgCharacterOrientation);
+    }
+  }
+}
+
 // Server Events
 void TLMP::ServerOnClientConnected(void *arg)
 {
@@ -2689,10 +2775,18 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
       while (itrInv != NULL) {
         CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
 
+        /*
         u32 offset = (u32*)&character->visibility_test2 - (u32*)character;
         log(L"(%p) %s Visibility: %x (offset: %x  address: %x)", character, character->characterName.c_str(), character->visibility_test2, offset, (u32*)&character->visibility_test2);
 
         if (!wcscmp(L"Shade", character->characterName.c_str())) {
+          character->dumpCharacter(petData, petDataSize);
+        }
+        */
+
+        if (character == gameClient->pCPlayer) {
+          u32 offset = ((u32*)&character->orientation - (u32*)character) * sizeof(u32);
+          log(L"Orientation: %f %f %f   offset = %x", character->orientation.x, character->orientation.y, character->orientation.z, offset);
           character->dumpCharacter(petData, petDataSize);
         }
 

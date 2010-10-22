@@ -107,6 +107,9 @@ namespace TLMP {
       inline bool GetAllow_RandomSeed()                     { return m_bAllow_RandomSeed; }
       inline void SetAllow_RandomSeed(bool value)           { m_bAllow_RandomSeed = value; }
 
+      inline bool GetAllow_UpdateOrientation()              { return m_bAllow_UpdateOrientation; }
+      inline void SetAllow_UpdateOrientation(bool value)    { m_bAllow_UpdateOrientation = value; }
+
 
       void ReceiveMessages();
 
@@ -171,6 +174,7 @@ namespace TLMP {
       void HandleCharacterKillCharacter(NetworkMessages::CharacterKilledCharacter *);
       void HandleCharacterAddSkill(NetworkMessages::BaseUnitAddSkill *);
       void HandleRandomSeed(NetworkMessages::RandomSeed *);
+      void HandleCharacterOrientation(NetworkMessages::CharacterOrientation *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
 
@@ -218,6 +222,7 @@ namespace TLMP {
       bool m_bAllow_AddEffect;
       bool m_bAllow_AddExperience;
       bool m_bAllow_RandomSeed;
+      bool m_bAllow_UpdateOrientation;
     };
 
   };
