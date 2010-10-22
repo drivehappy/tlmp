@@ -92,6 +92,8 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_Player_KillMonsterExperience(Character_Player_KillMonsterExperiencePre, Character_Player_KillMonsterExperiencePost);
   CCharacter::RegisterEvent_Character_Killed(Character_KilledPre, Character_KilledPost);
 
+  CPlayer::RegisterEvent_PlayerLevelUp(Player_LevelUpPre, NULL);
+
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
 
@@ -2711,6 +2713,11 @@ void TLMP::Character_UpdateOrientationPre(CCharacter* character, float x, float 
       Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterOrientation>(S_PUSH_ORIENTATION, &msgCharacterOrientation);
     }
   }
+}
+
+void TLMP::Player_LevelUpPre(CPlayer* player, bool& calloriginal)
+{
+  log("Player leveled up %p", player);
 }
 
 // Server Events

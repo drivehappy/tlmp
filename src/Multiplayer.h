@@ -95,6 +95,9 @@ namespace TLMP
   void Character_KilledPre(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
   void Character_KilledPost(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
 
+  // Player
+  void Player_LevelUpPre(CPlayer*, bool&);
+
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);
   void ItemGold_CtorPost(CItemGold*, PVOID, CResourceManager*, u32, bool&);
