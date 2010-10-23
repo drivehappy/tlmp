@@ -310,7 +310,7 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
   case C_PUSH_CHARACTER_SETDEST:
     {
       NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
-      NetworkMessages::Position msgDestination = msgCharacterDestination->destination().Get(0);
+      NetworkMessages::Position msgDestination = msgCharacterDestination->destination();
 
       u32 commonId = msgCharacterDestination->id();
 

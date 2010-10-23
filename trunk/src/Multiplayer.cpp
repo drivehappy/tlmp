@@ -956,8 +956,8 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
   }
 
   NetworkMessages::CharacterDestination msgCharacterDestination;
-  NetworkMessages::Position *msgPositionCurrent = msgCharacterDestination.add_current();
-  NetworkMessages::Position *msgPositionDestination = msgCharacterDestination.add_destination();
+  NetworkMessages::Position *msgPositionCurrent = msgCharacterDestination.mutable_current();
+  NetworkMessages::Position *msgPositionDestination = msgCharacterDestination.mutable_destination();
 
   msgPositionCurrent->set_x(character->position.x);
   msgPositionCurrent->set_y(character->position.y);
@@ -1721,12 +1721,47 @@ void TLMP::EquipmentAddStackCountPost(CEquipment *equipment, u32 amount)
   }
 }
 
-void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal)
+void TLMP::GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & calloriginal)
 {
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
   //log(L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
   multiplayerLogger.WriteLine(Info, L"Suppressing Game Save: %p (%x %x)", gameClient, unk0, unk1);
 
-  callOriginal = false;
+  CLevel *level = gameClient->pCLevel;
+
+  // Remove any characters that have been added through multiplayer before saving
+  LinkedListNode* itrInv = *level->ppCCharacters2;
+  while (itrInv != NULL) {
+    CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
+
+    if (character) {
+      if (character != gameClient->pCPlayer && 
+          (character->GUID == DESTROYER || 
+           character->GUID == DESTROYER || 
+           character->GUID == DESTROYER))
+      {
+        vector<CCharacter*>::iterator itrMinion;
+        vector<CCharacter*> *minions = character->GetMinions();
+        for (itrMinion = minions->begin(); itrMinion != minions->end(); itrMinion++) {
+          (*itrMinion)->Destroy();
+        }
+
+        character->Destroy();
+      }
+    }
+
+    itrInv = itrInv->pNext;
+  }
+
+  // Fix bug when trying to save game on client that is loading
+  if (gameClient->pCLevel->pCLevelLayout == NULL) {
+    calloriginal = false;
+  }
+
+  //callOriginal = false;
 
   /* Removed - New characters will try to save right off and Disconnect - move this
      to a proper function where the game exits.
@@ -1954,11 +1989,13 @@ void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, fl
 {
   CharacterUpdateTime[character].reset();
 
+  /*
   if (!wcscmp(L"Shade", character->characterName.c_str())) 
   {
     log(L" Pre: unkPos[1]: %i", character->unkPositionable[1]);
     character->unkPositionable[1] = 0;
   }
+  */
 }
 
 void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
@@ -1972,6 +2009,7 @@ void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, f
       character->destroy = true;
   }
 
+  /*
   // Testing Visibility
   if (!wcscmp(L"Shade", character->characterName.c_str())) 
   {
@@ -1990,16 +2028,15 @@ void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, f
       character->unkPositionable[1] = 0;
     }
 
-    /*
-    log(L"%s Update: vis: %i  state: %i  check: %x   %i %i %i %i   %i %i %i (offset: %x)", character->characterName.c_str(), character->visibility_test2,
-      character->state,
-      character->unk6,
-      character->unk06[0], character->unk06[1], character->unk06[2], character->unk06[3], 
-      character->destroy1, character->destroy2, character->destroy3,
-      &character->unk06[1] - (u8*)character);
-      */
+    //log(L"%s Update: vis: %i  state: %i  check: %x   %i %i %i %i   %i %i %i (offset: %x)", character->characterName.c_str(), character->visibility_test2,
+    //  character->state,
+    //  character->unk6,
+    //  character->unk06[0], character->unk06[1], character->unk06[2], character->unk06[3], 
+    //  character->destroy1, character->destroy2, character->destroy3,
+    //  &character->unk06[1] - (u8*)character);
    
   }
+  */
 }
 
 void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
@@ -2600,6 +2637,10 @@ void TLMP::BaseUnit_AddSkillPre(CBaseUnit* baseUnit, wstring* skillName, u32 unk
     return;
   }
 
+  if (NetworkState::getSingleton().GetState() == SINGLEPLAYER) {
+    return;
+  }
+
   log(L"BaseUnit AddSkillPre: %p %s %x", baseUnit, skillName->c_str(), unk0);
 
   
@@ -2629,6 +2670,10 @@ void TLMP::BaseUnit_AddSkillPre(CBaseUnit* baseUnit, wstring* skillName, u32 unk
 
 void TLMP::BaseUnit_AddSkillPost(CBaseUnit* baseUnit, wstring* skillName, u32 unk0, bool& calloriginal)
 {
+  if (NetworkState::getSingleton().GetState() == SINGLEPLAYER) {
+    return;
+  }
+
   log(L"BaseUnit AddSkillPost: %p %s %x", baseUnit, skillName->c_str(), unk0);
 }
 
@@ -2767,6 +2812,25 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
   switch (msg) {
   case WM_KEYUP:
     switch (wParam) {
+
+    // T =
+    //   Testing to see the equipment ref from main/sec weapons
+    case 'T':
+    case 't':
+      {
+        static CEquipment* mainHand = NULL;
+        static CEquipment* secondHand = NULL;
+
+        CInventory* inv = gameClient->pCPlayer->pCInventory;
+        CEquipment* tmp1 = inv->GetEquipmentFromSlot(0);
+        CEquipment* tmp2 = inv->GetEquipmentFromSlot(1);
+
+        CEquipmentRef* ref1 = inv->GetEquipmentRefFromEquipment(tmp1);
+        CEquipmentRef* ref2 = inv->GetEquipmentRefFromEquipment(tmp2);
+
+        log("ref1 = %p, ref2 = %p", ref1, ref2);
+      }
+      break;
 
     // R =
     case 'R':

@@ -105,8 +105,8 @@ message ReplyCharacterId {
 
 message CharacterDestination {
   required int32    id = 1;
-  repeated Position current = 2;
-  repeated Position destination = 3;
+  required Position current = 2;
+  required Position destination = 3;
   required bool     running = 4;
   required bool     attacking = 5;
 }

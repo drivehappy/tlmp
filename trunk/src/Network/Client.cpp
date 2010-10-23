@@ -406,7 +406,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       }
 
       NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
-      NetworkMessages::Position msgDestination = msgCharacterDestination->destination().Get(0);
+      NetworkMessages::Position msgDestination = msgCharacterDestination->destination();
+      NetworkMessages::Position msgCurrent = msgCharacterDestination->current();
 
       u32 id = msgCharacterDestination->id();
 
@@ -414,10 +415,15 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       destination.x = msgDestination.x();
       destination.z = msgDestination.z();
 
+      Vector3 currentPosition;
+      currentPosition.x = msgCurrent.x();
+      currentPosition.y = msgCurrent.y();
+      currentPosition.z = msgCurrent.z();
+
       u8 running = msgCharacterDestination->running();
       u8 attacking = msgCharacterDestination->attacking();
 
-      HandleCharacterDestination(id, destination, running, attacking);
+      HandleCharacterDestination(id, currentPosition, destination, running, attacking);
     }
     break;
 
@@ -768,7 +774,7 @@ void Client::PushEquipment()
 }
 
 // Handles Character Set Destination
-void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 running, u8 attacking)
+void Client::HandleCharacterDestination(u32 commonId, Vector3 current, Vector3 destination, u8 running, u8 attacking)
 {
   //multiplayerLogger.WriteLine(Info, L"Client received character setDestination (CommonID = %x), Position = %f, %f",
   //  commonId, destination.x, destination.z);
@@ -787,6 +793,14 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 destination, u8 ru
   CCharacter *character = (CCharacter *)entity->getInternalObject();
 
   if (character) {
+    // If the current positioning is off, fix it - don't adjust our own character though
+    const int ALLOWED_SQUARED_ERROR = 1;
+    if (character != gameClient->pCPlayer) {
+      if ((character->position - current).squaredLength() > 10) {
+        character->position = current;
+      }
+    }
+
     // Lock the Client from sending a network message back out when setting the Character Destination
     Client::getSingleton().SetSuppressed_SetDestination(true);
     character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
