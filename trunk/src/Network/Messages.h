@@ -144,6 +144,9 @@ namespace TLMP {
 
       C_REQUEST_ORIENTATION,        // Client requests orientation
       S_PUSH_ORIENTATION,           // Push orientation out
+
+      C_REQUEST_WEAPONSWAP,         // Client requests a weapon swap
+      S_PUSH_WEAPONSWAP,            // Push weapon swap out
     };
 
     static const char* MessageString[] = {
@@ -263,6 +266,9 @@ namespace TLMP {
 
       "C_REQUEST_ORIENTATION",
       "S_PUSH_ORIENTATION",
+
+      "C_REQUEST_WEAPONSWAP",
+      "S_PUSH_WEAPONSWAP",
     };
 
   };

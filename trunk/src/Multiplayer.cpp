@@ -91,6 +91,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_Character_Update_Character(Character_Update_CharacterPre, NULL);
   CCharacter::RegisterEvent_Player_KillMonsterExperience(Character_Player_KillMonsterExperiencePre, Character_Player_KillMonsterExperiencePost);
   CCharacter::RegisterEvent_Character_Killed(Character_KilledPre, Character_KilledPost);
+  CCharacter::RegisterEvent_Player_SwapWeapons(Player_SwapWeaponsPre, NULL);
 
   CPlayer::RegisterEvent_PlayerLevelUp(Player_LevelUpPre, NULL);
 
@@ -2763,6 +2764,63 @@ void TLMP::Character_UpdateOrientationPre(CCharacter* character, float x, float 
 void TLMP::Player_LevelUpPre(CPlayer* player, bool& calloriginal)
 {
   log("Player leveled up %p", player);
+}
+
+void TLMP::Player_SwapWeaponsPre(CCharacter* player, bool& calloriginal)
+{
+  static Timer delayInput;
+  static bool firstSwap = true;
+  const float inputDelay = 0.1f;
+
+  NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
+  if (!netCharacter) {
+    log(L"Could not find network ID for character!");
+    return;
+  }
+
+  u32 characterId = netCharacter->getCommonId();
+
+  NetworkMessages::PlayerSwapWeapons msgPlayerSwapWeapons;
+  msgPlayerSwapWeapons.set_characterid(characterId);
+
+  //
+  if (NetworkState::getSingleton().GetState() == CLIENT) {
+    if (Client::getSingleton().GetAllow_WeaponSwap()) {
+    } else {
+      // Limit the amount of messages for this being sent out if this is our character
+      if (player == gameClient->pCPlayer) {
+        if (delayInput.getTime() < inputDelay && !firstSwap) {
+          calloriginal = false;
+          return;
+        } else if (firstSwap) {
+          firstSwap = false;
+        } else {
+          delayInput.reset();
+        }
+
+        calloriginal = false;
+        Client::getSingleton().SendMessage<NetworkMessages::PlayerSwapWeapons>(C_REQUEST_WEAPONSWAP, &msgPlayerSwapWeapons);
+        return;
+      }
+    }
+  } else if (NetworkState::getSingleton().GetState() == SERVER) {
+    // Limit the amount of messages for this being sent out if this is our character
+    if (player == gameClient->pCPlayer) {
+      if (delayInput.getTime() < inputDelay && !firstSwap) {
+        calloriginal = false;
+        return;
+      } else if (firstSwap) {
+        firstSwap = false;
+      } else {
+        delayInput.reset();
+      }
+    }
+
+    // Push it out to clients
+    Server::getSingleton().BroadcastMessage<NetworkMessages::PlayerSwapWeapons>(S_PUSH_WEAPONSWAP, &msgPlayerSwapWeapons);
+  }
+
+  log("Player swapping weapons: %p", player);
 }
 
 // Server Events

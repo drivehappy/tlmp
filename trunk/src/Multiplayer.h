@@ -94,6 +94,7 @@ namespace TLMP
   void Character_Player_KillMonsterExperiencePost(CCharacter*, CLevel*, CCharacter*, u32, u32, bool&);
   void Character_KilledPre(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
   void Character_KilledPost(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
+  void Player_SwapWeaponsPre(CCharacter*, bool&);
 
   // Player
   void Player_LevelUpPre(CPlayer*, bool&);
