@@ -141,7 +141,7 @@ namespace TLMP {
       void HandleGameEnded();
       void HandleRequestCharacterInfo();
       void HandleReplyCharacterId(NetworkMessages::ReplyCharacterId *msgReplyCharacterId);
-      void HandleCharacterDestination(u32 commonId, Vector3 destination, u8 running, u8 attacking);
+      void HandleCharacterDestination(u32 commonId, Vector3 current, Vector3 destination, u8 running, u8 attacking);
       void HandleCharacterCreation(NetworkMessages::Character *msgCharacter);
       void HandleEquipmentCreation(NetworkMessages::Equipment *equipment);
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0);
