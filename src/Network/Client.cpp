@@ -52,6 +52,7 @@ void Client::Reset()
   m_bAllow_AddExperience = false;
   m_bAllow_RandomSeed = false;
   m_bAllow_UpdateOrientation = false;
+  m_bAllow_WeaponSwap = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -619,6 +620,14 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::CharacterOrientation *msgCharacterOrientation = ParseMessage<NetworkMessages::CharacterOrientation>(m_pBitStream);
 
       HandleCharacterOrientation(msgCharacterOrientation);
+    }
+    break;
+
+  case S_PUSH_WEAPONSWAP:
+    {
+      NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons = ParseMessage<NetworkMessages::PlayerSwapWeapons>(m_pBitStream);
+
+      HandlePlayerWeaponSwap(msgPlayerSwapWeapons);
     }
     break;
 
@@ -2023,4 +2032,20 @@ void Client::HandleCharacterOrientation(NetworkMessages::CharacterOrientation *m
   SetAllow_UpdateOrientation(true);
   character->UpdateOrientation(msgOrientation.x(), msgOrientation.z());
   SetAllow_UpdateOrientation(false);
+}
+
+void Client::HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons)
+{
+  u32 characterId = msgPlayerSwapWeapons->characterid();
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+
+  if (!entity) {
+    log("Error: Could not find character for network ID: %x", characterId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entity->getInternalObject();
+  SetAllow_WeaponSwap(true);
+  character->WeaponSwap();
+  SetAllow_WeaponSwap(false);
 }

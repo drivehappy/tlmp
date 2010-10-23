@@ -424,6 +424,14 @@ void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitSt
     }
     break;
 
+  case C_REQUEST_WEAPONSWAP:
+    {
+      NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons = ParseMessage<NetworkMessages::PlayerSwapWeapons>(m_pBitStream);
+
+      HandlePlayerWeaponSwap(msgPlayerSwapWeapons);
+    }
+    break;
+
   }
 }
 
@@ -1675,4 +1683,18 @@ void Server::HandleCharacterOrientation(NetworkMessages::CharacterOrientation *m
 
   CCharacter *character = (CCharacter*)entity->getInternalObject();
   character->UpdateOrientation(msgOrientation.x(), msgOrientation.z());
+}
+
+void Server::HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons)
+{
+  u32 characterId = msgPlayerSwapWeapons->characterid();
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+
+  if (!entity) {
+    log("Error: Could not find character for network ID: %x", characterId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entity->getInternalObject();
+  character->WeaponSwap();
 }

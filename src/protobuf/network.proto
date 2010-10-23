@@ -278,3 +278,7 @@ message CharacterOrientation {
   required int32    characterId = 1;
   required Position orientation = 2;
 }
+
+message PlayerSwapWeapons {
+  required int32    characterId = 1;
+}
