@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+
+<GUILayout>
+
+    <!-- The Multiplayer Options window -->
+    <Window Type="DefaultWindow" Name="MultiplayerLobbyViewGames">
+      <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+      <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
+
+      <!-- Background Image -->
+      <Window Type="GuiLook/StaticImage" Name="MultiplayerLobbyViewGames_BackgroundImage">
+        <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+
+      <!-- Title Text -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerLobbyViewGames_TitleText">
+        <Property Name="UnifiedPosition" Value="{{.5,-200},{.10,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,400},{0,28}}" />
+        <Property Name="Font" Value="SerifBig"/>
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned"/>
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value="Multiplayer Lobby - View Games"/>
+      </Window>
+
+      <!-- Back Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_BackButton">
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{.92,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="Text" Value="Back"/>
+      </Window>
+      
+  </Window>
+
+</GUILayout>

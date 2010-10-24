@@ -42,6 +42,8 @@ namespace TLMP
   bool ButtonEvent_MultiplayerSplash_OkButton(const CEGUI::EventArgs& args);
 
   bool ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerLobby_ViewGames(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerLobbyViewGames_Back(const CEGUI::EventArgs& args);
 
   bool ButtonEvent_MultiplayerClientConnecting_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerClientConnecting_CancelButton(const CEGUI::EventArgs& args);
