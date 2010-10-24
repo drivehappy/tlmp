@@ -112,7 +112,7 @@
       </Window>
 
       <!-- View Games Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobby_ViewGames">
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobby_ViewGamesButton">
         <Property Name="UnifiedPosition" Value="{{0.75,0},{.92,0}}" />
         <Property Name="UnifiedSize" Value="{{0,200},{0,32}}" />
         <Property Name="Text" Value="View Games"/>
