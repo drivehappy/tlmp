@@ -14,7 +14,7 @@ namespace TLMP {
     #define stringify(name) #name
 
     /** Version to signify any Messaging ID changes. */
-    const u32 MessageVersion = 4;
+    const u32 MessageVersion = 5;
 
     /** Network Control Messages */
     enum Message {
