@@ -4,7 +4,7 @@
 // this file should _only_ be used in the header
 
 template<typename T>
-void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(Message msg, ::google::protobuf::Message *message)
+void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(LobbyMessage msg, ::google::protobuf::Message *message)
 {
   if (m_pServer) {
     // Write message data to array
@@ -26,7 +26,7 @@ void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(Message msg, ::google::
 }
 
 template<typename T>
-void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message)
+void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(const AddressOrGUID systemIdentifier, LobbyMessage msg, ::google::protobuf::Message *message)
 {
   if (m_pServer) {
     // Write message data to array
@@ -48,7 +48,7 @@ void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(const AddressOrGUID sys
 }
 
 template<typename T>
-void TLMP::Network::Lobby::LobbyServer::SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message)
+void TLMP::Network::Lobby::LobbyServer::SendMessage(const AddressOrGUID systemIdentifier, LobbyMessage msg, ::google::protobuf::Message *message)
 {
   if (m_pServer) {
     // Write message data to array

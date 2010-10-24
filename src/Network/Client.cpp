@@ -204,7 +204,7 @@ void Client::OnConnect(void *args)
   log("Client Connected.");
 }
 
-void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
+void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
 {
   wstring msgString = convertAsciiToWide(MessageString[msg]);
 

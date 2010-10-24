@@ -5,7 +5,7 @@
 // this file should _only_ be used in the header
 
 template<typename T>
-void TLMP::Network::Lobby::LobbyClient::SendMessage(Message msg, ::google::protobuf::Message *message)
+void TLMP::Network::Lobby::LobbyClient::SendMessage(LobbyMessage msg, ::google::protobuf::Message *message)
 {
   if (m_pClient) {
     // Write message data to array

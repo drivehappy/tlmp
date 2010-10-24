@@ -96,7 +96,7 @@ void LobbyClient::ReceiveMessages()
       m_pBitStream->IgnoreBits(8);
       m_pBitStream->Read<unsigned int>(msg);
 
-      WorkMessage((Message)msg, m_pBitStream);
+      WorkMessage((LobbyMessage)msg, m_pBitStream);
 
       break;
     }
@@ -106,7 +106,7 @@ void LobbyClient::ReceiveMessages()
   }
 }
 
-void LobbyClient::WorkMessage(Lobby::Message msg, RakNet::BitStream *bitStream)
+void LobbyClient::WorkMessage(LobbyMessage msg, RakNet::BitStream *bitStream)
 {
   wstring msgString = convertAsciiToWide(MessageString[msg]);
 
@@ -114,7 +114,7 @@ void LobbyClient::WorkMessage(Lobby::Message msg, RakNet::BitStream *bitStream)
   logColor(B_GREEN, L"Lobby Client Received Message: %s", msgString.c_str());
 
   switch (msg) {
-  case S_VERSION:
+  case L_S_VERSION:
     {
       NetworkMessages::Version *msgVersion = ParseMessage<NetworkMessages::Version>(m_pBitStream);
       unsigned int version = (unsigned int)(msgVersion->version());

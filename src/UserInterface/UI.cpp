@@ -469,6 +469,9 @@ bool TLMP::ButtonEvent_OpenMultiplayerOptions(const CEGUI::EventArgs& args)
   if (pWindow) {
     pWindow->setVisible(true);
     pWindow->moveToFront();
+
+    // Connect to lobby server here
+    LobbyClient::getSingleton().Connect("localhost", 5446);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Options Window");
   }
