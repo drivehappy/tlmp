@@ -97,6 +97,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/lobby.proto"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -114,7 +115,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../ExternalLibs/"
+				AdditionalIncludeDirectories="../src/protobuf_out;../ExternalLibs/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -175,12 +176,28 @@
 				RelativePath="..\src\lobby\lobbyServer.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\lobby\main.cpp"
+				>
+			</File>
+			<Filter
+				Name="protobuf_out"
+				>
+				<File
+					RelativePath="..\src\protobuf_out\lobby.pb.cc"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\src\lobby\LobbyServer.cpp.h"
+				>
+			</File>
 			<File
 				RelativePath="..\src\lobby\lobbyServer.h"
 				>
@@ -189,6 +206,22 @@
 				RelativePath="..\src\lobby\Messages.h"
 				>
 			</File>
+			<Filter
+				Name="protobuf"
+				>
+				<File
+					RelativePath="..\src\protobuf\lobby.proto"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="protobuf_out"
+				>
+				<File
+					RelativePath="..\src\protobuf_out\lobby.pb.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

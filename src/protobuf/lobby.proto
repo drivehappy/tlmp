@@ -1,0 +1,5 @@
+package TLMP.LobbyMessages;
+
+message Version {
+  required int32  version = 1;
+}
