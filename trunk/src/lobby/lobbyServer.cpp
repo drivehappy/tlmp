@@ -45,7 +45,7 @@ void LobbyServer::Process()
 
         LobbyMessages::Version msgVersion;
         msgVersion.set_version(LobbyMessageVersion);
-        SendMessage<LobbyMessages::Version>(*sysAddress, S_VERSION, &msgVersion);
+        SendMessage<LobbyMessages::Version>(*sysAddress, L_S_VERSION, &msgVersion);
       }
       break;
 
@@ -74,7 +74,7 @@ void LobbyServer::Process()
       m_pBitStream->IgnoreBits(8);
       m_pBitStream->Read<unsigned int>(msg);
 
-      WorkMessage(packet->systemAddress, (Message)msg, m_pBitStream);
+      WorkMessage(packet->systemAddress, (LobbyMessage)msg, m_pBitStream);
 
       break;
     }
@@ -85,12 +85,12 @@ void LobbyServer::Process()
 }
 
 
-void LobbyServer::WorkMessage(const SystemAddress address, Message msg, RakNet::BitStream *bitStream)
+void LobbyServer::WorkMessage(const SystemAddress address, LobbyMessage msg, RakNet::BitStream *bitStream)
 {
-  printf("Lobby Server Received Message: %s from %s", MessageString[msg], address.ToString());
+  printf("Lobby Server Received Message: %s from %s", LobbyMessageString[msg], address.ToString());
 
   switch (msg) {
-  case C_VERSION:
+  case L_C_VERSION:
     {
       LobbyMessages::Version *msgVersion = ParseMessage<LobbyMessages::Version>(m_pBitStream);
       unsigned int version = (unsigned int)(msgVersion->version());

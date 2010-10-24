@@ -195,15 +195,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\src\lobby\LobbyMessages.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\lobby\LobbyServer.cpp.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\lobby\lobbyServer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\lobby\Messages.h"
 				>
 			</File>
 			<Filter

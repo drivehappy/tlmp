@@ -14,7 +14,7 @@
 #include "raknet/include/MessageIdentifiers.h"
 #include "raknet/include/BitStream.h"
 
-#include "Messages.h"
+#include "LobbyMessages.h"
 #include <string>
 using std::wstring;
 
@@ -34,18 +34,18 @@ namespace TLMP {
         void Process();
 
         template<typename T>
-        void BroadcastMessage(Message msg, ::google::protobuf::Message *message);
+        void BroadcastMessage(LobbyMessage msg, ::google::protobuf::Message *message);
         template<typename T>
-        void BroadcastMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
+        void BroadcastMessage(const AddressOrGUID systemIdentifier, LobbyMessage msg, ::google::protobuf::Message *message);
         template<typename T>
-        void SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
+        void SendMessage(const AddressOrGUID systemIdentifier, LobbyMessage msg, ::google::protobuf::Message *message);
 
       private:
         template<typename T>
         T* ParseMessage(RakNet::BitStream *bitStream);
 
         /** Work on received packet data. */
-        void WorkMessage(const SystemAddress clientAddress, Message msg, RakNet::BitStream *bitStream);
+        void WorkMessage(const SystemAddress clientAddress, LobbyMessage msg, RakNet::BitStream *bitStream);
 
         RakPeerInterface* m_pServer;
         RakNet::BitStream *m_pBitStream;

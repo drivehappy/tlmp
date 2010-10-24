@@ -10,15 +10,15 @@ namespace TLMP {
       const int LobbyMessageVersion = 1;
 
       /** Network Control Messages */
-      enum Message {
-        S_VERSION = 0,
-        C_VERSION,
+      enum LobbyMessage {
+        L_S_VERSION = 0,
+        L_C_VERSION,
       };
 
       /** Stringify of Control Messages */
-      static const char* MessageString[] = {
-        "S_VERSION",
-        "C_VERSION",
+      static const char* LobbyMessageString[] = {
+        "L_S_VERSION",
+        "L_C_VERSION",
       };
 
     };

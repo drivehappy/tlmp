@@ -32,6 +32,8 @@ using namespace TLAPI;
 
 #include "Logger.h"
 
+#include "LobbyClient.h"
+
 namespace TLMP
 {
 

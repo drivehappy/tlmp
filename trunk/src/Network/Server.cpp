@@ -174,7 +174,7 @@ void Server::ReceiveMessages()
   }
 }
 
-void Server::WorkMessage(const SystemAddress address, Message msg, RakNet::BitStream *bitStream)
+void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakNet::BitStream *bitStream)
 {
   if (msg >= sizeof(MessageString) / sizeof(char*)) {
     log("Error: Message out of range.");

@@ -5,7 +5,7 @@
 #include "raknet/include/MessageIdentifiers.h"
 #include "raknet/include/BitStream.h"
 
-#include "lobby/Messages.h"
+#include "lobby/LobbyMessages.h"
 using namespace TLMP::Network::Lobby;
 
 #include "UI.h"
@@ -26,7 +26,7 @@ namespace TLMP {
         void ReceiveMessages();
 
         template<typename T>
-        void SendMessage(Message msg, ::google::protobuf::Message *message);
+        void SendMessage(LobbyMessage msg, ::google::protobuf::Message *message);
 
       protected:
         LobbyClient();
@@ -36,7 +36,7 @@ namespace TLMP {
 
       private:
         /** Work on received packet data. */
-        void WorkMessage(Message msg, RakNet::BitStream *bitStream);
+        void WorkMessage(LobbyMessage msg, RakNet::BitStream *bitStream);
         
         template<typename T>
         T* ParseMessage(RakNet::BitStream *bitStream);
