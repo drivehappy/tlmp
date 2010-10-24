@@ -13,6 +13,7 @@ void TLMP::ResizeUI()
   CEGUI::Window *pMainMenuDialogClientDisconnected;
   CEGUI::Window *pInGameRoot, *pInGameChat;
   CEGUI::Window *pMainMenuButton;
+  CEGUI::Window *pMainMenuLobby;
 
   // Find the root window for attaching our UI elements
   CEGUI::WindowManager* wm = UserInterface::getManager();
@@ -111,6 +112,14 @@ void TLMP::ResizeUI()
     pOptionsJoin->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_Join));
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_JoinButton");
+    return;
+  }
+    
+  CEGUI::Window *pOptionsTestLobby = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_TestLobbyButton");
+  if (pOptionsTestLobby) {
+    pOptionsTestLobby->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_TestLobby));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_TestLobbyButton");
     return;
   }
     
@@ -245,6 +254,27 @@ void TLMP::ResizeUI()
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1010_ChatEntry");
     return;
   }
+
+
+
+  // Load the MainMenu Multiplayer Lobby Window
+  try {
+    pMainMenuLobby = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerLobby.layout"), CEGUI::String("1020_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerLobby.layout");
+    return;
+  }
+
+  // Hookup Button Events   
+  CEGUI::Window *pLobbyBackButton = pMainMenuLobby->recursiveChildSearch("1020_MultiplayerLobby_BackButton");
+  if (pLobbyBackButton) {
+    pLobbyBackButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobby_Back));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobby_BackButton");
+    return;
+  }
+  
   
   
   
@@ -264,6 +294,8 @@ void TLMP::ResizeUI()
   pSheet->addChildWindow(pMainMenuDialogClientConnecting);
   pSheet->addChildWindow(pMainMenuDialogClientConnectedFailed);
   pSheet->addChildWindow(pMainMenuDialogClientDisconnected);
+  pSheet->addChildWindow(pMainMenuLobby);
+  pMainMenuLobby->setVisible(false);
   pMainMenuDialogClientConnectedFailed->setVisible(false);
   pMainMenuDialogClientDisconnected->setVisible(false);
   pMainMenuDialogClientConnecting->setVisible(false);
@@ -350,6 +382,20 @@ void TLMP::DisplayWaitForServerWindow()
   }
 }
 
+bool TLMP::ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+
+  if (pWindowLobby) {
+    pWindowLobby->setVisible(false);
+    pWindowLobby->moveToBack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
+  }
+
+  return true;
+}
+
 bool TLMP::ButtonEvent_OpenMultiplayerOptions(const CEGUI::EventArgs& args)
 {
   CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerOptions");
@@ -401,6 +447,25 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join(const CEGUI::EventArgs& args)
     pWindow->moveToFront();
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Options Join Window");
+  }
+
+  return true;
+}
+
+bool TLMP::ButtonEvent_MultiplayerOptions_TestLobby(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
+
+  if (pWindow) {
+    pWindow->setVisible(true);
+    pWindow->moveToFront();
+
+    pWindowOptions->setVisible(false);
+    pWindowOptions->moveToBack();
+  } else {
+    log(L"Error could not find Multiplayer Lobby Window");
+    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
   }
 
   return true;

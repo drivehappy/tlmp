@@ -98,6 +98,7 @@ namespace TLMP
 
   // Player
   void Player_LevelUpPre(CPlayer*, bool&);
+  void Player_LevelUpPost(CPlayer*, bool&);
 
   // Item Gold
   void ItemGold_CtorPre(CItemGold*, PVOID, CResourceManager*, u32, bool&);

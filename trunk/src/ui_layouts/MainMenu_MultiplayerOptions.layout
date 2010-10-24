@@ -69,6 +69,15 @@
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Cancel"/>
       </Window>
+
+      
+      <!-- Test Button for Lobby Stuff -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_TestLobbyButton">
+        <Property Name="UnifiedPosition" Value="{{.5,-76},{.60,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
+        <Property Name="Text" Value="Lobby"/>
+      </Window>
+      
       
       <!-- New Visible Window -->
       <!-- Host Window -->
