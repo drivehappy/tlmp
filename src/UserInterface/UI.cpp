@@ -428,9 +428,13 @@ bool TLMP::ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args)
 
 bool TLMP::ButtonEvent_MultiplayerLobby_ViewGames(const CEGUI::EventArgs& args)
 {
+  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
   CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
 
   if (pWindowLobbyViewGames) {
+    pWindowLobby->setVisible(false);
+    pWindowLobby->moveToBack();
+
     pWindowLobbyViewGames->setVisible(true);
     pWindowLobbyViewGames->moveToFront();
   } else {

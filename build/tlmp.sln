@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tlmp", "tlmp.vcproj", "{1B7
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tlapi", "..\ExternalLibs\tlapi\build\tlapi.vcproj", "{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tlmp_lobbyServer", "tlmp_lobbyServer.vcproj", "{99C9F919-52DF-4B0A-9A7F-0469D3E49386}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Win32 = Release|Win32
@@ -14,6 +16,8 @@ Global
 		{1B7AE725-6AD4-4015-ADCC-05CFC69689BE}.Release|Win32.Build.0 = Release|Win32
 		{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}.Release|Win32.ActiveCfg = Release|Win32
 		{8E0CFCB7-9DEA-467F-AF3E-80FA1C8FFDA3}.Release|Win32.Build.0 = Release|Win32
+		{99C9F919-52DF-4B0A-9A7F-0469D3E49386}.Release|Win32.ActiveCfg = Release|Win32
+		{99C9F919-52DF-4B0A-9A7F-0469D3E49386}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
