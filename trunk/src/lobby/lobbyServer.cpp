@@ -87,16 +87,76 @@ void LobbyServer::Process()
 
 void LobbyServer::WorkMessage(const SystemAddress address, LobbyMessage msg, RakNet::BitStream *bitStream)
 {
-  printf("Lobby Server Received Message: %s from %s", LobbyMessageString[msg], address.ToString());
+  printf("Lobby Server Received Message: %s from %s\n", LobbyMessageString[msg], address.ToString());
 
   switch (msg) {
   case L_C_VERSION:
     {
       LobbyMessages::Version *msgVersion = ParseMessage<LobbyMessages::Version>(m_pBitStream);
-      unsigned int version = (unsigned int)(msgVersion->version());
       
-      printf("Lobby Server Got Client Version: %i\n", version);
+      HandleVersion(address, msgVersion);
+    }
+    break;
+
+  case L_C_PLAYERNAME:
+    {
+      LobbyMessages::ClientPlayerName *msgClientPlayerName = ParseMessage<LobbyMessages::ClientPlayerName>(m_pBitStream);
+      
+      HandlePlayerName(address, msgClientPlayerName);
+    }
+    break;
+
+  case L_C_CHAT_MESSAGE:
+    {
+      LobbyMessages::ChatMessage *msgChat = ParseMessage<LobbyMessages::ChatMessage>(m_pBitStream);
+
+      HandleChatMessage(msgChat);
     }
     break;
   }
+}
+
+
+void LobbyServer::HandleVersion(const SystemAddress address, Version *msgVersion)
+{
+  unsigned int version = (unsigned int)(msgVersion->version());
+      
+  printf("Lobby Server Got Client Version: %i\n", version);
+
+  if (version != LobbyMessageVersion) {
+    printf("Lobby client version mismatch with server (%i != %i)\n", version, LobbyMessageVersion);
+    m_pServer->CloseConnection(address, true);
+  }
+}
+
+void LobbyServer::HandlePlayerName(const SystemAddress address, ClientPlayerName *msgClientPlayerName)
+{
+  std::string playerName = msgClientPlayerName->playername();
+
+  printf("Lobby server received playername: %s\n", playerName.c_str());
+
+  // Add the player name to our address map
+  m_PlayerNames[address] = playerName;
+
+  // Push the new name out to everyone except the new guy
+  BroadcastMessage<LobbyMessages::ClientPlayerName>(address, L_S_PLAYERNAME_JOIN, msgClientPlayerName);
+
+  // Push the batch of players out to the new guy
+  LobbyMessages::BatchPlayerNames msgBatchPlayerNames;
+  map<SystemAddress, string>::iterator itr;
+  for (itr = m_PlayerNames.begin(); itr != m_PlayerNames.end(); itr++) {
+    msgBatchPlayerNames.add_playernames((*itr).second);
+  }
+  SendMessage<LobbyMessages::ClientPlayerName>(address, L_S_PLAYERNAME_BATCH, &msgBatchPlayerNames);
+}
+
+void LobbyServer::HandleChatMessage(ChatMessage *msgChat)
+{
+  const std::string sender = msgChat->sender();
+  const std::string msg = msgChat->message();
+
+  printf("Lobby Server received chat message from sender: %s (%s)\n", sender.c_str(), msg.c_str());
+
+  // Push it back out through a broadcast
+  BroadcastMessage<LobbyMessages::Version>(L_S_CHAT_MESSAGE, msgChat);
 }

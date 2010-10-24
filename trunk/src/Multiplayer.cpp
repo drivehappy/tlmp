@@ -693,6 +693,9 @@ void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk
       Client::getSingleton().ReceiveMessages();
       break;
   }
+
+  // Process messages from the Lobby server
+  LobbyClient::getSingleton().ReceiveMessages();
 }
 
 void TLMP::GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2)
@@ -723,6 +726,9 @@ void TLMP::GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOI
       Client::getSingleton().ReceiveMessages();
       break;
   }
+
+  // Process messages from the Lobby server
+  LobbyClient::getSingleton().ReceiveMessages();
 }
 
 void TLMP::GameClient_CreateLevelPre(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal)

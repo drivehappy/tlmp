@@ -53,13 +53,20 @@ namespace TLMP
 
   bool EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args);
 
+  bool EditboxEvent_KeyDownLobbyChatEntry(const CEGUI::EventArgs& args);
+
   void OnClientConnected(void*);
   void OnClientDisconnected(void*);
   void OnClientConnectFailed(void*);
 
+  // In-game chat
   CEGUI::Window* getChatHistoryWindow();
   CEGUI::Window* getChatEntryWindow();
   CEGUI::Window* getChatEntryBackgroundWindow();
+
+  // Lobby chat
+  CEGUI::Window* getLobbyChatHistoryWindow();
+  CEGUI::Window* getLobbyChatEntryWindow();
 
   extern bool UISetup;
 

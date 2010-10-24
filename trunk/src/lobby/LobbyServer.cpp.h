@@ -8,14 +8,14 @@ void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(LobbyMessage msg, ::goo
 {
   if (m_pServer) {
     // Write message data to array
-    u32 size = sizeof(u8) * message->ByteSize();
-    u8 *dump = new u8[size];
+    unsigned int size = sizeof(unsigned char) * message->ByteSize();
+    unsigned char *dump = new unsigned char[size];
     message->SerializeToArray(dump, size);
 
     // Write data and size to raknet
     m_pBitStream->Reset();
-    m_pBitStream->Write((u8)(ID_USER_PACKET_ENUM+1));
-    m_pBitStream->Write((u32)msg);
+    m_pBitStream->Write((unsigned char)(ID_USER_PACKET_ENUM+1));
+    m_pBitStream->Write((unsigned int)msg);
     m_pBitStream->Write(size);
     m_pBitStream->Write((const char *)dump, size);
 
@@ -30,14 +30,14 @@ void TLMP::Network::Lobby::LobbyServer::BroadcastMessage(const AddressOrGUID sys
 {
   if (m_pServer) {
     // Write message data to array
-    u32 size = sizeof(u8) * message->ByteSize();
-    u8 *dump = new u8[size];
+    unsigned int size = sizeof(unsigned char) * message->ByteSize();
+    unsigned char *dump = new unsigned char[size];
     message->SerializeToArray(dump, size);
 
     // Write data and size to raknet
     m_pBitStream->Reset();
-    m_pBitStream->Write((u8)(ID_USER_PACKET_ENUM+1));
-    m_pBitStream->Write((u32)msg);
+    m_pBitStream->Write((unsigned char)(ID_USER_PACKET_ENUM+1));
+    m_pBitStream->Write((unsigned int)msg);
     m_pBitStream->Write(size);
     m_pBitStream->Write((const char *)dump, size);
 

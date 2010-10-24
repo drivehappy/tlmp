@@ -25,7 +25,7 @@ LobbyClient::~LobbyClient()
 
 void LobbyClient::Connect(const char* address, unsigned short port)
 {
-  printf("Lobby client connecting to %s (%i)\n", address, port);
+  log("Lobby client connecting to %s (%i)", address, port);
 
   if (m_pClient) {
     m_pClient->Shutdown(0);
@@ -42,7 +42,7 @@ void LobbyClient::Connect(const char* address, unsigned short port)
 
 void LobbyClient::Disconnect()
 {
-  printf("Lobby client disconnecting...\n");
+  log("Lobby client disconnecting...");
 
   if (m_pClient) {
     m_pClient->Shutdown(0);
@@ -62,7 +62,7 @@ void LobbyClient::ReceiveMessages()
     {
     case ID_CONNECTION_REQUEST_ACCEPTED:
       {
-        printf("Client connected to server.");
+        log("Lobby client connected to server.");
 
         SystemAddress *sysAddress = new SystemAddress();
         *sysAddress = packet->systemAddress;
@@ -71,22 +71,22 @@ void LobbyClient::ReceiveMessages()
       break;
     case ID_NO_FREE_INCOMING_CONNECTIONS:
       {
-        printf("Could not connect to server: No room.");
+        log("Could not connect to lobby server: No room.");
       }
       break;
     case ID_DISCONNECTION_NOTIFICATION:
       {
-        printf("Client disconnected.");
+        log("Lobby client disconnected.");
       }
       break;
     case ID_CONNECTION_LOST:
       {
-        printf("Client connection lost.");
+        log("Lobby client connection lost.");
       }
       break;
     case ID_CONNECTION_ATTEMPT_FAILED:
       {
-        printf("Client connection failed.");
+        log("Lobby client connection failed.");
       }
       break;
     case ID_USER_PACKET_ENUM+1:
@@ -108,20 +108,73 @@ void LobbyClient::ReceiveMessages()
 
 void LobbyClient::WorkMessage(LobbyMessage msg, RakNet::BitStream *bitStream)
 {
-  wstring msgString = convertAsciiToWide(MessageString[msg]);
+  wstring msgString = convertAsciiToWide(LobbyMessageString[msg]);
 
   multiplayerLogger.WriteLine(Info, L"Lobby Client Received Message: %s", msgString.c_str());
-  logColor(B_GREEN, L"Lobby Client Received Message: %s", msgString.c_str());
+  log(L"Lobby Client Received Message: %s", msgString.c_str());
 
   switch (msg) {
   case L_S_VERSION:
     {
-      NetworkMessages::Version *msgVersion = ParseMessage<NetworkMessages::Version>(m_pBitStream);
-      unsigned int version = (unsigned int)(msgVersion->version());
+      LobbyMessages::Version *msgVersion = ParseMessage<LobbyMessages::Version>(m_pBitStream);
 
-      log("Lobby Client Got Server Version: %i\n", version);
+      HandleVersion(msgVersion);
     }
     break;
+
+  case L_S_PLAYERNAME_JOIN:
+    {
+      LobbyMessages::ClientPlayerName *msgClientPlayerName = ParseMessage<LobbyMessages::ClientPlayerName>(m_pBitStream);
+
+      HandleClientPlayerName(msgClientPlayerName);
+    }
+    break;
+
+  case L_S_PLAYERNAME_BATCH:
+    {
+      LobbyMessages::BatchPlayerNames *msgBatchPlayerNames = ParseMessage<LobbyMessages::BatchPlayerNames>(m_pBitStream);
+
+      HandleBatchPlayerNames(msgBatchPlayerNames);
+    }
+    break;
+
   }
 }
 
+void LobbyClient::HandleVersion(LobbyMessages::Version *msgVersion)
+{
+  unsigned int version = (unsigned int)(msgVersion->version());
+
+  log("Lobby Client Got Server Version: %i", version);
+
+  LobbyMessages::Version msgVersionReply;
+  msgVersionReply.set_version(LobbyMessageVersion);
+  SendMessage<LobbyMessages::Version>(L_C_VERSION, &msgVersionReply);
+
+  // Send the player name off to the server so it can be listed in the player list
+  string senderName(gameClient->pCPlayer->characterName.begin(), gameClient->pCPlayer->characterName.end());
+  senderName.assign(gameClient->pCPlayer->characterName.begin(), gameClient->pCPlayer->characterName.end());
+
+  LobbyMessages::ClientPlayerName msgClientPlayerName;
+  msgClientPlayerName.set_playername(senderName);
+  SendMessage<LobbyMessages::ClientPlayerName>(L_C_PLAYERNAME, &msgClientPlayerName);
+}
+
+void LobbyClient::HandleClientPlayerName(LobbyMessages::ClientPlayerName *msgClientPlayerName)
+{
+  string playerName = msgClientPlayerName->playername();
+
+  log("TODO: Add playername to player list: %s", playerName.c_str());
+}
+
+void LobbyClient::HandleBatchPlayerNames(LobbyMessages::BatchPlayerNames *msgBatchPlayerNames)
+{
+  int nameCount = msgBatchPlayerNames->playernames().size();
+
+  log("Received player name batch list: %i", nameCount);
+  for (int i = 0; i < nameCount; i++) {
+    string playerName = msgBatchPlayerNames->playernames().Get(i);
+
+    log("  Player Name: %s", playerName.c_str());
+  }
+}

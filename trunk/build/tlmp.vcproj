@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto&#x0D;&#x0A;..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/lobby.proto"
+				CommandLine=""
 				ExcludedFromBuild="false"
 			/>
 			<Tool
@@ -164,16 +164,40 @@
 					<File
 						RelativePath="..\src\protobuf\lobby.proto"
 						>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCustomBuildTool"
+								Description="Building lobby protobuf messages"
+								CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/lobby.proto"
+								Outputs="lobby.pb.h;lobby.pb.ccc"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\src\protobuf\network.proto"
 						>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCustomBuildTool"
+								Description="Building network protobuf messages"
+								CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto"
+								Outputs="network.pb.h;network.pb.cc"
+							/>
+						</FileConfiguration>
 					</File>
 				</Filter>
 			</Filter>
 			<Filter
 				Name="protobuf_out"
 				>
+				<File
+					RelativePath="..\src\protobuf_out\lobby.pb.h"
+					>
+				</File>
 				<File
 					RelativePath="..\src\protobuf_out\network.pb.h"
 					>
@@ -242,6 +266,10 @@
 			<Filter
 				Name="protobuf_out"
 				>
+				<File
+					RelativePath="..\src\protobuf_out\lobby.pb.cc"
+					>
+				</File>
 				<File
 					RelativePath="..\src\protobuf_out\network.pb.cc"
 					>
