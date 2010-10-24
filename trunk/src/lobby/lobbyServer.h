@@ -15,3 +15,47 @@
 #include "raknet/include/BitStream.h"
 
 #include "Messages.h"
+#include <string>
+using std::wstring;
+
+#include "lobby.pb.h"
+
+namespace TLMP {
+  namespace Network {
+    namespace Lobby {
+
+      class LobbyServer
+      {
+      public:
+        LobbyServer();
+        ~LobbyServer();
+
+        void Initialize(unsigned short port, unsigned short maxconnections);
+        void Process();
+
+        template<typename T>
+        void BroadcastMessage(Message msg, ::google::protobuf::Message *message);
+        template<typename T>
+        void BroadcastMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
+        template<typename T>
+        void SendMessage(const AddressOrGUID systemIdentifier, Message msg, ::google::protobuf::Message *message);
+
+      private:
+        template<typename T>
+        T* ParseMessage(RakNet::BitStream *bitStream);
+
+        /** Work on received packet data. */
+        void WorkMessage(const SystemAddress clientAddress, Message msg, RakNet::BitStream *bitStream);
+
+        RakPeerInterface* m_pServer;
+        RakNet::BitStream *m_pBitStream;
+        unsigned short m_iPort;
+        unsigned short m_iMaxConnections;
+      };
+
+    };
+  };
+};
+
+// Template parameterization
+#include "LobbyServer.cpp.h"

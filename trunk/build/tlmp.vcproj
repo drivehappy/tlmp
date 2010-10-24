@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto"
+				CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto&#x0D;&#x0A;..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/lobby.proto"
 				ExcludedFromBuild="false"
 			/>
 			<Tool
@@ -162,6 +162,10 @@
 					Name="protobuf"
 					>
 					<File
+						RelativePath="..\src\protobuf\lobby.proto"
+						>
+					</File>
+					<File
 						RelativePath="..\src\protobuf\network.proto"
 						>
 					</File>
@@ -180,6 +184,18 @@
 				>
 				<File
 					RelativePath="..\src\UserInterface\UI.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Lobby"
+				>
+				<File
+					RelativePath="..\src\lobby\LobbyClient.cpp.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\lobby\LobbyClient.h"
 					>
 				</File>
 			</Filter>
@@ -236,6 +252,14 @@
 				>
 				<File
 					RelativePath="..\src\UserInterface\UI.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Lobby"
+				>
+				<File
+					RelativePath="..\src\lobby\LobbyClient.cpp"
 					>
 				</File>
 			</Filter>
