@@ -93,7 +93,7 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_Character_Killed(Character_KilledPre, Character_KilledPost);
   CCharacter::RegisterEvent_Player_SwapWeapons(Player_SwapWeaponsPre, NULL);
 
-  CPlayer::RegisterEvent_PlayerLevelUp(Player_LevelUpPre, NULL);
+  CPlayer::RegisterEvent_PlayerLevelUp(Player_LevelUpPre, Player_LevelUpPost);
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
@@ -405,8 +405,7 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
     }
   }
   else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    multiplayerLogger.WriteLine(Info, L"Created character with guid of: %016I64X (%p)",
-      guid, character);
+    multiplayerLogger.WriteLine(Info, L"Created character with guid of: %016I64X (%p)", guid, character);
   }
 
 
@@ -555,6 +554,8 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
   const u64 STASH = 0x258372C33F2411DE;
   const u64 SHAREDSTASH = 0xFC4F7F1F9D8E11DE;
 
+  u64 guid = character->GUID;
+
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     log(L"Client: Level::CharInit: Level = %p Character = %p", level, character);
     multiplayerLogger.WriteLine(Info, L"Client: Level::CharInit: Level = %p Character = %p", level, character);
@@ -566,20 +567,23 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
     // True, attempt to suppress the character initialization
     if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
-      u64 guid = character->GUID;
-
       log("Client Character Initialize");
       
-      // Remove the stash or shared stash if we're not in the town
-      if (wcscmp(level->levelName.c_str(), L"TOWN") && (guid == STASH || guid == SHAREDSTASH) ) {
-        character->destroy = true;
-      } 
+      // Hacky character checks for specific characters and whether we're in town or not
+      if (guid == STASH || guid == SHAREDSTASH) {
+        // Remove the stash or shared stash if we're not in the town
+        if (wcscmp(level->levelName.c_str(), L"TOWN")) {
+          character->destroy = true;
+        } else {
+          // Do nothing, let the Stashes load
+        }
+      }
       else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
         guid == DOG || guid == CAT || guid == BRINK)
       {
         //log("Client: Detected CPlayer addition to CLevel, not suppressing load");
       } else {
-        // Town characters won't be destroyed, so just don't call this.
+        // Town characters won't be destroyed, so just don't call this
         if (!wcscmp(level->levelName.c_str(), L"TOWN")) {
           log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
           calloriginal = false;
@@ -587,7 +591,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         }
         // However, any characters in the level will still be present but unselectable, so destroy them this way
         else {
-          // TESTING - Destroy the character if we're not going to load it
+          // Destroy the character if we're not going to load it
           character->destroy = true;
         }
       }
@@ -614,27 +618,29 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
       if (!LevelLoading) {
         // Send this character to be created on the clients if it isn't suppressed
         if (!Server::getSingleton().GetSuppressed_SendCharacterCreation()) {
-          multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
-          //log(L"Server: Pushing Initialized Character out to clients...");
+          if (guid != STASH && guid != SHAREDSTASH) {
+            multiplayerLogger.WriteLine(Info, L"Server: Pushing Initialized Character out to clients...");
+            //log(L"Server: Pushing Initialized Character out to clients...");
 
-          string characterName(character->characterName.begin(), character->characterName.end());
-          characterName.assign(character->characterName.begin(), character->characterName.end());
+            string characterName(character->characterName.begin(), character->characterName.end());
+            characterName.assign(character->characterName.begin(), character->characterName.end());
 
-          // Create a new network message for all clients to create this character
-          NetworkMessages::Character msgNewCharacter;
-          msgNewCharacter.set_guid(character->GUID);
-          msgNewCharacter.set_name(characterName);
+            // Create a new network message for all clients to create this character
+            NetworkMessages::Character msgNewCharacter;
+            msgNewCharacter.set_guid(character->GUID);
+            msgNewCharacter.set_name(characterName);
 
-          NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
-          msgPlayerPosition->set_x(character->position.x);
-          msgPlayerPosition->set_y(character->position.y);
-          msgPlayerPosition->set_z(character->position.z);
+            NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
+            msgPlayerPosition->set_x(character->position.x);
+            msgPlayerPosition->set_y(character->position.y);
+            msgPlayerPosition->set_z(character->position.z);
 
-          msgNewCharacter.set_id(newEntity->getCommonId());
-          msgNewCharacter.set_alignment(character->alignment);
+            msgNewCharacter.set_id(newEntity->getCommonId());
+            msgNewCharacter.set_alignment(character->alignment);
 
-          // This will broadcast to all clients except the one we received it from
-          Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
+            // This will broadcast to all clients except the one we received it from
+            Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
+          }
         }
       }
     }
@@ -2763,7 +2769,12 @@ void TLMP::Character_UpdateOrientationPre(CCharacter* character, float x, float 
 
 void TLMP::Player_LevelUpPre(CPlayer* player, bool& calloriginal)
 {
-  log("Player leveled up %p", player);
+  log("Player leveled up Pre %p", player);
+}
+
+void TLMP::Player_LevelUpPost(CPlayer* player, bool& calloriginal)
+{
+  log("Player leveled up Post %p", player);
 }
 
 void TLMP::Player_SwapWeaponsPre(CCharacter* player, bool& calloriginal)
@@ -2867,9 +2878,11 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
   if (!(msg == 0x100 || msg == 0x101 || msg == 0x102 || msg == 0x201))
     return;
 
+  /*
   switch (msg) {
   case WM_KEYUP:
     switch (wParam) {
+
 
     // T =
     //   Testing to see the equipment ref from main/sec weapons
@@ -2904,15 +2917,6 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
       while (itrInv != NULL) {
         CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
 
-        /*
-        u32 offset = (u32*)&character->visibility_test2 - (u32*)character;
-        log(L"(%p) %s Visibility: %x (offset: %x  address: %x)", character, character->characterName.c_str(), character->visibility_test2, offset, (u32*)&character->visibility_test2);
-
-        if (!wcscmp(L"Shade", character->characterName.c_str())) {
-          character->dumpCharacter(petData, petDataSize);
-        }
-        */
-
         if (character == gameClient->pCPlayer) {
           u32 offset = ((u32*)&character->orientation - (u32*)character) * sizeof(u32);
           log(L"Orientation: %f %f %f   offset = %x", character->orientation.x, character->orientation.y, character->orientation.z, offset);
@@ -2921,17 +2925,8 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 
         itrInv = itrInv->pNext;
       }
-
-      /*
-      CCharacter *pet = gameClient->pCPlayer->GetMinions()->operator [](0);
-      if (pet) {
-        log("Pet: %p", pet);
-        log("Pet Visibility Test: %x", pet->visibility_test);
-        //pet->visibility_test = 0;
-        pet->dumpCharacter(petData, petDataSize);
-      }
-      */
       break;
     }
   }
+  */
 }

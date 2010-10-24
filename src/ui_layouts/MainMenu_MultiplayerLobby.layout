@@ -1,0 +1,123 @@
+<?xml version="1.0" ?>
+
+<GUILayout>
+
+    <!-- The Multiplayer Options window -->
+    <Window Type="DefaultWindow" Name="MultiplayerLobby">
+      <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+      <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
+
+      <!-- Background Image -->
+      <Window Type="GuiLook/StaticImage" Name="MultiplayerLobby_BackgroundImage">
+        <Property Name="Image" Value="set:GuiLook image:GrayLine" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+
+      <!-- Title Text -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerLobby_TitleText">
+        <Property Name="UnifiedPosition" Value="{{.5,-100},{.10,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,200},{0,28}}" />
+        <Property Name="Font" Value="SerifBig"/>
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned"/>
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value="Multiplayer Lobby"/>
+      </Window>
+
+      <!-- Chat Text -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerLobby_ChatText">
+        <Property Name="UnifiedPosition" Value="{{.15,-75},{.15,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,150},{0,28}}" />
+        <Property Name="Font" Value="SerifBig"/>
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned"/>
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value="Chat"/>
+      </Window>
+
+      <!-- Players Text -->
+      <Window Type="GuiLook/StaticText" Name="MultiplayerLobby_PlayerText">
+        <Property Name="UnifiedPosition" Value="{{.85,-75},{.15,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,150},{0,28}}" />
+        <Property Name="Font" Value="SerifBig"/>
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned"/>
+        <Property Name="TextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value="Players"/>
+      </Window>
+
+      <!-- Chat History Background -->
+      <Window Type="GuiLook/ItemText" Name="MultiplayerLobby_ChatHistoryBackground">
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{.2,0}}" />
+        <Property Name="UnifiedSize" Value="{{.6,0},{0.6,0}}" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+      <Window Type="GuiLook/MultiLineEditbox" Name="MultiplayerLobby_ChatHistory">
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+        <Property Name="VertFormatting" Value="TopAligned" />
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{.2,0}}" />
+        <Property Name="UnifiedSize" Value="{{.6,0},{0.6,0}}" />
+        <Property Name="ReadOnly" Value="True"/>
+        <Property Name="NormalTextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value=""/>
+        <Property Name="Enabled" Value="False"/>
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+
+      <!-- Player list Background -->
+      <Window Type="GuiLook/ItemText" Name="MultiplayerLobby_PlayerListBackground">
+        <Property Name="UnifiedPosition" Value="{{0.7,0},{.2,0}}" />
+        <Property Name="UnifiedSize" Value="{{.25,0},{0.6,0}}" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+      <Window Type="GuiLook/MultiLineEditbox" Name="MultiplayerLobby_PlayerList">
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+        <Property Name="VertFormatting" Value="TopAligned" />
+        <Property Name="UnifiedPosition" Value="{{0.7,0},{.2,0}}" />
+        <Property Name="UnifiedSize" Value="{{.25,0},{0.6,0}}" />
+        <Property Name="ReadOnly" Value="True"/>
+        <Property Name="NormalTextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value=""/>
+        <Property Name="Enabled" Value="False"/>
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+
+      <!-- Contains the Chat Entry -->
+      <!-- Chat Entry Background -->
+      <Window Type="GuiLook/ItemText" Name="MultiplayerLobby_ChatEntryBackground">
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{0.83,0}}" />
+        <Property Name="UnifiedSize" Value="{{0.6,0},{0.03,0}}" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+        <Property Name="Visible" Value="True" />
+      </Window>
+      <Window Type="GuiLook/Editbox" Name="MultiplayerLobby_ChatEntry">
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{0.82,0}}" />
+        <Property Name="UnifiedSize" Value="{{0.6,0},{0.05,0}}" />
+        <Property Name="Text" Value=""/>
+        <Property Name="Visible" Value="True" />
+        <Property Name="Enabled" Value="True"/>
+        <Property Name="MousePassThroughEnabled" Value="True" />
+      </Window>
+
+      <!-- Back Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobby_BackButton">
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{.92,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="Text" Value="Back"/>
+      </Window>
+
+      <!-- View Games Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobby_ViewGames">
+        <Property Name="UnifiedPosition" Value="{{0.75,0},{.92,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,200},{0,32}}" />
+        <Property Name="Text" Value="View Games"/>
+      </Window>
+      
+  </Window>
+
+</GUILayout>

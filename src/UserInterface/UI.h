@@ -33,12 +33,15 @@ namespace TLMP
   bool ButtonEvent_CloseMultiplayerOptions(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Host(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Join(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerOptions_TestLobby(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Join_Cancel(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Host_Cancel(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Host_Host(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerOptions_WaitServer_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerSplash_OkButton(const CEGUI::EventArgs& args);
+
+  bool ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args);
 
   bool ButtonEvent_MultiplayerClientConnecting_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerClientConnecting_CancelButton(const CEGUI::EventArgs& args);

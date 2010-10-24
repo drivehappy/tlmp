@@ -210,7 +210,8 @@ void Client::WorkMessage(Message msg, RakNet::BitStream *bitStream)
 
   // For sake of less spam
   if (msg != S_PUSH_CHARACTER_SETDEST &&
-      msg != S_PUSH_CHAR_UPDATE_HEALTH)
+      msg != S_PUSH_CHAR_UPDATE_HEALTH &&
+      msg != S_PUSH_CHARACTER_SETTARGET)
   {
     multiplayerLogger.WriteLine(Info, L"Client Received Message: %s", msgString.c_str());
     logColor(B_GREEN, L"Client Received Message: %s", msgString.c_str());
@@ -1781,7 +1782,7 @@ void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
     if (netTarget) {
       target = (CCharacter*)netTarget->getInternalObject();
     } else {
-      log(L"Error: Could not find Target character of ID: %x", targetId);
+      //log(L"Error: Could not find Target character of ID: %x", targetId);
       return;
     }
   }
