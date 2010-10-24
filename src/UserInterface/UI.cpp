@@ -274,6 +274,15 @@ void TLMP::ResizeUI()
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobby_BackButton");
     return;
   }
+
+  // Hookup Chat Entry Events
+  CEGUI::Window *pLobbyChatEntry = pMainMenuLobby->recursiveChildSearch("1020_MultiplayerLobby_ChatEntry");
+  if (pLobbyChatEntry) {
+    pLobbyChatEntry->subscribeEvent(CEGUI::Editbox::EventCharacterKey, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownLobbyChatEntry));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobby_ChatEntry");
+    return;
+  }
   
   // Hookup Button Events   
   CEGUI::Window *pLobbyViewGamesButton = pMainMenuLobby->recursiveChildSearch("1020_MultiplayerLobby_ViewGamesButton");
@@ -470,8 +479,6 @@ bool TLMP::ButtonEvent_OpenMultiplayerOptions(const CEGUI::EventArgs& args)
     pWindow->setVisible(true);
     pWindow->moveToFront();
 
-    // Connect to lobby server here
-    LobbyClient::getSingleton().Connect("localhost", 5446);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Options Window");
   }
@@ -525,6 +532,7 @@ bool TLMP::ButtonEvent_MultiplayerOptions_TestLobby(const CEGUI::EventArgs& args
 {
   CEGUI::Window *pWindow = UserInterface::getWindowFromName("1020_MultiplayerLobby");
   CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
+  CEGUI::Editbox *pWindowLobbyChatEntry = (CEGUI::Editbox *)UserInterface::getWindowFromName("1020_MultiplayerLobby_ChatEntry");
 
   if (pWindow) {
     pWindow->setVisible(true);
@@ -532,6 +540,13 @@ bool TLMP::ButtonEvent_MultiplayerOptions_TestLobby(const CEGUI::EventArgs& args
 
     pWindowOptions->setVisible(false);
     pWindowOptions->moveToBack();
+
+    pWindowLobbyChatEntry->activate();
+    pWindowLobbyChatEntry->moveToFront();
+    pWindowLobbyChatEntry->setMaxTextLength(200);
+    
+    // Connect to lobby server here
+    LobbyClient::getSingleton().Connect("localhost", 5446);
   } else {
     log(L"Error could not find Multiplayer Lobby Window");
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
@@ -878,6 +893,39 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
   return true;
 }
 
+
+// Lobby chat entry event
+bool TLMP::EditboxEvent_KeyDownLobbyChatEntry(const CEGUI::EventArgs& args)
+{
+  CEGUI::KeyEventArgs keyArgs = (CEGUI::KeyEventArgs&)args;
+  //static bool burnEnter = false;
+
+  // If the user pressed enter, send the message out
+  if (keyArgs.codepoint == 0xD) {
+    CEGUI::MultiLineEditbox *pWindow = (CEGUI::MultiLineEditbox *)getLobbyChatHistoryWindow();
+    CEGUI::Window *pChatEntry = getLobbyChatEntryWindow();
+
+    // Get the current network player name
+    string senderName(gameClient->pCPlayer->characterName.begin(), gameClient->pCPlayer->characterName.end());
+    senderName.assign(gameClient->pCPlayer->characterName.begin(), gameClient->pCPlayer->characterName.end());
+
+    if (pWindow && pChatEntry) {
+      if (pChatEntry->getText().length() > 0) {
+        LobbyMessages::ChatMessage msgChatMessage;
+        msgChatMessage.set_sender(senderName);
+        msgChatMessage.set_message(pChatEntry->getText().c_str());
+        pChatEntry->setText("");
+
+        LobbyClient::getSingleton().SendMessage<LobbyMessages::ChatMessage>(L_C_CHAT_MESSAGE, &msgChatMessage);
+      }
+    }
+  }
+  
+  return true;
+}
+
+
+// In-game chat
 CEGUI::Window* TLMP::getChatHistoryWindow()
 {
   CEGUI::Window *pWindow = UserInterface::getWindowFromName("1010_ChatHistory");
@@ -910,6 +958,31 @@ CEGUI::Window* TLMP::getChatEntryBackgroundWindow()
 
   return pWindow;
 }
+
+// Lobby chat
+CEGUI::Window* TLMP::getLobbyChatHistoryWindow()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1020_MultiplayerLobby_ChatHistory");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1020_MultiplayerLobby_ChatHistory");
+  }
+
+  return pWindow;
+}
+
+CEGUI::Window* TLMP::getLobbyChatEntryWindow()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1020_MultiplayerLobby_ChatEntry");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1020_MultiplayerLobby_ChatEntry");
+  }
+
+  return pWindow;
+}
+
+
 
 //
 // Client has connected, hide the connecting screen

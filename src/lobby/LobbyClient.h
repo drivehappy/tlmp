@@ -9,6 +9,7 @@
 using namespace TLMP::Network::Lobby;
 
 #include "UI.h"
+#include "lobby.pb.h"
 
 
 namespace TLMP {
@@ -37,6 +38,11 @@ namespace TLMP {
       private:
         /** Work on received packet data. */
         void WorkMessage(LobbyMessage msg, RakNet::BitStream *bitStream);
+
+        // Handle messages
+        void HandleVersion(LobbyMessages::Version *);
+        void HandleClientPlayerName(LobbyMessages::ClientPlayerName *);
+        void HandleBatchPlayerNames(LobbyMessages::BatchPlayerNames *);
         
         template<typename T>
         T* ParseMessage(RakNet::BitStream *bitStream);

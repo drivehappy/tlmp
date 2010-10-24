@@ -17,8 +17,14 @@
 #include "LobbyMessages.h"
 #include <string>
 using std::wstring;
+using std::string;
 
 #include "lobby.pb.h"
+using namespace TLMP::LobbyMessages;
+
+#include <map>
+using std::map;
+
 
 namespace TLMP {
   namespace Network {
@@ -44,9 +50,16 @@ namespace TLMP {
         template<typename T>
         T* ParseMessage(RakNet::BitStream *bitStream);
 
+        // Helpers when receiving messages
+        void HandleVersion(const SystemAddress address, LobbyMessages::Version *msgVersion);
+        void HandlePlayerName(const SystemAddress address, LobbyMessages::ClientPlayerName *);
+        void HandleChatMessage(LobbyMessages::ChatMessage *msgChat);
+
+
         /** Work on received packet data. */
         void WorkMessage(const SystemAddress clientAddress, LobbyMessage msg, RakNet::BitStream *bitStream);
 
+        map<SystemAddress, string> m_PlayerNames;
         RakPeerInterface* m_pServer;
         RakNet::BitStream *m_pBitStream;
         unsigned short m_iPort;

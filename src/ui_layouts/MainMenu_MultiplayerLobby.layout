@@ -101,7 +101,7 @@
         <Property Name="Text" Value=""/>
         <Property Name="Visible" Value="True" />
         <Property Name="Enabled" Value="True"/>
-        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="MousePassThroughEnabled" Value="False" />
       </Window>
 
       <!-- Back Button -->

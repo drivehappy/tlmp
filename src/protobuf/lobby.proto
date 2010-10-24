@@ -3,3 +3,16 @@ package TLMP.LobbyMessages;
 message Version {
   required int32  version = 1;
 }
+
+message ClientPlayerName {
+  required string playerName = 1;
+}
+
+message BatchPlayerNames {
+  repeated string playerNames = 1;
+}
+
+message ChatMessage {
+  required string sender = 1;
+  required string message = 2;
+}
