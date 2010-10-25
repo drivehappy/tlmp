@@ -55,6 +55,7 @@ void LobbyServer::Process()
         *sysAddress = packet->systemAddress;
         
         printf("Client disconnected: %s\n", sysAddress->ToString());
+        HandlePlayerDisconnect(*sysAddress);
       }
       break;
 
@@ -64,6 +65,7 @@ void LobbyServer::Process()
         *sysAddress = packet->systemAddress;
         
         printf("Client connection lost: %s\n", sysAddress->ToString());
+        HandlePlayerDisconnect(*sysAddress);
       }
       break;
 
@@ -116,6 +118,31 @@ void LobbyServer::WorkMessage(const SystemAddress address, LobbyMessage msg, Rak
   }
 }
 
+void LobbyServer::HandlePlayerDisconnect(const SystemAddress address)
+{
+  printf("Handling player disconnect: %s\n", address.ToString());
+  string playerName;
+
+  // Find the address in our player map
+  map<SystemAddress, string>::iterator itr;
+  for (itr = m_PlayerNames.begin(); itr != m_PlayerNames.end(); itr++) {
+    if ((*itr).first.binaryAddress == address.binaryAddress) {
+      playerName = (*itr).second;
+      m_PlayerNames.erase(itr);
+      break;
+    }
+  }
+
+  LobbyMessages::PlayerLeft msgPlayerLeft;
+
+  // Push the remaining player names out as well to rebuild the list
+  for (itr = m_PlayerNames.begin(); itr != m_PlayerNames.end(); itr++) {
+    msgPlayerLeft.add_playersremaining((*itr).second);
+  }
+  
+  msgPlayerLeft.set_playername(playerName);
+  BroadcastMessage<LobbyMessages::PlayerLeft>(address, L_S_PLAYERNAME_LEAVE, &msgPlayerLeft);
+}
 
 void LobbyServer::HandleVersion(const SystemAddress address, Version *msgVersion)
 {

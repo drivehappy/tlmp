@@ -97,7 +97,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\\ExternalTools\\upx\\upx.exe ..\\out\\winmm.dll&#x0D;&#x0A;copy ..\\out\\winmm.dll &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\*.layout&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;"
+				CommandLine="..\\ExternalTools\\upx\\upx.exe ..\\out\\winmm.dll&#x0D;&#x0A;copy ..\\out\\winmm.dll &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\*.layout&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI\\sleekspace&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\sleekspace\\*&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI\\sleekspace&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -170,7 +170,7 @@
 							<Tool
 								Name="VCCustomBuildTool"
 								Description="Building lobby protobuf messages"
-								CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/lobby.proto"
+								CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/lobby.proto&#x0D;&#x0A;"
 								Outputs="lobby.pb.h;lobby.pb.ccc"
 							/>
 						</FileConfiguration>
@@ -184,7 +184,7 @@
 							<Tool
 								Name="VCCustomBuildTool"
 								Description="Building network protobuf messages"
-								CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto"
+								CommandLine="..\\ExternalTools\\protobuf\\protoc.exe -I=../src/protobuf --cpp_out=../src/protobuf_out ../src/protobuf/network.proto&#x0D;&#x0A;"
 								Outputs="network.pb.h;network.pb.cc"
 							/>
 						</FileConfiguration>

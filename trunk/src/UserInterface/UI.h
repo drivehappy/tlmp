@@ -43,7 +43,12 @@ namespace TLMP
 
   bool ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerLobby_ViewGames(const CEGUI::EventArgs& args);
+
   bool ButtonEvent_MultiplayerLobbyViewGames_Back(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerLobbyViewGames_Refresh(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerLobbyViewGames_Host(const CEGUI::EventArgs& args);
+  bool ButtonEvent_MultiplayerLobbyViewGames_Join(const CEGUI::EventArgs& args);
+  
 
   bool ButtonEvent_MultiplayerClientConnecting_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerClientConnecting_CancelButton(const CEGUI::EventArgs& args);
@@ -67,6 +72,7 @@ namespace TLMP
   // Lobby chat
   CEGUI::Window* getLobbyChatHistoryWindow();
   CEGUI::Window* getLobbyChatEntryWindow();
+  CEGUI::Window* getLobbyPlayerListWindow();
 
   extern bool UISetup;
 

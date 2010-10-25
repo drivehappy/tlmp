@@ -54,6 +54,7 @@ namespace TLMP {
         void HandleVersion(const SystemAddress address, LobbyMessages::Version *msgVersion);
         void HandlePlayerName(const SystemAddress address, LobbyMessages::ClientPlayerName *);
         void HandleChatMessage(LobbyMessages::ChatMessage *msgChat);
+        void HandlePlayerDisconnect(const SystemAddress address);
 
 
         /** Work on received packet data. */

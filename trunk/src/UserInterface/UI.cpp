@@ -15,6 +15,31 @@ void TLMP::ResizeUI()
   CEGUI::Window *pMainMenuButton;
   CEGUI::Window *pMainMenuLobby, *pMainMenuLobbyViewGames;
 
+  CEGUI::SchemeManager* sm = CEGUI::SchemeManager::getSingletonPtr();
+  if (!sm) {
+    log("Error: No CEGUI SchemeManager found.");
+    return;
+  } else {
+    log("SchemeManager found!");
+  }
+
+  log("Loading scheme...");
+  CEGUI::Scheme *schemeSleekSpace;
+
+  try {
+    schemeSleekSpace = sm->loadScheme("SleekSpace.scheme");
+  } catch(CEGUI::Exception &ex) {
+    log("CEGUI Exception: %s", ex.getMessage().c_str());
+  } catch(std::exception &ex) {
+    log("exception: %s", ex.what());
+  }
+
+  if (!schemeSleekSpace) {
+    log("Error: Could not load SleekSpace.scheme!");
+  } else {
+    log("Scheme Loaded!");
+  }
+
   // Find the root window for attaching our UI elements
   CEGUI::WindowManager* wm = UserInterface::getManager();
   if (!wm) {
@@ -292,7 +317,6 @@ void TLMP::ResizeUI()
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobby_ViewGamesButton");
     return;
   }
-  
 
 
   // Load the MainMenu Multiplayer Lobby View Games Window
@@ -304,7 +328,7 @@ void TLMP::ResizeUI()
     return;
   }
 
-  // Hookup Button Events   
+  // Hookup Back Button Event
   CEGUI::Window *pLobbyViewGamesBackButton = pMainMenuLobbyViewGames->recursiveChildSearch("1020_MultiplayerLobbyViewGames_BackButton");
   if (pLobbyViewGamesBackButton) {
     pLobbyViewGamesBackButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobbyViewGames_Back));
@@ -312,6 +336,54 @@ void TLMP::ResizeUI()
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobbyViewGames_BackButton");
     return;
   }
+
+  // Hookup Refresh Button Event
+  CEGUI::Window *pLobbyViewGamesRefreshButton = pMainMenuLobbyViewGames->recursiveChildSearch("1020_MultiplayerLobbyViewGames_RefreshButton");
+  if (pLobbyViewGamesRefreshButton) {
+    pLobbyViewGamesRefreshButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobbyViewGames_Refresh));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobbyViewGames_RefreshButton");
+    return;
+  }
+  
+  // Hookup Host Button Event
+  CEGUI::Window *pLobbyViewGamesHostButton = pMainMenuLobbyViewGames->recursiveChildSearch("1020_MultiplayerLobbyViewGames_HostButton");
+  if (pLobbyViewGamesHostButton) {
+    pLobbyViewGamesHostButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobbyViewGames_Host));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobbyViewGames_HostButton");
+    return;
+  }
+  
+  // Hookup Join Button Event
+  CEGUI::Window *pLobbyViewGamesJoinButton = pMainMenuLobbyViewGames->recursiveChildSearch("1020_MultiplayerLobbyViewGames_JoinButton");
+  if (pLobbyViewGamesJoinButton) {
+    pLobbyViewGamesJoinButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobbyViewGames_Join));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1020_MultiplayerLobbyViewGames_JoinButton");
+    return;
+  }
+
+  // Hookup Games MultiColumnList
+  CEGUI::MultiColumnList *pLobbyViewGamesGamesList = (CEGUI::MultiColumnList *)pMainMenuLobbyViewGames->recursiveChildSearch("1020_MultiplayerLobby_GamesListHistory");
+  if (pLobbyViewGamesGamesList) {
+    CEGUI::ListboxTextItem *newItem0 = new CEGUI::ListboxTextItem("Test Game");
+    CEGUI::ListboxTextItem *newItem1 = new CEGUI::ListboxTextItem("1/10");
+    CEGUI::ListboxTextItem *newItem2 = new CEGUI::ListboxTextItem("Description");
+
+    pLobbyViewGamesGamesList->addColumn("Game Name", 0, CEGUI::UDim(0.2f, 25));
+    pLobbyViewGamesGamesList->addColumn("Players", 1, CEGUI::UDim(0.2f, 25));
+    pLobbyViewGamesGamesList->addColumn("Description", 2, CEGUI::UDim(0.25f, 25));
+
+    pLobbyViewGamesGamesList->addRow(newItem0, 0, 0);
+    pLobbyViewGamesGamesList->setItem(newItem1, 1, 0);
+    pLobbyViewGamesGamesList->setItem(newItem2, 2, 0);
+
+    pLobbyViewGamesGamesList->setShowHorzScrollbar(false);
+  }
+
+
+  
   
   
   // Grab the Sheet window
@@ -428,6 +500,19 @@ bool TLMP::ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args)
   if (pWindowLobby) {
     pWindowLobby->setVisible(false);
     pWindowLobby->moveToBack();
+
+    // Disconnect and reset the text in our windows
+    LobbyClient::getSingleton().Disconnect();
+ 
+    CEGUI::Listbox* pWindowLobbyChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+    if (pWindowLobbyChatHistory) {
+      pWindowLobbyChatHistory->setText("");
+    }
+
+    CEGUI::Listbox* pWindowLobbyPlayerList = (CEGUI::Listbox*)getLobbyPlayerListWindow();
+    if (pWindowLobbyPlayerList) {
+      pWindowLobbyPlayerList->setText("");
+    }
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
   }
@@ -454,6 +539,60 @@ bool TLMP::ButtonEvent_MultiplayerLobby_ViewGames(const CEGUI::EventArgs& args)
 }
 
 bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Back(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
+
+  if (pWindowLobby) {
+    pWindowLobby->setVisible(true);
+    pWindowLobby->moveToFront();
+
+    pWindowLobbyViewGames->setVisible(false);
+    pWindowLobbyViewGames->moveToBack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
+  }
+
+  return true;
+}
+
+bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Refresh(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
+
+  if (pWindowLobby) {
+    pWindowLobby->setVisible(true);
+    pWindowLobby->moveToFront();
+
+    pWindowLobbyViewGames->setVisible(false);
+    pWindowLobbyViewGames->moveToBack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
+  }
+
+  return true;
+}
+
+bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Host(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
+
+  if (pWindowLobby) {
+    pWindowLobby->setVisible(true);
+    pWindowLobby->moveToFront();
+
+    pWindowLobbyViewGames->setVisible(false);
+    pWindowLobbyViewGames->moveToBack();
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
+  }
+
+  return true;
+}
+
+bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Join(const CEGUI::EventArgs& args)
 {
   CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
   CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
@@ -977,6 +1116,17 @@ CEGUI::Window* TLMP::getLobbyChatEntryWindow()
 
   if (!pWindow) {
     multiplayerLogger.WriteLine(Error, L"Error could not find 1020_MultiplayerLobby_ChatEntry");
+  }
+
+  return pWindow;
+}
+
+CEGUI::Window* TLMP::getLobbyPlayerListWindow()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1020_MultiplayerLobby_PlayerList");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1020_MultiplayerLobby_PlayerList");
   }
 
   return pWindow;

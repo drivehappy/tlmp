@@ -36,6 +36,7 @@ void protobuf_ShutdownFile_lobby_2eproto();
 class Version;
 class ClientPlayerName;
 class BatchPlayerNames;
+class PlayerLeft;
 class ChatMessage;
 
 // ===================================================================
@@ -320,6 +321,116 @@ class BatchPlayerNames : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class PlayerLeft : public ::google::protobuf::Message {
+ public:
+  PlayerLeft();
+  virtual ~PlayerLeft();
+  
+  PlayerLeft(const PlayerLeft& from);
+  
+  inline PlayerLeft& operator=(const PlayerLeft& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PlayerLeft& default_instance();
+  
+  void Swap(PlayerLeft* other);
+  
+  // implements Message ----------------------------------------------
+  
+  PlayerLeft* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const PlayerLeft& from);
+  void MergeFrom(const PlayerLeft& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required string playerName = 1;
+  inline bool has_playername() const;
+  inline void clear_playername();
+  static const int kPlayerNameFieldNumber = 1;
+  inline const ::std::string& playername() const;
+  inline void set_playername(const ::std::string& value);
+  inline void set_playername(const char* value);
+  inline void set_playername(const char* value, size_t size);
+  inline ::std::string* mutable_playername();
+  
+  // repeated string playersRemaining = 2;
+  inline int playersremaining_size() const;
+  inline void clear_playersremaining();
+  static const int kPlayersRemainingFieldNumber = 2;
+  inline const ::std::string& playersremaining(int index) const;
+  inline ::std::string* mutable_playersremaining(int index);
+  inline void set_playersremaining(int index, const ::std::string& value);
+  inline void set_playersremaining(int index, const char* value);
+  inline void set_playersremaining(int index, const char* value, size_t size);
+  inline ::std::string* add_playersremaining();
+  inline void add_playersremaining(const ::std::string& value);
+  inline void add_playersremaining(const char* value);
+  inline void add_playersremaining(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& playersremaining() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_playersremaining();
+  
+  // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.PlayerLeft)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* playername_;
+  static const ::std::string _default_playername_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> playersremaining_;
+  friend void  protobuf_AddDesc_lobby_2eproto();
+  friend void protobuf_AssignDesc_lobby_2eproto();
+  friend void protobuf_ShutdownFile_lobby_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static PlayerLeft* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class ChatMessage : public ::google::protobuf::Message {
  public:
   ChatMessage();
@@ -538,6 +649,96 @@ BatchPlayerNames::playernames() const {
 inline ::google::protobuf::RepeatedPtrField< ::std::string>*
 BatchPlayerNames::mutable_playernames() {
   return &playernames_;
+}
+
+// -------------------------------------------------------------------
+
+// PlayerLeft
+
+// required string playerName = 1;
+inline bool PlayerLeft::has_playername() const {
+  return _has_bit(0);
+}
+inline void PlayerLeft::clear_playername() {
+  if (playername_ != &_default_playername_) {
+    playername_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& PlayerLeft::playername() const {
+  return *playername_;
+}
+inline void PlayerLeft::set_playername(const ::std::string& value) {
+  _set_bit(0);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(value);
+}
+inline void PlayerLeft::set_playername(const char* value) {
+  _set_bit(0);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(value);
+}
+inline void PlayerLeft::set_playername(const char* value, size_t size) {
+  _set_bit(0);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* PlayerLeft::mutable_playername() {
+  _set_bit(0);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  return playername_;
+}
+
+// repeated string playersRemaining = 2;
+inline int PlayerLeft::playersremaining_size() const {
+  return playersremaining_.size();
+}
+inline void PlayerLeft::clear_playersremaining() {
+  playersremaining_.Clear();
+}
+inline const ::std::string& PlayerLeft::playersremaining(int index) const {
+  return playersremaining_.Get(index);
+}
+inline ::std::string* PlayerLeft::mutable_playersremaining(int index) {
+  return playersremaining_.Mutable(index);
+}
+inline void PlayerLeft::set_playersremaining(int index, const ::std::string& value) {
+  playersremaining_.Mutable(index)->assign(value);
+}
+inline void PlayerLeft::set_playersremaining(int index, const char* value) {
+  playersremaining_.Mutable(index)->assign(value);
+}
+inline void PlayerLeft::set_playersremaining(int index, const char* value, size_t size) {
+  playersremaining_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* PlayerLeft::add_playersremaining() {
+  return playersremaining_.Add();
+}
+inline void PlayerLeft::add_playersremaining(const ::std::string& value) {
+  playersremaining_.Add()->assign(value);
+}
+inline void PlayerLeft::add_playersremaining(const char* value) {
+  playersremaining_.Add()->assign(value);
+}
+inline void PlayerLeft::add_playersremaining(const char* value, size_t size) {
+  playersremaining_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PlayerLeft::playersremaining() const {
+  return playersremaining_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PlayerLeft::mutable_playersremaining() {
+  return &playersremaining_;
 }
 
 // -------------------------------------------------------------------

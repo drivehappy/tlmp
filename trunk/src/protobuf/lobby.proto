@@ -12,6 +12,11 @@ message BatchPlayerNames {
   repeated string playerNames = 1;
 }
 
+message PlayerLeft {
+  required string playerName = 1;
+  repeated string playersRemaining = 2;
+}
+
 message ChatMessage {
   required string sender = 1;
   required string message = 2;

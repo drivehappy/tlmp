@@ -32,6 +32,49 @@
         <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
         <Property Name="Text" Value="Back"/>
       </Window>
+
+      <!-- Host Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_HostButton">
+        <Property Name="UnifiedPosition" Value="{{0.85,0},{.92,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="Text" Value="Host"/>
+      </Window>
+
+      <!-- Join Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_JoinButton">
+        <Property Name="UnifiedPosition" Value="{{0.75,0},{.92,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="Text" Value="Join"/>
+      </Window>
+
+      <!-- Refresh Button -->
+      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_RefreshButton">
+        <Property Name="UnifiedPosition" Value="{{0.65,0},{.92,0}}" />
+        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="Text" Value="Refresh Games"/>
+      </Window>
+
+      <!-- Games List Background -->
+      <!--
+      <Window Type="SleekSpace/ItemText" Name="MultiplayerLobby_GamesListBackground">
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{.2,0}}" />
+        <Property Name="UnifiedSize" Value="{{.6,0},{0.6,0}}" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
+      -->
+      <Window Type="SleekSpace/MultiColumnList" Name="MultiplayerLobby_GamesListHistory">
+        <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
+        <Property Name="VertFormatting" Value="TopAligned" />
+        <Property Name="UnifiedPosition" Value="{{0.05,0},{.2,0}}" />
+        <Property Name="UnifiedSize" Value="{{.6,0},{0.6,0}}" />
+        <Property Name="ReadOnly" Value="True"/>
+        <Property Name="NormalTextColour" Value="FFFFFFFF"/>
+        <Property Name="Text" Value=""/>
+        <Property Name="Enabled" Value="False"/>
+        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Alpha" Value="1.0" />
+      </Window>
       
   </Window>
 
