@@ -66,27 +66,48 @@ void LobbyClient::ReceiveMessages()
 
         SystemAddress *sysAddress = new SystemAddress();
         *sysAddress = packet->systemAddress;
+
+        CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+        if (pWindowChatHistory) {
+          pWindowChatHistory->appendText(string("Connected to lobby host."));
+        }
       }
 
       break;
     case ID_NO_FREE_INCOMING_CONNECTIONS:
       {
         log("Could not connect to lobby server: No room.");
+        CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+        if (pWindowChatHistory) {
+          pWindowChatHistory->appendText(string("Lobby host is full, cannot connect."));
+        }
       }
       break;
     case ID_DISCONNECTION_NOTIFICATION:
       {
         log("Lobby client disconnected.");
+        CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+        if (pWindowChatHistory) {
+          pWindowChatHistory->appendText(string("You have been disconnected from the lobby host."));
+        }
       }
       break;
     case ID_CONNECTION_LOST:
       {
         log("Lobby client connection lost.");
+        CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+        if (pWindowChatHistory) {
+          pWindowChatHistory->appendText(string("Connection to lobby host was lost."));
+        }
       }
       break;
     case ID_CONNECTION_ATTEMPT_FAILED:
       {
         log("Lobby client connection failed.");
+        CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+        if (pWindowChatHistory) {
+          pWindowChatHistory->appendText(string("Failed to connect to lobby host."));
+        }
       }
       break;
     case ID_USER_PACKET_ENUM+1:
@@ -138,6 +159,21 @@ void LobbyClient::WorkMessage(LobbyMessage msg, RakNet::BitStream *bitStream)
     }
     break;
 
+  case L_S_CHAT_MESSAGE:
+    {
+      LobbyMessages::ChatMessage *msgChatMessage = ParseMessage<LobbyMessages::ChatMessage>(m_pBitStream);
+
+      HandleChatMessage(msgChatMessage);
+    }
+    break;
+
+  case L_S_PLAYERNAME_LEAVE:
+    {
+      LobbyMessages::PlayerLeft *msgPlayerLeft = ParseMessage<LobbyMessages::PlayerLeft>(m_pBitStream);
+
+      HandlePlayerLeft(msgPlayerLeft);
+    }
+    break;
   }
 }
 
@@ -158,23 +194,73 @@ void LobbyClient::HandleVersion(LobbyMessages::Version *msgVersion)
   LobbyMessages::ClientPlayerName msgClientPlayerName;
   msgClientPlayerName.set_playername(senderName);
   SendMessage<LobbyMessages::ClientPlayerName>(L_C_PLAYERNAME, &msgClientPlayerName);
+
+  // Display version mismatch error
+  if (version != LobbyMessageVersion) {
+    CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+    if (pWindowChatHistory) {
+      pWindowChatHistory->appendText(string("Version mismatch with the lobby server. You most likely have an old version of the client that will not work with the new lobby server. Please update."));
+      m_pClient->Shutdown(0);
+    }
+  }
 }
 
 void LobbyClient::HandleClientPlayerName(LobbyMessages::ClientPlayerName *msgClientPlayerName)
 {
   string playerName = msgClientPlayerName->playername();
 
-  log("TODO: Add playername to player list: %s", playerName.c_str());
+  CEGUI::MultiLineEditbox *pWindowPlayerList = (CEGUI::MultiLineEditbox *)getLobbyPlayerListWindow();
+  if (pWindowPlayerList) {
+    pWindowPlayerList->appendText(playerName);
+  }
+
+  CEGUI::MultiLineEditbox* pWindowChatHistory = (CEGUI::MultiLineEditbox*)getLobbyChatHistoryWindow();
+  if (pWindowChatHistory) {
+    pWindowChatHistory->appendText(string("Player joined lobby: ") + playerName);
+  }
 }
 
 void LobbyClient::HandleBatchPlayerNames(LobbyMessages::BatchPlayerNames *msgBatchPlayerNames)
 {
   int nameCount = msgBatchPlayerNames->playernames().size();
 
-  log("Received player name batch list: %i", nameCount);
-  for (int i = 0; i < nameCount; i++) {
-    string playerName = msgBatchPlayerNames->playernames().Get(i);
+  CEGUI::MultiLineEditbox *pWindowPlayerList = (CEGUI::MultiLineEditbox *)getLobbyPlayerListWindow();
+  if (pWindowPlayerList) {
+    for (int i = 0; i < nameCount; i++) {
+      string playerName = msgBatchPlayerNames->playernames().Get(i);
+      pWindowPlayerList->appendText(playerName);
+    }
+  }
+}
 
-    log("  Player Name: %s", playerName.c_str());
+void LobbyClient::HandlePlayerLeft(LobbyMessages::PlayerLeft *msgPlayerLeft)
+{
+  string playerName = msgPlayerLeft->playername();
+  int nameCount = msgPlayerLeft->playersremaining().size();
+
+  CEGUI::MultiLineEditbox* pWindowChatHistory = (CEGUI::MultiLineEditbox*)getLobbyChatHistoryWindow();
+  if (pWindowChatHistory) {
+    pWindowChatHistory->appendText(string("Player has left the lobby: ") + playerName);
+  }
+
+  // Clear our player list and repopulate with the remaining players
+  CEGUI::MultiLineEditbox *pWindowPlayerList = (CEGUI::MultiLineEditbox *)getLobbyPlayerListWindow();
+  if (pWindowPlayerList) {
+    pWindowPlayerList->setText("");
+    for (int i = 0; i < nameCount; i++) {
+      string playerName = msgPlayerLeft->playersremaining().Get(i);
+      pWindowPlayerList->appendText(playerName);
+    }
+  }
+}
+
+void LobbyClient::HandleChatMessage(LobbyMessages::ChatMessage *msgChat)
+{
+  const std::string sender = msgChat->sender();
+  const std::string msg = msgChat->message();
+
+  CEGUI::Listbox* pWindowChatHistory = (CEGUI::Listbox*)getLobbyChatHistoryWindow();
+  if (pWindowChatHistory) {
+    pWindowChatHistory->appendText(sender + string(": ") + msg);
   }
 }
