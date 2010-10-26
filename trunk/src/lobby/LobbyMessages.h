@@ -44,6 +44,15 @@ namespace TLMP {
 
         "L_S_CHAT_MESSAGE",
         "L_C_CHAT_MESSAGE",
+
+        "L_C_VIEW_GAMES",
+        "L_S_VIEW_GAMES",
+
+        "L_C_HOSTING_NEW_GAME",
+        "L_S_HOSTING_REPLY",
+
+        "L_C_REQUEST_JOINGAME",
+        "L_S_REPLAY_JOINGAME",
       };
 
     };

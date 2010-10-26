@@ -9,7 +9,7 @@
       <Property Name="MousePassThroughEnabled" Value="True" />
 
       <!-- Background Image -->
-      <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_BackgroundImage">
+      <Window Type="OgreTray/StaticImage" Name="MultiplayerOptions_BackgroundImage">
         <Property Name="Image" Value="set:GuiLook image:GrayLine" />
         <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
         <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
@@ -36,7 +36,7 @@
       </Window>
 
       <!-- Host Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_HostButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerOptions_HostButton">
         <Property Name="UnifiedPosition" Value="{{.35,0},{.40,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Host"/>
@@ -50,7 +50,7 @@
       </Window>
 
       <!-- Join Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_JoinButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerOptions_JoinButton">
         <Property Name="UnifiedPosition" Value="{{.35,0},{.50,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Join"/>
@@ -64,7 +64,7 @@
       </Window>
       
       <!-- Cancel Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_CancelButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerOptions_CancelButton">
         <Property Name="UnifiedPosition" Value="{{.5,-76},{.70,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Cancel"/>
@@ -72,7 +72,7 @@
 
       
       <!-- Test Button for Lobby Stuff -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_TestLobbyButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerOptions_TestLobbyButton">
         <Property Name="UnifiedPosition" Value="{{.5,-76},{.60,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
         <Property Name="Text" Value="Lobby"/>
@@ -88,7 +88,7 @@
         <Property Name="Visible" Value="False" />
 
         <!-- Background Image -->
-        <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_Host_BackgroundImage">
+        <Window Type="OgreTray/StaticImage" Name="MultiplayerOptions_Host_BackgroundImage">
           <Property Name="Image" Value="set:GuiLook image:GrayLine" />
           <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
           <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
@@ -126,14 +126,14 @@
         </Window>
 
         <!-- Host Button -->
-        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Host_HostButton">
+        <Window Type="OgreTray/Button" Name="MultiplayerOptions_Host_HostButton">
           <Property Name="UnifiedPosition" Value="{{.40,0},{.70,0}}" />
           <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
           <Property Name="Text" Value="Host"/>
         </Window>
 
         <!-- Cancel Button -->
-        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Host_CancelButton">
+        <Window Type="OgreTray/Button" Name="MultiplayerOptions_Host_CancelButton">
           <Property Name="UnifiedPosition" Value="{{.6,0},{.70,0}}" />
           <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
           <Property Name="Text" Value="Cancel"/>
@@ -150,7 +150,7 @@
         <Property Name="Visible" Value="False" />
 
         <!-- Background Image -->
-        <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_Join_BackgroundImage">
+        <Window Type="OgreTray/StaticImage" Name="MultiplayerOptions_Join_BackgroundImage">
           <Property Name="Image" Value="set:GuiLook image:GrayLine" />
           <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
           <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
@@ -210,14 +210,14 @@
         </Window>
 
         <!-- Join Button -->
-        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Join_JoinButton">
+        <Window Type="OgreTray/Button" Name="MultiplayerOptions_Join_JoinButton">
           <Property Name="UnifiedPosition" Value="{{.40,0},{.70,0}}" />
           <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
           <Property Name="Text" Value="Join"/>
         </Window>
 
         <!-- Cancel Button -->
-        <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_Join_CancelButton">
+        <Window Type="OgreTray/Button" Name="MultiplayerOptions_Join_CancelButton">
           <Property Name="UnifiedPosition" Value="{{.6,0},{.70,0}}" />
           <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
           <Property Name="Text" Value="Cancel"/>
