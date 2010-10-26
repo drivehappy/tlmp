@@ -6,14 +6,15 @@
     <Window Type="DefaultWindow" Name="MultiplayerLobby">
       <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
       <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
-      <Property Name="MousePassThroughEnabled" Value="True" />
+      <Property Name="MousePassThroughEnabled" Value="False" />
 
       <!-- Background Image -->
-      <Window Type="GuiLook/StaticImage" Name="MultiplayerLobby_BackgroundImage">
+      <Window Type="OgreTray/StaticImage" Name="MultiplayerLobby_BackgroundImage">
         <Property Name="Image" Value="set:GuiLook image:GrayLine" />
         <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
         <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
         <Property Name="Alpha" Value="1.0" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
       </Window>
 
       <!-- Title Text -->
@@ -105,14 +106,14 @@
       </Window>
 
       <!-- Back Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobby_BackButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerLobby_BackButton">
         <Property Name="UnifiedPosition" Value="{{0.05,0},{.92,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
         <Property Name="Text" Value="Back"/>
       </Window>
 
       <!-- View Games Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobby_ViewGamesButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerLobby_ViewGamesButton">
         <Property Name="UnifiedPosition" Value="{{0.75,0},{.92,0}}" />
         <Property Name="UnifiedSize" Value="{{0,200},{0,32}}" />
         <Property Name="Text" Value="View Games"/>

@@ -23,19 +23,19 @@ void TLMP::ResizeUI()
     log("SchemeManager found!");
   }
 
-  log("Loading scheme...");
-  CEGUI::Scheme *schemeSleekSpace;
+  log("Loading OgreTray scheme...");
+  CEGUI::Scheme *schemeOgreTray;
 
   try {
-    schemeSleekSpace = sm->loadScheme("SleekSpace.scheme");
+    schemeOgreTray = sm->loadScheme("OgreTray.scheme");
   } catch(CEGUI::Exception &ex) {
     log("CEGUI Exception: %s", ex.getMessage().c_str());
   } catch(std::exception &ex) {
     log("exception: %s", ex.what());
   }
 
-  if (!schemeSleekSpace) {
-    log("Error: Could not load SleekSpace.scheme!");
+  if (!schemeOgreTray) {
+    log("Error: Could not load OgreTray.scheme!");
   } else {
     log("Scheme Loaded!");
   }
