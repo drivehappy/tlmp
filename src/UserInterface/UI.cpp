@@ -23,6 +23,7 @@ void TLMP::ResizeUI()
     log("SchemeManager found!");
   }
 
+  //
   log("Loading OgreTray scheme...");
   CEGUI::Scheme *schemeOgreTray;
 
@@ -291,7 +292,7 @@ void TLMP::ResizeUI()
     return;
   }
 
-  // Hookup Button Events   
+  // Hookup Back Button Event
   CEGUI::Window *pLobbyBackButton = pMainMenuLobby->recursiveChildSearch("1020_MultiplayerLobby_BackButton");
   if (pLobbyBackButton) {
     pLobbyBackButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobby_Back));
@@ -309,7 +310,7 @@ void TLMP::ResizeUI()
     return;
   }
   
-  // Hookup Button Events   
+  // Hookup ViewGames Button Event
   CEGUI::Window *pLobbyViewGamesButton = pMainMenuLobby->recursiveChildSearch("1020_MultiplayerLobby_ViewGamesButton");
   if (pLobbyViewGamesButton) {
     pLobbyViewGamesButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerLobby_ViewGames));
@@ -496,8 +497,13 @@ void TLMP::DisplayWaitForServerWindow()
 bool TLMP::ButtonEvent_MultiplayerLobby_Back(const CEGUI::EventArgs& args)
 {
   CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  CEGUI::Window *pWindowMPOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
 
-  if (pWindowLobby) {
+
+  if (pWindowLobby && pWindowMPOptions) {
+    pWindowMPOptions->setVisible(true);
+    pWindowMPOptions->moveToFront();
+
     pWindowLobby->setVisible(false);
     pWindowLobby->moveToBack();
 

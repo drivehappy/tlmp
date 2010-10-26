@@ -7,14 +7,15 @@
   <Window Type="DefaultWindow" Name="MultiplayerOptions_WaitServerLoad">
     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
     <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
-    <Property Name="MousePassThroughEnabled" Value="True" />
+    <Property Name="MousePassThroughEnabled" Value="False" />
     <Property Name="Visible" Value="False" />
 
     <!-- Background Image -->
-    <Window Type="GuiLook/StaticImage" Name="MultiplayerOptions_WaitServerLoad_BackgroundImage">
+    <Window Type="OgreTray/StaticImage" Name="MultiplayerOptions_WaitServerLoad_BackgroundImage">
       <Property Name="Image" Value="set:GuiLook image:GrayLine" />
       <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
       <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
     </Window>
 
     <!-- Title Text -->
@@ -37,7 +38,7 @@
     </Window>
 
     <!-- Ok Button -->
-    <Window Type="GuiLook/StandardButton" Name="MultiplayerOptions_WaitServerLoad_OkButton">
+    <Window Type="OgreTray/Button" Name="MultiplayerOptions_WaitServerLoad_OkButton">
       <Property Name="UnifiedPosition" Value="{{.5,-71},{.70,0}}" />
       <Property Name="UnifiedSize" Value="{{0,152},{0,28}}" />
       <Property Name="Text" Value="Ok"/>
