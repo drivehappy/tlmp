@@ -6,14 +6,15 @@
     <Window Type="DefaultWindow" Name="MultiplayerLobbyViewGames">
       <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
       <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
-      <Property Name="MousePassThroughEnabled" Value="True" />
+      <Property Name="MousePassThroughEnabled" Value="False" />
 
       <!-- Background Image -->
-      <Window Type="GuiLook/StaticImage" Name="MultiplayerLobbyViewGames_BackgroundImage">
+      <Window Type="OgreTray/StaticImage" Name="MultiplayerLobbyViewGames_BackgroundImage">
         <Property Name="Image" Value="set:GuiLook image:GrayLine" />
         <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
         <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
         <Property Name="Alpha" Value="1.0" />
+        <Property Name="MousePassThroughEnabled" Value="True" />
       </Window>
 
       <!-- Title Text -->
@@ -27,29 +28,29 @@
       </Window>
 
       <!-- Back Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_BackButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerLobbyViewGames_BackButton">
         <Property Name="UnifiedPosition" Value="{{0.05,0},{.92,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
         <Property Name="Text" Value="Back"/>
       </Window>
 
       <!-- Host Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_HostButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerLobbyViewGames_HostButton">
         <Property Name="UnifiedPosition" Value="{{0.85,0},{.92,0}}" />
-        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="UnifiedSize" Value="{{0,100},{0,32}}" />
         <Property Name="Text" Value="Host"/>
       </Window>
 
       <!-- Join Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_JoinButton">
+      <Window Type="OgreTray/Button" Name="MultiplayerLobbyViewGames_JoinButton">
         <Property Name="UnifiedPosition" Value="{{0.75,0},{.92,0}}" />
-        <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
+        <Property Name="UnifiedSize" Value="{{0,100},{0,32}}" />
         <Property Name="Text" Value="Join"/>
       </Window>
 
       <!-- Refresh Button -->
-      <Window Type="GuiLook/StandardButton" Name="MultiplayerLobbyViewGames_RefreshButton">
-        <Property Name="UnifiedPosition" Value="{{0.65,0},{.92,0}}" />
+      <Window Type="OgreTray/Button" Name="MultiplayerLobbyViewGames_RefreshButton">
+        <Property Name="UnifiedPosition" Value="{{0.5,0},{.92,0}}" />
         <Property Name="UnifiedSize" Value="{{0,152},{0,32}}" />
         <Property Name="Text" Value="Refresh Games"/>
       </Window>
@@ -63,7 +64,7 @@
         <Property Name="Alpha" Value="1.0" />
       </Window>
       -->
-      <Window Type="SleekSpace/MultiColumnList" Name="MultiplayerLobby_GamesListHistory">
+      <Window Type="OgreTray/MultiColumnList" Name="MultiplayerLobby_GamesListHistory">
         <Property Name="HorzTextFormatting" Value="WordWrapLeftAligned" />
         <Property Name="VertFormatting" Value="TopAligned" />
         <Property Name="UnifiedPosition" Value="{{0.05,0},{.2,0}}" />

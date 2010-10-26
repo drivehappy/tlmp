@@ -173,7 +173,7 @@ void TLMP::OgreAddResourceLocation STDARG
 
 	  try {
 		  Ogre::ResourceGroupManager::getSingletonPtr()->addResourceLocation(Ogre::String("TLAPI/"), Ogre::String("FileSystem"));
-      Ogre::ResourceGroupManager::getSingletonPtr()->addResourceLocation(Ogre::String("TLAPI/sleekspace"), Ogre::String("FileSystem"));
+      Ogre::ResourceGroupManager::getSingletonPtr()->addResourceLocation(Ogre::String("TLAPI/ogretray"), Ogre::String("FileSystem"));
 	  } catch (Ogre::ItemIdentityException &ex) {
 		  log("Ogre Exception: %s", ex.what());
 	  }
