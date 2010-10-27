@@ -74,6 +74,9 @@ namespace TLMP
   CEGUI::Window* getLobbyChatEntryWindow();
   CEGUI::Window* getLobbyPlayerListWindow();
 
+  // Lobby view games
+  CEGUI::Window* getLobbyViewGames();
+
   extern bool UISetup;
 
   // Internal "Events"

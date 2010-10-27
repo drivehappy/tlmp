@@ -72,8 +72,8 @@
         <Property Name="ReadOnly" Value="True"/>
         <Property Name="NormalTextColour" Value="FFFFFFFF"/>
         <Property Name="Text" Value=""/>
-        <Property Name="Enabled" Value="False"/>
-        <Property Name="MousePassThroughEnabled" Value="True" />
+        <Property Name="Enabled" Value="True"/>
+        <Property Name="MousePassThroughEnabled" Value="False" />
         <Property Name="Alpha" Value="1.0" />
       </Window>
       

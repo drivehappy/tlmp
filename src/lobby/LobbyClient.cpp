@@ -1,6 +1,8 @@
 #include "LobbyClient.h"
 using namespace TLMP::Network::Lobby;
 
+#include <stdlib.h>
+
 
 LobbyClient& LobbyClient::getSingleton()
 {
@@ -174,6 +176,31 @@ void LobbyClient::WorkMessage(LobbyMessage msg, RakNet::BitStream *bitStream)
       HandlePlayerLeft(msgPlayerLeft);
     }
     break;
+
+  case L_S_VIEW_GAMES:
+    {
+      LobbyMessages::ViewGames *msgViewGames = ParseMessage<LobbyMessages::ViewGames>(m_pBitStream);
+
+      HandleViewGames(msgViewGames);
+    }
+    break;
+
+  case L_S_HOSTING_REPLY:
+    {
+      LobbyMessages::GameID *msgGameID = ParseMessage<LobbyMessages::GameID>(m_pBitStream);
+
+      HandleHostingNewGame(msgGameID);
+    }
+    break;
+
+  case L_S_REPLAY_JOINGAME:
+    {
+      LobbyMessages::GameInfo *msgGameInfo = ParseMessage<LobbyMessages::GameInfo>(m_pBitStream);
+
+      HandleGameInfo(msgGameInfo);
+    }
+    break;
+
   }
 }
 
@@ -263,4 +290,62 @@ void LobbyClient::HandleChatMessage(LobbyMessages::ChatMessage *msgChat)
   if (pWindowChatHistory) {
     pWindowChatHistory->appendText(sender + string(": ") + msg);
   }
+}
+
+void LobbyClient::HandleViewGames(LobbyMessages::ViewGames *msgGames)
+{
+  int gamesCount = msgGames->games_size();
+
+  log("Games: %i", gamesCount);
+
+  // Populate the UI list with the games received
+  CEGUI::MultiColumnList* pLobbyViewGamesGamesList = (CEGUI::MultiColumnList*)getLobbyViewGames();
+  if (pLobbyViewGamesGamesList) {
+    // Clear the list
+    pLobbyViewGamesGamesList->resetList();
+
+    // Add an item stating there are no games found.
+    if (!gamesCount) {
+      CEGUI::ListboxTextItem *newItem0 = new CEGUI::ListboxTextItem("No games could be found!");
+      pLobbyViewGamesGamesList->addRow(newItem0, 0, 0);
+    }
+
+    // Begin adding the games to the list
+    for (int i = 0; i < gamesCount; i++) {
+      LobbyMessages::Game game = msgGames->games().Get(i);
+
+      // Pull info out
+      string name = game.name();
+      int curr_players = game.current_players();
+      int max_players = game.max_players();
+      char c_curr_players[32], c_max_players[32];
+
+      _itoa(game.current_players(), c_curr_players, 10);
+      _itoa(game.max_players(), c_max_players, 10);
+      string players = string(c_curr_players) + string("/") + string(c_max_players);
+      string description = game.description();
+
+      CEGUI::ListboxTextItem *newItem0 = new CEGUI::ListboxTextItem(name);
+      CEGUI::ListboxTextItem *newItem1 = new CEGUI::ListboxTextItem(players);
+      CEGUI::ListboxTextItem *newItem2 = new CEGUI::ListboxTextItem(description);
+
+      pLobbyViewGamesGamesList->addRow(newItem0, 0, 0);
+      pLobbyViewGamesGamesList->setItem(newItem1, 1, 0);
+      pLobbyViewGamesGamesList->setItem(newItem2, 2, 0);
+    }
+  }
+}
+
+void LobbyClient::HandleHostingNewGame(LobbyMessages::GameID *msgGameID)
+{
+  int gameId = msgGameID->id();
+
+  log("Hosting new game ID: %x", gameId);
+}
+
+void LobbyClient::HandleGameInfo(LobbyMessages::GameInfo *msgGameInfo)
+{
+  log("Received game info to connect to:");
+  log("  host: %s", msgGameInfo->host_name().c_str());
+  log("  port: %i", msgGameInfo->port());
 }
