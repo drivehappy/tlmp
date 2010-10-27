@@ -115,6 +115,30 @@ void LobbyServer::WorkMessage(const SystemAddress address, LobbyMessage msg, Rak
       HandleChatMessage(msgChat);
     }
     break;
+
+  case L_C_VIEW_GAMES:
+    {
+      //LobbyMessages::ViewGames *msgViewGames = ParseMessage<LobbyMessages::ViewGames>(m_pBitStream);
+
+      HandleViewGames(address);
+    }
+    break;
+    
+  case L_C_HOSTING_NEW_GAME:
+    {
+      LobbyMessages::HostingNewGame *msgHostingNewGame = ParseMessage<LobbyMessages::HostingNewGame>(m_pBitStream);
+
+      HandleHostingNewGame(address, msgHostingNewGame);
+    }
+    break;
+    
+  case L_C_REQUEST_JOINGAME:
+    {
+      LobbyMessages::GameInfo *msgGameInfo = ParseMessage<LobbyMessages::GameInfo>(m_pBitStream);
+
+      HandleGameInfo(msgGameInfo);
+    }
+    break;
   }
 }
 
@@ -144,7 +168,7 @@ void LobbyServer::HandlePlayerDisconnect(const SystemAddress address)
   BroadcastMessage<LobbyMessages::PlayerLeft>(address, L_S_PLAYERNAME_LEAVE, &msgPlayerLeft);
 }
 
-void LobbyServer::HandleVersion(const SystemAddress address, Version *msgVersion)
+void LobbyServer::HandleVersion(const SystemAddress address, LobbyMessages::Version *msgVersion)
 {
   unsigned int version = (unsigned int)(msgVersion->version());
       
@@ -156,7 +180,7 @@ void LobbyServer::HandleVersion(const SystemAddress address, Version *msgVersion
   }
 }
 
-void LobbyServer::HandlePlayerName(const SystemAddress address, ClientPlayerName *msgClientPlayerName)
+void LobbyServer::HandlePlayerName(const SystemAddress address, LobbyMessages::ClientPlayerName *msgClientPlayerName)
 {
   std::string playerName = msgClientPlayerName->playername();
 
@@ -177,7 +201,7 @@ void LobbyServer::HandlePlayerName(const SystemAddress address, ClientPlayerName
   SendMessage<LobbyMessages::ClientPlayerName>(address, L_S_PLAYERNAME_BATCH, &msgBatchPlayerNames);
 }
 
-void LobbyServer::HandleChatMessage(ChatMessage *msgChat)
+void LobbyServer::HandleChatMessage(LobbyMessages::ChatMessage *msgChat)
 {
   const std::string sender = msgChat->sender();
   const std::string msg = msgChat->message();
@@ -186,4 +210,70 @@ void LobbyServer::HandleChatMessage(ChatMessage *msgChat)
 
   // Push it back out through a broadcast
   BroadcastMessage<LobbyMessages::Version>(L_S_CHAT_MESSAGE, msgChat);
+}
+
+void LobbyServer::HandleViewGames(const SystemAddress address)
+{
+  LobbyMessages::ViewGames *msgViewGames = new LobbyMessages::ViewGames();
+
+  // DEBUGGING - TEST ADDING DUMMY GAMES FOR VIEWING
+  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS] = new Game();
+  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setName("Dummy Game");
+  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setCurrentPlayers(3);
+  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setMaxPlayers(10);
+  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setDescription("Description here.");
+  // --
+
+  map<SystemAddress, Game*>::iterator itr;
+  for (itr = m_AvailableGames.begin(); itr != m_AvailableGames.end(); itr++) {
+    LobbyMessages::Game* game = msgViewGames->add_games();
+    populateGameMessage(game, *((*itr).second));
+  }
+
+  SendMessage<LobbyMessages::ViewGames>(address, L_S_VIEW_GAMES, msgViewGames);
+}
+
+void LobbyServer::HandleHostingNewGame(const SystemAddress address, LobbyMessages::HostingNewGame *msgHostingNewGame)
+{
+  Game *newGame = new Game();
+
+  LobbyMessages::Game *msgGame = msgHostingNewGame->mutable_game();
+  populateGameFromMessage(msgGame, newGame);
+  m_AvailableGames[address] = newGame;
+
+  LobbyMessages::GameID gameID;
+  gameID.set_id(newGame->getID());
+  SendMessage<LobbyMessages::GameID>(address, L_S_HOSTING_REPLY, &gameID);
+}
+
+void LobbyServer::HandleGameInfo(LobbyMessages::GameInfo *msgGameInfo)
+{
+  
+}
+
+void LobbyServer::populateGameMessage(LobbyMessages::Game* msgGame, Game game)
+{
+  msgGame->set_current_level(game.getCurrentLevel());
+  msgGame->set_current_players(game.getCurrentPlayers());
+  msgGame->set_max_players(game.getMaxPlayers());
+  msgGame->set_description(game.getDescription());
+  msgGame->set_id(game.getID());
+  msgGame->set_name(game.getName());
+}
+
+void LobbyServer::populateGameFromMessage(LobbyMessages::Game* msgGame, Game* game)
+{
+  game->setID(getUniqueID());
+  game->setCurrentLevel(msgGame->current_level());
+  game->setCurrentPlayers(msgGame->current_players());
+  game->setDescription(msgGame->description());
+  game->setMaxPlayers(msgGame->max_players());
+  game->setName(msgGame->name());
+}
+
+int LobbyServer::getUniqueID()
+{
+  static int m_currentID = 0;
+
+  return m_currentID++;
 }

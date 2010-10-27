@@ -20,10 +20,12 @@ using std::wstring;
 using std::string;
 
 #include "lobby.pb.h"
-using namespace TLMP::LobbyMessages;
+using namespace TLMP;
 
 #include <map>
 using std::map;
+
+#include "Game.h"
 
 
 namespace TLMP {
@@ -55,11 +57,21 @@ namespace TLMP {
         void HandlePlayerName(const SystemAddress address, LobbyMessages::ClientPlayerName *);
         void HandleChatMessage(LobbyMessages::ChatMessage *msgChat);
         void HandlePlayerDisconnect(const SystemAddress address);
+        void HandleViewGames(const SystemAddress address);
+        void HandleHostingNewGame(const SystemAddress address, LobbyMessages::HostingNewGame *msgHostingNewGame);
+        void HandleGameInfo(LobbyMessages::GameInfo *msgGameInfo);
 
+        // Helpers for populating a Game message
+        void populateGameMessage(LobbyMessages::Game*, Game game);
+        void populateGameFromMessage(LobbyMessages::Game*, Game* game);
+
+        static int getUniqueID();
 
         /** Work on received packet data. */
         void WorkMessage(const SystemAddress clientAddress, LobbyMessage msg, RakNet::BitStream *bitStream);
 
+        /** */
+        map<SystemAddress, Game*> m_AvailableGames;
         map<SystemAddress, string> m_PlayerNames;
         RakPeerInterface* m_pServer;
         RakNet::BitStream *m_pBitStream;

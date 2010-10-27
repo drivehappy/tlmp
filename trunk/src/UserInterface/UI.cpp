@@ -381,6 +381,7 @@ void TLMP::ResizeUI()
     pLobbyViewGamesGamesList->setItem(newItem2, 2, 0);
 
     pLobbyViewGamesGamesList->setShowHorzScrollbar(false);
+    pLobbyViewGamesGamesList->setSelectionMode(CEGUI::MultiColumnList::RowSingle);
   }
 
 
@@ -564,15 +565,22 @@ bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Back(const CEGUI::EventArgs& ar
 
 bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Refresh(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  //CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
   CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
 
-  if (pWindowLobby) {
+  if (pWindowLobbyViewGames) {
+    /*
     pWindowLobby->setVisible(true);
     pWindowLobby->moveToFront();
 
     pWindowLobbyViewGames->setVisible(false);
     pWindowLobbyViewGames->moveToBack();
+    */
+
+    log("Refresh");
+
+    LobbyMessages::ViewGames msgDummy;  // Used to appease the API
+    LobbyClient::getSingleton().SendMessage<LobbyMessages::ViewGames>(L_C_VIEW_GAMES, &msgDummy);
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
   }
@@ -604,11 +612,21 @@ bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Join(const CEGUI::EventArgs& ar
   CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
 
   if (pWindowLobby) {
+    /*
     pWindowLobby->setVisible(true);
     pWindowLobby->moveToFront();
 
     pWindowLobbyViewGames->setVisible(false);
     pWindowLobbyViewGames->moveToBack();
+    */
+
+    CEGUI::MultiColumnList *pLobbyGamesList = (CEGUI::MultiColumnList *)getLobbyViewGames();
+    if (pLobbyGamesList) {
+      CEGUI::ListboxItem *item = pLobbyGamesList->getFirstSelectedItem();
+      if (item) {
+        log("List selection: %s", item->getText().c_str());
+      }
+    }
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
   }
@@ -1138,6 +1156,16 @@ CEGUI::Window* TLMP::getLobbyPlayerListWindow()
   return pWindow;
 }
 
+CEGUI::Window* TLMP::getLobbyViewGames()
+{
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1020_MultiplayerLobby_GamesListHistory");
+
+  if (!pWindow) {
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1020_MultiplayerLobby_GamesListHistory");
+  }
+
+  return pWindow;
+}
 
 
 //

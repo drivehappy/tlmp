@@ -45,6 +45,11 @@ namespace TLMP {
         void HandleBatchPlayerNames(LobbyMessages::BatchPlayerNames *);
         void HandlePlayerLeft(LobbyMessages::PlayerLeft *);
         void HandleChatMessage(LobbyMessages::ChatMessage *);
+
+        /** */
+        void HandleViewGames(LobbyMessages::ViewGames *);
+        void HandleHostingNewGame(LobbyMessages::GameID *msgGameID);
+        void HandleGameInfo(LobbyMessages::GameInfo *msgGameInfo);
         
         template<typename T>
         T* ParseMessage(RakNet::BitStream *bitStream);

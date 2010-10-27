@@ -21,3 +21,30 @@ message ChatMessage {
   required string sender = 1;
   required string message = 2;
 }
+
+message Game {
+  required int32  id = 1;
+  required string name = 2;
+  required int32  current_players = 3;
+  required int32  max_players = 4;
+  required string description = 5;
+  required string current_level = 6;
+}
+
+message GameID {
+  required int32  id = 1;
+}
+
+message HostingNewGame {
+  required Game   game = 1;
+}
+
+message ViewGames {
+  repeated Game   games = 1;
+}
+
+message GameInfo {
+  required string host_name = 1;
+  required int32  port = 2;
+}
+

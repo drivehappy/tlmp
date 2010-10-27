@@ -38,6 +38,11 @@ class ClientPlayerName;
 class BatchPlayerNames;
 class PlayerLeft;
 class ChatMessage;
+class Game;
+class GameID;
+class HostingNewGame;
+class ViewGames;
+class GameInfo;
 
 // ===================================================================
 
@@ -534,6 +539,520 @@ class ChatMessage : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ChatMessage* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class Game : public ::google::protobuf::Message {
+ public:
+  Game();
+  virtual ~Game();
+  
+  Game(const Game& from);
+  
+  inline Game& operator=(const Game& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Game& default_instance();
+  
+  void Swap(Game* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Game* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Game& from);
+  void MergeFrom(const Game& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required string name = 2;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 2;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  
+  // required int32 current_players = 3;
+  inline bool has_current_players() const;
+  inline void clear_current_players();
+  static const int kCurrentPlayersFieldNumber = 3;
+  inline ::google::protobuf::int32 current_players() const;
+  inline void set_current_players(::google::protobuf::int32 value);
+  
+  // required int32 max_players = 4;
+  inline bool has_max_players() const;
+  inline void clear_max_players();
+  static const int kMaxPlayersFieldNumber = 4;
+  inline ::google::protobuf::int32 max_players() const;
+  inline void set_max_players(::google::protobuf::int32 value);
+  
+  // required string description = 5;
+  inline bool has_description() const;
+  inline void clear_description();
+  static const int kDescriptionFieldNumber = 5;
+  inline const ::std::string& description() const;
+  inline void set_description(const ::std::string& value);
+  inline void set_description(const char* value);
+  inline void set_description(const char* value, size_t size);
+  inline ::std::string* mutable_description();
+  
+  // required string current_level = 6;
+  inline bool has_current_level() const;
+  inline void clear_current_level();
+  static const int kCurrentLevelFieldNumber = 6;
+  inline const ::std::string& current_level() const;
+  inline void set_current_level(const ::std::string& value);
+  inline void set_current_level(const char* value);
+  inline void set_current_level(const char* value, size_t size);
+  inline ::std::string* mutable_current_level();
+  
+  // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.Game)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  ::std::string* name_;
+  static const ::std::string _default_name_;
+  ::google::protobuf::int32 current_players_;
+  ::google::protobuf::int32 max_players_;
+  ::std::string* description_;
+  static const ::std::string _default_description_;
+  ::std::string* current_level_;
+  static const ::std::string _default_current_level_;
+  friend void  protobuf_AddDesc_lobby_2eproto();
+  friend void protobuf_AssignDesc_lobby_2eproto();
+  friend void protobuf_ShutdownFile_lobby_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Game* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameID : public ::google::protobuf::Message {
+ public:
+  GameID();
+  virtual ~GameID();
+  
+  GameID(const GameID& from);
+  
+  inline GameID& operator=(const GameID& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameID& default_instance();
+  
+  void Swap(GameID* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameID* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameID& from);
+  void MergeFrom(const GameID& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.GameID)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  friend void  protobuf_AddDesc_lobby_2eproto();
+  friend void protobuf_AssignDesc_lobby_2eproto();
+  friend void protobuf_ShutdownFile_lobby_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameID* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class HostingNewGame : public ::google::protobuf::Message {
+ public:
+  HostingNewGame();
+  virtual ~HostingNewGame();
+  
+  HostingNewGame(const HostingNewGame& from);
+  
+  inline HostingNewGame& operator=(const HostingNewGame& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const HostingNewGame& default_instance();
+  
+  void Swap(HostingNewGame* other);
+  
+  // implements Message ----------------------------------------------
+  
+  HostingNewGame* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const HostingNewGame& from);
+  void MergeFrom(const HostingNewGame& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required .TLMP.LobbyMessages.Game game = 1;
+  inline bool has_game() const;
+  inline void clear_game();
+  static const int kGameFieldNumber = 1;
+  inline const ::TLMP::LobbyMessages::Game& game() const;
+  inline ::TLMP::LobbyMessages::Game* mutable_game();
+  
+  // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.HostingNewGame)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::TLMP::LobbyMessages::Game* game_;
+  friend void  protobuf_AddDesc_lobby_2eproto();
+  friend void protobuf_AssignDesc_lobby_2eproto();
+  friend void protobuf_ShutdownFile_lobby_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static HostingNewGame* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ViewGames : public ::google::protobuf::Message {
+ public:
+  ViewGames();
+  virtual ~ViewGames();
+  
+  ViewGames(const ViewGames& from);
+  
+  inline ViewGames& operator=(const ViewGames& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ViewGames& default_instance();
+  
+  void Swap(ViewGames* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ViewGames* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ViewGames& from);
+  void MergeFrom(const ViewGames& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // repeated .TLMP.LobbyMessages.Game games = 1;
+  inline int games_size() const;
+  inline void clear_games();
+  static const int kGamesFieldNumber = 1;
+  inline const ::TLMP::LobbyMessages::Game& games(int index) const;
+  inline ::TLMP::LobbyMessages::Game* mutable_games(int index);
+  inline ::TLMP::LobbyMessages::Game* add_games();
+  inline const ::google::protobuf::RepeatedPtrField< ::TLMP::LobbyMessages::Game >&
+      games() const;
+  inline ::google::protobuf::RepeatedPtrField< ::TLMP::LobbyMessages::Game >*
+      mutable_games();
+  
+  // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.ViewGames)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::RepeatedPtrField< ::TLMP::LobbyMessages::Game > games_;
+  friend void  protobuf_AddDesc_lobby_2eproto();
+  friend void protobuf_AssignDesc_lobby_2eproto();
+  friend void protobuf_ShutdownFile_lobby_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ViewGames* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameInfo : public ::google::protobuf::Message {
+ public:
+  GameInfo();
+  virtual ~GameInfo();
+  
+  GameInfo(const GameInfo& from);
+  
+  inline GameInfo& operator=(const GameInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameInfo& default_instance();
+  
+  void Swap(GameInfo* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameInfo* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameInfo& from);
+  void MergeFrom(const GameInfo& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required string host_name = 1;
+  inline bool has_host_name() const;
+  inline void clear_host_name();
+  static const int kHostNameFieldNumber = 1;
+  inline const ::std::string& host_name() const;
+  inline void set_host_name(const ::std::string& value);
+  inline void set_host_name(const char* value);
+  inline void set_host_name(const char* value, size_t size);
+  inline ::std::string* mutable_host_name();
+  
+  // required int32 port = 2;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 2;
+  inline ::google::protobuf::int32 port() const;
+  inline void set_port(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.GameInfo)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* host_name_;
+  static const ::std::string _default_host_name_;
+  ::google::protobuf::int32 port_;
+  friend void  protobuf_AddDesc_lobby_2eproto();
+  friend void protobuf_AssignDesc_lobby_2eproto();
+  friend void protobuf_ShutdownFile_lobby_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameInfo* default_instance_;
+};
 // ===================================================================
 
 
@@ -827,6 +1346,316 @@ inline ::std::string* ChatMessage::mutable_message() {
     message_ = new ::std::string;
   }
   return message_;
+}
+
+// -------------------------------------------------------------------
+
+// Game
+
+// required int32 id = 1;
+inline bool Game::has_id() const {
+  return _has_bit(0);
+}
+inline void Game::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Game::id() const {
+  return id_;
+}
+inline void Game::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required string name = 2;
+inline bool Game::has_name() const {
+  return _has_bit(1);
+}
+inline void Game::clear_name() {
+  if (name_ != &_default_name_) {
+    name_->clear();
+  }
+  _clear_bit(1);
+}
+inline const ::std::string& Game::name() const {
+  return *name_;
+}
+inline void Game::set_name(const ::std::string& value) {
+  _set_bit(1);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void Game::set_name(const char* value) {
+  _set_bit(1);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void Game::set_name(const char* value, size_t size) {
+  _set_bit(1);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Game::mutable_name() {
+  _set_bit(1);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  return name_;
+}
+
+// required int32 current_players = 3;
+inline bool Game::has_current_players() const {
+  return _has_bit(2);
+}
+inline void Game::clear_current_players() {
+  current_players_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 Game::current_players() const {
+  return current_players_;
+}
+inline void Game::set_current_players(::google::protobuf::int32 value) {
+  _set_bit(2);
+  current_players_ = value;
+}
+
+// required int32 max_players = 4;
+inline bool Game::has_max_players() const {
+  return _has_bit(3);
+}
+inline void Game::clear_max_players() {
+  max_players_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 Game::max_players() const {
+  return max_players_;
+}
+inline void Game::set_max_players(::google::protobuf::int32 value) {
+  _set_bit(3);
+  max_players_ = value;
+}
+
+// required string description = 5;
+inline bool Game::has_description() const {
+  return _has_bit(4);
+}
+inline void Game::clear_description() {
+  if (description_ != &_default_description_) {
+    description_->clear();
+  }
+  _clear_bit(4);
+}
+inline const ::std::string& Game::description() const {
+  return *description_;
+}
+inline void Game::set_description(const ::std::string& value) {
+  _set_bit(4);
+  if (description_ == &_default_description_) {
+    description_ = new ::std::string;
+  }
+  description_->assign(value);
+}
+inline void Game::set_description(const char* value) {
+  _set_bit(4);
+  if (description_ == &_default_description_) {
+    description_ = new ::std::string;
+  }
+  description_->assign(value);
+}
+inline void Game::set_description(const char* value, size_t size) {
+  _set_bit(4);
+  if (description_ == &_default_description_) {
+    description_ = new ::std::string;
+  }
+  description_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Game::mutable_description() {
+  _set_bit(4);
+  if (description_ == &_default_description_) {
+    description_ = new ::std::string;
+  }
+  return description_;
+}
+
+// required string current_level = 6;
+inline bool Game::has_current_level() const {
+  return _has_bit(5);
+}
+inline void Game::clear_current_level() {
+  if (current_level_ != &_default_current_level_) {
+    current_level_->clear();
+  }
+  _clear_bit(5);
+}
+inline const ::std::string& Game::current_level() const {
+  return *current_level_;
+}
+inline void Game::set_current_level(const ::std::string& value) {
+  _set_bit(5);
+  if (current_level_ == &_default_current_level_) {
+    current_level_ = new ::std::string;
+  }
+  current_level_->assign(value);
+}
+inline void Game::set_current_level(const char* value) {
+  _set_bit(5);
+  if (current_level_ == &_default_current_level_) {
+    current_level_ = new ::std::string;
+  }
+  current_level_->assign(value);
+}
+inline void Game::set_current_level(const char* value, size_t size) {
+  _set_bit(5);
+  if (current_level_ == &_default_current_level_) {
+    current_level_ = new ::std::string;
+  }
+  current_level_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Game::mutable_current_level() {
+  _set_bit(5);
+  if (current_level_ == &_default_current_level_) {
+    current_level_ = new ::std::string;
+  }
+  return current_level_;
+}
+
+// -------------------------------------------------------------------
+
+// GameID
+
+// required int32 id = 1;
+inline bool GameID::has_id() const {
+  return _has_bit(0);
+}
+inline void GameID::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 GameID::id() const {
+  return id_;
+}
+inline void GameID::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// HostingNewGame
+
+// required .TLMP.LobbyMessages.Game game = 1;
+inline bool HostingNewGame::has_game() const {
+  return _has_bit(0);
+}
+inline void HostingNewGame::clear_game() {
+  if (game_ != NULL) game_->::TLMP::LobbyMessages::Game::Clear();
+  _clear_bit(0);
+}
+inline const ::TLMP::LobbyMessages::Game& HostingNewGame::game() const {
+  return game_ != NULL ? *game_ : *default_instance_->game_;
+}
+inline ::TLMP::LobbyMessages::Game* HostingNewGame::mutable_game() {
+  _set_bit(0);
+  if (game_ == NULL) game_ = new ::TLMP::LobbyMessages::Game;
+  return game_;
+}
+
+// -------------------------------------------------------------------
+
+// ViewGames
+
+// repeated .TLMP.LobbyMessages.Game games = 1;
+inline int ViewGames::games_size() const {
+  return games_.size();
+}
+inline void ViewGames::clear_games() {
+  games_.Clear();
+}
+inline const ::TLMP::LobbyMessages::Game& ViewGames::games(int index) const {
+  return games_.Get(index);
+}
+inline ::TLMP::LobbyMessages::Game* ViewGames::mutable_games(int index) {
+  return games_.Mutable(index);
+}
+inline ::TLMP::LobbyMessages::Game* ViewGames::add_games() {
+  return games_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::TLMP::LobbyMessages::Game >&
+ViewGames::games() const {
+  return games_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::TLMP::LobbyMessages::Game >*
+ViewGames::mutable_games() {
+  return &games_;
+}
+
+// -------------------------------------------------------------------
+
+// GameInfo
+
+// required string host_name = 1;
+inline bool GameInfo::has_host_name() const {
+  return _has_bit(0);
+}
+inline void GameInfo::clear_host_name() {
+  if (host_name_ != &_default_host_name_) {
+    host_name_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& GameInfo::host_name() const {
+  return *host_name_;
+}
+inline void GameInfo::set_host_name(const ::std::string& value) {
+  _set_bit(0);
+  if (host_name_ == &_default_host_name_) {
+    host_name_ = new ::std::string;
+  }
+  host_name_->assign(value);
+}
+inline void GameInfo::set_host_name(const char* value) {
+  _set_bit(0);
+  if (host_name_ == &_default_host_name_) {
+    host_name_ = new ::std::string;
+  }
+  host_name_->assign(value);
+}
+inline void GameInfo::set_host_name(const char* value, size_t size) {
+  _set_bit(0);
+  if (host_name_ == &_default_host_name_) {
+    host_name_ = new ::std::string;
+  }
+  host_name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* GameInfo::mutable_host_name() {
+  _set_bit(0);
+  if (host_name_ == &_default_host_name_) {
+    host_name_ = new ::std::string;
+  }
+  return host_name_;
+}
+
+// required int32 port = 2;
+inline bool GameInfo::has_port() const {
+  return _has_bit(1);
+}
+inline void GameInfo::clear_port() {
+  port_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 GameInfo::port() const {
+  return port_;
+}
+inline void GameInfo::set_port(::google::protobuf::int32 value) {
+  _set_bit(1);
+  port_ = value;
 }
 
 
