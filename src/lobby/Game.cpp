@@ -40,6 +40,11 @@ void Game::setID(int id)
   m_ID = id;
 }
 
+void Game::setPort(int port)
+{
+  m_port = port;
+}
+
 
 string Game::getName() const
 {
@@ -69,4 +74,9 @@ string Game::getCurrentLevel() const
 int Game::getID() const
 {
   return m_ID;
+}
+
+int Game::getPort() const
+{
+  return m_port;
 }

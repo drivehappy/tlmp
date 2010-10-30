@@ -59,7 +59,7 @@ namespace TLMP {
         void HandlePlayerDisconnect(const SystemAddress address);
         void HandleViewGames(const SystemAddress address);
         void HandleHostingNewGame(const SystemAddress address, LobbyMessages::HostingNewGame *msgHostingNewGame);
-        void HandleGameInfo(LobbyMessages::GameInfo *msgGameInfo);
+        void HandleRequestGameInfo(const SystemAddress address, LobbyMessages::GameID *msgGameInfo);
 
         // Helpers for populating a Game message
         void populateGameMessage(LobbyMessages::Game*, Game game);

@@ -108,6 +108,10 @@
 			Name="Header Files"
 			>
 			<File
+				RelativePath="..\src\lobby\Game.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\Logger.h"
 				>
 			</File>
@@ -229,6 +233,10 @@
 			>
 			<File
 				RelativePath="..\src\DLLMain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\lobby\Game.cpp"
 				>
 			</File>
 			<File

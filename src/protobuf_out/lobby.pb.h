@@ -646,6 +646,13 @@ class Game : public ::google::protobuf::Message {
   inline void set_current_level(const char* value, size_t size);
   inline ::std::string* mutable_current_level();
   
+  // required int32 port = 7;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 7;
+  inline ::google::protobuf::int32 port() const;
+  inline void set_port(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:TLMP.LobbyMessages.Game)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -660,11 +667,12 @@ class Game : public ::google::protobuf::Message {
   static const ::std::string _default_description_;
   ::std::string* current_level_;
   static const ::std::string _default_current_level_;
+  ::google::protobuf::int32 port_;
   friend void  protobuf_AddDesc_lobby_2eproto();
   friend void protobuf_AssignDesc_lobby_2eproto();
   friend void protobuf_ShutdownFile_lobby_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1524,6 +1532,22 @@ inline ::std::string* Game::mutable_current_level() {
     current_level_ = new ::std::string;
   }
   return current_level_;
+}
+
+// required int32 port = 7;
+inline bool Game::has_port() const {
+  return _has_bit(6);
+}
+inline void Game::clear_port() {
+  port_ = 0;
+  _clear_bit(6);
+}
+inline ::google::protobuf::int32 Game::port() const {
+  return port_;
+}
+inline void Game::set_port(::google::protobuf::int32 value) {
+  _set_bit(6);
+  port_ = value;
 }
 
 // -------------------------------------------------------------------
