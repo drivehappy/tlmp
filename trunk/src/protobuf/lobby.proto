@@ -29,6 +29,7 @@ message Game {
   required int32  max_players = 4;
   required string description = 5;
   required string current_level = 6;
+  required int32  port = 7;
 }
 
 message GameID {

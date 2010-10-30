@@ -87,6 +87,7 @@ void LobbyServer::Process()
 }
 
 
+
 void LobbyServer::WorkMessage(const SystemAddress address, LobbyMessage msg, RakNet::BitStream *bitStream)
 {
   printf("Lobby Server Received Message: %s from %s\n", LobbyMessageString[msg], address.ToString());
@@ -134,9 +135,9 @@ void LobbyServer::WorkMessage(const SystemAddress address, LobbyMessage msg, Rak
     
   case L_C_REQUEST_JOINGAME:
     {
-      LobbyMessages::GameInfo *msgGameInfo = ParseMessage<LobbyMessages::GameInfo>(m_pBitStream);
+      LobbyMessages::GameID *msgGameID = ParseMessage<LobbyMessages::GameID>(m_pBitStream);
 
-      HandleGameInfo(msgGameInfo);
+      HandleRequestGameInfo(address, msgGameID);
     }
     break;
   }
@@ -216,14 +217,6 @@ void LobbyServer::HandleViewGames(const SystemAddress address)
 {
   LobbyMessages::ViewGames *msgViewGames = new LobbyMessages::ViewGames();
 
-  // DEBUGGING - TEST ADDING DUMMY GAMES FOR VIEWING
-  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS] = new Game();
-  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setName("Dummy Game");
-  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setCurrentPlayers(3);
-  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setMaxPlayers(10);
-  m_AvailableGames[UNASSIGNED_SYSTEM_ADDRESS]->setDescription("Description here.");
-  // --
-
   map<SystemAddress, Game*>::iterator itr;
   for (itr = m_AvailableGames.begin(); itr != m_AvailableGames.end(); itr++) {
     LobbyMessages::Game* game = msgViewGames->add_games();
@@ -241,14 +234,36 @@ void LobbyServer::HandleHostingNewGame(const SystemAddress address, LobbyMessage
   populateGameFromMessage(msgGame, newGame);
   m_AvailableGames[address] = newGame;
 
+  // Dump out the game info
+  printf("New Game Created:\n");
+  printf("  Name: %s\n", newGame->getName().c_str());
+  printf("  Players: %i / %i\n", newGame->getCurrentPlayers(), newGame->getMaxPlayers());
+  printf("  Description: %s\n", newGame->getDescription().c_str());
+  printf("  Level: %s\n", newGame->getCurrentLevel().c_str());
+  printf("  Port: %i\n", newGame->getPort());
+
   LobbyMessages::GameID gameID;
   gameID.set_id(newGame->getID());
   SendMessage<LobbyMessages::GameID>(address, L_S_HOSTING_REPLY, &gameID);
 }
 
-void LobbyServer::HandleGameInfo(LobbyMessages::GameInfo *msgGameInfo)
+void LobbyServer::HandleRequestGameInfo(const SystemAddress address, LobbyMessages::GameID *msgGameInfo)
 {
-  
+  int requestedID = msgGameInfo->id();
+
+  map<SystemAddress, Game*>::iterator itr;
+  for (itr = m_AvailableGames.begin(); itr != m_AvailableGames.end(); itr++) {
+    if (requestedID == (*itr).second->getID()) {
+      // Send the game information back to the client
+      LobbyMessages::GameInfo msgGameInfo;
+      msgGameInfo.set_host_name((*itr).first.ToString(false));
+      msgGameInfo.set_port((*itr).second->getPort());
+      SendMessage<LobbyMessages::GameInfo>(address, L_S_REPLAY_JOINGAME, &msgGameInfo);
+      return;
+    }
+  }
+
+  printf("Error: Could not find requested game of ID = %i\n", requestedID);
 }
 
 void LobbyServer::populateGameMessage(LobbyMessages::Game* msgGame, Game game)
@@ -259,6 +274,7 @@ void LobbyServer::populateGameMessage(LobbyMessages::Game* msgGame, Game game)
   msgGame->set_description(game.getDescription());
   msgGame->set_id(game.getID());
   msgGame->set_name(game.getName());
+  msgGame->set_port(game.getPort());
 }
 
 void LobbyServer::populateGameFromMessage(LobbyMessages::Game* msgGame, Game* game)
@@ -269,6 +285,7 @@ void LobbyServer::populateGameFromMessage(LobbyMessages::Game* msgGame, Game* ga
   game->setDescription(msgGame->description());
   game->setMaxPlayers(msgGame->max_players());
   game->setName(msgGame->name());
+  game->setPort(msgGame->port());
 }
 
 int LobbyServer::getUniqueID()

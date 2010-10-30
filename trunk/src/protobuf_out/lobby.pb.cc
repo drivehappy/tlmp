@@ -133,13 +133,14 @@ void protobuf_AssignDesc_lobby_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ChatMessage));
   Game_descriptor_ = file->message_type(5);
-  static const int Game_offsets_[6] = {
+  static const int Game_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, current_players_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, max_players_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, description_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, current_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Game, port_),
   };
   Game_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -285,14 +286,15 @@ void protobuf_AddDesc_lobby_2eproto() {
     "s\022\023\n\013playerNames\030\001 \003(\t\":\n\nPlayerLeft\022\022\n\n"
     "playerName\030\001 \002(\t\022\030\n\020playersRemaining\030\002 \003"
     "(\t\".\n\013ChatMessage\022\016\n\006sender\030\001 \002(\t\022\017\n\007mes"
-    "sage\030\002 \002(\t\"z\n\004Game\022\n\n\002id\030\001 \002(\005\022\014\n\004name\030\002"
-    " \002(\t\022\027\n\017current_players\030\003 \002(\005\022\023\n\013max_pla"
-    "yers\030\004 \002(\005\022\023\n\013description\030\005 \002(\t\022\025\n\rcurre"
-    "nt_level\030\006 \002(\t\"\024\n\006GameID\022\n\n\002id\030\001 \002(\005\"8\n\016"
-    "HostingNewGame\022&\n\004game\030\001 \002(\0132\030.TLMP.Lobb"
-    "yMessages.Game\"4\n\tViewGames\022\'\n\005games\030\001 \003"
-    "(\0132\030.TLMP.LobbyMessages.Game\"+\n\010GameInfo"
-    "\022\021\n\thost_name\030\001 \002(\t\022\014\n\004port\030\002 \002(\005", 553);
+    "sage\030\002 \002(\t\"\210\001\n\004Game\022\n\n\002id\030\001 \002(\005\022\014\n\004name\030"
+    "\002 \002(\t\022\027\n\017current_players\030\003 \002(\005\022\023\n\013max_pl"
+    "ayers\030\004 \002(\005\022\023\n\013description\030\005 \002(\t\022\025\n\rcurr"
+    "ent_level\030\006 \002(\t\022\014\n\004port\030\007 \002(\005\"\024\n\006GameID\022"
+    "\n\n\002id\030\001 \002(\005\"8\n\016HostingNewGame\022&\n\004game\030\001 "
+    "\002(\0132\030.TLMP.LobbyMessages.Game\"4\n\tViewGam"
+    "es\022\'\n\005games\030\001 \003(\0132\030.TLMP.LobbyMessages.G"
+    "ame\"+\n\010GameInfo\022\021\n\thost_name\030\001 \002(\t\022\014\n\004po"
+    "rt\030\002 \002(\005", 568);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "lobby.proto", &protobuf_RegisterTypes);
   Version::default_instance_ = new Version();
@@ -1538,6 +1540,7 @@ const int Game::kCurrentPlayersFieldNumber;
 const int Game::kMaxPlayersFieldNumber;
 const int Game::kDescriptionFieldNumber;
 const int Game::kCurrentLevelFieldNumber;
+const int Game::kPortFieldNumber;
 #endif  // !_MSC_VER
 
 Game::Game()
@@ -1562,6 +1565,7 @@ void Game::SharedCtor() {
   max_players_ = 0;
   description_ = const_cast< ::std::string*>(&_default_description_);
   current_level_ = const_cast< ::std::string*>(&_default_current_level_);
+  port_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1623,6 +1627,7 @@ void Game::Clear() {
         current_level_->clear();
       }
     }
+    port_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1728,6 +1733,22 @@ bool Game::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(56)) goto parse_port;
+        break;
+      }
+      
+      // required int32 port = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &port_)));
+          _set_bit(6);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1792,6 +1813,11 @@ void Game::SerializeWithCachedSizes(
       6, this->current_level(), output);
   }
   
+  // required int32 port = 7;
+  if (_has_bit(6)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->port(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1843,6 +1869,11 @@ void Game::SerializeWithCachedSizes(
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         6, this->current_level(), target);
+  }
+  
+  // required int32 port = 7;
+  if (_has_bit(6)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->port(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1898,6 +1929,13 @@ int Game::ByteSize() const {
           this->current_level());
     }
     
+    // required int32 port = 7;
+    if (has_port()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->port());
+    }
+    
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -1943,6 +1981,9 @@ void Game::MergeFrom(const Game& from) {
     if (from._has_bit(5)) {
       set_current_level(from.current_level());
     }
+    if (from._has_bit(6)) {
+      set_port(from.port());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1960,7 +2001,7 @@ void Game::CopyFrom(const Game& from) {
 }
 
 bool Game::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+  if ((_has_bits_[0] & 0x0000007f) != 0x0000007f) return false;
   
   return true;
 }
@@ -1973,6 +2014,7 @@ void Game::Swap(Game* other) {
     std::swap(max_players_, other->max_players_);
     std::swap(description_, other->description_);
     std::swap(current_level_, other->current_level_);
+    std::swap(port_, other->port_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

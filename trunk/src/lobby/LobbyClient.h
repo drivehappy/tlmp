@@ -10,6 +10,7 @@ using namespace TLMP::Network::Lobby;
 
 #include "UI.h"
 #include "lobby.pb.h"
+#include "Game.h"
 
 
 namespace TLMP {
@@ -23,8 +24,10 @@ namespace TLMP {
 
         void Connect(const char* address, unsigned short port);
         void Disconnect();
-
+        bool IsConnected();
         void ReceiveMessages();
+
+        Game* getGameFromIndex(int index);
 
         template<typename T>
         void SendMessage(LobbyMessage msg, ::google::protobuf::Message *message);
@@ -54,8 +57,11 @@ namespace TLMP {
         template<typename T>
         T* ParseMessage(RakNet::BitStream *bitStream);
 
+        map<int, Game*> m_gamesList;
+
         RakPeerInterface *m_pClient;
         RakNet::BitStream *m_pBitStream;
+        bool m_bConnected;
       };
 
     };

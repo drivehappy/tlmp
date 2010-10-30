@@ -13,7 +13,7 @@ void TLMP::ResizeUI()
   CEGUI::Window *pMainMenuDialogClientDisconnected;
   CEGUI::Window *pInGameRoot, *pInGameChat;
   CEGUI::Window *pMainMenuButton;
-  CEGUI::Window *pMainMenuLobby, *pMainMenuLobbyViewGames;
+  CEGUI::Window *pMainMenuLobby, *pMainMenuLobbyViewGames, *pMainMenuDialogHost, *pMainMenuDialogJoin;
 
   CEGUI::SchemeManager* sm = CEGUI::SchemeManager::getSingletonPtr();
   if (!sm) {
@@ -127,7 +127,7 @@ void TLMP::ResizeUI()
 
   CEGUI::Window *pOptionsHost = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_HostButton");
   if (pOptionsHost) {
-    pOptionsHost->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_Host));
+    pOptionsHost->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerDialog_Host));
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_HostButton");
     return;
@@ -149,37 +149,60 @@ void TLMP::ResizeUI()
     return;
   }
     
-  CEGUI::Window *pOptionsJoinCancel = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_Join_CancelButton");
+
+  // Load the MainMenu Multiplayer Host Window
+  try {
+    pMainMenuDialogJoin = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerDialog_Join.layout"), CEGUI::String("1006_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerDialog_Join.layout");
+    return;
+  }
+
+  CEGUI::Window *pOptionsJoinCancel = pMainMenuDialogJoin->recursiveChildSearch("1006_MultiplayerOptions_Join_CancelButton");
   if (pOptionsJoinCancel) {
     pOptionsJoinCancel->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_Join_Cancel));
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_Join_CancelButton");
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1006_MultiplayerOptions_Join_CancelButton");
     return;
   }
-    
-  CEGUI::Window *pOptionsHostCancel = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_Host_CancelButton");
-  if (pOptionsHostCancel) {
-    pOptionsHostCancel->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_Host_Cancel));
-  } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_Host_CancelButton");
-    return;
-  }
-    
-  CEGUI::Window *pOptionsHostHost = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_Host_HostButton");
-  if (pOptionsHostHost) {
-    pOptionsHostHost->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_Host_Host));
-  } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_Host_HostButton");
-    return;
-  }
-    
-  CEGUI::Window *pOptionsJoinJoin = pMainMenuOptions->recursiveChildSearch("1002_MultiplayerOptions_Join_JoinButton");
+   
+  CEGUI::Window *pOptionsJoinJoin = pMainMenuDialogJoin->recursiveChildSearch("1006_MultiplayerOptions_Join_JoinButton");
   if (pOptionsJoinJoin) {
     pOptionsJoinJoin->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerOptions_Join_Join));
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1002_MultiplayerOptions_Join_JoinButton");
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1006_MultiplayerOptions_Join_JoinButton");
     return;
   }
+
+
+  // Load the MainMenu Multiplayer Host Window
+  try {
+    pMainMenuDialogHost = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerDialog_Host.layout"), CEGUI::String("1006_"));
+  } catch (exception &e) {
+    log(e.what());
+    multiplayerLogger.WriteLine(Error, L"Exception occurred when reading MainMenu_MultiplayerOptions.layout");
+    return;
+  }
+    
+  CEGUI::Window *pOptionsHostCancel = pMainMenuDialogHost->recursiveChildSearch("1006_MultiplayerDialog_Host_CancelButton");
+  if (pOptionsHostCancel) {
+    pOptionsHostCancel->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerDialog_Host_Cancel));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1006_MultiplayerDialog_Host_CancelButton");
+    return;
+  }
+    
+  CEGUI::Window *pOptionsHostHost = pMainMenuDialogHost->recursiveChildSearch("1006_MultiplayerDialog_Host_HostButton");
+  if (pOptionsHostHost) {
+    pOptionsHostHost->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&ButtonEvent_MultiplayerDialog_Host_Host));
+  } else {
+    multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1006_MultiplayerDialog_Host_HostButton");
+    return;
+  }
+
+
+  //
       
   CEGUI::Window *pWaitServer = pMainMenuDialogs->recursiveChildSearch("1003_MultiplayerOptions_WaitServerLoad_OkButton");
   if (pWaitServer) {
@@ -406,8 +429,12 @@ void TLMP::ResizeUI()
   pSheet->addChildWindow(pMainMenuDialogClientDisconnected);
   pSheet->addChildWindow(pMainMenuLobby);
   pSheet->addChildWindow(pMainMenuLobbyViewGames);
+  pSheet->addChildWindow(pMainMenuDialogHost);
+  pSheet->addChildWindow(pMainMenuDialogJoin);
 
   pMainMenuLobby->setVisible(false);
+  pMainMenuDialogHost->setVisible(false);
+  pMainMenuDialogJoin->setVisible(false);
   pMainMenuLobbyViewGames->setVisible(false);
   pMainMenuDialogClientConnectedFailed->setVisible(false);
   pMainMenuDialogClientDisconnected->setVisible(false);
@@ -590,17 +617,17 @@ bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Refresh(const CEGUI::EventArgs&
 
 bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Host(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindowLobby = UserInterface::getWindowFromName("1020_MultiplayerLobby");
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerDialog_Host");
   CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
 
-  if (pWindowLobby) {
-    pWindowLobby->setVisible(true);
-    pWindowLobby->moveToFront();
-
+  if (pWindowLobbyViewGames && pWindow) {
     pWindowLobbyViewGames->setVisible(false);
     pWindowLobbyViewGames->moveToBack();
+
+    pWindow->setVisible(true);
+    pWindow->moveToFront();
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerDialog_Host");
   }
 
   return true;
@@ -624,7 +651,13 @@ bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Join(const CEGUI::EventArgs& ar
     if (pLobbyGamesList) {
       CEGUI::ListboxItem *item = pLobbyGamesList->getFirstSelectedItem();
       if (item) {
-        log("List selection: %s", item->getText().c_str());
+        CEGUI::uint index = pLobbyGamesList->getItemRowIndex(item);
+        Game* joinGame = LobbyClient::getSingleton().getGameFromIndex(index);
+        log("List selection: %s %i", item->getText().c_str(), joinGame->getID());
+        
+        LobbyMessages::GameID msgGameID;
+        msgGameID.set_id(joinGame->getID());
+        LobbyClient::getSingleton().SendMessage<LobbyMessages::GameID>(L_C_REQUEST_JOINGAME, &msgGameID);
       }
     }
   } else {
@@ -663,15 +696,15 @@ bool TLMP::ButtonEvent_CloseMultiplayerOptions(const CEGUI::EventArgs& args)
   return true;
 }
 
-bool TLMP::ButtonEvent_MultiplayerOptions_Host(const CEGUI::EventArgs& args)
+bool TLMP::ButtonEvent_MultiplayerDialog_Host(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerOptions_Host");
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerDialog_Host");
 
   if (pWindow) {
     pWindow->setVisible(true);
     pWindow->moveToFront();
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find 1002_MultiplayerOptions_Host");
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1002_MultiplayerDialog_Host");
   }
 
   return true;
@@ -736,52 +769,73 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join_Cancel(const CEGUI::EventArgs& ar
   return true;
 }
 
-bool TLMP::ButtonEvent_MultiplayerOptions_Host_Cancel(const CEGUI::EventArgs& args)
+bool TLMP::ButtonEvent_MultiplayerDialog_Host_Cancel(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerOptions_Host");
-  CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerDialog_Host");
+  CEGUI::Window *pWindowLobbyViewGames = UserInterface::getWindowFromName("1020_MultiplayerLobbyViewGames");
 
-  if (pWindowOptions && pWindow) {
+  // Hide hosting options
+  if (pWindow) {
     pWindow->setVisible(false);
     pWindow->moveToBack();
+  }
 
-    pWindowOptions->setVisible(true);
-    pWindowOptions->moveToFront();
-  } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Options Host Window *or* 1002_MultiplayerOptions");
+  // If we're connected to the Lobby server send us back to the Lobby menu
+  if (LobbyClient::getSingleton().IsConnected()) {
+    if (pWindowLobbyViewGames) {
+      pWindowLobbyViewGames->setVisible(true);
+      pWindowLobbyViewGames->moveToFront();
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Options Host Window *or* 1002_MultiplayerOptions");
+    }
   }
 
   return true;
 }
 
-bool TLMP::ButtonEvent_MultiplayerOptions_Host_Host(const CEGUI::EventArgs& args)
+bool TLMP::ButtonEvent_MultiplayerDialog_Host_Host(const CEGUI::EventArgs& args)
 {
   u16 port = 0;
   CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
 
   if (pWindowOptions) {
-    pWindowOptions->setVisible(false);
-    pWindowOptions->moveToBack();
+    //pWindowOptions->setVisible(false);
+    //pWindowOptions->moveToBack();
 
-    CEGUI::Window *pWindow = pWindowOptions->recursiveChildSearch("1002_MultiplayerOptions_Host");
+    CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerDialog_Host");
 
     // Remove the window
     if (pWindow) {
       pWindow->setVisible(false);
       pWindow->moveToBack();
 
-      CEGUI::Editbox *pHostPort = (CEGUI::Editbox *)pWindow->recursiveChildSearch("MultiplayerOptions_Host_HostPortEdit");
+      CEGUI::Editbox *pHostPort = (CEGUI::Editbox *)pWindow->recursiveChildSearch("MultiplayerDialog_Host_HostPortEdit");
 
       // Grab the text
       if (pHostPort) {
         const char* pPortString = pHostPort->getText().c_str();
         port = (u16)atoi(pPortString);
+
+        // If we're connected to the Lobby server, send the server information
+        log("LobbyClient::getSingleton().IsConnected() = %i", LobbyClient::getSingleton().IsConnected());
+        if (LobbyClient::getSingleton().IsConnected()) {
+          LobbyMessages::HostingNewGame msgHostingNewGame;
+          LobbyMessages::Game *msgGame = msgHostingNewGame.mutable_game();
+          msgGame->set_current_level("Unknown Level");
+          msgGame->set_current_players(1);
+          msgGame->set_description("Description of Game");
+          msgGame->set_id(-1);
+          msgGame->set_max_players(32);
+          msgGame->set_name("Game Name Here");
+          msgGame->set_port(port);
+          LobbyClient::getSingleton().SendMessage<LobbyMessages::HostingNewGame>(L_C_HOSTING_NEW_GAME, &msgHostingNewGame);
+        }
       } else {
-        multiplayerLogger.WriteLine(Error, L"Error could not find MultiplayerOptions_Host_HostPortEdit");
+        multiplayerLogger.WriteLine(Error, L"Error could not find MultiplayerDialog_Host_HostPortEdit");
         return false;
       }
     } else {
-      multiplayerLogger.WriteLine(Error, L"Error could not find 1002_MultiplayerOptions_Host");
+      multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerDialog_Host");
       return false;
     }
   } else {

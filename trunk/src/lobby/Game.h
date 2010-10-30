@@ -18,6 +18,7 @@ namespace TLMP {
         void setMaxPlayers(int max_players);
         void setCurrentPlayers(int current_players);
         void setID(int id);
+        void setPort(int port);
 
         string getName() const;
         string getDescription() const;
@@ -25,10 +26,11 @@ namespace TLMP {
         int getMaxPlayers() const;
         int getCurrentPlayers() const;
         int getID() const;
+        int getPort() const;
 
       private:
         string m_name, m_description, m_currentLevel;
-        int m_maxPlayers, m_currentPlayers, m_ID;
+        int m_maxPlayers, m_currentPlayers, m_ID, m_port;
       };
 
     };

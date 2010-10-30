@@ -1796,7 +1796,7 @@ void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
       SetAllow_CharacterSetTarget(false);
     }
   } else {
-    log(L"Error: Could not find Character of ID: %x", characterId);
+    //log(L"Error: Could not find Character of ID: %x", characterId);
   }
 }
 
