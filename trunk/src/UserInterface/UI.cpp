@@ -742,7 +742,26 @@ bool TLMP::ButtonEvent_MultiplayerOptions_TestLobby(const CEGUI::EventArgs& args
     pWindowLobbyChatEntry->setMaxTextLength(200);
     
     // Connect to lobby server here
-    LobbyClient::getSingleton().Connect("localhost", 5446);
+    {
+      const char url[256] = "localhost";
+      const int port = 5446;
+
+      // Load the configuration file if present and extract the url from it
+      FILE *fp = NULL;
+      errno_t err = fopen_s(&fp, "./TLAPI/lobby.cfg", "rt");
+      if (!err) {
+        log(L"Error could not open lobby configuration, defaulting to localhost:5446");
+        multiplayerLogger.WriteLine(Error, L"Error could not open lobby configuration, defaulting to localhost:5446");
+      } else {
+        fscanf(fp, "%s:%i", url, &port);
+        fclose(fp);
+
+        log(L"Connecting to lobby server: %s:%i", url, port);
+        multiplayerLogger.WriteLine(Error, L"Connecting to lobby server: %s:%i", url, port);
+      }
+
+      LobbyClient::getSingleton().Connect(url, port);
+    }
   } else {
     log(L"Error could not find Multiplayer Lobby Window");
     multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Lobby Window");

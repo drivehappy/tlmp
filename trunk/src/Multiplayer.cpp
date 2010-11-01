@@ -2095,6 +2095,9 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
     //logColor(B_GREEN, L"Flushing item network IDs");
     clearAllNetworkIDs();
   }
+
+  // Suppress level changes
+  calloriginal = false;
 }
 
 void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
