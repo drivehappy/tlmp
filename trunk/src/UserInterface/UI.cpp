@@ -150,7 +150,7 @@ void TLMP::ResizeUI()
   }
     
 
-  // Load the MainMenu Multiplayer Host Window
+  // Load the MainMenu Multiplayer Join Window
   try {
     pMainMenuDialogJoin = wm->loadWindowLayout(CEGUI::String("MainMenu_MultiplayerDialog_Join.layout"), CEGUI::String("1006_"));
   } catch (exception &e) {
@@ -698,13 +698,13 @@ bool TLMP::ButtonEvent_CloseMultiplayerOptions(const CEGUI::EventArgs& args)
 
 bool TLMP::ButtonEvent_MultiplayerDialog_Host(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerDialog_Host");
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerDialog_Host");
 
   if (pWindow) {
     pWindow->setVisible(true);
     pWindow->moveToFront();
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find 1002_MultiplayerDialog_Host");
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerDialog_Host");
   }
 
   return true;
@@ -712,13 +712,13 @@ bool TLMP::ButtonEvent_MultiplayerDialog_Host(const CEGUI::EventArgs& args)
 
 bool TLMP::ButtonEvent_MultiplayerOptions_Join(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerOptions_Join");
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerOptions_Join");
 
   if (pWindow) {
     pWindow->setVisible(true);
     pWindow->moveToFront();
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error could not find Multiplayer Options Join Window");
+    multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerOptions_Join");
   }
 
   return true;
@@ -865,7 +865,7 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args
     pWindowOptions->setVisible(false);
     pWindowOptions->moveToBack();
 
-    CEGUI::Window *pWindow = pWindowOptions->recursiveChildSearch("1002_MultiplayerOptions_Join");
+    CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerOptions_Join");
 
     // Remove the window
     if (pWindow) {
@@ -899,7 +899,7 @@ bool TLMP::ButtonEvent_MultiplayerOptions_Join_Join(const CEGUI::EventArgs& args
         return false;
       }
     } else {
-      multiplayerLogger.WriteLine(Error, L"Error could not find 1002_MultiplayerOptions_Join");
+      multiplayerLogger.WriteLine(Error, L"Error could not find 1006_MultiplayerOptions_Join");
       return false;
     }
   } else {
