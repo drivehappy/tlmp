@@ -6,13 +6,14 @@
   <Window Type="DefaultWindow" Name="MainMenu_Multiplayer_Splash" >
     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
     <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
-    <Property Name="MousePassThroughEnabled" Value="True" />
+    <Property Name="MousePassThroughEnabled" Value="False" />
 
     <!-- Background Image -->
     <Window Type="GuiLook/StaticImage" Name="MultiplayerSplash_BackgroundImage">
       <Property Name="Image" Value="set:GuiLook image:GrayLine" />
       <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
       <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+      <Property Name="MousePassThroughEnabled" Value="True" />
     </Window>
 
     <!-- Title Text -->

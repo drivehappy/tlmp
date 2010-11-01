@@ -1309,8 +1309,9 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 {
   //log(L"Character picking up Equipment Pre: %p", equipment);
 
-  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
-    character, equipment, equipment->nameReal.c_str(), level);
+  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipment(Character: %p) (%p) (Level: %p)",
+    character, equipment, level);
+  multiplayerLogger.WriteLine(Info, L"   Character::PickupEquipment Name: %s", equipment->nameReal.c_str());
   //log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
   //  character, equipment, equipment->nameReal.c_str(), level);
 
@@ -2777,6 +2778,10 @@ void TLMP::Character_UpdateOrientationPre(CCharacter* character, float x, float 
 void TLMP::Player_LevelUpPre(CPlayer* player, bool& calloriginal)
 {
   log("Player leveled up Pre %p", player);
+
+  if (gameClient->pCPlayer != player) {
+    calloriginal = false;
+  }
 }
 
 void TLMP::Player_LevelUpPost(CPlayer* player, bool& calloriginal)

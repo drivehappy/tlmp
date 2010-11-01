@@ -805,7 +805,19 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 current, Vector3 d
   if (character) {
     // If the current positioning is off, fix it - don't adjust our own character though
     const int ALLOWED_SQUARED_ERROR = 1;
-    if (character != gameClient->pCPlayer) {
+    vector<CCharacter*>::iterator itr;
+    vector<CCharacter*> *ignoredCharacters = gameClient->pCPlayer->GetMinions();
+    ignoredCharacters->push_back(gameClient->pCPlayer);
+    bool bFound = false;
+
+    for (itr = ignoredCharacters->begin(); itr != ignoredCharacters->end(); itr++) {
+      if (character == (*itr)) {
+        bFound = true;
+        break;
+      }
+    }
+
+    if (!bFound) {
       if ((character->position - current).squaredLength() > 10) {
         character->position = current;
       }
