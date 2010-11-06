@@ -566,8 +566,16 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
     log(L"Client: Level::CharacterInitialize: %s (%f %f %f) unk0: %x",
       character->characterName.c_str(), position->x, position->y, position->z, unk0);
 
+    // Not suppressed, server sent it
+    if (!Client::getSingleton().GetSuppressed_CharacterCreation()) {
+      if (guid == STASH || guid == SHAREDSTASH) {
+        // Delete the stash the server sent
+        character->position.x = 1000;
+        character->position.y = 1000;
+        character->position.z = 1000;
+      }
     // True, attempt to suppress the character initialization
-    if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
+    } else if (Client::getSingleton().GetSuppressed_CharacterCreation()) {
       log("Client Character Initialize");
       
       // Hacky character checks for specific characters and whether we're in town or not
@@ -575,8 +583,6 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
         // Remove the stash or shared stash if we're not in the town
         if (wcscmp(level->levelName.c_str(), L"TOWN")) {
           character->destroy = true;
-        } else {
-          // Do nothing, let the Stashes load
         }
       }
       else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
@@ -2097,7 +2103,7 @@ void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s
   }
 
   // Suppress level changes
-  calloriginal = false;
+  //calloriginal = false;
 }
 
 void TLMP::GameClient_ChangeLevelPost(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
