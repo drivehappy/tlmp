@@ -1852,7 +1852,7 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
   level->DumpTriggerUnits();
 
   u32 triggerSize = (u32)msgTriggerUnitSync->triggerunits().size();
-  //log(L"  TriggerUnit Size: %i", triggerSize);
+  log(L"  TriggerUnit Size: %i", triggerSize);
   for (u32 i = 0; i < triggerSize; i++) {
     NetworkMessages::TriggerUnit msgTriggerUnit = msgTriggerUnitSync->triggerunits().Get(i);
     NetworkMessages::Position *msgPosition = msgTriggerUnit.mutable_triggerposition();
@@ -1874,8 +1874,8 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
     while (itr != NULL) {
       CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;  
 
+      log(L"  TriggerUnit: %p", triggerUnit);
       if (triggerUnit) {
-        /*
         logColor(B_GREEN, L"  My TriggerUnit: %p %s (%f, %f, %f)  with Server: (%f, %f, %f)",
           triggerUnit,
           triggerUnit->nameReal.c_str(),
@@ -1885,11 +1885,11 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
           serverTriggerPosition.x,
           serverTriggerPosition.y,
           serverTriggerPosition.z);
-          */
 
-        if (triggerUnit->position.x == serverTriggerPosition.x &&
-            triggerUnit->position.y == serverTriggerPosition.y &&
-            triggerUnit->position.z == serverTriggerPosition.z)
+        Ogre::Real dist = triggerUnit->position.squaredDistance(serverTriggerPosition);
+        log(L"dist: %f", dist);
+
+        if (dist < 5)
         {
           //logColor(B_GREEN, L"Syncing triggerUnits");
 

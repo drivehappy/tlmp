@@ -2362,7 +2362,7 @@ void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 
 void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting");
+  log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting: %p", equipmentRef);
 
   if (equipmentRef->pCEquipment) {
     equipmentRef->pCEquipment = NULL;
@@ -2452,7 +2452,7 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
   // This will sometimes cause a crash on the client... are we not adding effects properly to items?
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     if (!Client::getSingleton().GetAllow_AddEffect()) {
-      log(L"Suppressing Effect_Effect");
+      log(L"Suppressing Effect_Effect: %p %p", effect, other);
       calloriginal = false;
       return;
     }
@@ -2611,9 +2611,9 @@ void TLMP::Level_Level_CharacterKilledCharacterPost(CLevel* level, CCharacter* c
 
 void TLMP::Character_KilledPre(CCharacter* charKilled, CCharacter* charKillingBlow, Ogre::Vector3* direction, float unk0, u32 unk1, bool& calloriginal)
 {
-  log(L"Character KilledPre");
+  log(L"Character KilledPre: direction: %p", direction);
 
-  if (charKillingBlow) {
+  if (charKillingBlow && direction) {
     log(L"  Character KilledPre: %s   %s, %f %f %f  %f %x",
       charKilled->characterName.c_str(), charKillingBlow->characterName.c_str(), direction->x, direction->y, direction->z, unk0, unk1);
   }
@@ -2623,12 +2623,14 @@ void TLMP::Character_KilledPre(CCharacter* charKilled, CCharacter* charKillingBl
 
 void TLMP::Character_KilledPost(CCharacter* charKilled, CCharacter* charKillingBlow, Ogre::Vector3* direction, float unk0, u32 unk1, bool& calloriginal)
 {
-  if (charKillingBlow) {
+  log(L"Character KilledPost");
+
+  if (charKillingBlow && direction) {
     log(L"  Character KilledPost: %s   %s, %f %f %f  %f %x",
       charKilled->characterName.c_str(), charKillingBlow->characterName.c_str(), direction->x, direction->y, direction->z, unk0, unk1);
   }
 
-  log(L"Character KilledPost");
+  log(L"Character KilledPost2");
 }
 
 void TLMP::Effect_EffectManagerCreateEffectPre(CEffect* retval, CEffectManager* effectManager)
