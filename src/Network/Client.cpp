@@ -803,25 +803,7 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 current, Vector3 d
   CCharacter *character = (CCharacter *)entity->getInternalObject();
 
   if (character) {
-    // If the current positioning is off, fix it - don't adjust our own character though
-    const int ALLOWED_SQUARED_ERROR = 1;
-    vector<CCharacter*>::iterator itr;
-    vector<CCharacter*> *ignoredCharacters = gameClient->pCPlayer->GetMinions();
-    ignoredCharacters->push_back(gameClient->pCPlayer);
-    bool bFound = false;
-
-    for (itr = ignoredCharacters->begin(); itr != ignoredCharacters->end(); itr++) {
-      if (character == (*itr)) {
-        bFound = true;
-        break;
-      }
-    }
-
-    if (!bFound) {
-      if ((character->position - current).squaredLength() > 10) {
-        character->position = current;
-      }
-    }
+    HelperCharacterPositioning(character, current);
 
     // Lock the Client from sending a network message back out when setting the Character Destination
     Client::getSingleton().SetSuppressed_SetDestination(true);
@@ -916,6 +898,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
       monster->SetAlignment(alignment);
       level->CharacterInitialize(monster, &posCharacter, 0);
       monster->healthMax = health;
+      monster->healthMax4 = health;
       monster->manaMax = mana;
       monster->baseStrength = strength;
       monster->baseDexterity = dexterity;
@@ -1596,11 +1579,19 @@ void Client::HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth* msgChara
   float amount = msgCharacterUpdateHealth->amount();
 
   NetworkEntity *entity = searchCharacterByCommonID(characterId);
+  
+  NetworkMessages::Position *msgCurrent = msgCharacterUpdateHealth->mutable_position();
+  Vector3 currentPosition;
+  currentPosition.x = msgCurrent->x();
+  currentPosition.y = msgCurrent->y();
+  currentPosition.z = msgCurrent->z();
 
   if (entity) {
     CCharacter* character = (CCharacter*)entity->getInternalObject();
 
     if (character) {
+      HelperCharacterPositioning(character, currentPosition);
+
       SetAllow_HealthUpdate(true);
       character->UpdateHealth(amount);
       SetAllow_HealthUpdate(false);
@@ -1675,6 +1666,8 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
+  log("  Handling breakable 1: %p %p", entity, netCharacter);
+
   if (entity) {
     CBreakable *breakable = (CBreakable*)entity->getInternalObject();
     CPlayer *character = NULL;
@@ -1685,6 +1678,7 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
     }
 
     if (breakable) {
+      log("  Handling breakable 2: %p %p", breakable, character);
       SetSuppressed_SendBreakableTriggered(true);
       breakable->Break(character);
       SetSuppressed_SendBreakableTriggered(false);
@@ -1839,7 +1833,8 @@ void Client::HandleCurrentLevel(NetworkMessages::CurrentLevel *msgCurrentLevel)
   s32 absoluteLevel = msgCurrentLevel->absolutelevel();
 
   SetAllow_ChangeLevel(true);
-  gameClient->ChangeLevel(dungeonSection, relativeLevel, absoluteLevel, 0, L"", 0);
+  //gameClient->ChangeLevel(dungeonSection, relativeLevel, absoluteLevel, 0, L"", 0);
+  // TODO Show Client Error
   SetAllow_ChangeLevel(false);
 }
 
@@ -1889,7 +1884,7 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
         Ogre::Real dist = triggerUnit->position.squaredDistance(serverTriggerPosition);
         log(L"dist: %f", dist);
 
-        if (dist < 5)
+        if (dist < 0.01f)
         {
           //logColor(B_GREEN, L"Syncing triggerUnits");
 
@@ -2061,4 +2056,28 @@ void Client::HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *msgPlaye
   SetAllow_WeaponSwap(true);
   character->WeaponSwap();
   SetAllow_WeaponSwap(false);
+}
+
+void Client::HelperCharacterPositioning(CCharacter* character, const Vector3& position)
+{
+  // If the current positioning is off, fix it - don't adjust our own character though
+  const int ALLOWED_SQUARED_ERROR = 5;
+  vector<CCharacter*>::iterator itr;
+  vector<CCharacter*> *ignoredCharacters = gameClient->pCPlayer->GetMinions();
+  ignoredCharacters->push_back(gameClient->pCPlayer);
+  bool bFound = false;
+
+  for (itr = ignoredCharacters->begin(); itr != ignoredCharacters->end(); itr++) {
+    if (character == (*itr)) {
+      bFound = true;
+      break;
+    }
+  }
+
+  if (!bFound) {
+    if ((character->position - position).squaredLength() > ALLOWED_SQUARED_ERROR) {
+      // Turn off for now
+      //character->position = position;
+    }
+  }
 }

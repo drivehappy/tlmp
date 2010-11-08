@@ -180,6 +180,7 @@ namespace TLMP {
       void HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
+      void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
 
       void PushEquipment();
 
