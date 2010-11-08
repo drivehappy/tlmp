@@ -58,6 +58,7 @@ namespace TLMP
   // Effect event, debugging client, it crashes on this function
   void Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal);
   void Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal);
+  void Effect_Something0Pre(CEffect* effect, u32 unk0, bool &calloriginal);
 
   // Pre Event for Monster AI and Idle
   void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);

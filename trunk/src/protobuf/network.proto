@@ -185,6 +185,7 @@ message ChangeLevel {
 message CharacterUpdateHealth {
   required int32    characterId = 1;
   required float    amount = 2;
+  required Position position = 3;
 }
 
 message CharacterDestroy {

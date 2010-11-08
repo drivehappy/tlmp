@@ -578,7 +578,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       msgPlayerPosition->set_z(character->position.z);
 
       msgNewCharacter.set_id((*itr)->getCommonId());
-      msgNewCharacter.set_health(character->healthMax);
+      //msgNewCharacter.set_health(character->healthMax);
+      msgNewCharacter.set_health(character->healthMax4);
       msgNewCharacter.set_mana(character->manaMax);
       msgNewCharacter.set_level(character->level);
 

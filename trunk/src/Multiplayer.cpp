@@ -26,6 +26,7 @@ void TLMP::SetupNetwork()
   CBaseUnit::RegisterEvent_BaseUnit_AddSkill(BaseUnit_AddSkillPre, BaseUnit_AddSkillPost);
 
   CEffect::RegisterEvent_Effect_Effect_Something(Effect_EffectSomethingPre, Effect_EffectSomethingPost);
+  CEffect::RegisterEvent_Effect_Something0(Effect_Something0Pre, NULL);
 
   CEffectManager::RegisterEvent_EffectManagerCreateEffect(Effect_EffectManagerCreateEffectPre, Effect_EffectManagerCreateEffectPost);
   CEffectManager::RegisterEvent_EffectManager_AddEffectToEquipment(EffectManager_AddEffectToEquipmentPre, EffectManager_AddEffectToEquipmentPost);
@@ -557,6 +558,8 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
   u64 guid = character->GUID;
 
+  logColor(B_GREEN, L"Character Health: %p %f %i %i %i %f", character, character->healthCurrent, character->healthMax, character->healthMax2, character->healthMax3, character->healthMax4);
+
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
     log(L"Client: Level::CharInit: Level = %p Character = %p", level, character);
     multiplayerLogger.WriteLine(Info, L"Client: Level::CharInit: Level = %p Character = %p", level, character);
@@ -1067,6 +1070,8 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     }
     else if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
       calloriginal = false;
+      item->position.x = 1000;
+      item->position.z = 1000;
 
       //logColor(B_GREEN, L"Client: AddedItem: %p %x %s", item, item->type__, item->nameReal.c_str());
     }
@@ -2325,7 +2330,8 @@ void TLMP::Character_StrikePre(CCharacter* character, CLevel* level, CCharacter*
 
 void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
 {
-  //log(L"PlayerResurrectPre (%s)", character->characterName.c_str());
+  log(L"PlayerResurrectPre (%p)", character);
+  log(L"   Name: (%s)", character->characterName.c_str());
 
   NetworkEntity *entity = searchCharacterByInternalObject(character);
 
@@ -2341,6 +2347,10 @@ void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
       if (entity) {
         Client::getSingleton().SendMessage<NetworkMessages::CharacterResurrect>(C_REQUEST_CHARACTER_RESURRECT, &msgCharacterResurrect);
       }
+    } else {
+      if (character) {
+        character->healthCurrent = character->healthMax;
+      }
     }
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
     if (entity) {
@@ -2351,7 +2361,7 @@ void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
 
 void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  //log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
+  log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
 
   if (equipmentRef->pCEquipment) {
     log(L"  Equipment: %p", equipmentRef->pCEquipment);
@@ -2363,6 +2373,11 @@ void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
 {
   log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting: %p", equipmentRef);
+  log(L"  GameClient1: %p", gameClient);
+  log(L"  GameUI: %p", gameClient->pCGameUI);
+  //log(L"  ResourceManager: %p", gameClient->pCGameUI->resourceManager);
+  log(L"  GameClient2: %p", gameClient);
+  log(L"  Player: %p", gameClient->pCPlayer);
 
   if (equipmentRef->pCEquipment) {
     equipmentRef->pCEquipment = NULL;
@@ -2791,6 +2806,7 @@ void TLMP::Player_LevelUpPre(CPlayer* player, bool& calloriginal)
   log("Player leveled up Pre %p", player);
 
   if (gameClient->pCPlayer != player) {
+    log("  Player leveled up not my character");
     calloriginal = false;
   }
 }
@@ -2855,6 +2871,11 @@ void TLMP::Player_SwapWeaponsPre(CCharacter* player, bool& calloriginal)
   }
 
   log("Player swapping weapons: %p", player);
+}
+
+void TLMP::Effect_Something0Pre(CEffect* effect, u32 unk0, bool &calloriginal)
+{
+  log("Effect_Something0: %p %i", effect, unk0);
 }
 
 // Server Events
