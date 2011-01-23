@@ -113,6 +113,9 @@ namespace TLMP {
       inline bool GetAllow_WeaponSwap()                     { return m_bAllow_WeaponSwap; }
       inline void SetAllow_WeaponSwap(bool value)           { m_bAllow_WeaponSwap = value; }
 
+      inline bool GetAllow_SetSkillPoints()                 { return m_bAllow_SetSkillPoints; }
+      inline void SetAllow_SetSkillPoints(bool value)       { m_bAllow_SetSkillPoints = value; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -178,6 +181,7 @@ namespace TLMP {
       void HandleRandomSeed(NetworkMessages::RandomSeed *);
       void HandleCharacterOrientation(NetworkMessages::CharacterOrientation *);
       void HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *);
+      void HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
       void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
@@ -228,6 +232,7 @@ namespace TLMP {
       bool m_bAllow_RandomSeed;
       bool m_bAllow_UpdateOrientation;
       bool m_bAllow_WeaponSwap;
+      bool m_bAllow_SetSkillPoints;
     };
 
   };

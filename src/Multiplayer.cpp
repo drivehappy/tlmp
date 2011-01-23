@@ -84,7 +84,8 @@ void TLMP::SetupNetwork()
   CCharacter::RegisterEvent_Character_SetOrientation(Character_SetOrientationPre, NULL);
   CCharacter::RegisterEvent_Character_UpdateOrientation(Character_UpdateOrientationPre, NULL);
   CCharacter::RegisterEvent_CharacterSetupSkills(Character_SetupSkillsPre, NULL);
-  CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, NULL);
+  CCharacter::RegisterEvent_CharacterAddSkill(Character_AddSkillPre, Character_AddSkillPost);
+  CCharacter::RegisterEvent_CharacterAddSkill2(Character_AddSkill2Pre, NULL);
   CCharacter::RegisterEvent_CharacterUpdateHealth(Character_UpdateHealthPre, NULL);
   CCharacter::RegisterEvent_CharacterStrike(Character_StrikePre, NULL);
   CCharacter::RegisterEvent_PlayerResurrect(Character_ResurrectPre, NULL);
@@ -107,6 +108,7 @@ void TLMP::SetupNetwork()
   _GLOBAL::RegisterEvent_SetSeedValue2(Global_SetSeedValue2Post, Global_SetSeedValue2Post);
 
   CSkillManager::RegisterEvent_SkillManagerAddSkill(SkillManager_AddSkillPre, NULL);
+  CSkillManager::RegisterEvent_SkillManagerSetSkillLevel(SkillManager_SetSkillLevelPre, SkillManager_SetSkillLevelPost);
 
   CInventory::RegisterEvent_InventoryAddEquipment(Inventory_AddEquipmentPre, Inventory_AddEquipmentPost);
   CInventory::RegisterEvent_InventoryRemoveEquipment(Inventory_RemoveEquipmentPre, Inventory_RemoveEquipmentPost);
@@ -1318,7 +1320,7 @@ void TLMP::Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equi
 
 void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  //log(L"Character picking up Equipment Pre: %p", equipment);
+  log(L"Character picking up Equipment Pre: %p", equipment);
 
   multiplayerLogger.WriteLine(Info, L" Character::PickupEquipment(Character: %p) (%p) (Level: %p)",
     character, equipment, level);
@@ -1427,7 +1429,7 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 
 void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equipment, CLevel* level, bool & calloriginal)
 {
-  //log(L" Character picking up Equipment Post");
+  log(L" Character picking up Equipment Post");
 
   //log(L"Dumping Level Items...");
   //gameClient->pCLevel->DumpItems();
@@ -1495,18 +1497,79 @@ void TLMP::SkillManager_AddSkillPre(CSkillManager* skillManager, CSkill* skill, 
   //skillManager->dumpSkillManager();
 }
 
+void TLMP::SkillManager_SetSkillLevelPre(CSkillManager* skillManager, CSkill* skill, u32 skillLevel, bool& calloriginal)
+{
+  log(L"SkillManager (%p) SetSkillLevelPre: %p  skillLevel: %i", skillManager, skill, skillLevel);
+  log(L"  Character: %016I64X", skillManager->pCBaseUnit->GUID);
+
+  multiplayerLogger.WriteLine(Info, L"SkillManager (%p) SetSkillLevelPre: %p  skillLevel: %i", 
+    skillManager, skill, skillLevel);
+  multiplayerLogger.WriteLine(Info, L"  Character: %016I64X", skillManager->pCBaseUnit->GUID);
+
+  if (skill->skillPropertyList[0]) {
+    log(L"  Name: %s", skill->skillPropertyList[0]->skillName.c_str());
+    log(L"  Level: %i", skill->skillLevel);
+  }
+
+  //
+  CCharacter* character = (CCharacter*)skillManager->pCBaseUnit;
+  NetworkEntity *netPlayer = searchCharacterByInternalObject((PVOID)character);
+
+  if (!netPlayer) {
+    log(L"Error: Could not find networkID for character: %p", character);
+    return;
+  }
+
+  // Push off the network message
+  NetworkMessages::CharacterSetSkillPoints msgCharacterSetSkillPoints;
+  msgCharacterSetSkillPoints.set_characterid(netPlayer->getCommonId());
+  msgCharacterSetSkillPoints.set_skillguid(skill->GUID);
+  msgCharacterSetSkillPoints.set_skilllevel(skillLevel);
+
+  // If the client is requesting a pickup, request the server first
+  // The server will respond with a pickup message
+  if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+    if (!Client::getSingleton().GetAllow_SetSkillPoints()) {
+      Client::getSingleton().SendMessage<NetworkMessages::CharacterSetSkillPoints>(C_REQUEST_SKILLLEVEL, &msgCharacterSetSkillPoints);
+      calloriginal = false;
+    }
+  }
+  // Send the message off to the clients
+  else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+    Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterSetSkillPoints>(S_PUSH_SKILLLEVEL, &msgCharacterSetSkillPoints);
+  }
+}
+
+void TLMP::SkillManager_SetSkillLevelPost(CSkillManager* skillManager, CSkill* skill, u32 skillLevel, bool& calloriginal)
+{
+  log(L"SkillManager (%p) SetSkillLevelPost: %p  skillLevel: %i", skillManager, skill, skillLevel);
+  log(L"  Level: %i", skill->skillLevel);
+}
+
 void TLMP::Character_SetupSkillsPre(CCharacter* character, CDataGroup* dataGroup, u32 unk0, bool& calloriginal)
 {
 }
 
 void TLMP::Character_AddSkillPre(CCharacter* character, wstring* skillName, u32 unk1, bool& calloriginal)
 {
-  /*
-  log(L"Character::AddSkill: %p", character);
-  log(L"   %s", character->characterName.c_str());
+  log(L"Character::AddSkillPre: %p", character);
   log(L"   %s", skillName->c_str());
-  log(L"   %x", unk1);
-  */
+  log(L"   Character Available Skill Points: %i", character->GetAvailableSkillPoints());
+
+  // Appears to be a flag if the character is valid
+  if (unk1) {
+    log(L"   %s", character->characterName.c_str());
+  }
+}
+
+void TLMP::Character_AddSkillPost(CCharacter* character, wstring* skillName, u32 unk1, bool& calloriginal)
+{
+  log(L"Character::AddSkillPost: %p", character);
+}
+
+void TLMP::Character_AddSkill2Pre(CCharacter* character, wstring skillName, bool& calloriginal)
+{
+  log(L"Character::AddSkill2: %s  %s", character->characterName.c_str(), skillName.c_str());
 }
 
 void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & calloriginal)
@@ -1514,10 +1577,13 @@ void TLMP::Character_UseSkillPre(CCharacter* character, u64 skillGUID, bool & ca
   if (skillGUID != 0xFFFFFFFFFFFFFFFF) {
     //log(L"Test: Character Mana max: %i", character->manaMax);
 
+    log(L"Character (%s) used skill pre: (%016I64X)", character->characterName.c_str(), skillGUID);
+    log(L"  SkillManager: %p (Offset: %x)", character->pCSkillManager, ((u32)&character->pCSkillManager - (u32)character));
+
     multiplayerLogger.WriteLine(Info, L"Character (%s) used skill pre: (%016I64X)",
       character->characterName.c_str(), skillGUID);
-    //log(L"Character (%s) used skill pre: (%016I64X)",
-    //  character->characterName.c_str(), skillGUID);
+    multiplayerLogger.WriteLine(Info, L"  SkillManager: %p (Offset: %x)",
+      character->pCSkillManager, ((u32)&character->pCSkillManager - (u32)character));
 
     // Testing for Skill Graphic Effect
     if (!character->usingSkill) {
@@ -2067,7 +2133,7 @@ void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, f
 
 void TLMP::GameClient_ChangeLevelPre(CGameClient* client, wstring dungeonName, s32 level, u32 unk0, u32 unk1, wstring str2, u32 unk2, bool& calloriginal)
 {
-  //logColor(B_RED, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
+  logColor(B_RED, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
   multiplayerLogger.WriteLine(Info, L"GameClient::ChangeLevel (%s %i %i %i %s %i)", dungeonName.c_str(), level, unk0, unk1, str2.c_str(), unk2);
 
   // Remove any other player characters and equipment or else we'll crash
@@ -2683,6 +2749,7 @@ void TLMP::BaseUnit_AddSkillPre(CBaseUnit* baseUnit, wstring* skillName, u32 unk
   }
 
   log(L"BaseUnit AddSkillPre: %p %s %x", baseUnit, skillName->c_str(), unk0);
+  log(L"  SkillManager: %p", baseUnit->pCSkillManager);
 
   
   // Get the character
