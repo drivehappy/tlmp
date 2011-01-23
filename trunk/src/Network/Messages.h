@@ -147,6 +147,9 @@ namespace TLMP {
 
       C_REQUEST_WEAPONSWAP,         // Client requests a weapon swap
       S_PUSH_WEAPONSWAP,            // Push weapon swap out
+
+      C_REQUEST_SKILLLEVEL,         // Client requests a skill level change to a skill
+      S_PUSH_SKILLLEVEL,            // Push skill level change out
     };
 
     static const char* MessageString[] = {
@@ -269,6 +272,9 @@ namespace TLMP {
 
       "C_REQUEST_WEAPONSWAP",
       "S_PUSH_WEAPONSWAP",
+
+      "C_REQUEST_SKILLLEVEL",
+      "S_PUSH_SKILLLEVEL",
     };
 
   };

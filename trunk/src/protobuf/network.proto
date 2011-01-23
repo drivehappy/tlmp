@@ -283,3 +283,9 @@ message CharacterOrientation {
 message PlayerSwapWeapons {
   required int32    characterId = 1;
 }
+
+message CharacterSetSkillPoints {
+  required int32    characterId = 1;
+  required int64    skillGUID = 2;
+  required int32    skillLevel = 3;
+}

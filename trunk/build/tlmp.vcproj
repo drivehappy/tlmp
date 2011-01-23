@@ -76,6 +76,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="1"
 				EntryPointSymbol=""
 				TargetMachine="1"
 			/>
@@ -99,7 +100,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="..\\ExternalTools\\upx\\upx.exe ..\\out\\winmm.dll&#x0D;&#x0A;copy ..\\out\\winmm.dll &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\*.layout&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\*.cfg&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI\\ogretray&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\ogretray\\*&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI\\ogretray&quot;&#x0D;&#x0A;"
+				CommandLine="copy ..\\out\\winmm.dll &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight&quot;&#x0D;&#x0A;copy ..\\out\\winmm.pdb &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\*.layout&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\*.cfg&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI&quot;&#x0D;&#x0A;mkdir &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI\\ogretray&quot;&#x0D;&#x0A;copy &quot;$(OutDir)\\..\\src\\ui_layouts\\ogretray\\*&quot; &quot;%ProgramFiles%\\Steam\\steamapps\\common\\torchlight\\TLAPI\\ogretray&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

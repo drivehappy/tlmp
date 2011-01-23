@@ -432,6 +432,14 @@ void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakN
     }
     break;
 
+  case C_REQUEST_SKILLLEVEL:
+    {
+      NetworkMessages::CharacterSetSkillPoints *msgCharacterSetSkillPoints = ParseMessage<NetworkMessages::CharacterSetSkillPoints>(m_pBitStream);
+
+      HandleCharacterSetSkillPoints(msgCharacterSetSkillPoints);
+    }
+    break;
+
   }
 }
 
@@ -1595,6 +1603,7 @@ void Server::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEqui
 
     if (equipment) {
       equipment->identified = 1;
+      equipment->UpdateTooltip();
 
       Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentIdentify>(S_PUSH_EQUIPMENT_IDENTIFY, msgEquipmentIdentify);
     }
@@ -1698,4 +1707,32 @@ void Server::HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *msgPlaye
 
   CCharacter *character = (CCharacter*)entity->getInternalObject();
   character->WeaponSwap();
+}
+
+void Server::HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *msgCharacterSetSkillPoints)
+{
+  u32 characterId = msgCharacterSetSkillPoints->characterid();
+  u64 skillGUID = msgCharacterSetSkillPoints->skillguid();
+  u32 skillLevel = msgCharacterSetSkillPoints->skilllevel();
+
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+  if (!entity) {
+    log("Error: Could not find character for network ID: %x", characterId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entity->getInternalObject();
+  CSkillManager *skillManager = character->pCSkillManager;
+  if (!skillManager) {
+    log("Error: SkillManager for character is null");
+    return;
+  }
+
+  CSkill *skill = skillManager->getSkillFromGUID(skillGUID);
+  if (!skill) {
+    log("Error: Skill with GUID: %016I64X could not be found", skillGUID);
+    return;
+  }
+
+  character->pCSkillManager->setSkillLevel(skill, skillLevel);
 }

@@ -86,6 +86,8 @@ namespace TLMP
   void Character_UpdateOrientationPre(CCharacter*, float, float, bool&);
   void Character_SetupSkillsPre(CCharacter*, CDataGroup*, u32, bool&);
   void Character_AddSkillPre(CCharacter*, wstring*, u32, bool&);
+  void Character_AddSkillPost(CCharacter*, wstring*, u32, bool&);
+  void Character_AddSkill2Pre(CCharacter*, wstring, bool&);
   void Character_UpdateHealthPre(CCharacter*, float, bool&);
   void Character_StrikePre(CCharacter*, CLevel*, CCharacter*, PVOID, u32, float, float, u32, bool&);
   void Character_ResurrectPre(CCharacter*, bool&);
@@ -118,6 +120,8 @@ namespace TLMP
 
   // Skill Manager
   void SkillManager_AddSkillPre(CSkillManager*, CSkill*, bool, u32, bool&);
+  void SkillManager_SetSkillLevelPre(CSkillManager*, CSkill*, u32, bool&);
+  void SkillManager_SetSkillLevelPost(CSkillManager*, CSkill*, u32, bool&);
 
   // Post Event for equipment initialization
   void Equipment_DtorPre(CEquipment*);

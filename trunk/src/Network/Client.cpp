@@ -53,6 +53,7 @@ void Client::Reset()
   m_bAllow_RandomSeed = false;
   m_bAllow_UpdateOrientation = false;
   m_bAllow_WeaponSwap = false;
+  m_bAllow_SetSkillPoints = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -629,6 +630,14 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons = ParseMessage<NetworkMessages::PlayerSwapWeapons>(m_pBitStream);
 
       HandlePlayerWeaponSwap(msgPlayerSwapWeapons);
+    }
+    break;
+
+  case S_PUSH_SKILLLEVEL:
+    {
+      NetworkMessages::CharacterSetSkillPoints *msgCharacterSetSkillPoints = ParseMessage<NetworkMessages::CharacterSetSkillPoints>(m_pBitStream);
+
+      HandleCharacterSetSkillPoints(msgCharacterSetSkillPoints);
     }
     break;
 
@@ -1820,6 +1829,7 @@ void Client::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEqui
 
     if (equipment) {
       equipment->identified = 1;
+      equipment->UpdateTooltip();
     }
   } else {
     //log(L"Error: Could not find equipment of ID: %x", equipmentId);
@@ -2056,6 +2066,36 @@ void Client::HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *msgPlaye
   SetAllow_WeaponSwap(true);
   character->WeaponSwap();
   SetAllow_WeaponSwap(false);
+}
+
+void Client::HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *msgCharacterSetSkillPoints)
+{
+  u32 characterId = msgCharacterSetSkillPoints->characterid();
+  u64 skillGUID = msgCharacterSetSkillPoints->skillguid();
+  u32 skillLevel = msgCharacterSetSkillPoints->skilllevel();
+
+  NetworkEntity *entity = searchCharacterByCommonID(characterId);
+  if (!entity) {
+    log("Error: Could not find character for network ID: %x", characterId);
+    return;
+  }
+
+  CCharacter *character = (CCharacter*)entity->getInternalObject();
+  CSkillManager *skillManager = character->pCSkillManager;
+  if (!skillManager) {
+    log("Error: SkillManager for character is null");
+    return;
+  }
+
+  CSkill *skill = skillManager->getSkillFromGUID(skillGUID);
+  if (!skill) {
+    log("Error: Skill with GUID: %016I64X could not be found", skillGUID);
+    return;
+  }
+
+  SetAllow_SetSkillPoints(true);
+  character->pCSkillManager->setSkillLevel(skill, skillLevel);
+  SetAllow_SetSkillPoints(false);
 }
 
 void Client::HelperCharacterPositioning(CCharacter* character, const Vector3& position)
