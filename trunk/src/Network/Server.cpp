@@ -1643,9 +1643,9 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
     NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
 
     if (entity) {
-      logColor(B_RED, L"Server: %s", triggerUnit->nameReal.c_str());
-      //string sTriggerName(triggerUnit->nameReal.begin(), triggerUnit->nameReal.end());
-      //sTriggerName.assign(triggerUnit->nameReal.begin(), triggerUnit->nameReal.end());
+      logColor(B_RED, L"Server: %s (ID: %x)  (%f, %f, %f)",
+        triggerUnit->nameReal.c_str(), entity->getCommonId(),
+        triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
 
       NetworkMessages::TriggerUnit *msgTriggerUnit = msgTriggerUnitSync.add_triggerunits();
       NetworkMessages::Position *msgPosition = msgTriggerUnit->mutable_triggerposition();

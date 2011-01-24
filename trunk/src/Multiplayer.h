@@ -123,6 +123,10 @@ namespace TLMP
   void SkillManager_SetSkillLevelPre(CSkillManager*, CSkill*, u32, bool&);
   void SkillManager_SetSkillLevelPost(CSkillManager*, CSkill*, u32, bool&);
 
+  // Quest Manager
+  void QuestManager_SetQuestCompletedPre(CQuestManager*, CQuest*, CCharacter*, u32, bool&);
+  void QuestManager_SetQuestCompletedPost(CQuestManager*, CQuest*, CCharacter*, u32, bool&);
+
   // Post Event for equipment initialization
   void Equipment_DtorPre(CEquipment*);
   void Equipment_DtorPost(CEquipment*);

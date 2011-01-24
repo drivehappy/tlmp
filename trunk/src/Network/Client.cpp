@@ -1857,7 +1857,24 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
   level->DumpTriggerUnits();
 
   u32 triggerSize = (u32)msgTriggerUnitSync->triggerunits().size();
-  log(L"  TriggerUnit Size: %i", triggerSize);
+  log(L"  TriggerUnitList Size: %i", triggerSize);
+  
+  // List our trigger Units
+  LinkedListNode* itr = *level->ppCTriggerUnits;
+  while (itr != NULL) {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+
+    logColor(B_GREEN, L"  TriggerUnit: %p %s (%f, %f, %f)",
+              triggerUnit,
+              triggerUnit->nameReal.c_str(),
+              triggerUnit->position.x,
+              triggerUnit->position.y,
+              triggerUnit->position.z);
+
+    itr = itr->pNext;
+  }
+
+
   for (u32 i = 0; i < triggerSize; i++) {
     NetworkMessages::TriggerUnit msgTriggerUnit = msgTriggerUnitSync->triggerunits().Get(i);
     NetworkMessages::Position *msgPosition = msgTriggerUnit.mutable_triggerposition();
@@ -1874,39 +1891,43 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
     //  serverTriggerPosition.y,
     //  serverTriggerPosition.z);
 
-
+    bool found = false;
     LinkedListNode* itr = *level->ppCTriggerUnits;
     while (itr != NULL) {
       CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;  
 
-      log(L"  TriggerUnit: %p", triggerUnit);
       if (triggerUnit) {
-        logColor(B_GREEN, L"  My TriggerUnit: %p %s (%f, %f, %f)  with Server: (%f, %f, %f)",
-          triggerUnit,
-          triggerUnit->nameReal.c_str(),
-          triggerUnit->position.x,
-          triggerUnit->position.y,
-          triggerUnit->position.z,
-          serverTriggerPosition.x,
-          serverTriggerPosition.y,
-          serverTriggerPosition.z);
-
         Ogre::Real dist = triggerUnit->position.squaredDistance(serverTriggerPosition);
-        log(L"dist: %f", dist);
 
         if (dist < 0.01f)
         {
-          //logColor(B_GREEN, L"Syncing triggerUnits");
+          logColor(B_GREEN, L"Syncing triggerUnit of ID %x to: %s", triggerId, triggerUnit->nameReal.c_str());
+          log(L"  Distance: %f", dist);
+          logColor(B_GREEN, L"  My TriggerUnit: %p %s (%f, %f, %f)  with Server: (%f, %f, %f)",
+              triggerUnit,
+              triggerUnit->nameReal.c_str(),
+              triggerUnit->position.x,
+              triggerUnit->position.y,
+              triggerUnit->position.z,
+              serverTriggerPosition.x,
+              serverTriggerPosition.y,
+              serverTriggerPosition.z);
 
           addItem(triggerUnit, triggerId);
+          found = true;
 
           break;
         }
       } else {
         //log(L"TriggerUnit is bad: %p", triggerUnit);
       }
-
       itr = itr->pNext;
+    }
+
+    // Report unknown trigger unit
+    if (!found) {
+      log(L"Error: Could not sync trigger unit ID: %x (%f, %f, %f)",
+        triggerId, serverTriggerPosition.x, serverTriggerPosition.y, serverTriggerPosition.z);
     }
   }
 }
