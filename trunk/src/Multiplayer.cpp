@@ -2369,27 +2369,31 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
   NetworkEntity *entity = searchItemByInternalObject(breakable);
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
   if (entity) {
-    NetworkMessages::BreakableTriggered msgBreakableTriggered;
-    msgBreakableTriggered.set_itemid(entity->getCommonId());
-    
-    // Character can be null if skill was used to kill it
-    if (player)
-      msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
-    else
-      msgBreakableTriggered.set_characterid(-1);
-
-
-    // Client
-    if (NetworkState::getSingleton().GetState() == CLIENT) {
-      if (!Client::getSingleton().GetSuppressed_SendBreakableTriggered()) {
-        calloriginal = false;
-        Client::getSingleton().SendMessage<NetworkMessages::BreakableTriggered>(C_REQUEST_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
+    if (netCharacter) {
+      NetworkMessages::BreakableTriggered msgBreakableTriggered;
+      msgBreakableTriggered.set_itemid(entity->getCommonId());
+      
+      // Character can be null if skill was used to kill it
+      if (player) {
+        msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
+      } else {
+        msgBreakableTriggered.set_characterid(-1);
       }
-    }
 
-    // Server
-    else if (NetworkState::getSingleton().GetState() == SERVER) {
-      Server::getSingleton().BroadcastMessage<NetworkMessages::BreakableTriggered>(S_PUSH_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
+      // Client
+      if (NetworkState::getSingleton().GetState() == CLIENT) {
+        if (!Client::getSingleton().GetSuppressed_SendBreakableTriggered()) {
+          calloriginal = false;
+          Client::getSingleton().SendMessage<NetworkMessages::BreakableTriggered>(C_REQUEST_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
+        }
+      }
+
+      // Server
+      else if (NetworkState::getSingleton().GetState() == SERVER) {
+        Server::getSingleton().BroadcastMessage<NetworkMessages::BreakableTriggered>(S_PUSH_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
+      }
+    } else {
+      log(L"Error: Could not find network character in network shared list");
     }
   } else {
     log(L"Error: Could not find breakable item in network shared list");
@@ -2584,7 +2588,6 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
   }
   */
 
-  /*
   log(L"EffectSomethingPre: %p %p", effect, other);
   effect->dumpEffect();
   other->dumpEffect();
@@ -2605,7 +2608,6 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
       log(L"    Name: %s", character->characterName.c_str());
     }
   }
-  */
 }
 
 void TLMP::Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal)
