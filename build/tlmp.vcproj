@@ -55,7 +55,7 @@
 				AssemblerOutput="4"
 				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -173,6 +173,7 @@
 						>
 						<FileConfiguration
 							Name="Release|Win32"
+							ExcludedFromBuild="true"
 							>
 							<Tool
 								Name="VCCustomBuildTool"
@@ -187,6 +188,7 @@
 						>
 						<FileConfiguration
 							Name="Release|Win32"
+							ExcludedFromBuild="true"
 							>
 							<Tool
 								Name="VCCustomBuildTool"

@@ -59,6 +59,11 @@ namespace TLMP
   void Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal);
   void Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal);
   void Effect_Something0Pre(CEffect* effect, u32 unk0, bool &calloriginal);
+  void Effect_Effect_ParamCtorPre(CEffect* effect, u32 unk0, bool unk1, float unk2, float unk3, float unk4, float unk5, bool unk6, bool& calloriginal);
+  void Effect_CtorPre(CEffect* effect);
+  void Effect_CtorPost(CEffect* effect);
+  void Effect_Character_Unk0Pre(CEffect* effect, CCharacter* character, bool unk);
+  void Effect_Character_Unk0Post(CEffect* effect, CCharacter* character, bool unk);
 
   // Pre Event for Monster AI and Idle
   void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);
@@ -110,6 +115,7 @@ namespace TLMP
   // Trigger Unit
   void TriggerUnit_TriggeredPre(CTriggerUnit*, CPlayer*, bool&);
   void TriggerUnit_CtorPost(CTriggerUnit*, CLayout*, bool&);
+  void TriggerUnit_Triggered2Pre(CTriggerUnit*, CCharacter*, bool&);
 
   // BaseUnit
   void BaseUnit_AddSkillPre(CBaseUnit*, wstring*, u32, bool&);

@@ -964,13 +964,20 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
 
   multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
     id, guid, stacksize, stacksizemax, socketcount);
-  //log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
-  //  id, guid, stacksize, stacksizemax, socketcount);
+  log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
+    id, guid, stacksize, stacksizemax, socketcount);
 
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
 
   if (resourceManager) {
+    log(L"ResourceManager::CreateEquipment Pre (%p, %016I64X)", resourceManager, guid);
+
+    Client::getSingleton().SetSuppressed_EquipmentCreation(false);
     CEquipment *equipment = resourceManager->CreateEquipment(guid, 1, 1, 0);
+    Client::getSingleton().SetSuppressed_EquipmentCreation(true);
+    
+    log(L"ResourceManager::CreateEquipment Post");
+
     equipment->socketCount = socketcount;
     equipment->stackSize = stacksize;
     equipment->stackSizeMax = stacksizemax;
@@ -991,10 +998,8 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
     equipment->requirements[4] = reqDefense;
        
     // Add to our BaseUnits list
-    //OutsideBaseUnits->push_back(equipment);
-
     multiplayerLogger.WriteLine(Info, L"Client: Adding gems to new equipment...");
-    //log(L"Client: Adding gems to new equipment...");
+    log(L"Client: Adding gems to new equipment...");
 
     // Add the gems
     for (u32 i = 0; i < gemCount; i++) {
@@ -1002,26 +1007,29 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
       CEquipment *gem = resourceManager->CreateEquipment(msgGem.guid(), 1, 1, 0);
       
       multiplayerLogger.WriteLine(Info, L"Client: Adding gem to shared network equipment: %i", msgGem.id());
-      //log(L"Client: Adding gem to shared network equipment: %i", msgGem.id());
+      log(L"Client: Adding gem to shared network equipment: %i", msgGem.id());
       NetworkEntity *newEntity = addEquipment(gem, msgGem.id());
 
       for (int j = 0; j < msgGem.enchants_size(); j++) {
         NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
+
+        SetAllow_AddEffect(true);
         gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value());
+        SetAllow_AddEffect(false);
       }
 
       equipment->gemList.push(gem);
     }
 
     multiplayerLogger.WriteLine(Info, L"Client: Adding enchants to new equipment... count = %i", enchantCount);
-    //log(L"Client: Adding enchants to new equipment... count = %i", enchantCount);
+    log(L"Client: Adding enchants to new equipment... count = %i", enchantCount);
 
     // Add the enchants
     for (u32 i = 0; i < enchantCount; i++) {
       NetworkMessages::EnchantType msgEnchantType = msgEquipment->enchants().Get(i);
 
       multiplayerLogger.WriteLine(Info, L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
-      //log(L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
+      log(L"Client: Enchant %i: Type: %x, SubType: %x, Value: %i", i, msgEnchantType.type(), msgEnchantType.subtype(), msgEnchantType.value());
 
       SetAllow_AddEffect(true);
       equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
@@ -1029,8 +1037,12 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
     }
 
     multiplayerLogger.WriteLine(Info, L"Client: Adding equipment to shared network equipment");
-    //log(L"Client: Adding equipment to shared network equipment");
+    log(L"Client: Adding equipment to shared network equipment");
+
     NetworkEntity *newEntity = addEquipment(equipment, id);
+    
+    multiplayerLogger.WriteLine(Info, L"Client: Adding equipment to shared network equipment.. Done");
+    log(L"Client: Adding equipment to shared network equipment.. Done");
   }
 }
 
@@ -1705,9 +1717,16 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   u32 itemId = msgTriggerUnitTrigger->itemid();
   u32 characterId = msgTriggerUnitTrigger->characterid();
 
+  NetworkMessages::Position msgPosition = msgTriggerUnitTrigger->position();
+  Vector3 position;
+  position.x = msgPosition.x();
+  position.y = msgPosition.y();
+  position.z = msgPosition.z();
+
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
+  /* Testing - Search by position instead of by ID
   if (entity) {
     if (netCharacter) {
       CTriggerUnit *trigger = (CTriggerUnit*)entity->getInternalObject();
@@ -1735,6 +1754,31 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
         //log(L"    Item: %x", (*itr)->getCommonId());
       }
     }
+  }
+  */
+
+  // Assume the server's trigger units are sync'd with ours
+  CLevel *level = gameClient->pCLevel;
+  level->DumpTriggerUnits();
+
+  // List our trigger Units
+  LinkedListNode* itr = *level->ppCTriggerUnits;
+  while (itr != NULL) {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+    CPlayer *character = NULL;
+    
+    if (netCharacter) {
+      character = (CPlayer*)netCharacter->getInternalObject();
+    }
+
+    if (triggerUnit->position.squaredDistance(position) < 0.1f) {
+      SetSuppressed_SendTriggerUnitTriggered(true);
+      triggerUnit->Trigger(character);
+      SetSuppressed_SendTriggerUnitTriggered(false);
+      break;
+    }
+
+    itr = itr->pNext;
   }
 }
 

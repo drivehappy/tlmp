@@ -489,8 +489,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
 
   // Check if the Client's current level is the same as ours
   if (!wcscmp(dungeonSection.c_str(), gameClient->pCDungeon->name0.c_str()) &&
-      relativeLevel == gameClient->level &&
-      absoluteLevel == gameClient->levelAbsolute)
+      relativeLevel == gameClient->level) //&&
+      //absoluteLevel == gameClient->levelAbsolute)
   {
     log(L"~~~ Server: Client is in the same level, supplying info...");
 
@@ -501,7 +501,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
 
     // Send the Sync-Up for Trigger Units (since the server doesn't push these out,
     //  the level is assumed to be generated the same (same seed value),
-    //  assuming they're created in the same order from the layout
+    //  assuming they are created in the same order from the layout
     Helper_SendTriggerUnitSync(clientAddress);
 
     // Send all of the existing equipment in the game to the client
@@ -538,25 +538,14 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
     }
     */
     
+    /*
     // Send all of the Equipment on the Ground in the game
     for (itr = ServerEquipmentOnGround->begin(); itr != ServerEquipmentOnGround->end(); itr++) {
       CEquipment *equipment = (CEquipment*)((*itr)->getInternalObject());
 
-      /*
-      // Check if we're a:
-      //  Breakable    - 29
-      //  Interactable - 32
-      //  ItemGold     - 34
-      // If so skip this
-      if (equipment->type__ == 0x1D ||
-          equipment->type__ == 0x22 ||
-          equipment->type__ == 0x20 ||
-          equipment->type__ == 0x28)  
-      {*/
-        Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
-      //}
+      Helper_SendGroundEquipmentToClient(clientAddress, equipment, (*itr));
     }
-
+    */
 
     // Send all of the existing characters in the game to the client
     for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
@@ -948,15 +937,18 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   msgEquipment->set_physical_damage_min(equipment->minimumPhysicalDamage);
   msgEquipment->set_physical_damage_max(equipment->maximumPhysicalDamage);
 
-  // Check if we're a:
-  //  Breakable    - 29
-  //  Interactable - 32
-  //  ItemGold     - 34
-  // If so skip this
-  if (equipment->type__ != 0x1D &&
-      equipment->type__ != 0x22 &&
-      equipment->type__ != 0x20 &&
-      equipment->type__ != 0x28)  
+  const u32 MAP_PORTAL = 0xAD;
+  const u32 OPENABLE = 0x28;
+  const u32 INTERACTABLE = 0x20;
+  const u32 GOLD = 0x22;
+  const u32 BREAKABLE = 0x1D;
+
+  // Skip if certain types
+  if (equipment->type__ != BREAKABLE &&
+      equipment->type__ != GOLD &&
+      equipment->type__ != INTERACTABLE &&
+      equipment->type__ != OPENABLE &&
+      equipment->type__ != MAP_PORTAL)  
   {
     string nameUnidentified(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
     nameUnidentified.assign(equipment->nameUnidentified.begin(), equipment->nameUnidentified.end());
@@ -1543,9 +1535,16 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   u32 itemId = msgTriggerUnitTriggered->itemid();
   u32 characterId = msgTriggerUnitTriggered->characterid();
 
+  NetworkMessages::Position msgPosition = msgTriggerUnitTriggered->position();
+  Vector3 position;
+  position.x = msgPosition.x();
+  position.y = msgPosition.y();
+  position.z = msgPosition.z();
+
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
+  /* Testing - Don't search by ID, but instead by position
   if (entity) {
     CTriggerUnit *triggerUnit = (CTriggerUnit*)entity->getInternalObject();
     CPlayer *character = NULL;
@@ -1560,6 +1559,29 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   } else {
     //log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",
     //  itemId, characterId);
+  }
+  */
+
+  // Assume the server's trigger units are sync'd with ours
+  CLevel *level = gameClient->pCLevel;
+  level->DumpTriggerUnits();
+
+  // List our trigger Units
+  LinkedListNode* itr = *level->ppCTriggerUnits;
+  while (itr != NULL) {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+    CPlayer *character = NULL;
+    
+    if (netCharacter) {
+      character = (CPlayer*)netCharacter->getInternalObject();
+    }
+
+    if (triggerUnit->position.squaredDistance(position) < 0.1f) {
+      triggerUnit->Trigger(character);
+      break;
+    }
+    
+    itr = itr->pNext;
   }
 }
 
