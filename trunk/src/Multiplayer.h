@@ -167,6 +167,8 @@ namespace TLMP
   void Level_CleanupPost(CLevel*, u32, u32, bool&);
   void Level_Level_CharacterKilledCharacterPre(CLevel*, CCharacter*, CCharacter*, Vector3*, u32, bool&);
   void Level_Level_CharacterKilledCharacterPost(CLevel*, CCharacter*, CCharacter*, Vector3*, u32, bool&);
+  void Level_Level_RemoveEquipmentPre(CLevel*, CEquipment*, bool&);
+  void Level_Level_RemoveEquipmentPost(CLevel*, CEquipment*, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
@@ -186,8 +188,8 @@ namespace TLMP
   void GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring unk1, u32 unk2, u32 unk3, u32 unk4, wstring unk5, bool & calloriginal);
   void GameClient_LoadLevelPre(CGameClient*, bool & calloriginal);
   void GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal);
-  void GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
-  void GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal);
+  void GameClient_LoadMapPre(CGameClient*, u32 unk0, u32 unk1, bool & calloriginal);
+  void GameClient_LoadMapPost(CGameClient*, u32 unk0, u32 unk1, bool & calloriginal);
   void GameClientSaveGamePre(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal);
   void GameClientSaveGamePost(CGameClient *gameClient, u32 unk0, u32 unk1, bool & callOriginal);
   void GameClientGamePausedPost(bool& retval, CGameClient *gameClient, bool & calloriginal);

@@ -403,7 +403,7 @@ void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakN
     {
       NetworkMessages::CharacterSetTarget *msgCharacterSetTarget = ParseMessage<NetworkMessages::CharacterSetTarget>(m_pBitStream);
 
-      HandleCharacterSetTarget(msgCharacterSetTarget);
+      //HandleCharacterSetTarget(msgCharacterSetTarget);
     }
     break;
 
@@ -644,6 +644,9 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
 void Server::HandleGameExited(const SystemAddress clientAddress)
 {
   multiplayerLogger.WriteLine(Info, L"Client has Exited the Game");
+  logColor(B_RED, L"Client has Exited the Game");
+
+  Helper_RemoveClient(clientAddress);
 }
 
 void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, NetworkMessages::ReplyCharacterInfo *msgReplyCharacterInfo)
@@ -1453,11 +1456,16 @@ void Server::OnClientDisconnected(void *args)
 {
   SystemAddress address = *(SystemAddress*)args;
 
+  Helper_RemoveClient(address);
+}
+
+void Server::Helper_RemoveClient(const SystemAddress clientAddress)
+{
   map<SystemAddress, vector<NetworkEntity*>*>::iterator itr;
 
   // Search for an existing address
   for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); itr++) {
-    if ((*itr).first == address) {
+    if ((*itr).first == clientAddress) {
       vector<NetworkEntity*>::iterator itr2;
       for (itr2 = (*itr).second->begin(); itr2 != (*itr).second->end(); itr2++) {
         if (*itr2) {

@@ -299,6 +299,7 @@ void TLMP::ResizeUI()
   CEGUI::Window *pInGameChatEntry = pInGameChat->recursiveChildSearch("1010_ChatEntry");
   if (pInGameChatEntry) {
     pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventCharacterKey, CEGUI::Event::Subscriber(&EditboxEvent_KeyDownChatEntry));
+    pInGameChatEntry->subscribeEvent(CEGUI::Editbox::EventDeactivated, CEGUI::Event::Subscriber(&EditboxEvent_FocusLost));
   } else {
     multiplayerLogger.WriteLine(Error, L"Error could not find Button: 1010_ChatEntry");
     return;
@@ -642,10 +643,10 @@ bool TLMP::ButtonEvent_MultiplayerLobbyViewGames_Join(const CEGUI::EventArgs& ar
     /*
     pWindowLobby->setVisible(true);
     pWindowLobby->moveToFront();
+    */
 
     pWindowLobbyViewGames->setVisible(false);
     pWindowLobbyViewGames->moveToBack();
-    */
 
     CEGUI::MultiColumnList *pLobbyGamesList = (CEGUI::MultiColumnList *)getLobbyViewGames();
     if (pLobbyGamesList) {
@@ -818,8 +819,8 @@ bool TLMP::ButtonEvent_MultiplayerDialog_Host_Host(const CEGUI::EventArgs& args)
   CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
 
   if (pWindowOptions) {
-    //pWindowOptions->setVisible(false);
-    //pWindowOptions->moveToBack();
+    pWindowOptions->setVisible(false);
+    pWindowOptions->moveToBack();
 
     CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerDialog_Host");
 
@@ -1068,6 +1069,20 @@ bool TLMP::ButtonEvent_MultiplayerClientDisconnected_OkButton(const CEGUI::Event
   return true;
 }
 
+bool TLMP::EditboxEvent_FocusLost(const CEGUI::EventArgs& args)
+{
+  CEGUI::Window* pInGameChatEntryBackground = getChatEntryBackgroundWindow();
+  CEGUI::Window *pChatEntry = getChatEntryWindow();
+
+  if (pInGameChatEntryBackground && pChatEntry) { 
+    pInGameChatEntryBackground->setVisible(false);
+    pChatEntry->setVisible(false);
+    pChatEntry->hide();
+  }
+
+  return true;
+}
+
 bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 {
   CEGUI::KeyEventArgs keyArgs = (CEGUI::KeyEventArgs&)args;
@@ -1110,12 +1125,13 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
       }
     }
 
+    //*
     // Really no nice way to make this:
     // Once we press Enter it automatically activates and calls this function
     // and in-turn hides it, so we have to burn off an Enter key
-    if (burnEnter) {
+    if (pInGameChatEntryBackground && pChatEntry) { 
       // Hide the chat entry after we typed our message
-      if (pInGameChatEntryBackground) { 
+      if (burnEnter) {
         pInGameChatEntryBackground->setVisible(false);
         pChatEntry->setVisible(false);
 
@@ -1124,6 +1140,7 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
     } else {
       burnEnter = true;
     }
+    //*/
   }
   
   return true;

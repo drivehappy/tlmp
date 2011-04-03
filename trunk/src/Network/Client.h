@@ -33,7 +33,7 @@ namespace TLMP {
       inline bool HasGameStarted()                          { return m_bWaitingForGame; }
 
       inline bool GetServerGameStarted()                    { return m_bServerGameStarted; }
-      inline void SetServerGameStarted(bool value)          { m_bServerGameStarted = value; }
+      inline void SetServerGameStarted(bool value)          { logColor(B_RED, L"Server Game Started: %i", value); m_bServerGameStarted = value; }
 
       inline bool GetSuppressed_SetDestination()            { return m_bSuppressNetwork_SetDestination; }
       inline void SetSuppressed_SetDestination(bool value)  { m_bSuppressNetwork_SetDestination = value; }

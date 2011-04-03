@@ -27,9 +27,9 @@ void TLMP::SetupNetwork()
 
   CEffect::RegisterEvent_Effect_Effect_Something(Effect_EffectSomethingPre, Effect_EffectSomethingPost);
   CEffect::RegisterEvent_Effect_Something0(Effect_Something0Pre, NULL);
-  CEffect::RegisterEvent_Effect_ParamCtor(Effect_Effect_ParamCtorPre, NULL);
-  CEffect::RegisterEvent_Effect_CopyCtor(Effect_CtorPre, Effect_CtorPost);
-  CEffect::RegisterEvent_Effect_Character_Unk0(Effect_Character_Unk0Pre, Effect_Character_Unk0Post);
+  //CEffect::RegisterEvent_Effect_ParamCtor(Effect_Effect_ParamCtorPre, NULL);
+  //CEffect::RegisterEvent_Effect_CopyCtor(Effect_CtorPre, Effect_CtorPost);
+  //CEffect::RegisterEvent_Effect_Character_Unk0(Effect_Character_Unk0Pre, Effect_Character_Unk0Post);
 
   CEffectManager::RegisterEvent_EffectManagerCreateEffect(Effect_EffectManagerCreateEffectPre, Effect_EffectManagerCreateEffectPost);
   CEffectManager::RegisterEvent_EffectManager_AddEffectToEquipment(EffectManager_AddEffectToEquipmentPre, EffectManager_AddEffectToEquipmentPost);
@@ -44,13 +44,14 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_Level_Ctor(Level_Ctor, NULL);
   CLevel::RegisterEvent_Level_Update(Level_UpdatePre, Level_UpdatePost);
   CLevel::RegisterEvent_Level_CharacterKilledCharacter(Level_Level_CharacterKilledCharacterPre, Level_Level_CharacterKilledCharacterPost);
+  CLevel::RegisterEvent_Level_RemoveEquipment(Level_Level_RemoveEquipmentPre, Level_Level_RemoveEquipmentPost);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(GameClient_ProcessObjects, NULL);
   CGameClient::RegisterEvent_GameClientProcessTitleScreen(NULL, GameClient_TitleProcessObjects);
   CGameClient::RegisterEvent_GameClient_CreateLevel(GameClient_CreateLevelPre, GameClient_CreateLevelPost);
   CGameClient::RegisterEvent_GameClient_LoadLevel(GameClient_LoadLevelPre, GameClient_LoadLevelPost);
-  CGameClient::RegisterEvent_GameClientLoadMap(GameClient_LoadMapPre, GameClient_LoadMapPost);
+  CGameClient::RegisterEvent_GameClient_LoadMap(GameClient_LoadMapPre, GameClient_LoadMapPost);
   CGameClient::RegisterEvent_GameClient_SaveGame(GameClientSaveGamePre, GameClientSaveGamePost);
   CGameClient::RegisterEvent_GameClientGamePaused(NULL, GameClientGamePausedPost);
   CGameClient::RegisterEvent_GameClient_ChangeLevel(GameClient_ChangeLevelPre, GameClient_ChangeLevelPost);
@@ -102,7 +103,7 @@ void TLMP::SetupNetwork()
 
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
-  CTriggerUnit::RegisterEvent_TriggerUnit_Triggered2(TriggerUnit_Triggered2Pre, NULL);
+  //CTriggerUnit::RegisterEvent_TriggerUnit_Triggered2(TriggerUnit_Triggered2Pre, NULL);
 
   CBreakable::RegisterEvent_BreakableTriggered(Breakable_TriggeredPre, NULL);
   
@@ -241,7 +242,7 @@ void TLMP::CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID
 
 void TLMP::Equipment_DtorPre(CEquipment* equipment)
 {
-  //log(L"Equipment::DtorPre = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
+  log(L"Equipment::DtorPre = %p Removing from network list... %s", equipment, equipment->nameReal.c_str());
 
   vector<NetworkEntity*>::iterator itr;
   for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); itr++) {
@@ -256,8 +257,10 @@ void TLMP::Equipment_DtorPre(CEquipment* equipment)
   // and cleanup the equipment in any equipmentRef's that are tied to the equipment
   if (gameClient) {
     CPlayer* player = gameClient->pCPlayer;
+
+    // Check dups against player inventory
     if (player) {
-      CInventory *inventory = gameClient->pCPlayer->pCInventory;
+      CInventory *inventory = player->pCInventory;
       if (inventory) {
         for (u32 i = 0; i < inventory->equipmentList.size; i++) {
           CEquipmentRef *equipmentRef = inventory->equipmentList[i];
@@ -270,12 +273,27 @@ void TLMP::Equipment_DtorPre(CEquipment* equipment)
         }
       }
     }
+
+    /*
+    // Check dups against ground items
+    CLevel* level = gameClient->pCLevel;
+    if (level) {
+      LinkedListNode **items = level->ppCItems;
+      while (items) {
+        
+        items = items->pNext;
+      }
+    }
+    */
   }
 }
 
 void TLMP::Equipment_DtorPost(CEquipment* equipment)
 {
-  //log(L"Equipment::DtorPost = %p", equipment);
+  // Clear the vtable just in case to aid in debugging - it will should crash outright if accessing later
+  *((u32*)equipment) = NULL;
+
+  log(L"Equipment::DtorPost = %p", equipment);
 }
 
 void TLMP::Character_Dtor(CCharacter* character)
@@ -912,28 +930,59 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   log(L"GameClient_LoadLevelPost Done Dumping Info.");
 }
 
-void TLMP::GameClient_LoadMapPre(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
+void TLMP::GameClient_LoadMapPre(CGameClient*, u32 unk0, u32 unk1, bool & calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Pre(%x)", unk0);
-  //logColor(B_GREEN, L"GameClient::LoadMap Pre(%x)", unk0);
+  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Pre(%x %x)", unk0, unk1);
+  logColor(B_GREEN, L"GameClient::LoadMap Pre(%x %x)", unk0, unk1);
 
-  // This will suppress the game load if the Server hasn't setup the game yet
-  // TODO: Re-show the UI and Display an Error dialog
-  if (unk0 == 2) {
+  // unk0  unk1
+  //   0   3      is the character load screen
+  //   0   0      is the main title screen
+  //   0   1      is the new player screen
+  //   2   0      is the game
+
+  // 0: Player loading into title menu from game
+  // 2: Player loading into game from title menu
+  if (unk0 == 0 && unk1 == 0) {
+    // If we are loading into the main menu then send off our intention to leave
+    //  to either the server or client, then forcefully disconnect on PostLoadMap
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      NetworkMessages::GameEnded msgGameEnded;
+      Client::getSingleton().SendMessage<NetworkMessages::GameEnded>(C_PUSH_GAMEEXITED, &msgGameEnded);
+    } else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      //NetworkMessages::GameEnded msgGameEnded;
+      //Server::getSingleton().BroadcastMessage<NetworkMessages::GameEnded>(S_PUSH_GAMEENDED, &msgGameEnded);
+    }
+  } else if (unk0 == 2) {
+    // This will suppress the game load if the Server hasn't setup the game yet
+    // TODO: Re-show the UI and Display an Error dialog
     if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
       if (!Client::getSingleton().GetServerGameStarted()) {
+        log("Suppressing client load - server has not started game yet.");
         calloriginal = false;
+
+        // Display the UI message for waiting for server to start
+        DisplayWaitForServerWindow();
       }
     }
   }
 }
 
-void TLMP::GameClient_LoadMapPost(PVOID retval, CGameClient*, u32 unk0, bool & calloriginal)
+void TLMP::GameClient_LoadMapPost(CGameClient*, u32 unk0, u32 unk1, bool & calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Post(%x)", unk0);
-  //logColor(B_GREEN, L"GameClient::LoadMap Post(%x)", unk0);
+  multiplayerLogger.WriteLine(Info, L"GameClient::LoadMap Post(%x %x)", unk0, unk1);
+  logColor(B_GREEN, L"GameClient::LoadMap Post(%x %x)", unk0, unk1);
 
-  if (unk0 == 2) {
+  // 0: Player loading into title menu from game
+  // 2: Player loading into game from title menu
+  if (unk0 == 0 && unk1 == 0) {
+    // Forcefully disconnect here after we've sent off our exited/ended message in LoadMapPre
+    if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
+      Client::getSingleton().Disconnect();
+    } else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
+      Server::getSingleton().Shutdown();
+    }
+  } else if (unk0 == 2) {
     // Testing out speeding up Client load times and issues
     if (NetworkState::getSingleton().GetState() == SERVER) {
       // Force load the Player into the Town
@@ -962,6 +1011,11 @@ void TLMP::MainMenuEventPre(CMainMenu* mainMenu, u32 unk0, wstring str, bool & c
     CONTINUEGAME = 5,     // Load Game
   };
 
+  log(L"MainMenuEventPre: %x  %s", unk0, str.c_str());
+
+  // New: Attempt to suppress this at the GameClient_LoadMap function
+  //     -Problem: UI is hidden when failed, go ahead and stop this function
+
   // Suppress this event if any of these actions are taken
   if (unk0 == CONTINUELASTGAME || unk0 == NEWGAME || unk0 == CONTINUEGAME) {
     if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -970,7 +1024,7 @@ void TLMP::MainMenuEventPre(CMainMenu* mainMenu, u32 unk0, wstring str, bool & c
         multiplayerLogger.WriteLine(Info, L"Enter game suppressed: Client, Server not in game");
 
         // Display the UI message for waiting for server to start
-        DisplayWaitForServerWindow();
+        //DisplayWaitForServerWindow();
       }
     }
   }
@@ -1067,7 +1121,7 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
   //
   if (NetworkState::getSingleton().GetState() == CLIENT) {
     // Allow interactable and stash/shared stash (these may not be needed)
-    if (//item->type__ == OPENABLE ||
+    if (item->type__ == OPENABLE ||
         item->type__ == INTERACTABLE)
     {
       if (!wcscmp(item->nameReal.c_str(), L"Barrel") ||
@@ -1079,15 +1133,16 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
         calloriginal = false;
       }
     } 
-    
+    /*
     if (item->type__ != INTERACTABLE &&
         item->type__ != OPENABLE) 
-    {
+    {*/
+    else {
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
         calloriginal = false;
         item->position.x = 1000;
         item->position.z = 1000;
-        item->Destroy();
+        //item->Destroy();
       }
     }
     
@@ -1756,7 +1811,8 @@ void TLMP::Character_SetTarget(CCharacter* character, CCharacter* target, bool &
       Client::getSingleton().SendMessage<NetworkMessages::CharacterSetTarget>(C_REQUEST_CHARACTER_SETTARGET, &msgCharacterSetTarget);
     }
   } else if (NetworkState::getSingleton().GetState() == SERVER) {
-    Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterSetTarget>(S_PUSH_CHARACTER_SETTARGET, &msgCharacterSetTarget);
+    // Turn off set target spam
+    //Server::getSingleton().BroadcastMessage<NetworkMessages::CharacterSetTarget>(S_PUSH_CHARACTER_SETTARGET, &msgCharacterSetTarget);
   }
 }
 
@@ -2056,12 +2112,12 @@ void TLMP::GameUI_HandleKeyboardInputPre(CGameUI* gameUI, u32 unk0, u32 unk1, u3
 
 void TLMP::GameUI_HandleKeyboardInputPost(CGameUI* gameUI, u32 unk0, u32 unk1, u32 unk2, bool& calloriginal)
 {
-  CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
-  CEGUI::Window* pInGameChatEntryBackground = UserInterface::getWindowFromName("1010_ChatEntryBackground");
+  // Keydown and 'Enter'
+  if (unk0 == 0x100 && unk1 == 0xD) {
+    CEGUI::Editbox* pInGameChatEntry = (CEGUI::Editbox*)UserInterface::getWindowFromName("1010_ChatEntry");
+    CEGUI::Window* pInGameChatEntryBackground = UserInterface::getWindowFromName("1010_ChatEntryBackground");
 
-  if (pInGameChatEntry && pInGameChatEntryBackground) {
-    // Keydown and 'Enter'
-    if (unk0 == 0x100 && unk1 == 0xD) {
+    if (pInGameChatEntry && pInGameChatEntryBackground) {
       if (!pInGameChatEntry->isActive()) {
         pInGameChatEntryBackground->setVisible(true);        
         pInGameChatEntry->show();
@@ -2575,6 +2631,16 @@ void TLMP::Level_UpdatePost(CLevel* level, Vector3* position, u32 unk0, float un
   */
 }
 
+void TLMP::Level_Level_RemoveEquipmentPre(CLevel* level, CEquipment* equipment, bool&)
+{
+  log("Level_Level_RemoveEquipmentPre -- Level: %p, Equipment: %p", level, equipment);
+}
+
+void TLMP::Level_Level_RemoveEquipmentPost(CLevel* level, CEquipment* equipment, bool&)
+{
+  log("Level_Level_RemoveEquipmentPost -- Level: %p, Equipment: %p", level, equipment);
+}
+
 void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal)
 {
   /*
@@ -2589,8 +2655,8 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
   */
 
   log(L"EffectSomethingPre: %p %p", effect, other);
-  effect->dumpEffect();
-  other->dumpEffect();
+  //effect->dumpEffect();
+  //other->dumpEffect();
 
   log(L"  BaseUnit: %p %p", effect->pCBaseUnit, other->pCBaseUnit);
 
@@ -3091,19 +3157,18 @@ void TLMP::ClientOnConnect(void *arg)
 
 void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+  /*
   if (!(msg == 0x100 || msg == 0x101 || msg == 0x102 || msg == 0x201))
     return;
 
-  /*
   switch (msg) {
   case WM_KEYUP:
     switch (wParam) {
 
-
     // T =
-    //   Testing to see the equipment ref from main/sec weapons
-    case 'T':
-    case 't':
+    //   Testing Equipment creation and crashes on level cleanup
+    case 'E':
+    case 'e':
       {
         static CEquipment* mainHand = NULL;
         static CEquipment* secondHand = NULL;
@@ -3118,31 +3183,6 @@ void TLMP::WndProcPre(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
         log("ref1 = %p, ref2 = %p", ref1, ref2);
       }
       break;
-
-    // R =
-    case 'R':
-    case 'r':
-      static u32* petData = NULL;
-      static u32 petDataSize = 0;
-
-      log("\n");
-
-      // Send all of the existing equipment in the game to the client
-      CLevel *level = gameClient->pCLevel;
-      LinkedListNode* itrInv = *level->ppCCharacters2;
-      while (itrInv != NULL) {
-        CCharacter* character = (CCharacter*)itrInv->pCBaseUnit;
-
-        if (character == gameClient->pCPlayer) {
-          u32 offset = ((u32*)&character->orientation - (u32*)character) * sizeof(u32);
-          log(L"Orientation: %f %f %f   offset = %x", character->orientation.x, character->orientation.y, character->orientation.z, offset);
-          character->dumpCharacter(petData, petDataSize);
-        }
-
-        itrInv = itrInv->pNext;
-      }
-      break;
-    }
   }
   */
 }
