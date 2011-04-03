@@ -62,8 +62,11 @@ void Client::Connect(const char* address, u16 port)
 
   if (m_pClient) {
     m_pClient->Shutdown(0);
+    RakNetworkFactory::DestroyRakPeerInterface(m_pClient);
+    m_pClient = NULL;
   }
 
+  Reset();
   m_pClient = RakNetworkFactory::GetRakPeerInterface();
 
   // Debugging - allow 2 minutes until disconnect
@@ -78,12 +81,13 @@ void Client::Connect(const char* address, u16 port)
 void Client::Disconnect()
 {
   multiplayerLogger.WriteLine(Info, L"Client disconnecting...");
-  log(L"Client disconnecting...");
+  log(L"Client disconnecting... %p", m_pClient);
 
   if (m_pClient) {
     Reset();
 
     m_pClient->Shutdown(0);
+    RakNetworkFactory::DestroyRakPeerInterface(m_pClient);
     m_pClient = NULL;
   }
 }
@@ -105,8 +109,9 @@ void Client::SetCallback_OnConnectFailed(OnConnectFailed callback)
 
 void Client::ReceiveMessages()
 {
-  if (!m_pClient)
+  if (!m_pClient) {
     return;
+  }
 
   Packet *packet = m_pClient->Receive();
   while (packet)
@@ -183,6 +188,15 @@ void Client::ReceiveMessages()
       break;
     }
 
+    // Debug
+    //logColor(B_RED, L"m_pClient = %p", m_pClient);
+    // --
+
+    // Double check to make sure our client wasn't removed during a packet event (eg. S_PUSH_GAMEEXITED).
+    if (!m_pClient) {
+      break;
+    }
+
     m_pClient->DeallocatePacket(packet);
     packet = m_pClient->Receive();
   }
@@ -250,6 +264,8 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
       NetworkMessages::GameEnded *msgGameEnded = ParseMessage<NetworkMessages::GameEnded>(m_pBitStream);
 
       HandleGameEnded();
+
+      log("debug /HandleGameEnded");
     }
     break;
 
@@ -641,7 +657,7 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
     }
     break;
 
-  }     
+  }
 }
 
 //
@@ -675,6 +691,8 @@ void Client::HandleVersion(u32 version)
 // If it has, it's safe to enter the game, else block player from entering.
 void Client::HandleHasGameStarted(bool gameStarted)
 {
+  log(L"Server game started: %s", gameStarted ? L"true" : L"false");
+
   Client::getSingleton().SetServerGameStarted(gameStarted);
 }
 
@@ -689,9 +707,34 @@ void Client::HandleGameStarted()
 // Receives a push from server when the game has been stopped (Exited to MainMenu)
 void Client::HandleGameEnded()
 {
-  Client::getSingleton().SetServerGameStarted(false);
-  
-  // TODO Exit Player to MainMenu
+  // Debugging, this func @: 5E1EE480
+
+  logColor(B_RED, L"Server has Exited the Game");
+
+  /*
+  log("Removing server created characters...");
+  {
+    LinkedListNode* itr = *gameClient->pCLevel->ppCCharacters2;
+    while (itr != NULL) {
+      CCharacter* character = (CCharacter*)itr->pCBaseUnit;
+      logColor(B_GREEN, L"  Level Character2: (itr = %p) %p %s", itr, character, character->characterName.c_str());
+      //multiplayerLogger.WriteLine(Info, L"  Level Item: (itr = %p) %p %s", itr, character, character->characterName.c_str());
+      itr = itr->pNext;
+    }
+  }
+  */
+
+  // Load to title menu
+  log(L"LoadMap...");
+  //GameClient_LoadMap(gameClient, 0);
+  gameClient->LoadGameMap(0, 0);
+  log(L"LoadMap...Done");
+
+  // Kill the connection
+  //Disconnect();
+
+  //Client::getSingleton().SetServerGameStarted(false);
+  log(L"debug0 point");
 }
 
 // Receives a request from the Server for Character Info
@@ -855,6 +898,14 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   log(L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
 
+  const u64 STASH = 0x258372C33F2411DE;
+  const u64 SHAREDSTASH = 0xFC4F7F1F9D8E11DE;
+
+  // Do not create the stash or shared stash from the server
+  if (guidCharacter == STASH || guidCharacter == SHAREDSTASH) {
+    log(L"Suppressing stash/shared stash creation from server.");
+    return;
+  }
 
   /*
   //
@@ -1630,7 +1681,12 @@ void Client::HandleCharacterDestroy(NetworkMessages::CharacterDestroy *msgCharac
   if (entity) {
     CCharacter* character = (CCharacter*)entity->getInternalObject();
     if (character) {
-      character->destroy = true;
+      // Suppress any server messages about deleting our own character or pet
+      if (character != gameClient->pCPlayer && character != gameClient->pPet) {
+        logColor(B_RED, L"Destroying character (id: %x, addr: %p)", characterId, character);
+
+        character->destroy = true;
+      }
     }
   } else {
     //log(L"Error: Could not find Network ID character: %x", characterId);
@@ -1958,6 +2014,8 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
               serverTriggerPosition.z);
 
           addItem(triggerUnit, triggerId);
+
+          logColor(B_GREEN, L"Done syncing triggerUnit %p to %i", triggerUnit, triggerId);
           found = true;
 
           break;

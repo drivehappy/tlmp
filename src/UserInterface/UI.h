@@ -56,6 +56,7 @@ namespace TLMP
   bool ButtonEvent_MultiplayerClientConnectedFailed_OkButton(const CEGUI::EventArgs& args);
   bool ButtonEvent_MultiplayerClientDisconnected_OkButton(const CEGUI::EventArgs& args);
 
+  bool EditboxEvent_FocusLost(const CEGUI::EventArgs& args);
   bool EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args);
 
   bool EditboxEvent_KeyDownLobbyChatEntry(const CEGUI::EventArgs& args);

@@ -119,7 +119,8 @@ namespace TLMP {
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);
       void Helper_SendCurrentLevel(const SystemAddress clientAddress);
       void Helper_SendTriggerUnitSync(const SystemAddress clientAddress);
-
+      
+      static void Helper_RemoveClient(const SystemAddress clientAddress);
       static void Helper_RemoveBaseUnit(CBaseUnit*);
 
       void RemoveDestroyedEquipmentFromNetwork();
