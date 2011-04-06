@@ -985,9 +985,10 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
       multiplayerLogger.WriteLine(Info, L"    (%i: %i)", equipment->enchantTypeList[index], equipment->enchantList[index]);
 
       NetworkMessages::EnchantType *msgEnchantType = msgEquipment->add_enchants();
-      msgEnchantType->set_type(REGULAR);
+      msgEnchantType->set_type(KEFFECT_TYPE_DAMAGE_BONUS);
       msgEnchantType->set_subtype(equipment->enchantTypeList[index]);
-      msgEnchantType->set_value((float)equipment->enchantList[index]);
+      msgEnchantType->set_value_min((float)equipment->enchantList[index]);
+      msgEnchantType->set_value_max((float)equipment->enchantList[index]);
     }
 
 
@@ -1001,13 +1002,14 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
       for (u32 i = 0; i < effectManager->effectList.size; i++) {
         CEffect *effect = effectManager->effectList[i];
 
-        multiplayerLogger.WriteLine(Info, L"  Adding Equipment Effect Enchant: (%x: %f)", effect->effectType, effect->effectValue);
+        multiplayerLogger.WriteLine(Info, L"  Adding Equipment Effect Enchant: (%x: %f / %f)", effect->effectType, effect->effectValueMin, effect->effectValueMax);
         //log(L"  Adding Equipment Effect Enchant: (%x: %f)", effect->effectType, effect->effectValue);
 
         NetworkMessages::EnchantType *msgEnchantType = msgEquipment->add_enchants();
         msgEnchantType->set_type(effect->effectType);
         msgEnchantType->set_subtype(-1);  // Not used in this instance
-        msgEnchantType->set_value(effect->effectValue);
+        msgEnchantType->set_value_min(effect->effectValueMin);
+        msgEnchantType->set_value_max(effect->effectValueMax);
       }
     }
   }
@@ -1025,6 +1027,7 @@ void Server::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
   if (netEquipment) {
     CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
     CLevel *level = gameClient->pCLevel;
+    unk0 = 1;
 
     level->EquipmentDrop(equipment, position, unk0);
   } else {
@@ -1130,7 +1133,7 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
 
         for (int j = 0; j < msgGem.enchants_size(); j++) {
           NetworkMessages::EnchantType msgGemEnchantType = msgGem.enchants().Get(j);
-          gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value());
+          gem->AddEnchant((EffectType)msgGemEnchantType.type(), (EnchantType)msgGemEnchantType.subtype(), msgGemEnchantType.value_min(), msgGemEnchantType.value_max());
         }
 
         equipment->gemList.push(gem);
@@ -1168,12 +1171,12 @@ void Server::HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::Ne
     for (u32 i = 0; i < enchantCount; i++) {
       NetworkMessages::EnchantType msgEnchantType = msgEquipment->enchants().Get(i);
 
-      multiplayerLogger.WriteLine(Info, L"  EnchantType: %x %x  Value: %f",
-        (EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
+      multiplayerLogger.WriteLine(Info, L"  EnchantType: %x %x  Value: %f / %f",
+        (EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value_min(), msgEnchantType.value_max());
       //log(L"  EnchantType: %x %x  Value: %f",
       //  (EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
 
-      equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value());
+      equipment->AddEnchant((EffectType)msgEnchantType.type(), (EnchantType)msgEnchantType.subtype(), msgEnchantType.value_min(), msgEnchantType.value_max());
     }
 
     multiplayerLogger.WriteLine(Info, L"Server: Adding equipment to shared network equipment");
