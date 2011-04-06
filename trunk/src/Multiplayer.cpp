@@ -27,7 +27,7 @@ void TLMP::SetupNetwork()
 
   CEffect::RegisterEvent_Effect_Effect_Something(Effect_EffectSomethingPre, Effect_EffectSomethingPost);
   CEffect::RegisterEvent_Effect_Something0(Effect_Something0Pre, NULL);
-  //CEffect::RegisterEvent_Effect_ParamCtor(Effect_Effect_ParamCtorPre, NULL);
+  CEffect::RegisterEvent_Effect_ParamCtor(Effect_Effect_ParamCtorPre, NULL);
   //CEffect::RegisterEvent_Effect_CopyCtor(Effect_CtorPre, Effect_CtorPost);
   //CEffect::RegisterEvent_Effect_Character_Unk0(Effect_Character_Unk0Pre, Effect_Character_Unk0Post);
 
@@ -1024,7 +1024,7 @@ void TLMP::MainMenuEventPre(CMainMenu* mainMenu, u32 unk0, wstring str, bool & c
         multiplayerLogger.WriteLine(Info, L"Enter game suppressed: Client, Server not in game");
 
         // Display the UI message for waiting for server to start
-        //DisplayWaitForServerWindow();
+        DisplayWaitForServerWindow();
       }
     }
   }
@@ -2658,20 +2658,48 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
   //effect->dumpEffect();
   //other->dumpEffect();
 
-  log(L"  BaseUnit: %p %p", effect->pCBaseUnit, other->pCBaseUnit);
+  //log(L"  BaseUnit: %p %p", effect->pCBaseUnit, other->pCBaseUnit);
+  //log(L"   name offset: %x", ((u32*)&effect->name - (u32*)effect));
+  log(L"  BaseUnit: %p", other->pCBaseUnit);
 
-  if (effect->pCBaseUnit) {
-    log(L"  BaseUnit1 Type: %x (%016I64X)", effect->pCBaseUnit->type__, effect->pCBaseUnit->GUID);
-    if (effect->pCBaseUnit->type__ == 0x1B) {
-      CCharacter* character = (CCharacter*)effect->pCBaseUnit;
-      log(L"    Name: %s", character->characterName.c_str());
+  /*
+  // Effect
+  if (effect) {
+    log(L"    effect Name: %s", effect->name.c_str());
+    log("    effect Type: %s %i", searchForEffectName(effect->effectType), effect->effectType);
+    log(L"    effect listUnknown size: %x", effect->listUnknown.size);
+    for (u32 i = 0; i < effect->listUnknown.size; ++i) {
+      log(L"     effect listUnknown[%i]: %p", i, effect->listUnknown[i]);
+    }
+
+    if (effect->pCBaseUnit) {
+      log(L"  BaseUnit1 Type: %x (%016I64X)", effect->pCBaseUnit->type__, effect->pCBaseUnit->GUID);
+      if (effect->pCBaseUnit->type__ == 0x1B) {
+        CCharacter* character = (CCharacter*)effect->pCBaseUnit;
+        log(L"    Name: %s", character->characterName.c_str());
+      }
     }
   }
-  if (other->pCBaseUnit) {
-    log(L"  BaseUnit2 Type: %x (%016I64X)", other->pCBaseUnit->type__, other->pCBaseUnit->GUID);
-    if (other->pCBaseUnit->type__ == 0x1B) {
-      CCharacter* character = (CCharacter*)other->pCBaseUnit;
-      log(L"    Name: %s", character->characterName.c_str());
+  */
+
+  // Other
+  if (other) {
+    log(L"    other Name: %s", other->name.c_str());
+    log("    other Type: %s %i", searchForEffectName(other->effectType), other->effectType);
+    log(L"    other listUnknown size: %x", other->listUnknown.size);
+
+    u32 maxTerm = 20;
+    for (u32 i = 0; i < other->listUnknown.size && maxTerm >= 0; ++i, --maxTerm) {
+      log(L"     other listUnknown[%i]: %p", i, other->listUnknown[i]);
+    }
+
+    if (other->pCBaseUnit) {
+      log(L"  BaseUnit2 Type: %x (%016I64X)", other->pCBaseUnit->type__, other->pCBaseUnit->GUID);
+
+      if (other->pCBaseUnit->type__ == 0x1B) {
+        CCharacter* character = (CCharacter*)other->pCBaseUnit;
+        log(L"    Character Name: %s", character->characterName.c_str());
+      }
     }
   }
 }
@@ -3081,9 +3109,9 @@ void TLMP::Effect_Something0Pre(CEffect* effect, u32 unk0, bool &calloriginal)
   //log("Effect_Something0: %p %i", effect, unk0);
 }
 
-void TLMP::Effect_Effect_ParamCtorPre(CEffect* effect, u32 unk0, bool unk1, float unk2, float unk3, float unk4, float unk5, bool unk6, bool& calloriginal)
+void TLMP::Effect_Effect_ParamCtorPre(CEffect* effect, u32 unk0, bool unk1, bool unk2, float unk3, float unk4, float unk5, bool unk6, bool& calloriginal)
 {
-  //log(L"Effect::ParamCtor (%p %i %i %f %f %f %f %i)", effect, unk0, unk1, unk2, unk3, unk4, unk5, unk6);
+  log("Effect::ParamCtor (%p %i (%s) %i %i %f %f %f %i)", effect, unk0, searchForEffectName(unk0), unk1, unk2, unk3, unk4, unk5, unk6);
 }
 
 void TLMP::Effect_CtorPre(CEffect* effect)

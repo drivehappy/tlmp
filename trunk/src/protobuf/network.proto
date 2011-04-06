@@ -28,7 +28,8 @@ message Character {
 message EnchantType {
   required int32     type = 1;
   required int32     subtype = 2;
-  required float     value = 3;
+  required float     value_min = 3;
+  required float     value_max = 4;
 }
 
 message Equipment {
