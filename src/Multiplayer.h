@@ -216,6 +216,9 @@ namespace TLMP
   void GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
   void GameClient_TitleProcessObjects(CGameClient *client, float dTime, PVOID unk1, PVOID unk2);
 
+  // Pre Event for InventoryMenuOpenClose
+  void InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& calloriginal);
+
   // Helpers
   void SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk);
   

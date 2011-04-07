@@ -32,10 +32,14 @@ void TLMP::Network::HostGame(u16 port)
 {
   Network::Server::getSingleton().Listen(port, 32);
   Network::NetworkState::getSingleton().SetState(SERVER);
+
+  multiplayerLogger.SetOutputFile("TLAPI/MultiplayerLog_Server.txt");
 }
 
 void TLMP::Network::JoinGame(const char *address, u16 port)
 {
   Network::Client::getSingleton().Connect(address, port);
   Network::NetworkState::getSingleton().SetState(CLIENT);
+
+  multiplayerLogger.SetOutputFile("TLAPI/MultiplayerLog_Client.txt");
 }

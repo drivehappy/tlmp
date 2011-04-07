@@ -2,7 +2,7 @@
 using namespace TLMP;
 
 
-TLMP::Logger TLMP::multiplayerLogger("TLAPI/MultiplayerLog.txt");
+TLMP::Logger TLMP::multiplayerLogger;
 TLAPI::CGameClient *TLMP::gameClient = NULL;
 bool TLMP::LevelLoading = true;
 
@@ -15,6 +15,8 @@ void TLMP::SetupNetwork()
   //
   // Register event callbacks we need
   _GLOBAL::RegisterEvent_WndProc(WndProcPre, NULL);
+
+  CInventoryMenu::RegisterEvent_InventoryMenu_OpenClose(InventoryMenu_OpenClosePre, NULL);
 
   CCharacterSaveState::RegisterEvent_CharacterSaveState_LoadFromFile(NULL, CharacterSaveState_ReadFromFile);
 
@@ -273,18 +275,6 @@ void TLMP::Equipment_DtorPre(CEquipment* equipment)
         }
       }
     }
-
-    /*
-    // Check dups against ground items
-    CLevel* level = gameClient->pCLevel;
-    if (level) {
-      LinkedListNode **items = level->ppCItems;
-      while (items) {
-        
-        items = items->pNext;
-      }
-    }
-    */
   }
 }
 
@@ -725,6 +715,15 @@ void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk
   log(L"Test: attacking = %x", player->attacking);
   log(L"Test: offset moving = %x", ((u32)&player->moving - (u32)player) );
   log(L"Test: offset attacking = %x", ((u32)&player->attacking - (u32)player) );
+
+  gameClient->pCGameUI->dumpSubMenuPtrs();
+  
+  //log(L"TargetName: %p offset = %x (gameUI = %p)", gameClient->pCGameUI->sheetTargetName, ((u8*)&gameClient->pCGameUI->sheetTargetName - (u8*)gameClient->pCGameUI), &gameClient->pCGameUI);
+  //log("  TargetName: %s", gameClient->pCGameUI->sheetTargetName->getText().c_str());
+  //log(L"  Target: %p", gameClient->pCGameUI->pCTargetCharacter);
+  if (gameClient->pCGameUI->pCTargetCharacter) {
+    log(L"  Target: %s", gameClient->pCGameUI->pCTargetCharacter->characterName.c_str());
+  }
   */
 
   // Set the started flag - don't bother checking, it's just as fast to set it
@@ -1098,20 +1097,39 @@ void TLMP::Character_SetDestination(CCharacter* character, CLevel* level, float 
 
 void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, bool unk0, bool& calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
+  multiplayerLogger.WriteLine(Info, L"Level pre dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
     item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
-  log(L"Level dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
+  log(L"Level pre dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
     item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
 
   const u32 OPENABLE = 0x28;
   const u32 INTERACTABLE = 0x20;
+
+  // DEBUGGING SERVER CRASH
+  // Iterate over the existing items on the level and dump their names
+  log(L"Current Items on Ground: %p", level->ppCItems);
+  LinkedListNode* itr2 = *level->ppCItems;
+  while (itr2) {
+    CEquipment* itemItr = (CEquipment*)itr2->pCBaseUnit;
+    // Ensure this is Equipment (Check vtable ptr) before dumping info
+    if (*(u32*)itemItr == 0xA7EA8C) {
+      log(L"  Item: %s (Sockets: %i, GemList Size: %i)", itemItr->nameReal.c_str(), itemItr->socketCount, itemItr->gemList.size);
+
+      for (u32 i = 0; i < itemItr->gemList.size; ++i) {
+        log(L"    Gem[%i]: %s", i, itemItr->gemList[i]->nameReal.c_str());
+      }
+    }
+
+    itr2 = itr2->pNext;
+  }
+  // --
 
   // Iterate over the existing items on the level and ensure the same item doesn't already exist
   LinkedListNode* itr = *level->ppCItems;
   while (itr != NULL) {
     CItem* itemLevel = (CItem*)itr->pCBaseUnit;
     if (itemLevel == item) {
-      //log(L"Level Drop Found Identical Item already on the Ground! Suppressing the drop.");
+      log(L"Level Drop Found Identical Item already on the Ground! Suppressing the drop.");
       calloriginal = false;
       break;
     }
@@ -1156,10 +1174,29 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
 
 void TLMP::Level_DropItemPost(CLevel* level, CItem* item, Vector3 & position, bool unk0, bool& calloriginal)
 {
-  multiplayerLogger.WriteLine(Info, L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
+  multiplayerLogger.WriteLine(Info, L"Level post dropped Item %s at %f, %f, %f (unk0: %i)",
     item->nameReal.c_str(), position.x, position.y, position.z, unk0);
-  log(L"Level dropped Item %s at %f, %f, %f (unk0: %i)",
+  log(L"Level post dropped Item %s at %f, %f, %f (unk0: %i)",
     item->nameReal.c_str(), position.x, position.y, position.z, unk0);
+
+  // DEBUGGING SERVER CRASH
+  // Iterate over the existing items on the level and dump their names
+  log(L"Current Items on Ground: %p", level->ppCItems);
+  LinkedListNode* itr2 = *level->ppCItems;
+  while (itr2) {
+    CEquipment* itemItr = (CEquipment*)itr2->pCBaseUnit;
+    // Ensure this is Equipment (Check vtable ptr) before dumping info
+    if (*(u32*)itemItr == 0xA7EA8C) {
+      log(L"  Item: %s (Sockets: %i, GemList Size: %i)", itemItr->nameReal.c_str(), itemItr->socketCount, itemItr->gemList.size);
+
+      for (u32 i = 0; i < itemItr->gemList.size; ++i) {
+        log(L"    Gem[%i]: %s", i, itemItr->gemList[i]->nameReal.c_str());
+      }
+    }
+
+    itr2 = itr2->pNext;
+  }
+  // --
 
   // Bump out before sending the network message if we're not supposed to
   if (Network::NetworkState::getSingleton().GetState() == CLIENT) {
@@ -1390,9 +1427,10 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 {
   log(L"Character picking up Equipment Pre: %p", equipment);
 
-  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipment(Character: %p) (%p) (Level: %p)",
+  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipmentPre(Character: %p) (%p) (Level: %p)",
     character, equipment, level);
-  //multiplayerLogger.WriteLine(Info, L"   Character::PickupEquipment Name: %s", equipment->nameReal.c_str());
+  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipmentPre(Character: %s) (%s)",
+    character->characterName.c_str(), equipment->nameReal.c_str());
   //log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
   //  character, equipment, equipment->nameReal.c_str(), level);
 
@@ -2528,7 +2566,7 @@ void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
 
 void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  //log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
+  log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
 
   if (equipmentRef->pCEquipment) {
     //log(L"  Equipment: %p", equipmentRef->pCEquipment);
@@ -2539,8 +2577,8 @@ void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 
 void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  /*
   log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting: %p", equipmentRef);
+  /*
   log(L"  GameClient1: %p", gameClient);
   log(L"  GameUI: %p", gameClient->pCGameUI);
   //log(L"  ResourceManager: %p", gameClient->pCGameUI->resourceManager);
@@ -2644,43 +2682,8 @@ void TLMP::Level_Level_RemoveEquipmentPost(CLevel* level, CEquipment* equipment,
 void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & calloriginal)
 {
   /*
-  // This will sometimes cause a crash on the client... are we not adding effects properly to items?
-  if (NetworkState::getSingleton().GetState() == CLIENT) {
-    if (!Client::getSingleton().GetAllow_AddEffect()) {
-      log(L"Suppressing Effect_Effect: %p %p", effect, other);
-      calloriginal = false;
-      return;
-    }
-  }
-  */
-
   log(L"EffectSomethingPre: %p %p", effect, other);
-  //effect->dumpEffect();
-  //other->dumpEffect();
-
-  //log(L"  BaseUnit: %p %p", effect->pCBaseUnit, other->pCBaseUnit);
-  //log(L"   name offset: %x", ((u32*)&effect->name - (u32*)effect));
   log(L"  BaseUnit: %p", other->pCBaseUnit);
-
-  /*
-  // Effect
-  if (effect) {
-    log(L"    effect Name: %s", effect->name.c_str());
-    log("    effect Type: %s %i", searchForEffectName(effect->effectType), effect->effectType);
-    log(L"    effect listUnknown size: %x", effect->listUnknown.size);
-    for (u32 i = 0; i < effect->listUnknown.size; ++i) {
-      log(L"     effect listUnknown[%i]: %p", i, effect->listUnknown[i]);
-    }
-
-    if (effect->pCBaseUnit) {
-      log(L"  BaseUnit1 Type: %x (%016I64X)", effect->pCBaseUnit->type__, effect->pCBaseUnit->GUID);
-      if (effect->pCBaseUnit->type__ == 0x1B) {
-        CCharacter* character = (CCharacter*)effect->pCBaseUnit;
-        log(L"    Name: %s", character->characterName.c_str());
-      }
-    }
-  }
-  */
 
   // Other
   if (other) {
@@ -2702,6 +2705,7 @@ void TLMP::Effect_EffectSomethingPre(CEffect* effect, CEffect* other, bool & cal
       }
     }
   }
+  */
 }
 
 void TLMP::Effect_EffectSomethingPost(CEffect* effect, CEffect* other, bool & calloriginal)
@@ -3142,6 +3146,47 @@ void TLMP::QuestManager_SetQuestCompletedPre(CQuestManager* questManager, CQuest
 void TLMP::QuestManager_SetQuestCompletedPost(CQuestManager* questManager, CQuest* quest, CCharacter* character, u32 questActive, bool& calloriginal)
 {
   log(L"QuestManager::SetQuestCompletedPost (QMgr: %p, Quest: %p, Character: %p, QuestActive: %i)", questManager, quest, character, questActive);
+}
+
+void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& calloriginal)
+{
+  log(L"InventoryMenu_OpenClosePre: %p, %i", menu, open);
+
+  log(L"  TESTING: Searching for non-local character...");
+
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  // Check if target character has CPlayer vtable
+  menu->player = gameClient->pCPlayer;
+  if (gameClient->pCGameUI->pCTargetCharacter) {
+    if (gameClient->pCGameUI->pCTargetCharacter->GUID == DESTROYER ||
+        gameClient->pCGameUI->pCTargetCharacter->GUID == ALCHEMIST ||
+        gameClient->pCGameUI->pCTargetCharacter->GUID == VANQUISHER)
+    {
+      log(L"    New character inv: %s, old char: %s", gameClient->pCGameUI->pCTargetCharacter->characterName.c_str(), menu->player->characterName.c_str());
+      menu->player = (CPlayer*)gameClient->pCGameUI->pCTargetCharacter;
+    }
+  }
+
+  /*
+  vector<NetworkEntity*>::iterator itr;
+  for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
+    CCharacter* player = (CCharacter*)((*itr)->getInternalObject());
+    if (player != gameClient->pCPlayer) {
+      const u64 DESTROYER = 0xD3A8F9982FA111DE;
+      const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+      const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+      if (player->GUID == DESTROYER || player->GUID == ALCHEMIST || player->GUID == VANQUISHER) {
+        log(L"   New player found: %p, Old: %p", player, menu->player);
+        menu->player = (CPlayer*)player;
+        break;
+      }
+    }
+  }
+  */
 }
 
 // Server Events

@@ -55,9 +55,11 @@ namespace TLMP
     wstring wvFormat(const wchar_t *format, va_list args);
 
   public:
+    Logger();
     Logger(const char* filename);
     ~Logger();
 
+    void SetOutputFile(const char* filename);
     void WriteLine(LoggingLevel level, const wchar_t *fmt, ...);
     void Write(LoggingLevel level, const wchar_t *fmt, ...);
 

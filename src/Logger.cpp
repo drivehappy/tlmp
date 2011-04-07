@@ -2,6 +2,12 @@
 
 using namespace TLMP;
 
+Logger::Logger()
+{
+  m_bTimeWritten = false;
+  SetLoggingLevel(Verbose);
+  m_logTimer.reset();
+}
 
 Logger::Logger(const char* filename)
 {
@@ -16,6 +22,10 @@ Logger::~Logger()
   m_outFile.close();
 }
 
+void Logger::SetOutputFile(const char* filename)
+{
+  m_outFile.open(filename, ios_base::out);
+}
 
 wstring Logger::wFormat(const wchar_t *format, ...)
 {
@@ -44,8 +54,12 @@ wstring Logger::wvFormat(const wchar_t *format, va_list args)
 void Logger::WriteLine(LoggingLevel level, const wchar_t* fmt, ...)
 {
   // Don't log unneccessary stuff
-  if (level < m_logLevel)
+  if (level < m_logLevel) {
     return;
+  }
+  if (!m_outFile.is_open()) {
+    return;
+  }
 
   m_bTimeWritten = false;
 
@@ -71,8 +85,12 @@ void Logger::WriteLine(LoggingLevel level, const wchar_t* fmt, ...)
 void Logger::Write(LoggingLevel level, const wchar_t* fmt, ...)
 {
   // Don't log unneccessary stuff
-  if (level < m_logLevel)
+  if (level < m_logLevel) {
     return;
+  }
+  if (!m_outFile.is_open()) {
+    return;
+  }
 
   if (level == Error) {
     const wchar_t errorString[] = L"ERROR";
