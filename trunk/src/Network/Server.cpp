@@ -527,6 +527,28 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
 
       itrInv = itrInv->pNext;
     }
+
+    // Send all of the ground equipment in game to the client
+    LinkedListNode* itrEquipment = *level->ppCItems;
+    while (itrEquipment) {
+      CEquipment *equipment = (CEquipment*)itrEquipment->pCBaseUnit;
+
+      // Check vtable to match up with CEquipment type
+      if (*(u32*)equipment == 0xA7EA8C) {
+        NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
+
+        if (!entity) {
+          entity = addEquipment(equipment);
+        }
+
+        if (equipment) {
+          Helper_SendEquipmentToClient(clientAddress, equipment, entity);
+          Helper_SendGroundEquipmentToClient(clientAddress, equipment, entity);
+        }
+      }
+
+      itrEquipment = itrEquipment->pNext;
+    }
     
 
     /* Use the Level's character's inventories instead
@@ -907,6 +929,9 @@ void Server::Helper_SendGroundEquipmentToClient(const SystemAddress clientAddres
     equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
   //log(L"Server: Pushing existing ground Equipment (%016I64X %i %s) out to client that just joined...",
   //  equipment->GUID, netEquipment->getCommonId(), equipment->nameReal.c_str());
+
+  // Create equipment message
+  //Helper_PopulateEquipmentMessage(&msgEquipmentDrop, equipment, netEquipment);
 
   // Create a new network message for all clients to create this character
   NetworkMessages::EquipmentDrop msgEquipmentDrop;
