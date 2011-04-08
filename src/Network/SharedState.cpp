@@ -4,10 +4,12 @@ using namespace TLMP;
 vector<NetworkEntity*> *TLMP::NetworkSharedEquipment  = new vector<NetworkEntity*>();
 vector<NetworkEntity*> *TLMP::NetworkSharedCharacters = new vector<NetworkEntity*>();
 vector<NetworkEntity*> *TLMP::ClientTemporaryEquipment = new vector<NetworkEntity*>();
-map<SystemAddress, vector<NetworkEntity*>*> *TLMP::Server_ClientCharacterMapping = new map<SystemAddress, vector<NetworkEntity*>*>();
 vector<NetworkEntity*> *TLMP::ServerEquipmentOnGround = new vector<NetworkEntity*>();
 vector<NetworkEntity*> *TLMP::NetworkSharedLevelItems = new vector<NetworkEntity*>();
 vector<CBaseUnit*>     *TLMP::OutsideBaseUnits = new vector<CBaseUnit*>();
+
+map<SystemAddress, vector<NetworkEntity*>*> *TLMP::Server_ClientCharacterMapping = new map<SystemAddress, vector<NetworkEntity*>*>();
+map<SystemAddress, NetworkEntity*> *TLMP::Server_ClientUnequipMapping = new map<SystemAddress, NetworkEntity*>();
 
 void TLMP::clearAllNetworkIDs()
 {
@@ -18,8 +20,10 @@ void TLMP::clearAllNetworkIDs()
 
   NetworkSharedCharacters->clear();
   ClientTemporaryEquipment->clear();
-  Server_ClientCharacterMapping->clear();
   ServerEquipmentOnGround->clear();
   OutsideBaseUnits->clear();
   NetworkSharedLevelItems->clear();
+
+  Server_ClientCharacterMapping->clear();
+  Server_ClientUnequipMapping->clear();
 }

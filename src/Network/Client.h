@@ -123,6 +123,7 @@ namespace TLMP {
 
       void Helper_ClientPushAllEquipment();
       void Helper_ClientPushEquipment(CEquipment *equipment);
+      //void Helper_ClientPushEquipmentRef(CEquipmentRef *equipment);
       vector<CCharacter*>* Helper_ProduceClientSideCharacters(CCharacter *character);
 
       u32 GetSeed() const { return m_Seed; }

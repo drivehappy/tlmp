@@ -892,6 +892,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   u64 guidCharacter = msgCharacter->guid();
   string characterName = msgCharacter->name();
   u32 alignment = msgCharacter->alignment();
+  u32 inventorySize = msgCharacter->inventory_size();
 
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
@@ -907,41 +908,6 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
     return;
   }
 
-  /*
-  //
-  // DEBUGGING CLIENT SLOWDOWN
-  const u64 validGUIDChars[] = {
-    // Dog, cat, alch, etc.
-    0x5C5BBC74483A11DE,
-    0xD3A8F9832FA111DE,
-    0xD3A8F9982FA111DE,
-    0x8D3EE5363F7611DE,
-    0xAA472CC2629611DE,
-
-    // Other monsters I'm testing, one of these is slowing down the game
-    0xD3A8F9842FA111DE, // Ulrec
-    //0xD3A8F97E2FA111DE, // Skeletal Warrior
-    0x981973426D2311DE, // Rat
-    0xD3A8F9942FA111DE, // Zombie
-    0xD3A8F9802FA111DE, // Skeletal Archer
-  };
-  const u32 validSize = sizeof(validGUIDChars) / sizeof(u64);
-  bool invalid = true;
-
-  for (u32 i = 0; i < validSize; i++) {
-    if (guidCharacter == validGUIDChars[i]) {
-      invalid = false;
-      break;
-    }
-  }
-
-  if ( invalid ) {
-    return;
-  }
-  //
-  // ----
-  */
-
   NetworkEntity *existingEntity = searchCharacterByCommonID(commonId);
 
   if (!existingEntity) {
@@ -954,7 +920,6 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
     
     if (monster) {
       monster->characterName.assign(convertAsciiToWide(characterName));
-      //monster->SetAlignment(1);
       monster->SetAlignment(alignment);
       level->CharacterInitialize(monster, &posCharacter, 0);
       monster->healthMax = health;
@@ -964,6 +929,10 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
       monster->baseDexterity = dexterity;
       monster->baseDefense = defense;
       monster->baseMagic = magic;
+
+      // ByPass the inventory helper function, I don't think there's a way to retrieve the actual tab index/size
+      //  (so the server can this info to us) just simply update max size and hope it works
+      monster->pCInventory->maxSize = inventorySize;
     } else {
       Client::getSingleton().SetSuppressed_CharacterCreation(true);
       multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
@@ -1101,8 +1070,8 @@ void Client::HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot,
 {
   multiplayerLogger.WriteLine(Info, L"Client received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x)",
     ownerId, equipmentId, slot);
-  //log(L"Client received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x)",
-  //  ownerId, equipmentId, slot);
+  log(L"Client received inventory add equipment: (CharacterID = %x, EquipmentID = %x, slot = %x)",
+    ownerId, equipmentId, slot);
 
   NetworkEntity* owner = searchCharacterByCommonID(ownerId);
   NetworkEntity* equipment = searchEquipmentByCommonID(equipmentId);
@@ -1237,34 +1206,38 @@ void Client::HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmen
   u32 client_id = msgEquipmentSetID->client_id();
   u32 id = msgEquipmentSetID->id();
 
-  multiplayerLogger.WriteLine(Info, L"  Client: Received a commonID from server: %016I64X in Slot: %x  ID = %x",
+  multiplayerLogger.WriteLine(Info, L"  Client: Received a commonID from server: %016I64X of Client Temp ID: %x  ID = %x",
     guid, client_id, id);
-  //log(L"  Client: Received a commonID from server: %016I64X in Slot: %x  ID = %x",
+  //log(L"  Client: Received a commonID from server: %016I64X in Client Temp ID: %x  ID = %x",
   //  guid, client_id, id);
 
   // Search for the matching Client ID
   NetworkEntity *clientEquipment = searchEquipmentByClientID(client_id);
 
   if (clientEquipment) {
-    // Remove the Client temp equipment and create the actual network ID with the
-    // appropriate common ID
+    // Remove the Client temp equipment and create the actual network ID with the appropriate common ID
     CEquipment *equipment = (CEquipment*)clientEquipment->getInternalObject();
     removeEquipmentByClientID(client_id);
-
     addEquipment(equipment, id);
+
+    multiplayerLogger.WriteLine(Info, L"   Equipment name: %s", equipment->nameReal.c_str());
 
     // If the equipment is equipped on the body - tell the server to add it
     NetworkEntity *netCharacter = searchCharacterByInternalObject(gameClient->pCPlayer);
     if (netCharacter) {
-      if (gameClient->pCPlayer->pCInventory) {
-        u32 slotBody = gameClient->pCPlayer->pCInventory->GetEquipmentSlot(equipment);
-        if (slotBody <= 0x0C) {
+      CInventory *inv = gameClient->pCPlayer->pCInventory;
+      if (inv) {
+        s32 slot = inv->GetEquipmentSlot(equipment);
+        //if (slot <= 0x0C) {
+        if (slot >= 0) {
           NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
           msgInventoryAddEquipment.set_equipmentid(id);
           msgInventoryAddEquipment.set_guid(equipment->GUID);
           msgInventoryAddEquipment.set_ownerid(netCharacter->getCommonId());
-          msgInventoryAddEquipment.set_slot(slotBody);
+          msgInventoryAddEquipment.set_slot(slot);
           msgInventoryAddEquipment.set_unk0(1);
+
+          multiplayerLogger.WriteLine(Info, L"    Replying server with equipment Slot: %x (OwnerID: %x)", slot, netCharacter->getCommonId());
 
           Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
         }
@@ -1307,7 +1280,8 @@ void Client::Helper_ClientPushAllEquipment()
     //  characterInventory->equipmentList.size);
 
     for (u32 i = 0; i < characterInventory->equipmentList.size; i++) {
-      CEquipment* equipment = characterInventory->equipmentList[i]->pCEquipment;
+      CEquipmentRef* equipmentRef = characterInventory->equipmentList[i];
+      CEquipment* equipment = equipmentRef->pCEquipment;
 
       // Check if the Equipment has a valid common ID, if not add to temp vec and push to server
       NetworkEntity *existingEquipment = searchEquipmentByInternalObject(equipment);
