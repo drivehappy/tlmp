@@ -17,6 +17,7 @@ void TLMP::SetupNetwork()
   _GLOBAL::RegisterEvent_WndProc(WndProcPre, NULL);
 
   CInventoryMenu::RegisterEvent_InventoryMenu_OpenClose(InventoryMenu_OpenClosePre, NULL);
+  CInventoryMenu::RegisterEvent_InventoryMenu_MouseEvent(InventoryMenu_MouseEventPre, NULL);
 
   CCharacterSaveState::RegisterEvent_CharacterSaveState_LoadFromFile(NULL, CharacterSaveState_ReadFromFile);
 
@@ -65,6 +66,7 @@ void TLMP::SetupNetwork()
   CEquipment::RegisterEvent_EquipmentAddStackCount(NULL, EquipmentAddStackCountPost);
   CEquipment::RegisterEvent_Equipment_AddGem(EquipmentAddGemPre, NULL);
   CEquipment::RegisterEvent_EquipmentIdentify(EquipmentIdentifyPre, NULL);
+  CEquipment::RegisterEvent_EquipmentEnchant(Equipment_EnchantPre, NULL);
 
   CEquipmentRef::RegisterEvent_EquipmentRef_Dtor(EquipmentRefDtorPre, EquipmentRefDtorPost);
 
@@ -686,7 +688,8 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
             msgNewCharacter.set_id(newEntity->getCommonId());
             msgNewCharacter.set_alignment(character->alignment);
-            msgNewCharacter.set_inventory_size(character->pCInventory->maxSize);
+
+            Helper_BuildInventoryTabIndexSize(msgNewCharacter, character);
 
             // This will broadcast to all clients except the one we received it from
             Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
@@ -881,6 +884,12 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
   multiplayerLogger.WriteLine(Info, L"LoadLevelPre (GameClient = %p)", client);
 
+  // Suppress level changes
+  {
+    calloriginal = false;
+    logColor(B_GREEN, L"Level changes suppressed");
+    multiplayerLogger.WriteLine(Info, L"Level changes suppressed");
+  }
   
   CLevel *level = client->pCLevel;
   //level->DumpCharacters1();
@@ -904,6 +913,25 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
     }
     
     multiplayerLogger.WriteLine(Info, L"Done dumping items.");
+    multiplayerLogger.WriteLine(Info, L"");
+  }
+
+  // Dump level trigger items
+  {
+    multiplayerLogger.WriteLine(Info, L"");
+    multiplayerLogger.WriteLine(Info, L"Level Trigger Dump:");
+
+    LinkedListNode* itr = *(level->ppCTriggerUnits);
+    while (itr != NULL) {
+      log(L"  Level Item: itr = %p", itr);
+
+      CItem* item = (CItem*)itr->pCBaseUnit;
+      multiplayerLogger.WriteLine(Info, L"   itrNext: %p, Item: %p, Name: %s", itr->pNext, item, item->nameReal.c_str());
+
+      itr = itr->pNext;
+    }
+    
+    multiplayerLogger.WriteLine(Info, L"Done dumping triggers.");
     multiplayerLogger.WriteLine(Info, L"");
   }
 
@@ -1590,6 +1618,15 @@ void TLMP::Character_PickupEquipmentPost(CCharacter* character, CEquipment* equi
 {
   log(L" Character picking up Equipment Post");
 
+  CInventory* inv = character->pCInventory;
+  multiplayerLogger.WriteLine(Info, L"  Debug sizes: %i", inv->tabIndices.size());
+  log(L"  Debug sizes: %i", inv->tabIndices.size());
+
+  for (u32 i = 0; i < inv->tabIndices.size(); ++i) {
+    multiplayerLogger.WriteLine(Info, L"  Tab[%i] = %i", inv->tabIndices[i], inv->tabSizes[i]);
+    log(L"  Tab[%i] = %i", inv->tabIndices[i], inv->tabSizes[i]);
+  }
+
   //log(L"Dumping Level Items...");
   //gameClient->pCLevel->DumpItems();
   //gameClient->pCLevel->DumpTriggerUnits();
@@ -2087,8 +2124,23 @@ void TLMP::GameUI_TriggerPausePre(CGameUI *gameUI, bool & calloriginal)
 
 void TLMP::EnchantMenuEnchantItemPre(CEnchantMenu* enchantMenu, bool & calloriginal)
 {
+  // Suppress enchants
+  {
+    multiplayerLogger.WriteLine(Info, L"EnchantMenu suppressed.");
+    log(L"EnchantMenu suppressed.");
+
+    calloriginal = false;
+
+    return;
+  }
+
   multiplayerLogger.WriteLine(Info, L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
-  //log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
+  log(L"EnchantMenu::EnchantItem(%p) Type = %x", enchantMenu, enchantMenu->EnchantType);
+
+  multiplayerLogger.WriteLine(Info, L"EnchantMenu debug: Player: %p (%s), Character: %p (%s)",
+    enchantMenu->player, enchantMenu->player->characterName.c_str(), enchantMenu->character, enchantMenu->character->characterName.c_str());
+  log(L"EnchantMenu debug: Player: %p (%s), Character: %p (%s)",
+    enchantMenu->player, enchantMenu->player->characterName.c_str(), enchantMenu->character, enchantMenu->character->characterName.c_str());
   
   // !!!
   // This is assuming the gameClient->Player is the Owner
@@ -2494,8 +2546,10 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
       Server::getSingleton().BroadcastMessage<NetworkMessages::TriggerUnitTriggered>(S_PUSH_TRIGGER_TRIGGERED, &msgTriggerUnitTrigger);
     }
   } else {
-    log(L"Error: Could not find triggerable item in network shared list: Character: %p (%p) Item: %p (%p)",
-      player, netCharacter, triggerUnit, entity);
+    log(L"Error: Could not find triggerable item in network shared list: Character: %p (%p) Item: %p (%p)", player, netCharacter, triggerUnit, entity);
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find triggerable item in network shared list: Character: %p (%p) Item: %p (%p)", player, netCharacter, triggerUnit, entity);
+
+    calloriginal = false;
   }
 }
 
@@ -3209,10 +3263,15 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
 
-  /* Turn this off for now, causing crashes when player not owner of inventory tries to pickup item
+  //* Turn this off for now, causing crashes when player not owner of inventory tries to pickup item
 
   // Check if target character has CPlayer vtable
   menu->player = gameClient->pCPlayer;
+  menu->weaponSwapCheckBox->enable();
+
+  //log(L"    Char weapon offset: %x", (u8*)&menu->player->weaponSetToggle - (u8*)menu->player);
+  //log(L"    Checkbox offset: %x", (u8*)&menu->weaponSwapCheckBox - (u8*)menu);
+
   if (gameClient->pCGameUI->pCTargetCharacter) {
     if (gameClient->pCGameUI->pCTargetCharacter->GUID == DESTROYER ||
         gameClient->pCGameUI->pCTargetCharacter->GUID == ALCHEMIST ||
@@ -3220,9 +3279,33 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
     {
       log(L"    New character inv: %s, old char: %s", gameClient->pCGameUI->pCTargetCharacter->characterName.c_str(), menu->player->characterName.c_str());
       menu->player = (CPlayer*)gameClient->pCGameUI->pCTargetCharacter;
+      menu->weaponSwapCheckBox->disable();
     }
   }
-  */
+}
+
+void TLMP::InventoryMenu_MouseEventPre(CInventoryMenu* invMenu, const CEGUI::MouseEventArgs* args, bool & calloriginal)
+{
+  log(L"InventoryMenu_MouseEventPre:: %p", invMenu);
+  log("InventoryMenu_MouseEventPre:: Window: %p %s", args->window, args->window->getName().c_str());
+
+  if (invMenu->player != gameClient->pCPlayer) {
+    // If we're inspecting another player then ignore mouse events
+    calloriginal = false;
+    log(L"Suppressing inventory menu mouse event - inspecting another player");
+  }
+}
+
+void TLMP::Equipment_EnchantPre(u32 retval, CEquipment* equipment, u32 unk0, u32 unk1, u32 unk2, bool & calloriginal)
+{
+  log(L"Equipment_Enchant: (%p, %i, %i, %i)", equipment, unk0, unk1, unk2);
+  multiplayerLogger.WriteLine(Info, L"Equipment_Enchant: (%p, %i, %i, %i)", equipment, unk0, unk1, unk2);
+
+  log(L"Suppressing equipment enchant.");
+  multiplayerLogger.WriteLine(Info, L"Suppressing equipment enchant.");
+
+  // Prevent enchanting
+  calloriginal = false;
 }
 
 // Server Events

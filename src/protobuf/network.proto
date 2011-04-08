@@ -6,22 +6,28 @@ message Position {
   required float z = 3;
 }
 
+message InventoryTabSize {
+  required int32 tabindex = 1;
+  required int32 tabsize = 2;
+}
+
 message Character {
-  required int64     guid = 1;
-  required string    name = 2;
-  repeated Character minion  = 3;
-  required Position  position = 4;
-  optional int32     id = 5;
-  required int32     health = 6;
-  required int32     mana = 7;
-  required int32     level = 8;
-  required int32     strength = 9;
-  required int32     dexterity = 10;
-  required int32     magic = 11;
-  required int32     defense = 12;
-  repeated string    skills = 13;
-  required int32     alignment = 14;
-  required int32     inventory_size = 15;
+  required int64            guid = 1;
+  required string           name = 2;
+  repeated Character        minion  = 3;
+  required Position         position = 4;
+  optional int32            id = 5;
+  required int32            health = 6;
+  required int32            mana = 7;
+  required int32            level = 8;
+  required int32            strength = 9;
+  required int32            dexterity = 10;
+  required int32            magic = 11;
+  required int32            defense = 12;
+  repeated string           skills = 13;
+  required int32            alignment = 14;
+  repeated InventoryTabSize inventory_tabsize = 15;
+  required bool             weaponSetActive = 16;
 }
 
 // This handles both Affixes and Regular Types

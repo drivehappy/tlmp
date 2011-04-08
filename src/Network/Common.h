@@ -40,4 +40,8 @@ namespace TLMP
   extern Logger multiplayerLogger;
   extern CGameClient      *gameClient;
 
+  // Helpers
+  void Helper_BuildInventoryTabIndexSize(NetworkMessages::Character & msgNewCharacter, CCharacter* character);
+  void Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character * msgNewCharacter, CCharacter* character);
+
 };
