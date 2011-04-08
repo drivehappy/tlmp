@@ -37,7 +37,7 @@ void TLMP::SetupNetwork()
   CEffectManager::RegisterEvent_EffectManager_AddEffectToEquipment(EffectManager_AddEffectToEquipmentPre, EffectManager_AddEffectToEquipmentPost);
 
   CResourceManager::RegisterEvent_ResourceManagerCreatePlayer(CreatePlayer, NULL);
-  CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonster, NULL);
+  CResourceManager::RegisterEvent_ResourceManagerCreateMonster(CreateMonsterPre, CreateMonsterPost);
   CResourceManager::RegisterEvent_ResourceManagerCreateItem(CreateItemPre, CreateItemPost);
 
   CLevel::RegisterEvent_LevelCharacterInitialize(Level_CharacterInitialize, NULL);
@@ -396,7 +396,7 @@ void TLMP::Character_UpdateHealthPre(CCharacter* character, float amount, bool& 
   }
 }
 
-void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool noItems, bool & calloriginal)
+void TLMP::CreateMonsterPre(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool noItems, bool & calloriginal)
 {
   const u64 CAT = 0x5C5BBC74483A11DE;
   const u64 DOG = 0xD3A8F9832FA111DE;
@@ -430,6 +430,17 @@ void TLMP::CreateMonster(CMonster* character, CResourceManager* resourceManager,
     //log(L"Creating character: %016I64X %i %i %i %i", guid,
     //  gameClient->flagLevelLoading, gameClient->unkFlag1, gameClient->unkFlag2, gameClient->unkFlag3);
   }
+}
+
+void TLMP::CreateMonsterPost(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool &)
+{
+  /*
+  const u64 CAT = 0x5C5BBC74483A11DE;
+  const u64 DOG = 0xD3A8F9832FA111DE;
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+  */
 }
 
 void TLMP::CreateItemPre(CItem* item, CResourceManager* resourceManager, u64 guid, u32 level, u32 unk0, u32 unk1, bool & calloriginal)
@@ -675,6 +686,7 @@ void TLMP::Level_CharacterInitialize(CCharacter* retval, CLevel* level, CCharact
 
             msgNewCharacter.set_id(newEntity->getCommonId());
             msgNewCharacter.set_alignment(character->alignment);
+            msgNewCharacter.set_inventory_size(character->pCInventory->maxSize);
 
             // This will broadcast to all clients except the one we received it from
             Server::getSingleton().BroadcastMessage<NetworkMessages::Character>(S_PUSH_NEWCHAR, &msgNewCharacter);
@@ -874,8 +886,49 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   //level->DumpCharacters1();
   //level->DumpTriggerUnits();
   //level->DumpCharacters2();
-  level->DumpItems();
+  //level->DumpItems();
 
+  // Dump level items
+  {
+    multiplayerLogger.WriteLine(Info, L"");
+    multiplayerLogger.WriteLine(Info, L"Level Item Dump:");
+
+    LinkedListNode* itr = *(level->ppCItems);
+    while (itr != NULL) {
+      log(L"  Level Item: itr = %p", itr);
+
+      CItem* item = (CItem*)itr->pCBaseUnit;
+      multiplayerLogger.WriteLine(Info, L"   itrNext: %p, Item: %p, Name: %s", itr->pNext, item, item->nameReal.c_str());
+
+      itr = itr->pNext;
+    }
+    
+    multiplayerLogger.WriteLine(Info, L"Done dumping items.");
+    multiplayerLogger.WriteLine(Info, L"");
+  }
+
+  // Dump level characters
+  {
+    multiplayerLogger.WriteLine(Info, L"Level Character2 Dump:");
+
+    LinkedListNode* itr = *(level->ppCCharacters2);
+    while (itr != NULL) {
+      CCharacter* character = (CCharacter*)itr->pCBaseUnit;
+      CInventory* inv = character->pCInventory;
+
+      multiplayerLogger.WriteLine(Info, L"  Character (%p %s): Inventory (%p)", character, character->characterName.c_str(), inv);
+      multiplayerLogger.WriteLine(Info, L"  Inventory Dump: %p for character %p", inv, inv->pCCharacter);
+      multiplayerLogger.WriteLine(Info, L"  Inventory MaxSize: %i", inv->maxSize);
+      multiplayerLogger.WriteLine(Info, L"  Inventory Equipment Size: %i", inv->equipmentList.size);
+        
+      for (u32 i = 0; i < inv->equipmentList.size; ++i) {
+        multiplayerLogger.WriteLine(Info, L"     Inventory Equipment [%i]: %p  slot: %i", i, inv->equipmentList[i]->pCEquipment, inv->equipmentList[i]->slot);
+        multiplayerLogger.WriteLine(Info, L"       Name: (%s)", inv->equipmentList[i]->pCEquipment->nameReal.c_str());
+      }
+
+      itr = itr->pNext;
+    }
+  }
 
   /*
   logColor(B_GREEN, L"Level: %i", client->level);
@@ -1508,7 +1561,7 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
         msgEquipmentPickup.set_equipmentid(netEquipment->getCommonId());
 
         Server::getSingleton().BroadcastMessage<NetworkMessages::EquipmentPickup>(S_PUSH_EQUIPMENT_PICKUP, &msgEquipmentPickup);
-        Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
+        //Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
 
         // Remove the Equipment from the Ground list
         vector<NetworkEntity*>::iterator itr;
@@ -3152,11 +3205,11 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
 {
   log(L"InventoryMenu_OpenClosePre: %p, %i", menu, open);
 
-  log(L"  TESTING: Searching for non-local character...");
-
   const u64 DESTROYER = 0xD3A8F9982FA111DE;
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
+
+  /* Turn this off for now, causing crashes when player not owner of inventory tries to pickup item
 
   // Check if target character has CPlayer vtable
   menu->player = gameClient->pCPlayer;
@@ -3167,23 +3220,6 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
     {
       log(L"    New character inv: %s, old char: %s", gameClient->pCGameUI->pCTargetCharacter->characterName.c_str(), menu->player->characterName.c_str());
       menu->player = (CPlayer*)gameClient->pCGameUI->pCTargetCharacter;
-    }
-  }
-
-  /*
-  vector<NetworkEntity*>::iterator itr;
-  for (itr = NetworkSharedCharacters->begin(); itr != NetworkSharedCharacters->end(); itr++) {
-    CCharacter* player = (CCharacter*)((*itr)->getInternalObject());
-    if (player != gameClient->pCPlayer) {
-      const u64 DESTROYER = 0xD3A8F9982FA111DE;
-      const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
-      const u64 VANQUISHER = 0xAA472CC2629611DE;
-
-      if (player->GUID == DESTROYER || player->GUID == ALCHEMIST || player->GUID == VANQUISHER) {
-        log(L"   New player found: %p, Old: %p", player, menu->player);
-        menu->player = (CPlayer*)player;
-        break;
-      }
     }
   }
   */

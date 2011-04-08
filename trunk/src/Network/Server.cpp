@@ -252,7 +252,7 @@ void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakN
       u32 equipmentId = msgEquipmentDrop->equipmentid();
       bool unk0 = msgEquipmentDrop->unk0();
 
-      HandleEquipmentDrop(equipmentId, position, unk0);
+      HandleEquipmentDrop(address, equipmentId, position, unk0);
     }
     break;
 
@@ -614,6 +614,8 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       msgNewCharacter.set_defense(10000);
       msgNewCharacter.set_magic(10000);
 
+      msgNewCharacter.set_inventory_size(character->pCInventory->maxSize);
+
       msgNewCharacter.set_alignment(character->alignment);
 
       // This will broadcast to all clients except the one we received it from
@@ -716,11 +718,16 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     clientCharacter->characterName.assign(convertAsciiToWide(msgPlayer.name()));
     clientCharacter->SetAlignment(1);
 
-    // Lock the creation so we don't resend to all the clients
+    // Lock the creation so we do not resend to all the clients
     Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
     gameClient->pCLevel->CharacterInitialize(clientCharacter, &posPlayer, 0);
     Server::getSingleton().SetSuppressed_SendCharacterCreation(false);
 
+    // Add the correct inventory slot sizes
+    clientCharacter->pCInventory->AddTabSize(1, 0x15);   // Spells
+    clientCharacter->pCInventory->AddTabSize(2, 0x15);   // Fish - Yummy
+
+    // Base stats
     clientCharacter->healthMax = health;
     clientCharacter->manaMax = mana;
     clientCharacter->baseStrength = strength;
@@ -858,10 +865,14 @@ void Server::HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 
     multiplayerLogger.WriteLine(Info, L"Server: Added equipment.. now adding to inventory...");
     //log(L"Server: Added equipment.. now adding to inventory...");
 
+    multiplayerLogger.WriteLine(Info, L"  Character inventory size PRE: %i", inventory->equipmentList.size);
+
     // Suppress network send
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(true);
     inventory->AddEquipment(equipmentReal, slot, unk0);
     Server::getSingleton().SetSuppressed_SendEquipmentEquip(false);
+
+    multiplayerLogger.WriteLine(Info, L"  Character inventory size POST: %i", inventory->equipmentList.size);
 
     // And send it to the other clients
     NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
@@ -1040,7 +1051,7 @@ void Server::Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEqui
   }
 }
 
-void Server::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
+void Server::HandleEquipmentDrop(const SystemAddress client, u32 equipmentId, Vector3 position, bool unk0)
 {
   multiplayerLogger.WriteLine(Info, L"Server received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
     equipmentId, position.x, position.y, position.z, unk0);
@@ -1050,11 +1061,25 @@ void Server::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
 
   if (netEquipment) {
+    bool permission = false;
     CEquipment *equipment = (CEquipment *)netEquipment->getInternalObject();
     CLevel *level = gameClient->pCLevel;
-    unk0 = 1;
 
-    level->EquipmentDrop(equipment, position, unk0);
+    // Check the Unequip for the client
+    map<SystemAddress, NetworkEntity*>::iterator itr = (*Server_ClientUnequipMapping).find(client);
+    if (itr != (*Server_ClientUnequipMapping).end()) {
+      permission |= (CEquipment*)((*itr).second->getInternalObject()) == equipment;
+    }
+
+    // Check the client's permissable characters
+    permission |= Helper_CheckEquipmentPermission(client, equipment);
+
+    if (permission) {
+      level->EquipmentDrop(equipment, position, unk0);
+    } else {
+      multiplayerLogger.WriteLine(Error, L"Client does not have permission to drop equipment: %p", equipment);
+      log(L"Client does not have permission to drop equipment: %p", equipment);
+    }
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
     //log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
@@ -1268,20 +1293,26 @@ void Server::HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u
       CCharacter *characterOwner = (CCharacter*)owner->getInternalObject();
       CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
 
-      CInventory *inventory = characterOwner->pCInventory;
+      // Check client permission with the equipment
+      if (Helper_CheckEquipmentPermission(clientAddress, equipmentReal)) {
+        CInventory *inventory = characterOwner->pCInventory;
 
-      // Suppress this and send it manually
-      Server::getSingleton().SetSuppressed_SendEquipmentUnequip(true);
-      inventory->RemoveEquipment(equipmentReal);
-      Server::getSingleton().SetSuppressed_SendEquipmentUnequip(false);
+        // Suppress this and send it manually
+        Server::getSingleton().SetSuppressed_SendEquipmentUnequip(true);
+        inventory->RemoveEquipment(equipmentReal);
+        Server::getSingleton().SetSuppressed_SendEquipmentUnequip(false);
 
-      // And send to other clients
-      // Create a Network Message for sending off to clients the equipment addition to the inventory
-      NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
-      msgInventoryRemoveEquipment.set_ownerid(owner->getCommonId());
-      msgInventoryRemoveEquipment.set_equipmentid(equipment->getCommonId());
+        (*Server_ClientUnequipMapping)[clientAddress] = searchEquipmentByInternalObject(equipmentReal);
+        log(L"Server set client unequip mapping to %p", (*Server_ClientUnequipMapping)[clientAddress]);
 
-      Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(clientAddress, S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
+        // And send to other clients
+        // Create a Network Message for sending off to clients the equipment addition to the inventory
+        NetworkMessages::InventoryRemoveEquipment msgInventoryRemoveEquipment;
+        msgInventoryRemoveEquipment.set_ownerid(owner->getCommonId());
+        msgInventoryRemoveEquipment.set_equipmentid(equipment->getCommonId());
+
+        Server::getSingleton().BroadcastMessage<NetworkMessages::InventoryRemoveEquipment>(clientAddress, S_PUSH_EQUIPMENT_UNEQUIP, &msgInventoryRemoveEquipment);
+      }
     } else {
       multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment with ID = %x", equipmentId);
       //log(L"Error: Could not find Equipment with ID = %x", equipmentId);
@@ -1492,7 +1523,7 @@ void Server::Helper_RemoveClient(const SystemAddress clientAddress)
   map<SystemAddress, vector<NetworkEntity*>*>::iterator itr;
 
   // Search for an existing address
-  for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); itr++) {
+  for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); ++itr) {
     if ((*itr).first == clientAddress) {
       vector<NetworkEntity*>::iterator itr2;
       for (itr2 = (*itr).second->begin(); itr2 != (*itr).second->end(); itr2++) {
@@ -1514,7 +1545,7 @@ void Server::HandleAddClientCharacter(const SystemAddress address, CCharacter* c
 
   // Search for an existing address
   bool found = false;
-  for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); itr++) {
+  for (itr = Server_ClientCharacterMapping->begin(); itr != Server_ClientCharacterMapping->end(); ++itr) {
     if ((*itr).first == address) {
       found = true;
       break;
@@ -1724,6 +1755,49 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
   logColor(B_RED, "Server done sending trigger units...");
 }
 
+bool Server::Helper_CheckEquipmentPermission(const SystemAddress client, CEquipment *equipment)
+{
+  // Determine if the client has permission to drop this item, e.g. this item should be on their person or minion
+  if (Server_ClientCharacterMapping) {
+    vector<NetworkEntity*>::iterator itr;
+
+    log(L"Helper_CheckEquipmentPermission: Client owns following characters:");
+    for (itr = (*Server_ClientCharacterMapping)[client]->begin(); itr != (*Server_ClientCharacterMapping)[client]->end(); ++itr) {
+      CCharacter* clientCharacter = (CCharacter*)(*itr)->getInternalObject();
+      CInventory* inv = clientCharacter->pCInventory;
+
+      log(L"  %p (%s) (Inv size: %i)", clientCharacter, clientCharacter->characterName.c_str(), inv->equipmentList.size);
+
+      // Traverse the character inventory equipmentRef and search for the equipment
+      for (u32 i = 0; i < inv->equipmentList.size; ++i) {
+        if (equipment == inv->equipmentList[i]->pCEquipment) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Server::Helper_CheckCharacterPermission(const SystemAddress client, CCharacter *character)
+{
+  // Determine if the client has permission to drop this item, e.g. this item should be on their person or minion
+  if (Server_ClientCharacterMapping) {
+    vector<NetworkEntity*>::iterator itr;
+
+    log(L"Helper_CheckEquipmentPermission: Client owns following characters:");
+    for (itr = (*Server_ClientCharacterMapping)[client]->begin(); itr != (*Server_ClientCharacterMapping)[client]->end(); ++itr) {
+      CCharacter* clientCharacter = (CCharacter*)(*itr)->getInternalObject();
+      
+      if (clientCharacter == character) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 void Server::HandleCharacterResurrect(NetworkMessages::CharacterResurrect *msgCharacterResurrect)
 {

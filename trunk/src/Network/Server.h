@@ -96,7 +96,7 @@ namespace TLMP {
       void HandleInventoryAddEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId, u32 slot, u32 unk0, u64 guid);
       void HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u32 ownerId, u32 equipmentId);
       void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination, u8 running, u8 attacking);
-      void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
+      void HandleEquipmentDrop(const SystemAddress client, u32 equipmentId, Vector3 position, bool unk0);
       void HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::NetworkMessages::Equipment *msgEquipment);
       void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
       void HandleCharacterSetAction(const SystemAddress clientAddress, NetworkMessages::CharacterAction*);
@@ -119,6 +119,8 @@ namespace TLMP {
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);
       void Helper_SendCurrentLevel(const SystemAddress clientAddress);
       void Helper_SendTriggerUnitSync(const SystemAddress clientAddress);
+      bool Helper_CheckEquipmentPermission(const SystemAddress client, CEquipment *equipment);
+      bool Helper_CheckCharacterPermission(const SystemAddress client, CCharacter *character);
       
       static void Helper_RemoveClient(const SystemAddress clientAddress);
       static void Helper_RemoveBaseUnit(CBaseUnit*);

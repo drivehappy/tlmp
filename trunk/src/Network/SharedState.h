@@ -25,9 +25,11 @@ namespace TLMP {
   extern vector<NetworkEntity*>* NetworkSharedEquipment;
   extern vector<NetworkEntity*>* NetworkSharedCharacters;
   extern vector<NetworkEntity*>* ClientTemporaryEquipment;
-  extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
   extern vector<NetworkEntity*>* ServerEquipmentOnGround;
   extern vector<NetworkEntity*>* NetworkSharedLevelItems;
+
+  extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
+  extern map<SystemAddress, NetworkEntity*>* Server_ClientUnequipMapping;
 
   extern vector<CBaseUnit*>* OutsideBaseUnits;  // Represents a list of BaseUnits created outside our singleplayer game
 
@@ -164,7 +166,9 @@ namespace TLMP {
       return newEntity;
     } else {
       //log(L"Error: Could not add Item to SharedLevelItems, CommonID of %x already exists!", commonId);
-      log(L"CommonID Item already exists, replacing: %x %s", commonId, ((CItem *)entity->getInternalObject())->nameReal.c_str());
+      log(L"CommonID Item already exists, replacing %x with entity %p", commonId, ((CItem *)entity->getInternalObject()));
+      //log(L"  Entity name: %s", ((CItem *)entity->getInternalObject())->nameReal.c_str());
+
       entity->SetNewInternalObject(equipment);
     }
     return entity;

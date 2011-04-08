@@ -21,6 +21,7 @@ message Character {
   required int32     defense = 12;
   repeated string    skills = 13;
   required int32     alignment = 14;
+  required int32     inventory_size = 15;
 }
 
 // This handles both Affixes and Regular Types

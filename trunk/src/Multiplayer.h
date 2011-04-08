@@ -46,7 +46,8 @@ namespace TLMP
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
   // Pre Event for character initialization
-  void CreateMonster(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
+  void CreateMonsterPre(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
+  void CreateMonsterPost(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool &);
   void CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk, bool & calloriginal);
 
   // EffectManager
