@@ -143,6 +143,7 @@ namespace TLMP
   void EquipmentAddStackCountPost(CEquipment*, u32);
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
   void EquipmentIdentifyPre(CEquipment*, CPlayer*, CEquipment*, bool&);
+  void Equipment_EnchantPre(u32 retval, CEquipment* equipment, u32 unk0, u32 unk1, u32 unk2, bool & calloriginal);
 
   void EquipmentRefDtorPre(CEquipmentRef*, u32);
   void EquipmentRefDtorPost(CEquipmentRef*, u32);
@@ -219,6 +220,7 @@ namespace TLMP
 
   // Pre Event for InventoryMenuOpenClose
   void InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& calloriginal);
+  void InventoryMenu_MouseEventPre(CInventoryMenu*, const CEGUI::MouseEventArgs*, bool&);
 
   // Helpers
   void SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk);

@@ -601,6 +601,7 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       msgNewCharacter.set_health(character->healthMax4);
       msgNewCharacter.set_mana(character->manaMax);
       msgNewCharacter.set_level(character->level);
+      msgNewCharacter.set_weaponsetactive(character->weaponSetToggle);
 
       // This allows a workaround for the modified attributes needed for equipment
       /*
@@ -614,9 +615,27 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       msgNewCharacter.set_defense(10000);
       msgNewCharacter.set_magic(10000);
 
-      msgNewCharacter.set_inventory_size(character->pCInventory->maxSize);
-
       msgNewCharacter.set_alignment(character->alignment);
+
+      // Build the inventory tab indicies/tab size
+      Helper_BuildInventoryTabIndexSize(msgNewCharacter, character);
+      /*
+      if (character->pCInventory) {
+        CInventory *inv = character->pCInventory;
+        for (u32 i = 0; i < inv->tabIndices.size(); ++i) {
+          NetworkMessages::InventoryTabSize *msgTabSize = msgNewCharacter.add_inventory_tabsize();
+
+          msgTabSize->set_tabindex(i);
+
+          if (i + 1 < inv->tabIndices.size()) {
+            // Use the next index to compute size
+            msgTabSize->set_tabsize(inv->tabIndices[i + 1] - inv->tabIndices[i]);
+          } else {
+            // Use the inventory's max size to compute last element's size
+            msgTabSize->set_tabsize(inv->maxSize - inv->tabIndices[i]);
+          }
+        }
+      }*/
 
       // This will broadcast to all clients except the one we received it from
       Server::getSingleton().SendMessage<NetworkMessages::Character>(clientAddress, S_PUSH_NEWCHAR, &msgNewCharacter);
@@ -694,6 +713,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
   u32 dexterity = msgPlayer.dexterity();
   u32 defense = msgPlayer.defense();
   u32 magic = msgPlayer.magic();
+  u32 weaponSetActive = msgPlayer.weaponsetactive();
 
   // Create this Player on this instance
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
@@ -734,6 +754,11 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     clientCharacter->baseDexterity = dexterity;
     clientCharacter->baseDefense = defense;
     clientCharacter->baseMagic = magic;
+
+    clientCharacter->weaponSetToggle = weaponSetActive;
+
+    // Inventory tab sizes
+    Helper_ExtractInventoryTabIndexSize(&msgPlayer, clientCharacter);
 
     // Send this ID to the Client that created the character
     entityCharacter = searchCharacterByInternalObject(clientCharacter);
@@ -783,6 +808,8 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
       // Add the minion to the player
       clientCharacter->AddMinion(clientMinion);
+
+      Helper_ExtractInventoryTabIndexSize(&msgMinion, clientMinion);
       
       // Send this ID to the Client that created the character
       entityCharacter = searchCharacterByInternalObject(clientMinion);

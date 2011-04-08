@@ -767,6 +767,10 @@ void Client::HandleRequestCharacterInfo()
   msgPlayer->set_magic(10000);
   msgPlayer->set_health(player->healthMax);
   msgPlayer->set_mana(player->manaMax);
+  msgPlayer->set_weaponsetactive(player->weaponSetToggle);
+
+  // Inventory tab sizes
+  Helper_BuildInventoryTabIndexSize(*msgPlayer, player);
 
   msgPlayerPosition->set_x(player->position.x);
   msgPlayerPosition->set_y(player->position.y);
@@ -892,7 +896,7 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
   u64 guidCharacter = msgCharacter->guid();
   string characterName = msgCharacter->name();
   u32 alignment = msgCharacter->alignment();
-  u32 inventorySize = msgCharacter->inventory_size();
+  u32 weaponSetToggle = msgCharacter->weaponsetactive();
 
   multiplayerLogger.WriteLine(Info, L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
@@ -929,10 +933,10 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
       monster->baseDexterity = dexterity;
       monster->baseDefense = defense;
       monster->baseMagic = magic;
+      monster->weaponSetToggle = weaponSetToggle;
 
-      // ByPass the inventory helper function, I don't think there's a way to retrieve the actual tab index/size
-      //  (so the server can this info to us) just simply update max size and hope it works
-      monster->pCInventory->maxSize = inventorySize;
+      // Handle inventory tab sizes
+      Helper_ExtractInventoryTabIndexSize(msgCharacter, monster);
     } else {
       Client::getSingleton().SetSuppressed_CharacterCreation(true);
       multiplayerLogger.WriteLine(Error, L"Error: Character created was null!");
@@ -1158,6 +1162,34 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
     SetAllow_LevelItemDrop(true);
     level->EquipmentDrop(equipment, position, unk0);
     SetAllow_LevelItemDrop(false);
+
+    /*
+    // BUG Fix: Move through all character inventories and remove any EquipmentRef's to this equipment
+    //  stops client from creating duplicate equipmentrefs when inventories are full - which shouldn't occur to begin with
+    //  inventory::settabsize should stop this client-side
+    {
+      CLevel *level = gameClient->pCLevel;
+      if (level) {
+        vector<CCharacter*> &characters = level->GetCharacters();
+        vector<CCharacter*>::iterator itr;
+        for (itr = characters.begin(); itr != characters.end(); ++itr) {
+          CCharacter* character = (*itr);
+          if (character) {
+            CInventory* inv = character->pCInventory;
+            if (inv) {
+              for (u32 i = 0; i < inv->equipmentList.size; ++i) {
+                CEquipmentRef* ref = inv->equipmentList[i];
+                if (ref->pCEquipment == equipment) {
+                  inv->RemoveEquipment(equipment);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    */
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x",
       equipmentId);
@@ -1997,8 +2029,6 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
 
           break;
         }
-      } else {
-        //log(L"TriggerUnit is bad: %p", triggerUnit);
       }
       itr = itr->pNext;
     }

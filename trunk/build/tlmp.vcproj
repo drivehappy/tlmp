@@ -260,6 +260,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Network\Common.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Network\Network.cpp"
 					>
 				</File>
