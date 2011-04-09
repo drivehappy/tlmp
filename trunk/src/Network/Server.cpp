@@ -718,6 +718,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
   // Create this Player on this instance
   CResourceManager *resourceManager = (CResourceManager *)gameClient->pCPlayer->pCResourceManager;
   //Testing Skills
+  log("Creating character");
   CMonster *clientCharacter = resourceManager->CreateMonster(msgPlayer.guid(), levelCharacter, true);
   //CPlayer *clientCharacter = resourceManager->CreatePlayer(L"Destroyer", 1);
   //clientCharacter->level = levelCharacter;
@@ -739,6 +740,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
     clientCharacter->SetAlignment(1);
 
     // Lock the creation so we do not resend to all the clients
+    log("Initializing character");
     Server::getSingleton().SetSuppressed_SendCharacterCreation(true);
     gameClient->pCLevel->CharacterInitialize(clientCharacter, &posPlayer, 0);
     Server::getSingleton().SetSuppressed_SendCharacterCreation(false);
