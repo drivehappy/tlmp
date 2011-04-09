@@ -3263,7 +3263,7 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
   const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
   const u64 VANQUISHER = 0xAA472CC2629611DE;
 
-  //* Turn this off for now, causing crashes when player not owner of inventory tries to pickup item
+  // Player inspection support
 
   // Check if target character has CPlayer vtable
   menu->player = gameClient->pCPlayer;
@@ -3282,12 +3282,80 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
       menu->weaponSwapCheckBox->disable();
     }
   }
+
+  // Strip off the extra scene nodes if there is more than our player
+  /*
+  log("menu->paperDollViewport: %p", menu->paperDollViewport);
+  menu->paperDollViewport->setBackgroundColour(Ogre::ColourValue(0.13f, 0.07f, 0.21f));
+  Ogre::Camera* camera = menu->paperDollViewport->getCamera();
+  log("camera: %p", camera);
+  */
+  //Ogre::SceneManager* sm = camera->getSceneManager();
+  Ogre::SceneManager* sm = CMasterResourceManager::getInstance()->sceneManagerPlayerInventory;
+  Ogre::SceneNode* root = sm->getRootSceneNode();
+
+  // Dump
+  Ogre::Node* targetNode = menu->player->pCGenericModel_Inventory->pOctreeNode_Inventory;
+  //Ogre::Node* playerInvNode = gameClient->pCPlayer->pCGenericModel_Inventory->pOctreeNode_Inventory;
+
+  log("TargetNode: %p", targetNode);
+  root->removeAllChildren();
+  root->addChild(targetNode);
+
+  /*
+  // Remove all character nodes except the player's
+  s32 childCount = root->numChildren();
+  for (s16 i = childCount - 1; i > 0; --i) {
+    Ogre::Node* child = root->getChild(i);
+
+    if (child != playerInvNode) {
+      root->removeChild(child);
+    }
+  }*/
 }
 
 void TLMP::InventoryMenu_MouseEventPre(CInventoryMenu* invMenu, const CEGUI::MouseEventArgs* args, bool & calloriginal)
 {
   log(L"InventoryMenu_MouseEventPre:: %p", invMenu);
   log("InventoryMenu_MouseEventPre:: Window: %p %s", args->window, args->window->getName().c_str());
+
+  log("Viewport Offset: %x", (u8*)&invMenu->paperDollViewport - (u8*)invMenu);
+  log("weaponSwapCheckBox Offset: %x", (u8*)&invMenu->weaponSwapCheckBox - (u8*)invMenu);
+  log("Viewport: %p", invMenu->paperDollViewport);
+
+  invMenu->paperDollViewport->setBackgroundColour(Ogre::ColourValue(0.13f, 0.07f, 0.21f));
+  Ogre::Camera* camera = invMenu->paperDollViewport->getCamera();
+  Ogre::SceneManager* sm = camera->getSceneManager();
+  Ogre::SceneNode* root = sm->getRootSceneNode();
+
+  log("SceneManager: %p", sm);
+  log("Root SceneNode: %p %s -- Children: %i", root, root->getName().c_str(), root->numChildren());
+  for (u16 i = 0; i < root->numChildren(); ++i) {
+    Ogre::Node* child = root->getChild(i);
+    log("  Child: %p %s -- Children: %i", child, child->getName().c_str(), child->numChildren());
+    for (u16 j = 0; j < child->numChildren(); ++j) {
+      Ogre::Node* child2 = child->getChild(j);
+      log("    Child2: %p %s -- Children: %i", child2, child2->getName().c_str(), child2->numChildren());
+    }
+  }
+
+  /*
+  CEGUI::Window* parent = args->window->getParent();
+  parent = parent->getParent();
+  parent = parent->getParent();
+  u32 childCount = parent->getChildCount();
+
+  log("Parent window: %s has %i children", parent->getName().c_str(), childCount);
+  for (u32 i = 0; i < childCount; ++i) {
+    CEGUI::Window* child = parent->getChildAtIdx(i);
+    log("  Child window: %s has %i children", child->getName().c_str(), child->getChildCount());
+
+    for (u32 j = 0; j < child->getChildCount(); ++j) {
+      CEGUI::Window* child2 = child->getChildAtIdx(j);
+      log("    Child window: %s %p has %i children", child2->getName().c_str(), child2, child2->getChildCount());
+    }
+  }
+  */
 
   if (invMenu->player != gameClient->pCPlayer) {
     // If we're inspecting another player then ignore mouse events
