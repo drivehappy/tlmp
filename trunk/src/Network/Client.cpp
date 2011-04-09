@@ -802,6 +802,13 @@ void Client::HandleRequestCharacterInfo()
     msgPet->set_guid((*itr)->GUID);
     msgPet->set_name(petName);
     msgPet->set_level((*itr)->level);
+
+    Helper_BuildInventoryTabIndexSize(*msgPet, (*itr));
+
+    multiplayerLogger.WriteLine(Info, L"Client::Pet tab sizes count: %i %i", (*itr)->pCInventory->tabIndices.size(), (*itr)->pCInventory->tabSizes.size());
+    for (u32 i = 0; i < (*itr)->pCInventory->tabIndices.size(); ++i) {
+      multiplayerLogger.WriteLine(Info, L"  Tab [%i] size: %i", (*itr)->pCInventory->tabIndices[i], (*itr)->pCInventory->tabSizes[i]);
+    }
   }
 
   Client::getSingleton().SendMessage<NetworkMessages::ReplyCharacterInfo>(C_REPLY_CHARINFO, &msgReplyCharacterInfo);
@@ -1254,6 +1261,41 @@ void Client::HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmen
 
     multiplayerLogger.WriteLine(Info, L"   Equipment name: %s", equipment->nameReal.c_str());
 
+    // Find the character with the equipment equipped
+    vector<CCharacter*>* clientCharacters = Helper_ProduceClientSideCharacters(gameClient->pCPlayer);
+    vector<CCharacter*>::iterator itr;
+
+    for (itr = clientCharacters->begin(); itr != clientCharacters->end(); ++itr) {
+      CCharacter* checkChar = (*itr);
+
+      NetworkEntity *netCharacter = searchCharacterByInternalObject(checkChar);
+      if (netCharacter) {
+        CInventory *inv = checkChar->pCInventory;
+        if (inv) {
+          s32 slot = inv->GetEquipmentSlot(equipment);
+          //if (slot <= 0x0C) {
+          if (slot >= 0) {
+            NetworkMessages::InventoryAddEquipment msgInventoryAddEquipment;
+            msgInventoryAddEquipment.set_equipmentid(id);
+            msgInventoryAddEquipment.set_guid(equipment->GUID);
+            msgInventoryAddEquipment.set_ownerid(netCharacter->getCommonId());
+            msgInventoryAddEquipment.set_slot(slot);
+            msgInventoryAddEquipment.set_unk0(1);
+
+            multiplayerLogger.WriteLine(Info, L"    Replying server with equipment Slot: %x (OwnerID: %x)", slot, netCharacter->getCommonId());
+
+            Client::getSingleton().SendMessage<NetworkMessages::InventoryAddEquipment>(C_PUSH_EQUIPMENT_EQUIP, &msgInventoryAddEquipment);
+
+            break;
+          }
+        } else {
+          //log(L"Error: Character has no Inventory!");
+          multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
+        }
+      }
+    }
+
+    /*
     // If the equipment is equipped on the body - tell the server to add it
     NetworkEntity *netCharacter = searchCharacterByInternalObject(gameClient->pCPlayer);
     if (netCharacter) {
@@ -1278,6 +1320,7 @@ void Client::HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmen
         multiplayerLogger.WriteLine(Error, L"Error: Character has no Inventory!");
       }
     }
+    */
 
   } else {
     multiplayerLogger.WriteLine(Error, L"Error: Expected to set common ID for client Equipment, but could not find the Equipment with Client ID = %x",
@@ -1303,7 +1346,7 @@ void Client::Helper_ClientPushAllEquipment()
   //  clientCharacters->size());
 
   vector<CCharacter*>::iterator itr;
-  for (itr = clientCharacters->begin(); itr != clientCharacters->end(); itr++) {
+  for (itr = clientCharacters->begin(); itr != clientCharacters->end(); ++itr) {
     CInventory *characterInventory = (*itr)->pCInventory;
 
     multiplayerLogger.WriteLine(Info, L"  Moving through inventory of size: %i",
@@ -1378,9 +1421,9 @@ vector<CCharacter*>* Client::Helper_ProduceClientSideCharacters(CCharacter *char
   retval->push_back(character);
 
   vector<CCharacter*>::iterator itr, itrMinion;
-  for (itr = minions->begin(); itr != minions->end(); itr++) {
+  for (itr = minions->begin(); itr != minions->end(); ++itr) {
     minionList = Helper_ProduceClientSideCharacters((*itr));
-    for (itrMinion = minionList->begin(); itrMinion != minionList->end(); itrMinion++) {
+    for (itrMinion = minionList->begin(); itrMinion != minionList->end(); ++itrMinion) {
       retval->push_back((*itrMinion));
     }
     delete minionList;
