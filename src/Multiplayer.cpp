@@ -2684,20 +2684,22 @@ void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 
 void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting: %p", equipmentRef);
+  log(L"EquipmentRef::Dtor Post");
+
   /*
+  log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting: %p", equipmentRef);
   log(L"  GameClient1: %p", gameClient);
   log(L"  GameUI: %p", gameClient->pCGameUI);
   //log(L"  ResourceManager: %p", gameClient->pCGameUI->resourceManager);
   log(L"  GameClient2: %p", gameClient);
   log(L"  Player: %p", gameClient->pCPlayer);
-  */
 
   if (equipmentRef->pCEquipment) {
     equipmentRef->pCEquipment = NULL;
   }
 
   //log(L"Done.");
+  */
 }
 
 void TLMP::Monster_GetCharacterClosePost(CCharacter* retval, CMonster* monster, float unk0, u32 unk1, bool& calloriginal)
@@ -3269,9 +3271,6 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
   menu->player = gameClient->pCPlayer;
   menu->weaponSwapCheckBox->enable();
 
-  //log(L"    Char weapon offset: %x", (u8*)&menu->player->weaponSetToggle - (u8*)menu->player);
-  //log(L"    Checkbox offset: %x", (u8*)&menu->weaponSwapCheckBox - (u8*)menu);
-
   if (gameClient->pCGameUI->pCTargetCharacter) {
     if (gameClient->pCGameUI->pCTargetCharacter->GUID == DESTROYER ||
         gameClient->pCGameUI->pCTargetCharacter->GUID == ALCHEMIST ||
@@ -3283,35 +3282,18 @@ void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& cal
     }
   }
 
-  // Strip off the extra scene nodes if there is more than our player
-  /*
-  log("menu->paperDollViewport: %p", menu->paperDollViewport);
-  menu->paperDollViewport->setBackgroundColour(Ogre::ColourValue(0.13f, 0.07f, 0.21f));
-  Ogre::Camera* camera = menu->paperDollViewport->getCamera();
-  log("camera: %p", camera);
-  */
-  //Ogre::SceneManager* sm = camera->getSceneManager();
+  // Set the correct weapon set for the selected player
+  if (menu->weaponSwapCheckBox->isSelected() != (bool)menu->player->weaponSetToggle) {
+    menu->weaponSwapCheckBox->setSelected(!menu->weaponSwapCheckBox->isSelected());
+  }
+
+  // Strip off the extra scene nodes if there is more than our target
   Ogre::SceneManager* sm = CMasterResourceManager::getInstance()->sceneManagerPlayerInventory;
   Ogre::SceneNode* root = sm->getRootSceneNode();
 
-  // Dump
   Ogre::Node* targetNode = menu->player->pCGenericModel_Inventory->pOctreeNode_Inventory;
-  //Ogre::Node* playerInvNode = gameClient->pCPlayer->pCGenericModel_Inventory->pOctreeNode_Inventory;
-
-  log("TargetNode: %p", targetNode);
   root->removeAllChildren();
   root->addChild(targetNode);
-
-  /*
-  // Remove all character nodes except the player's
-  s32 childCount = root->numChildren();
-  for (s16 i = childCount - 1; i > 0; --i) {
-    Ogre::Node* child = root->getChild(i);
-
-    if (child != playerInvNode) {
-      root->removeChild(child);
-    }
-  }*/
 }
 
 void TLMP::InventoryMenu_MouseEventPre(CInventoryMenu* invMenu, const CEGUI::MouseEventArgs* args, bool & calloriginal)
