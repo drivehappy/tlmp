@@ -1756,7 +1756,15 @@ void Client::HandleLevelCreateItem(NetworkMessages::LevelCreateItem *msgLevelCre
   if (resourceManager) {
     CItem *item = resourceManager->CreateItem(guid, level, unk0, unk1);
 
-    addItem(item, itemId);
+    // Attempt to clean up extra chests
+    const u32 OPENABLE = 0x28;
+    if (item->type__ == OPENABLE) {
+      item->destroy = true;
+      item->position.x = 1000;
+      item->position.z = 1000;
+    } else {
+      addItem(item, itemId);
+    }
   }
 }
 
@@ -2006,10 +2014,28 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
 
   // Assume the server's trigger units are sync'd with ours
   CLevel *level = gameClient->pCLevel;
+  log(L"Level: %p", level);
   level->DumpTriggerUnits();
 
   u32 triggerSize = (u32)msgTriggerUnitSync->triggerunits().size();
   log(L"  TriggerUnitList Size: %i", triggerSize);
+  for (u32 i = 0; i < triggerSize; i++) {
+    NetworkMessages::TriggerUnit msgTriggerUnit = msgTriggerUnitSync->triggerunits().Get(i);
+    NetworkMessages::Position *msgPosition = msgTriggerUnit.mutable_triggerposition();
+
+    Vector3 serverTriggerPosition;
+    serverTriggerPosition.x = msgPosition->x();
+    serverTriggerPosition.y = msgPosition->y();
+    serverTriggerPosition.z = msgPosition->z();
+
+    u32 triggerId = msgTriggerUnit.triggerid();
+    log(L"  TriggerID: %x", triggerId);
+    log(L"  TriggerPosition: %f %f %f",
+      serverTriggerPosition.x,
+      serverTriggerPosition.y,
+      serverTriggerPosition.z);
+  }
+  log(L"Done dumping");
   
   // List our trigger Units
   LinkedListNode* itr = *level->ppCTriggerUnits;
@@ -2049,10 +2075,23 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
       CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;  
 
       if (triggerUnit) {
+        bool found = false;
         Ogre::Real dist = triggerUnit->position.squaredDistance(serverTriggerPosition);
 
-        if (dist < 0.01f)
-        {
+        if (dist < 0.1f) {
+          found = true;
+        } else {
+          // Check the world scenenode (foreman table, stairs use this positioning)
+          if (triggerUnit->pOctreeNode_World) {
+            dist = triggerUnit->pOctreeNode_World->getPosition().squaredDistance(serverTriggerPosition);
+          }
+          if (dist < 0.1f) {
+            log("Found node through World OctreeNode");
+            found = true;
+          }
+        }
+
+        if (found) {
           logColor(B_GREEN, L"Syncing triggerUnit of ID %x to: %s", triggerId, triggerUnit->nameReal.c_str());
           log(L"  Distance: %f", dist);
           logColor(B_GREEN, L"  My TriggerUnit: %p %s (%f, %f, %f)  with Server: (%f, %f, %f)",

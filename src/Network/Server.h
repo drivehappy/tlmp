@@ -114,6 +114,7 @@ namespace TLMP {
       void HandleCharacterOrientation(NetworkMessages::CharacterOrientation *);
       void HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *);
       void HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *);
+      void HandleCharacterStrike(NetworkMessages::CharacterStrikeCharacter *);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);

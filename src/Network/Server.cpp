@@ -416,6 +416,14 @@ void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakN
     }
     break;
 
+  case C_PUSH_CHARACTER_STRIKE:
+    {
+      NetworkMessages::CharacterStrikeCharacter *msgCharacterStrikeCharacter = ParseMessage<NetworkMessages::CharacterStrikeCharacter>(m_pBitStream);
+
+      HandleCharacterStrike(msgCharacterStrikeCharacter);
+    }
+    break;
+
   case C_REQUEST_ORIENTATION:
     {
       NetworkMessages::CharacterOrientation *msgCharacterOrientation = ParseMessage<NetworkMessages::CharacterOrientation>(m_pBitStream);
@@ -1766,12 +1774,22 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
         triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
 
       NetworkMessages::TriggerUnit *msgTriggerUnit = msgTriggerUnitSync.add_triggerunits();
+      msgTriggerUnit->set_triggerid(entity->getCommonId());
+
       NetworkMessages::Position *msgPosition = msgTriggerUnit->mutable_triggerposition();
 
-      msgPosition->set_x(triggerUnit->position.x);
-      msgPosition->set_y(triggerUnit->position.y);
-      msgPosition->set_z(triggerUnit->position.z);
-      msgTriggerUnit->set_triggerid(entity->getCommonId());
+      // Use the real TriggerUnit position if it's not 0,0,0 - else use the OctreeNode position
+      const float epsilon = 0.0001f;
+      if (triggerUnit->position.length() <= epsilon && triggerUnit->pOctreeNode_World) {
+        msgPosition->set_x(triggerUnit->pOctreeNode_World->getPosition().x);
+        msgPosition->set_y(triggerUnit->pOctreeNode_World->getPosition().y);
+        msgPosition->set_z(triggerUnit->pOctreeNode_World->getPosition().z);
+      } else {
+        msgPosition->set_x(triggerUnit->position.x);
+        msgPosition->set_y(triggerUnit->position.y);
+        msgPosition->set_z(triggerUnit->position.z);
+      }
+      
     } else {
       //logColor(B_RED, L"Server Error: Could not find Item ID for TriggerUnit: %s   Sync", triggerUnit->nameReal.c_str());
     }
@@ -1897,3 +1915,38 @@ void Server::HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoi
 
   character->pCSkillManager->setSkillLevel(skill, skillLevel);
 }
+
+void Server::HandleCharacterStrike(NetworkMessages::CharacterStrikeCharacter *msgCharacterStrikeCharacter)
+{
+  u32 attackerId = msgCharacterStrikeCharacter->characteridsource();
+  u32 defenderId = msgCharacterStrikeCharacter->characteridtarget();
+  float unk0 = msgCharacterStrikeCharacter->unk0();
+  float unk1 = msgCharacterStrikeCharacter->unk1();
+  u32 unk2 = msgCharacterStrikeCharacter->unk2();
+
+  NetworkEntity *netAttacker = searchCharacterByCommonID(attackerId); 
+  NetworkEntity *netDefender = searchCharacterByCommonID(defenderId); 
+
+  if (!netAttacker || !netDefender) {
+    log(L"Could not find network entity for IDs: %x %x", attackerId, defenderId);
+    return;
+  }
+
+  CCharacter *attacker = (CCharacter*)netAttacker->getInternalObject();
+  CCharacter *defender = (CCharacter*)netDefender->getInternalObject();
+
+  if (!attacker || !defender) {
+    log(L"Could not find attacker/defender from net entity: %p %p", attacker, defender);
+    return;
+  }
+
+  CLevel* level = gameClient->pCLevel;
+  if (!level) {
+    log(L"Level is not setup yet for character attacks");
+    return;
+  }
+
+  log("Server: %s striking %s (%f %f %i)", attacker->characterName.c_str(), defender->characterName.c_str(), unk0, unk1, unk2);
+  attacker->StrikeCharacter(level, defender, 0, 0, unk0, unk1, unk2);
+}
+     

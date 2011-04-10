@@ -513,19 +513,21 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
         }
       }
       else if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-        if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
-          //logColor(B_RED, L"Adding Special Item of Type: %x  %s", item->type__, item->nameReal.c_str());
+        //if (item->type__ != OPENABLE && item->type__ != INTERACTABLE) {
+          if (!Server::getSingleton().GetSuppressed_SendEquipmentCreation()) {
+            //logColor(B_RED, L"Adding Special Item of Type: %x  %s", item->type__, item->nameReal.c_str());
 
-          NetworkEntity *entity = addItem(item);
+            NetworkEntity *entity = addItem(item);
 
-          NetworkMessages::LevelCreateItem msgLevelCreateItem;
-          msgLevelCreateItem.set_itemid(entity->getCommonId());
-          msgLevelCreateItem.set_guid(item->GUID);
-          msgLevelCreateItem.set_level(level);
-          msgLevelCreateItem.set_unk0(unk0);
-          msgLevelCreateItem.set_unk1(unk1);
-          Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_LEVEL_CREATE_ITEM, &msgLevelCreateItem);
-        }
+            NetworkMessages::LevelCreateItem msgLevelCreateItem;
+            msgLevelCreateItem.set_itemid(entity->getCommonId());
+            msgLevelCreateItem.set_guid(item->GUID);
+            msgLevelCreateItem.set_level(level);
+            msgLevelCreateItem.set_unk0(unk0);
+            msgLevelCreateItem.set_unk1(unk1);
+            Server::getSingleton().BroadcastMessage<NetworkMessages::LevelCreateItem>(S_PUSH_LEVEL_CREATE_ITEM, &msgLevelCreateItem);
+          }
+        //}
       }
     }
   }
@@ -884,12 +886,14 @@ void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
   logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
   multiplayerLogger.WriteLine(Info, L"LoadLevelPre (GameClient = %p)", client);
 
+  /*
   // Suppress level changes
   {
     calloriginal = false;
     logColor(B_GREEN, L"Level changes suppressed");
     multiplayerLogger.WriteLine(Info, L"Level changes suppressed");
   }
+  */
   
   CLevel *level = client->pCLevel;
   //level->DumpCharacters1();
@@ -990,6 +994,7 @@ void TLMP::GameClient_LoadLevelPost(CGameClient* client, bool & calloriginal)
   multiplayerLogger.WriteLine(Info, L"GameClient_LoadLevelPost");
 
   CLevel *level = client->pCLevel;
+  log(L"Level: %p", level);
   level->DumpCharacters1();
   level->DumpTriggerUnits();
   level->DumpCharacters2();
@@ -1508,17 +1513,6 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
 {
   log(L"Character picking up Equipment Pre: %p", equipment);
 
-  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipmentPre(Character: %p) (%p) (Level: %p)",
-    character, equipment, level);
-  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipmentPre(Character: %s) (%s)",
-    character->characterName.c_str(), equipment->nameReal.c_str());
-  //log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
-  //  character, equipment, equipment->nameReal.c_str(), level);
-
-  //log(L"Dumping Level Items...");
-  //gameClient->pCLevel->DumpItems();
-  //gameClient->pCLevel->DumpTriggerUnits();
-
   // Make sure the item is in the level before attempting to pick it up
   //   halts crashes on multiple CItemGold pickups after it's been destroyed
   {
@@ -1530,12 +1524,25 @@ void TLMP::Character_PickupEquipmentPre(CCharacter* character, CEquipment* equip
     if (netEquipment) {
       CItem *item = (CItem*)netEquipment->getInternalObject();
       if (!gameClient->pCLevel->containsItem(item)) {
-        //log("Couldn't find item in the level, jumping out before we crash...");
+        log("Couldn't find item in the level, jumping out before we crash...");
         calloriginal = false;
         return;
       }
     }
   }
+
+  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipmentPre(Character: %p) (%p) (Level: %p)",
+    character, equipment, level);
+  multiplayerLogger.WriteLine(Info, L" Character::PickupEquipmentPre(Character: %s) (%s)",
+    character->characterName.c_str(), equipment->nameReal.c_str());
+  //log(L" Character::PickupEquipment(Character: %p) (%p %s) (Level: %p)",
+  //  character, equipment, equipment->nameReal.c_str(), level);
+
+  //log(L"Dumping Level Items...");
+  //gameClient->pCLevel->DumpItems();
+  //gameClient->pCLevel->DumpTriggerUnits();
+
+  
 
   // If the client is requesting a pickup, request the server first
   // The server will respond with a pickup message
@@ -2495,20 +2502,24 @@ void TLMP::Global_SetSeedValue2Post(u32 seed, bool& calloriginal)
 {
   //logColor(B_GREEN, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
   multiplayerLogger.WriteLine(Info, L"GameClient SetSeedValue2 Post: %x (%i)", seed, seed);
-  
-  /*
-  // Ugly, but fix later
-  Seed1 = (u32*)EXEOFFSET(SeedOffset1);
-  Seed2 = (u32*)EXEOFFSET(SeedOffset2);
-  Seed3 = (u32*)EXEOFFSET(SeedOffset3);
-  Seed4 = (u32*)EXEOFFSET(SeedOffset4);
-  */
 }
 
 void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, bool& calloriginal)
 {
   log(L"TriggerUnit: %p %p (%f, %f, %f)", triggerUnit, player, 
     triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
+  log(L"TriggerUnit::pCGenericModel: %p", triggerUnit->pCGenericModel);
+  if (triggerUnit->pCGenericModel) {
+     log(L" (%f, %f, %f)", triggerUnit->pCGenericModel->position.x, triggerUnit->pCGenericModel->position.y, triggerUnit->pCGenericModel->position.z);
+  }
+  log(L"TriggerUnit::pOctreeNode_World: %p", triggerUnit->pOctreeNode_World);
+  if (triggerUnit->pOctreeNode_World) {
+    log(L" (%f, %f, %f)", triggerUnit->pOctreeNode_World->getPosition().x, triggerUnit->pOctreeNode_World->getPosition().y, triggerUnit->pOctreeNode_World->getPosition().z);
+  }
+  log(L"TriggerUnit::pOctreeNode_Inventory: %p", triggerUnit->pOctreeNode_Inventory);
+  if (triggerUnit->pOctreeNode_Inventory) {
+    log(L" (%f, %f, %f)", triggerUnit->pOctreeNode_Inventory->getPosition().x, triggerUnit->pOctreeNode_Inventory->getPosition().y, triggerUnit->pOctreeNode_Inventory->getPosition().z);
+  }
 
   // Breakable was null on client, adding here to be safe -
   // Can this be NULL and still be Ok to call org function?
@@ -2549,7 +2560,7 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
     log(L"Error: Could not find triggerable item in network shared list: Character: %p (%p) Item: %p (%p)", player, netCharacter, triggerUnit, entity);
     multiplayerLogger.WriteLine(Error, L"Error: Could not find triggerable item in network shared list: Character: %p (%p) Item: %p (%p)", player, netCharacter, triggerUnit, entity);
 
-    calloriginal = false;
+    //calloriginal = false;
   }
 }
 
@@ -2636,8 +2647,24 @@ void TLMP::ItemGold_CtorPre(CItemGold* itemRetval, PVOID _this, CResourceManager
 
 void TLMP::Character_StrikePre(CCharacter* character, CLevel* level, CCharacter* characterOther, PVOID unk0, u32 unk1, float unk2, float unk3, u32 unk4, bool& calloriginal)
 {
-  log(L"Character Strike: %p %p %p   %p %x %f %f %x", 
+  logColor(B_GREEN, L"Character Strike: %p %p %p   %p %x %f %f %x", 
     character, level, characterOther, unk0, unk1, unk2, unk3, unk4);
+
+  NetworkEntity *attacker = searchCharacterByInternalObject(character);
+  NetworkEntity *defender = searchCharacterByInternalObject(characterOther);
+
+  if (attacker && defender) {
+    if (NetworkState::getSingleton().GetState() == CLIENT) {
+      NetworkMessages::CharacterStrikeCharacter msgCharacterStrike;
+      msgCharacterStrike.set_characteridsource(attacker->getCommonId());
+      msgCharacterStrike.set_characteridtarget(defender->getCommonId());
+      msgCharacterStrike.set_unk0(unk2);
+      msgCharacterStrike.set_unk1(unk3);
+      msgCharacterStrike.set_unk2(unk4);
+
+      Client::getSingleton().SendMessage<NetworkMessages::CharacterStrikeCharacter>(C_PUSH_CHARACTER_STRIKE, &msgCharacterStrike);
+    }
+  }
 }
 
 void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
@@ -2685,21 +2712,40 @@ void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
 {
   log(L"EquipmentRef::Dtor Post");
+  CEquipment *equipment = equipmentRef->pCEquipment;
 
-  /*
-  log(L"EquipmentRef::Dtor Post Setting equipment ptr to null... to stop duped equipmentRef from re-deleting: %p", equipmentRef);
-  log(L"  GameClient1: %p", gameClient);
-  log(L"  GameUI: %p", gameClient->pCGameUI);
-  //log(L"  ResourceManager: %p", gameClient->pCGameUI->resourceManager);
-  log(L"  GameClient2: %p", gameClient);
-  log(L"  Player: %p", gameClient->pCPlayer);
+  // Move through the character inventory items and invalid any equipment tied to the same Ref
+  CLevel *level = gameClient->pCLevel;
+  if (level) {
+    LinkedListNode* itr = *level->ppCCharacters2;
+    while (itr != NULL) {
+      CCharacter* character = (CCharacter*)itr->pCBaseUnit;
+      if (character) {
+        CInventory* inventory = character->pCInventory;
+        if (inventory) {
+          for (u32 i = 0; i < inventory->equipmentList.size; ++i) {
+            CEquipmentRef *equipmentRef2 = inventory->equipmentList[i];
+            //log(L"DEBUG: %i %i - %p %p", i, inventory->equipmentList.size, inventory, equipmentRef2);
+            if (equipmentRef2) {
+              if (equipment == equipmentRef2->pCEquipment) {
+                log(L"Removed duplicate equipment in equipmentRef: %p", equipmentRef2);
+                multiplayerLogger.WriteLine(Info, L"Removed duplicate equipment in equipmentRef: %p", equipmentRef2);
 
+                equipmentRef2->pCEquipment = NULL;
+              }
+            }
+          }
+        }
+      }
+
+      itr = itr->pNext;
+    }
+  }
+
+  // Invalidate our equipment
   if (equipmentRef->pCEquipment) {
     equipmentRef->pCEquipment = NULL;
   }
-
-  //log(L"Done.");
-  */
 }
 
 void TLMP::Monster_GetCharacterClosePost(CCharacter* retval, CMonster* monster, float unk0, u32 unk1, bool& calloriginal)
