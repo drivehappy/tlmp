@@ -43,5 +43,6 @@ namespace TLMP
   // Helpers
   void Helper_BuildInventoryTabIndexSize(NetworkMessages::Character & msgNewCharacter, CCharacter* character);
   void Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character * msgNewCharacter, CCharacter* character);
+  void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
 
 };

@@ -432,6 +432,7 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
 
       Vector3 destination;
       destination.x = msgDestination.x();
+      destination.y = msgDestination.z();
       destination.z = msgDestination.z();
 
       Vector3 currentPosition;
@@ -772,9 +773,14 @@ void Client::HandleRequestCharacterInfo()
   // Inventory tab sizes
   Helper_BuildInventoryTabIndexSize(*msgPlayer, player);
 
+  /*
   msgPlayerPosition->set_x(player->position.x);
   msgPlayerPosition->set_y(player->position.y);
   msgPlayerPosition->set_z(player->position.z);
+  */
+  msgPlayerPosition->set_x(player->GetPosition().x);
+  msgPlayerPosition->set_y(player->GetPosition().y);
+  msgPlayerPosition->set_z(player->GetPosition().z);
 
   // Add the Character's Skills from both lists
   CSkillManager *skillManager = player->pCSkillManager;  
@@ -1691,6 +1697,9 @@ void Client::HandleChangeLevel(NetworkMessages::ChangeLevel *msgChangeLevel)
   s32 unk1 = msgChangeLevel->unk1();
   s32 unk2 = msgChangeLevel->unk2();
 
+  log("Client::HandleChangeLevel: %s %s", msgChangeLevel->dungeon().c_str(), msgChangeLevel->unkstring().c_str());
+  log(L"Client::HandleChangeLevel: %s %p %x %x %s %x", dungeonName.c_str(), level, unk0, unk1, unkString.c_str(), unk2);
+
   Client::getSingleton().SetAllow_ChangeLevel(true);
   gameClient->ChangeLevel(dungeonName, level, unk0, unk1, unkString, unk2);
   Client::getSingleton().SetAllow_ChangeLevel(false);
@@ -1760,8 +1769,9 @@ void Client::HandleLevelCreateItem(NetworkMessages::LevelCreateItem *msgLevelCre
     const u32 OPENABLE = 0x28;
     if (item->type__ == OPENABLE) {
       item->destroy = true;
-      item->position.x = 1000;
-      item->position.z = 1000;
+      //item->position.x = 1000;
+      //item->position.z = 1000;
+      item->SetPosition(&Vector3(1000, 1000, 1000));
     } else {
       addItem(item, itemId);
     }
@@ -1800,17 +1810,24 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
   u32 itemId = msgBreakableTriggered->itemid();
   u32 characterId = msgBreakableTriggered->characterid();
 
+  NetworkMessages::Position msgPosition = msgBreakableTriggered->position();
+  Vector3 position;
+  position.x = msgPosition.x();
+  position.y = msgPosition.y();
+  position.z = msgPosition.z();
+
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
-  log("  Handling breakable 1: %p %p", entity, netCharacter);
+  log("  Handling breakable 1: %p %p (%x %x)", entity, netCharacter, itemId, characterId);
 
   if (entity) {
+    /* Use strict positioning technique instead
     CBreakable *breakable = (CBreakable*)entity->getInternalObject();
     CPlayer *character = NULL;
 
     // Character ID can be -1 if there was a skill used to kill it
-    if (characterId != -1) {
+    if (characterId != -1 && netCharacter) {
       character = (CPlayer*)netCharacter->getInternalObject();
     }
 
@@ -1819,6 +1836,38 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
       SetSuppressed_SendBreakableTriggered(true);
       breakable->Break(character);
       SetSuppressed_SendBreakableTriggered(false);
+    }
+    */
+
+    // Assume the server's trigger units are sync'd with ours
+    CLevel *level = gameClient->pCLevel;
+    level->DumpTriggerUnits();
+
+    const u32 BREAKABLE = 0x1D;
+    const float EPSILON = 0.1f;
+
+    // List our trigger Units
+    LinkedListNode* itr = *level->ppCTriggerUnits;
+    while (itr != NULL) {
+      if (itr->pCBaseUnit->type__ == BREAKABLE) {
+        CBreakable* breakable = (CBreakable*)itr->pCBaseUnit;
+        CPlayer *character = NULL;
+        
+        if (netCharacter) {
+          character = (CPlayer*)netCharacter->getInternalObject();
+        }
+
+        if (breakable) {
+          if (breakable->position.squaredDistance(position) < EPSILON) {
+            SetSuppressed_SendBreakableTriggered(true);
+            breakable->Break(character);
+            SetSuppressed_SendBreakableTriggered(false);
+            break;
+          }
+        }
+      }
+
+      itr = itr->pNext;
     }
   } else {
     //log(L"Client: Error could not find entity with common ID = %x OR character with common ID = %x",
@@ -1842,37 +1891,6 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
-  /* Testing - Search by position instead of by ID
-  if (entity) {
-    if (netCharacter) {
-      CTriggerUnit *trigger = (CTriggerUnit*)entity->getInternalObject();
-      CPlayer *character = (CPlayer*)netCharacter->getInternalObject();
-
-      if (trigger && character) {
-        SetSuppressed_SendTriggerUnitTriggered(true);
-        trigger->Trigger(character);
-        SetSuppressed_SendTriggerUnitTriggered(false);
-      }
-    } else {
-      //log(L"Client: Error could not find character with common ID = %x",
-      //  characterId);
-    }
-  } else {
-    //log(L"Client: Error could not find entity with common ID = %x",
-    //  itemId);
-    //log(L"  Item List:");
-
-    vector<NetworkEntity*>::iterator itr;
-    for (itr = NetworkSharedLevelItems->begin(); itr != NetworkSharedLevelItems->end(); itr++) {
-      CTriggerUnit *triggerUnit = (CTriggerUnit*)(*itr)->getInternalObject();
-
-      if (triggerUnit) {
-        //log(L"    Item: %x", (*itr)->getCommonId());
-      }
-    }
-  }
-  */
-
   // Assume the server's trigger units are sync'd with ours
   CLevel *level = gameClient->pCLevel;
   level->DumpTriggerUnits();
@@ -1887,7 +1905,8 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
       character = (CPlayer*)netCharacter->getInternalObject();
     }
 
-    if (triggerUnit->position.squaredDistance(position) < 0.1f) {
+    const float EPSILON = 0.1f;
+    if (triggerUnit->position.squaredDistance(position) < EPSILON) {
       SetSuppressed_SendTriggerUnitTriggered(true);
       triggerUnit->Trigger(character);
       SetSuppressed_SendTriggerUnitTriggered(false);
@@ -2045,9 +2064,9 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
     logColor(B_GREEN, L"  TriggerUnit: %p %s (%f, %f, %f)",
               triggerUnit,
               triggerUnit->nameReal.c_str(),
-              triggerUnit->position.x,
-              triggerUnit->position.y,
-              triggerUnit->position.z);
+              triggerUnit->GetPosition().x,
+              triggerUnit->GetPosition().y,
+              triggerUnit->GetPosition().z);
 
     itr = itr->pNext;
   }
@@ -2076,7 +2095,7 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
 
       if (triggerUnit) {
         bool found = false;
-        Ogre::Real dist = triggerUnit->position.squaredDistance(serverTriggerPosition);
+        Ogre::Real dist = triggerUnit->GetPosition().squaredDistance(serverTriggerPosition);
 
         if (dist < 0.1f) {
           found = true;
@@ -2097,9 +2116,9 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
           logColor(B_GREEN, L"  My TriggerUnit: %p %s (%f, %f, %f)  with Server: (%f, %f, %f)",
               triggerUnit,
               triggerUnit->nameReal.c_str(),
-              triggerUnit->position.x,
-              triggerUnit->position.y,
-              triggerUnit->position.z,
+              triggerUnit->GetPosition().x,
+              triggerUnit->GetPosition().y,
+              triggerUnit->GetPosition().z,
               serverTriggerPosition.x,
               serverTriggerPosition.y,
               serverTriggerPosition.z);
@@ -2308,28 +2327,4 @@ void Client::HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoi
   SetAllow_SetSkillPoints(true);
   character->pCSkillManager->setSkillLevel(skill, skillLevel);
   SetAllow_SetSkillPoints(false);
-}
-
-void Client::HelperCharacterPositioning(CCharacter* character, const Vector3& position)
-{
-  // If the current positioning is off, fix it - don't adjust our own character though
-  const int ALLOWED_SQUARED_ERROR = 5;
-  vector<CCharacter*>::iterator itr;
-  vector<CCharacter*> *ignoredCharacters = gameClient->pCPlayer->GetMinions();
-  ignoredCharacters->push_back(gameClient->pCPlayer);
-  bool bFound = false;
-
-  for (itr = ignoredCharacters->begin(); itr != ignoredCharacters->end(); itr++) {
-    if (character == (*itr)) {
-      bFound = true;
-      break;
-    }
-  }
-
-  if (!bFound) {
-    if ((character->position - position).squaredLength() > ALLOWED_SQUARED_ERROR) {
-      // Turn off for now
-      //character->position = position;
-    }
-  }
 }

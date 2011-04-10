@@ -1124,12 +1124,14 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 
             Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, &msgChatPlayerText);
           }
-        } else {
+        } 
+        /*
+        else {
           if (pInGameChatEntryBackground->isVisible()) {
             pInGameChatEntryBackground->setVisible(false);
             pChatEntry->setVisible(false);
           }
-        }
+        }*/
       }
     }
 
