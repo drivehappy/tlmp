@@ -311,17 +311,24 @@ void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakN
     {
       NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
       NetworkMessages::Position msgDestination = msgCharacterDestination->destination();
+      NetworkMessages::Position msgCurrent = msgCharacterDestination->current();
 
       u32 commonId = msgCharacterDestination->id();
 
       Vector3 destination;
       destination.x = msgDestination.x();
+      destination.y = msgDestination.y();
       destination.z = msgDestination.z();
+
+      Vector3 current;
+      current.x = msgCurrent.x();
+      current.y = msgCurrent.y();
+      current.z = msgCurrent.z();
 
       u8 running = msgCharacterDestination->running();
       u8 attacking = msgCharacterDestination->attacking();
 
-      HandleCharacterDestination(address, commonId, destination, running, attacking);
+      HandleCharacterDestination(address, commonId, current, destination, running, attacking);
     }
     break;
 
@@ -600,9 +607,15 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       msgNewCharacter.set_name(characterName);
 
       NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
+      /*
       msgPlayerPosition->set_x(character->position.x);
       msgPlayerPosition->set_y(character->position.y);
       msgPlayerPosition->set_z(character->position.z);
+      */
+
+      msgPlayerPosition->set_x(character->GetPosition().x);
+      msgPlayerPosition->set_y(character->GetPosition().y);
+      msgPlayerPosition->set_z(character->GetPosition().z);
 
       msgNewCharacter.set_id((*itr)->getCommonId());
       //msgNewCharacter.set_health(character->healthMax);
@@ -850,7 +863,7 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 }
 
 
-void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 destination, u8 running, u8 attacking)
+void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 current, Vector3 destination, u8 running, u8 attacking)
 {
   multiplayerLogger.WriteLine(Info, L"Server received character setDestination (CommonID = %x), Position = %f, %f",
     commonId, destination.x, destination.z);
@@ -864,6 +877,8 @@ void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 c
   }
 
   CCharacter *character = (CCharacter *)entity->getInternalObject();
+
+  HelperCharacterPositioning(character, current);
 
   character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
   character->running = running;
@@ -984,9 +999,15 @@ void Server::Helper_SendGroundEquipmentToClient(const SystemAddress clientAddres
   // Create a new network message for all clients to create this character
   NetworkMessages::EquipmentDrop msgEquipmentDrop;
   NetworkMessages::Position *msgPosition = msgEquipmentDrop.add_position();
+  /*
   msgPosition->set_x(equipment->position.x);
   msgPosition->set_y(equipment->position.y);
   msgPosition->set_z(equipment->position.z);
+  */
+  msgPosition->set_x(equipment->GetPosition().x);
+  msgPosition->set_y(equipment->GetPosition().y);
+  msgPosition->set_z(equipment->GetPosition().z);
+
   msgEquipmentDrop.set_equipmentid(netEquipment->getCommonId());
   msgEquipmentDrop.set_unk0(1);
 
@@ -1109,7 +1130,7 @@ void Server::HandleEquipmentDrop(const SystemAddress client, u32 equipmentId, Ve
     }
 
     // Check the client's permissable characters
-    permission |= Helper_CheckEquipmentPermission(client, equipment);
+    permission |= Helper_CheckEquipmentPermission(client, NULL, equipment);
 
     if (permission) {
       level->EquipmentDrop(equipment, position, unk0);
@@ -1331,7 +1352,7 @@ void Server::HandleInventoryRemoveEquipment(const SystemAddress clientAddress, u
       CEquipment *equipmentReal = (CEquipment*)equipment->getInternalObject();
 
       // Check client permission with the equipment
-      if (Helper_CheckEquipmentPermission(clientAddress, equipmentReal)) {
+      if (Helper_CheckEquipmentPermission(clientAddress, characterOwner, equipmentReal)) {
         CInventory *inventory = characterOwner->pCInventory;
 
         // Suppress this and send it manually
@@ -1614,10 +1635,17 @@ void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBr
   u32 itemId = msgBreakableTriggered->itemid();
   u32 characterId = msgBreakableTriggered->characterid();
 
+  NetworkMessages::Position msgPosition = msgBreakableTriggered->position();
+  Vector3 position;
+  position.x = msgPosition.x();
+  position.y = msgPosition.y();
+  position.z = msgPosition.z();
+
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
   if (entity) {
+    /* Use explicit positioning technique instead
     CBreakable *breakable = (CBreakable*)entity->getInternalObject();
     CPlayer *character = NULL;
     
@@ -1627,6 +1655,36 @@ void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBr
 
     if (breakable) {
       breakable->Break(character);
+    }
+    */
+
+    // Assume the server's trigger units are sync'd with ours
+    CLevel *level = gameClient->pCLevel;
+    level->DumpTriggerUnits();
+
+    const u32 BREAKABLE = 0x1D;
+    const float EPSILON = 0.1f;
+
+    // List our trigger Units
+    LinkedListNode* itr = *level->ppCTriggerUnits;
+    while (itr != NULL) {
+      if (itr->pCBaseUnit->type__ == BREAKABLE) {
+        CBreakable* breakable = (CBreakable*)itr->pCBaseUnit;
+        CPlayer *character = NULL;
+        
+        if (netCharacter) {
+          character = (CPlayer*)netCharacter->getInternalObject();
+        }
+
+        if (breakable) {
+          if (breakable->GetPosition().squaredDistance(position) < EPSILON) {
+            breakable->Break(character);
+            break;
+          }
+        }
+      }
+
+      itr = itr->pNext;
     }
   } else {
     //log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",
@@ -1645,26 +1703,10 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   position.y = msgPosition.y();
   position.z = msgPosition.z();
 
+  log(L" Received position: (%f, %f, %f)", position.x, position.y, position.z);
+
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
-
-  /* Testing - Don't search by ID, but instead by position
-  if (entity) {
-    CTriggerUnit *triggerUnit = (CTriggerUnit*)entity->getInternalObject();
-    CPlayer *character = NULL;
-    
-    if (netCharacter) {
-      character = (CPlayer*)netCharacter->getInternalObject();
-    }
-
-    if (triggerUnit) {
-      triggerUnit->Trigger(character);
-    }
-  } else {
-    //log(L"Server: Error could not find entity with common ID = %x OR character with common ID = %x",
-    //  itemId, characterId);
-  }
-  */
 
   // Assume the server's trigger units are sync'd with ours
   CLevel *level = gameClient->pCLevel;
@@ -1680,11 +1722,12 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
       character = (CPlayer*)netCharacter->getInternalObject();
     }
 
-    if (triggerUnit->position.squaredDistance(position) < 0.1f) {
+    const float EPSILON = 0.1f;
+    if (triggerUnit->position.squaredDistance(position) < EPSILON) {
       triggerUnit->Trigger(character);
       break;
     }
-    
+
     itr = itr->pNext;
   }
 }
@@ -1771,7 +1814,7 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
     if (entity) {
       logColor(B_RED, L"Server: %s (ID: %x)  (%f, %f, %f)",
         triggerUnit->nameReal.c_str(), entity->getCommonId(),
-        triggerUnit->position.x, triggerUnit->position.y, triggerUnit->position.z);
+        triggerUnit->GetPosition().x, triggerUnit->GetPosition().y, triggerUnit->GetPosition().z);
 
       NetworkMessages::TriggerUnit *msgTriggerUnit = msgTriggerUnitSync.add_triggerunits();
       msgTriggerUnit->set_triggerid(entity->getCommonId());
@@ -1780,14 +1823,14 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
 
       // Use the real TriggerUnit position if it's not 0,0,0 - else use the OctreeNode position
       const float epsilon = 0.0001f;
-      if (triggerUnit->position.length() <= epsilon && triggerUnit->pOctreeNode_World) {
+      if (triggerUnit->GetPosition().length() <= epsilon && triggerUnit->pOctreeNode_World) {
         msgPosition->set_x(triggerUnit->pOctreeNode_World->getPosition().x);
         msgPosition->set_y(triggerUnit->pOctreeNode_World->getPosition().y);
         msgPosition->set_z(triggerUnit->pOctreeNode_World->getPosition().z);
       } else {
-        msgPosition->set_x(triggerUnit->position.x);
-        msgPosition->set_y(triggerUnit->position.y);
-        msgPosition->set_z(triggerUnit->position.z);
+        msgPosition->set_x(triggerUnit->GetPosition().x);
+        msgPosition->set_y(triggerUnit->GetPosition().y);
+        msgPosition->set_z(triggerUnit->GetPosition().z);
       }
       
     } else {
@@ -1802,7 +1845,7 @@ void Server::Helper_SendTriggerUnitSync(const SystemAddress clientAddress)
   logColor(B_RED, "Server done sending trigger units...");
 }
 
-bool Server::Helper_CheckEquipmentPermission(const SystemAddress client, CEquipment *equipment)
+bool Server::Helper_CheckEquipmentPermission(const SystemAddress client, CCharacter *characterOwner, CEquipment *equipment)
 {
   // Determine if the client has permission to drop this item, e.g. this item should be on their person or minion
   if (Server_ClientCharacterMapping) {
@@ -1821,6 +1864,15 @@ bool Server::Helper_CheckEquipmentPermission(const SystemAddress client, CEquipm
           return true;
         }
       }
+    }
+  }
+
+  // This item can also be on an NPC - check this as well
+  if (characterOwner) {
+    const u32 NPC = 0x68;
+
+    if (characterOwner->type__ == NPC) {
+      return true;
     }
   }
 

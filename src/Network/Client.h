@@ -185,7 +185,7 @@ namespace TLMP {
       void HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
-      void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
+      //void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
 
       void PushEquipment();
 

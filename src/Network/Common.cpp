@@ -49,3 +49,30 @@ void TLMP::Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character 
     character->pCInventory->AddTabSize(msgInvTabSize.tabindex(), msgInvTabSize.tabsize());
   }
 }
+
+void TLMP::HelperCharacterPositioning(CCharacter* character, const Vector3& position)
+{
+  // If the current positioning is off, fix it - don't adjust our own character though
+  const int ALLOWED_SQUARED_ERROR = 100;
+  vector<CCharacter*>::iterator itr;
+  vector<CCharacter*> *ignoredCharacters = gameClient->pCPlayer->GetMinions();
+  ignoredCharacters->push_back(gameClient->pCPlayer);
+  bool bFound = false;
+
+  for (itr = ignoredCharacters->begin(); itr != ignoredCharacters->end(); itr++) {
+    if (character == (*itr)) {
+      bFound = true;
+      break;
+    }
+  }
+
+  if (!bFound) {
+    if (position.length() > 0.001f) {
+      if ((character->position - position).squaredLength() > ALLOWED_SQUARED_ERROR) {
+        // Turn off for now
+        log(L"Setting character explicit position: %f %f %f", position.x, position.y, position.z);
+        character->SetPosition(&position);
+      }
+    }
+  }
+}

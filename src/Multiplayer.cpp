@@ -1232,7 +1232,8 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
           !wcscmp(item->nameReal.c_str(), L"Stairs Up") || 
           !wcscmp(item->nameReal.c_str(), L"Stairs Down") ||
           !wcscmp(item->nameReal.c_str(), L"Return to Dungeon") ||
-          !wcscmp(item->nameReal.c_str(), L"Waygate to Town"))
+          !wcscmp(item->nameReal.c_str(), L"Waygate to Town") ||
+          !wcscmp(item->nameReal.c_str(), L"Mine Entrance"))
       {
         calloriginal = false;
       }
@@ -2534,15 +2535,34 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
   NetworkEntity *entity = searchItemByInternalObject(triggerUnit);
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
 
-  if (entity && netCharacter) {
+  // Ignore if we found the entity or not, use the positioning
+  //if (entity && netCharacter) {
+  if (netCharacter) {
     NetworkMessages::TriggerUnitTriggered msgTriggerUnitTrigger;
-    msgTriggerUnitTrigger.set_itemid(entity->getCommonId());
     msgTriggerUnitTrigger.set_characterid(netCharacter->getCommonId());
 
+    if (entity) {
+      msgTriggerUnitTrigger.set_itemid(entity->getCommonId());
+    }
+
+    const float EPSILON = 0.001f;
     NetworkMessages::Position *msgPosition = msgTriggerUnitTrigger.mutable_position();
-    msgPosition->set_x(triggerUnit->position.x);
-    msgPosition->set_y(triggerUnit->position.y);
-    msgPosition->set_z(triggerUnit->position.z);
+
+    if (triggerUnit->position.length() > EPSILON) {
+      msgPosition->set_x(triggerUnit->position.x);
+      msgPosition->set_y(triggerUnit->position.y);
+      msgPosition->set_z(triggerUnit->position.z);
+    } else if (triggerUnit->pOctreeNode_Inventory && triggerUnit->pOctreeNode_Inventory->getPosition().length() > EPSILON) {
+      // Use the sceneNode position
+      msgPosition->set_x(triggerUnit->pOctreeNode_Inventory->getPosition().x);
+      msgPosition->set_y(triggerUnit->pOctreeNode_Inventory->getPosition().y);
+      msgPosition->set_z(triggerUnit->pOctreeNode_Inventory->getPosition().z);
+    } else if (triggerUnit->pOctreeNode_World) {
+      // Use the other sceneNode position
+      msgPosition->set_x(triggerUnit->pOctreeNode_World->getPosition().x);
+      msgPosition->set_y(triggerUnit->pOctreeNode_World->getPosition().y);
+      msgPosition->set_z(triggerUnit->pOctreeNode_World->getPosition().z);
+    }
 
     // Client
     if (NetworkState::getSingleton().GetState() == CLIENT) {
@@ -2590,6 +2610,21 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
         msgBreakableTriggered.set_characterid(netCharacter->getCommonId());
       } else {
         msgBreakableTriggered.set_characterid(-1);
+      }
+
+      const float EPSILON = 0.001f;
+
+      // Build the position of the breakable object
+      NetworkMessages::Position *msgPosition = msgBreakableTriggered.mutable_position();
+      if (breakable->position.length() > EPSILON) {
+        msgPosition->set_x(breakable->position.x);
+        msgPosition->set_y(breakable->position.y);
+        msgPosition->set_z(breakable->position.z);
+      } else if (breakable->pOctreeNode_Inventory) {
+        // Use the sceneNode position
+        msgPosition->set_x(breakable->pOctreeNode_Inventory->getPosition().x);
+        msgPosition->set_y(breakable->pOctreeNode_Inventory->getPosition().y);
+        msgPosition->set_z(breakable->pOctreeNode_Inventory->getPosition().z);
       }
 
       // Client
@@ -2700,21 +2735,11 @@ void TLMP::Character_ResurrectPre(CCharacter* character, bool& calloriginal)
 
 void TLMP::EquipmentRefDtorPre(CEquipmentRef* equipmentRef, u32 unk0)
 {
-  log(L"EquipmentRef::Dtor Pre (%p %x)", equipmentRef, unk0);
-
-  if (equipmentRef->pCEquipment) {
-    //log(L"  Equipment: %p", equipmentRef->pCEquipment);
-    //log(L"    Equipment: %s", equipmentRef->pCEquipment->nameReal.c_str());
-    //log(L"    Equipment Slot: %i", equipmentRef->slot);
-  }
-}
-
-void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
-{
-  log(L"EquipmentRef::Dtor Post");
-  CEquipment *equipment = equipmentRef->pCEquipment;
+  log(L"EquipmentRef::Dtor Pre (%p %x Equipment: %p)", equipmentRef, unk0, equipmentRef->pCEquipment);
+  multiplayerLogger.WriteLine(Info, L"EquipmentRef::Dtor Pre (%p %x Equipment: %p)", equipmentRef, unk0, equipmentRef->pCEquipment);
 
   // Move through the character inventory items and invalid any equipment tied to the same Ref
+  CEquipment *equipment = equipmentRef->pCEquipment;
   CLevel *level = gameClient->pCLevel;
   if (level) {
     LinkedListNode* itr = *level->ppCCharacters2;
@@ -2727,7 +2752,7 @@ void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
             CEquipmentRef *equipmentRef2 = inventory->equipmentList[i];
             //log(L"DEBUG: %i %i - %p %p", i, inventory->equipmentList.size, inventory, equipmentRef2);
             if (equipmentRef2) {
-              if (equipment == equipmentRef2->pCEquipment) {
+              if (equipment == equipmentRef2->pCEquipment && equipmentRef2 != equipmentRef) {
                 log(L"Removed duplicate equipment in equipmentRef: %p", equipmentRef2);
                 multiplayerLogger.WriteLine(Info, L"Removed duplicate equipment in equipmentRef: %p", equipmentRef2);
 
@@ -2741,6 +2766,12 @@ void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
       itr = itr->pNext;
     }
   }
+}
+
+void TLMP::EquipmentRefDtorPost(CEquipmentRef* equipmentRef, u32 unk0)
+{
+  log(L"EquipmentRef::Dtor Post");
+  multiplayerLogger.WriteLine(Info, L"EquipmentRef::Dtor Post");
 
   // Invalidate our equipment
   if (equipmentRef->pCEquipment) {
