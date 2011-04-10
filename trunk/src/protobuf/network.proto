@@ -278,6 +278,9 @@ message BaseUnitAddSkill {
 message CharacterStrikeCharacter {
   required int32    characterIdSource = 1;
   required int32    characterIdTarget = 2;
+  required float    unk0 = 3;     // 1.0
+  required float    unk1 = 4;     // 1.0
+  required int32    unk2 = 5;     // 7
 }
 
 message RandomSeed {

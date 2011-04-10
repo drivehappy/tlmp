@@ -773,8 +773,10 @@ bool TLMP::ButtonEvent_MultiplayerOptions_TestLobby(const CEGUI::EventArgs& args
 
 bool TLMP::ButtonEvent_MultiplayerOptions_Join_Cancel(const CEGUI::EventArgs& args)
 {
-  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1002_MultiplayerOptions_Join");
+  CEGUI::Window *pWindow = UserInterface::getWindowFromName("1006_MultiplayerOptions_Join");
   CEGUI::Window *pWindowOptions = UserInterface::getWindowFromName("1002_MultiplayerOptions");
+
+  log("DEBUG: Join_Cancel: %p %p", pWindow, pWindowOptions);
 
   if (pWindowOptions && pWindow) {
     pWindow->setVisible(false);
@@ -1105,6 +1107,7 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
           msgChatPlayerText.set_characterid(netPlayer->getCommonId());
           msgChatPlayerText.set_text(pChatEntry->getText().c_str());
           pChatEntry->setText("");
+          burnEnter = true;
 
           if (NetworkState::getSingleton().GetState() == CLIENT) {
             Client::getSingleton().SendMessage<NetworkMessages::ChatPlayerText>(C_PUSH_CHAT_PLAYER, &msgChatPlayerText);
@@ -1121,11 +1124,15 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
 
             Server::getSingleton().BroadcastMessage<NetworkMessages::ChatPlayerText>(S_PUSH_CHAT_PLAYER, &msgChatPlayerText);
           }
+        } else {
+          if (pInGameChatEntryBackground->isVisible()) {
+            pInGameChatEntryBackground->setVisible(false);
+            pChatEntry->setVisible(false);
+          }
         }
       }
     }
 
-    //*
     // Really no nice way to make this:
     // Once we press Enter it automatically activates and calls this function
     // and in-turn hides it, so we have to burn off an Enter key
@@ -1140,7 +1147,6 @@ bool TLMP::EditboxEvent_KeyDownChatEntry(const CEGUI::EventArgs& args)
     } else {
       burnEnter = true;
     }
-    //*/
   }
   
   return true;
