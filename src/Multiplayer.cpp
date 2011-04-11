@@ -106,6 +106,8 @@ void TLMP::SetupNetwork()
 
   CPlayer::RegisterEvent_PlayerLevelUp(Player_LevelUpPre, Player_LevelUpPost);
 
+  CAutomap::RegisterEvent_Automap_AddBillboard(Automap_AddBillboardPre, NULL);
+
   CTriggerUnit::RegisterEvent_TriggerUnitTriggered(TriggerUnit_TriggeredPre, NULL);
   CTriggerUnit::RegisterEvent_TriggerUnit_Ctor(NULL, TriggerUnit_CtorPost);
   //CTriggerUnit::RegisterEvent_TriggerUnit_Triggered2(TriggerUnit_Triggered2Pre, NULL);
@@ -1753,7 +1755,7 @@ void TLMP::SkillManager_SetSkillLevelPre(CSkillManager* skillManager, CSkill* sk
   }
 
   if (!netPlayer) {
-    log(L"Error: Could not find networkID for character: %p", character);
+    //log(L"Error: Could not find networkID for character: %p", character);
     return;
   }
 
@@ -2368,15 +2370,42 @@ void TLMP::GameUI_WindowResizedPost(CGameUI* game, bool & calloriginal)
 
 void TLMP::Character_Character_UpdatePre(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
 {
-  CharacterUpdateTime[character].reset();
+  //CharacterUpdateTime[character].reset();
+  
+  u32 bitFieldVisibility = (character->flagFadingIn << 2) | (character->flagHasBeenDisplayed << 1) | (character->flagFadingOut);
 
-  /*
-  if (!wcscmp(L"Shade", character->characterName.c_str())) 
-  {
-    log(L" Pre: unkPos[1]: %i", character->unkPositionable[1]);
-    character->unkPositionable[1] = 0;
+  map<CCharacter*, u32>::iterator itr = CharacterVisibilityBuffer->find(character);
+  if (itr != CharacterVisibilityBuffer->end()) {
+    // Already exists, if it differs push it out to clients
+    if ((*CharacterVisibilityBuffer)[character] != bitFieldVisibility) {
+      // It is different push it out
+      /*
+      if (!wcscmp(L"Shade", character->characterName.c_str())) 
+      {
+        log(L" Shade:  %p %f %f", character, character->unkTransparency0, character->unkTransparency1);
+        log(L"  Fading in: %i", character->flagFadingIn);
+        log(L"  HasBeenDisplayed: %i", character->flagHasBeenDisplayed);
+        log(L"  Fading out: %i", character->flagFadingOut);
+      }
+      */
+
+      if (NetworkState::getSingleton().GetState() == SERVER) {
+        NetworkEntity *netCharacter = searchCharacterByInternalObject(character);
+
+        if (netCharacter) {
+          NetworkMessages::Visibility msgVisibility;
+
+          msgVisibility.set_id(netCharacter->getCommonId());
+          msgVisibility.set_fading_in(character->flagFadingIn);
+          msgVisibility.set_has_been_displayed(character->flagHasBeenDisplayed);
+          msgVisibility.set_fading_out(character->flagFadingOut);
+
+          Server::getSingleton().BroadcastMessage<NetworkMessages::Visibility>(S_PUSH_CHARACTER_VISIBILITY, &msgVisibility);
+        }
+      }
+    }
   }
-  */
+  (*CharacterVisibilityBuffer)[character] = bitFieldVisibility;
 }
 
 void TLMP::Character_Character_UpdatePost(CCharacter* character, PVOID octree, float* unk0, float unk1, bool& calloriginal)
@@ -2547,13 +2576,14 @@ void TLMP::TriggerUnit_TriggeredPre(CTriggerUnit* triggerUnit, CPlayer* player, 
     triggerUnit->GetPosition().x, triggerUnit->GetPosition().y, triggerUnit->GetPosition().z);
 
   const u32 OPENABLE = 0x28;
+  const u32 INTERACTABLE = 0x20;
 
   // Breakable was null on client, adding here to be safe -
   // Can this be NULL and still be Ok to call org function?
   if (!player)
     return;
 
-  if (triggerUnit->type__ != OPENABLE) {
+  if (triggerUnit->type__ != OPENABLE && triggerUnit->type__ != INTERACTABLE) {
     return;
   }
 
@@ -2652,10 +2682,10 @@ void TLMP::Breakable_TriggeredPre(CBreakable* breakable, CPlayer* player, bool& 
         Server::getSingleton().BroadcastMessage<NetworkMessages::BreakableTriggered>(S_PUSH_BREAKABLE_TRIGGERED, &msgBreakableTriggered);
       }
     } else {
-      log(L"Error: Could not find network character in network shared list");
+      //log(L"Error: Could not find network character in network shared list");
     }
   } else {
-    log(L"Error: Could not find breakable item in network shared list");
+    //log(L"Error: Could not find breakable item in network shared list");
   }
 }
 
@@ -2985,7 +3015,7 @@ void TLMP::Character_Player_KillMonsterExperiencePre(CCharacter* player, CLevel*
   // Work on network messages
   NetworkEntity *netCharacter = searchCharacterByInternalObject(player);
   if (!netCharacter) {
-    log(L"Error: Could not find network id for player: %s", player->characterName.c_str());
+    //log(L"Error: Could not find network id for player: %s", player->characterName.c_str());
     return;
   }
 
@@ -3051,12 +3081,12 @@ void TLMP::Level_Level_CharacterKilledCharacterPre(CLevel* level, CCharacter* ch
     NetworkEntity *entityOther = searchCharacterByInternalObject(other);
 
     if (!entityCharacter) {
-      log(L"Error: Could not find network ID for : %s", character->characterName.c_str());
+      //log(L"Error: Could not find network ID for : %s", character->characterName.c_str());
       return;
     }
 
     if (!entityOther) {
-      log(L"Error: Could not find network ID for character: %s", other->characterName.c_str());
+      //log(L"Error: Could not find network ID for character: %s", other->characterName.c_str());
       return;
     }
 
@@ -3377,6 +3407,17 @@ void TLMP::QuestManager_SetQuestCompletedPost(CQuestManager* questManager, CQues
   log(L"QuestManager::SetQuestCompletedPost (QMgr: %p, Quest: %p, Character: %p, QuestActive: %i)", questManager, quest, character, questActive);
 }
 
+void TLMP::Automap_AddBillboardPre(CAutomap* automap, u32 unk0, float* unk1, Vector3* unk2, u32 unk3, u32 unk4, bool& calloriginal)
+{
+  // Fix bug when Torchlight tries to call this with this == NULL
+  if (!automap) {
+    log("Halted this = null call on Automap, yay!");
+    multiplayerLogger.WriteLine(Error, L"Halted this = null call on Automap, yay!");
+
+    calloriginal = false;
+  }
+}
+
 void TLMP::InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& calloriginal)
 {
   log(L"InventoryMenu_OpenClosePre: %p, %i", menu, open);
@@ -3425,40 +3466,8 @@ void TLMP::InventoryMenu_MouseEventPre(CInventoryMenu* invMenu, const CEGUI::Mou
   log("Viewport Offset: %x", (u8*)&invMenu->paperDollViewport - (u8*)invMenu);
   log("weaponSwapCheckBox Offset: %x", (u8*)&invMenu->weaponSwapCheckBox - (u8*)invMenu);
   log("Viewport: %p", invMenu->paperDollViewport);
-
-  invMenu->paperDollViewport->setBackgroundColour(Ogre::ColourValue(0.13f, 0.07f, 0.21f));
-  Ogre::Camera* camera = invMenu->paperDollViewport->getCamera();
-  Ogre::SceneManager* sm = camera->getSceneManager();
-  Ogre::SceneNode* root = sm->getRootSceneNode();
-
-  log("SceneManager: %p", sm);
-  log("Root SceneNode: %p %s -- Children: %i", root, root->getName().c_str(), root->numChildren());
-  for (u16 i = 0; i < root->numChildren(); ++i) {
-    Ogre::Node* child = root->getChild(i);
-    log("  Child: %p %s -- Children: %i", child, child->getName().c_str(), child->numChildren());
-    for (u16 j = 0; j < child->numChildren(); ++j) {
-      Ogre::Node* child2 = child->getChild(j);
-      log("    Child2: %p %s -- Children: %i", child2, child2->getName().c_str(), child2->numChildren());
-    }
-  }
-  */
-
-  /*
-  CEGUI::Window* parent = args->window->getParent();
-  parent = parent->getParent();
-  parent = parent->getParent();
-  u32 childCount = parent->getChildCount();
-
-  log("Parent window: %s has %i children", parent->getName().c_str(), childCount);
-  for (u32 i = 0; i < childCount; ++i) {
-    CEGUI::Window* child = parent->getChildAtIdx(i);
-    log("  Child window: %s has %i children", child->getName().c_str(), child->getChildCount());
-
-    for (u32 j = 0; j < child->getChildCount(); ++j) {
-      CEGUI::Window* child2 = child->getChildAtIdx(j);
-      log("    Child window: %s %p has %i children", child2->getName().c_str(), child2, child2->getChildCount());
-    }
-  }
+  
+  //invMenu->paperDollViewport->setBackgroundColour(Ogre::ColourValue(0.13f, 0.07f, 0.21f));
   */
 
   if (invMenu->player != gameClient->pCPlayer) {
@@ -3528,6 +3537,7 @@ void TLMP::Level_CheckCharacterProximityPre(CCharacter* retval, CLevel* level, V
 
 void TLMP::Level_CheckCharacterProximityPost(CCharacter* retval, CLevel* level, Vector3* normalizedVec, u32 unk0, float x, float y, float z, u32 unk1, CCharacter* character, u32 unk2, bool& calloriginal)
 {
+  /*
   if (retval) {
     log(L"Level_CheckCharacterProximityPre: %p %p %p", level, character, retval);
     if (character) {
@@ -3538,6 +3548,7 @@ void TLMP::Level_CheckCharacterProximityPost(CCharacter* retval, CLevel* level, 
     log(L"  x,y,z: %f %f %f", x, y, z);
     log(L"  retval: %s", retval->characterName.c_str());
   }
+  */
 }
 
 // Server Events

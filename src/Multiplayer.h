@@ -231,6 +231,9 @@ namespace TLMP
   void ParticleCache_Dtor2Pre(CParticleCache *cache);
   void ParticleCache_Dtor2Post(CParticleCache *cache);
 
+  // Automap
+  void Automap_AddBillboardPre(CAutomap*, u32, float*, Vector3*, u32, u32, bool&);
+
   // Helpers
   void SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk);
   
