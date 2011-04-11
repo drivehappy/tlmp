@@ -12,6 +12,7 @@ map<SystemAddress, vector<NetworkEntity*>*> *TLMP::Server_ClientCharacterMapping
 map<SystemAddress, NetworkEntity*> *TLMP::Server_ClientUnequipMapping = new map<SystemAddress, NetworkEntity*>();
 
 map<CCharacter*, Vector3>* TLMP::CharacterNetworkPositionBuffer = new map<CCharacter*, Vector3>();
+map<CCharacter*, u32>      *TLMP::CharacterVisibilityBuffer = new map<CCharacter*, u32>();
 
 void TLMP::clearAllNetworkIDs()
 {

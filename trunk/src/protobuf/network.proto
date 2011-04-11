@@ -30,6 +30,13 @@ message Character {
   required bool             weaponSetActive = 16;
 }
 
+message Visibility {
+  required int32            id = 1;
+  required bool             fading_in = 2;
+  required bool             has_been_displayed = 3;
+  required bool             fading_out = 4;
+}
+
 // This handles both Affixes and Regular Types
 // (C++ Types: EffectType and EnchantType)
 message EnchantType {

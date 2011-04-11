@@ -183,6 +183,7 @@ namespace TLMP {
       void HandleCharacterOrientation(NetworkMessages::CharacterOrientation *);
       void HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *);
       void HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *);
+      void HandleCharacterVisibility(NetworkMessages::Visibility *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
       //void HelperCharacterPositioning(CCharacter* character, const Vector3& position);

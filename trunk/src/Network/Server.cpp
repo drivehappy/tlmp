@@ -1722,6 +1722,7 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   level->DumpTriggerUnits();
 
   const u32 OPENABLE = 0x28;
+  const u32 INTERACTABLE = 0x20;
 
   // List our trigger Units
   LinkedListNode* itr = *level->ppCTriggerUnits;
@@ -1729,13 +1730,14 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
 
-    if (triggerUnit->type__ == OPENABLE) { 
+    if (triggerUnit->type__ == OPENABLE || triggerUnit->type__ == INTERACTABLE) {
       if (netCharacter) {
         character = (CPlayer*)netCharacter->getInternalObject();
       }
 
       const float EPSILON = 0.001f;
       if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        log("  Found in trigger units: %p", triggerUnit);
         triggerUnit->Trigger(character);
         return;
       }
@@ -1751,13 +1753,14 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
 
-    if (triggerUnit->type__ == OPENABLE) { 
+    if (triggerUnit->type__ == OPENABLE || triggerUnit->type__ == INTERACTABLE) {
       if (netCharacter) {
         character = (CPlayer*)netCharacter->getInternalObject();
       }
 
       const float EPSILON = 0.001f;
       if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        log("  Found in items: %p", triggerUnit);
         triggerUnit->Trigger(character);
         return;
       }
@@ -1790,7 +1793,10 @@ void Server::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
 
     if (character) {
       log(L"  Server handling client request: %p -> %p", character, target);
-      log(L"  Server handling client request: %s -> %s", character->characterName.c_str(), target->characterName.c_str());
+
+      if (target) {
+        log(L"  Server handling client request: %s -> %s", character->characterName.c_str(), target->characterName.c_str());
+      }
 
       // Only set the client requested target if it's null
       if (character->target == NULL) {

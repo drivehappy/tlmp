@@ -234,28 +234,24 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
 
   // Special - handle the version and game started so we can handle checking if it has for all other messages
   switch (msg) {
-  case S_VERSION:
-    {
-      NetworkMessages::Version *msgVersion = ParseMessage<NetworkMessages::Version>(m_pBitStream);
-      u32 version = (u32)(msgVersion->version());
+    case S_VERSION:
+      {
+        NetworkMessages::Version *msgVersion = ParseMessage<NetworkMessages::Version>(m_pBitStream);
+        u32 version = (u32)(msgVersion->version());
 
-      HandleVersion(version);
-    }
-    break;
+        HandleVersion(version);
+      }
+      break;
 
-  case S_REPLY_HASGAMESTARTED:
-    {
-      NetworkMessages::GameHasStarted *msgGameHasStarted = ParseMessage<NetworkMessages::GameHasStarted>(m_pBitStream);
-      bool gameStarted = msgGameHasStarted->started();
+    case S_REPLY_HASGAMESTARTED:
+      {
+        NetworkMessages::GameHasStarted *msgGameHasStarted = ParseMessage<NetworkMessages::GameHasStarted>(m_pBitStream);
+        bool gameStarted = msgGameHasStarted->started();
 
-      HandleHasGameStarted(gameStarted);
-    }
-    break;
-  }
+        HandleHasGameStarted(gameStarted);
+      }
+      break;
 
-  // All other messages
-  if (Client::getSingleton().GetServerGameStarted()) {
-    switch (msg) {
     case S_PUSH_GAMESTARTED:
       {
         NetworkMessages::GameStarted *msgGameStarted = ParseMessage<NetworkMessages::GameStarted>(m_pBitStream);
@@ -281,7 +277,11 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
         HandleCurrentLevel(msgCurrentLevel);
       }
       break;
+  }
 
+  // All other messages
+  if (Client::getSingleton().GetServerGameStarted()) {
+    switch (msg) {
     case S_REQUEST_CHARINFO:
       {
         NetworkMessages::RequestCharacterInfo *msgRequestCharacterInfo = ParseMessage<NetworkMessages::RequestCharacterInfo>(m_pBitStream);
@@ -662,6 +662,15 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
         HandleCharacterSetSkillPoints(msgCharacterSetSkillPoints);
       }
       break;
+
+    case S_PUSH_CHARACTER_VISIBILITY:
+      {
+        NetworkMessages::Visibility *msgVisibility = ParseMessage<NetworkMessages::Visibility>(m_pBitStream);
+
+        HandleCharacterVisibility(msgVisibility);
+      }
+      break;
+
     }
   }
 }
@@ -1898,6 +1907,7 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   level->DumpTriggerUnits();
 
   const u32 OPENABLE = 0x28;
+  const u32 INTERACTABLE = 0x20;
 
   // List our trigger Units
   LinkedListNode* itr = *level->ppCTriggerUnits;
@@ -1905,13 +1915,15 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
     
-    if (triggerUnit->type__ == OPENABLE) { 
+    if (triggerUnit->type__ == OPENABLE || triggerUnit->type__ == INTERACTABLE) {
       if (netCharacter) {
         character = (CPlayer*)netCharacter->getInternalObject();
       }
 
       const float EPSILON = 0.1f;
       if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        log("  Found in trigger units: %p", triggerUnit);
+
         SetSuppressed_SendTriggerUnitTriggered(true);
         triggerUnit->Trigger(character);
         SetSuppressed_SendTriggerUnitTriggered(false);
@@ -1928,13 +1940,15 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
     
-    if (triggerUnit->type__ == OPENABLE) { 
+    if (triggerUnit->type__ == OPENABLE || triggerUnit->type__ == INTERACTABLE) {
       if (netCharacter) {
         character = (CPlayer*)netCharacter->getInternalObject();
       }
 
       const float EPSILON = 0.1f;
       if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        log("  Found in items: %p", triggerUnit);
+
         SetSuppressed_SendTriggerUnitTriggered(true);
         triggerUnit->Trigger(character);
         SetSuppressed_SendTriggerUnitTriggered(false);
@@ -2357,3 +2371,21 @@ void Client::HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoi
   character->pCSkillManager->setSkillLevel(skill, skillLevel);
   SetAllow_SetSkillPoints(false);
 }
+
+void Client::HandleCharacterVisibility(NetworkMessages::Visibility *msgVisibility)
+{
+  u32 id = msgVisibility->id();
+  
+  NetworkEntity *netCharacter = searchCharacterByCommonID(id);
+
+  if (netCharacter) {
+    CCharacter* character = (CCharacter*)netCharacter->getInternalObject();
+
+    if (character) {
+      character->flagFadingIn = msgVisibility->fading_in();
+      character->flagHasBeenDisplayed = msgVisibility->has_been_displayed();
+      character->flagFadingOut = msgVisibility->fading_out();
+    }
+  }
+}
+        

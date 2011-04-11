@@ -35,7 +35,7 @@ void TLMP::Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character 
 {
   u32 invTabCount = msgNewCharacter->inventory_tabsize_size();
   multiplayerLogger.WriteLine(Info, L"  Retrieved %i tab sizes:", invTabCount);
-  log(L"  Retrieved %i tab sizes:", invTabCount);
+  //log(L"  Retrieved %i tab sizes:", invTabCount);
 
   character->pCInventory->maxSize = 0x13;   // Default size observed
   character->pCInventory->tabIndices.clear();
@@ -44,7 +44,7 @@ void TLMP::Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character 
   for (u32 i = 0; i < invTabCount; ++i) {
     const NetworkMessages::InventoryTabSize msgInvTabSize = msgNewCharacter->inventory_tabsize().Get(i);
     multiplayerLogger.WriteLine(Info, L"    [%i]: index = %i, size = %i", i, msgInvTabSize.tabindex(), msgInvTabSize.tabsize());
-    log(L"    [%i]: index = %i, size = %i", i, msgInvTabSize.tabindex(), msgInvTabSize.tabsize());
+    //log(L"    [%i]: index = %i, size = %i", i, msgInvTabSize.tabindex(), msgInvTabSize.tabsize());
 
     character->pCInventory->AddTabSize(msgInvTabSize.tabindex(), msgInvTabSize.tabsize());
   }
