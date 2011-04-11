@@ -3,10 +3,10 @@
 
 = Introduction =
 
-v0.1 Contains a list of expected working items for an initial release.
+v0.2 Contains a list of expected working items for an initial release.
 
-== v0.1 ==
-  * Working on Lobby implementation
-  * Skills need to transfer properly
-  * Level transfers still causing some issues
+== v0.2 ==
+  * Level transfers still causing some issues in rare cases
   * Client character attacks need some work
+  * Client equipping still has some equipmentRef duping bugs.
+  * Client-side characters are sometimes spawned within the level.
