@@ -232,6 +232,7 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
     logColor(B_GREEN, L"Client Received Message: %s", msgString.c_str());
   }
 
+  // Special - handle the version and game started so we can handle checking if it has for all other messages
   switch (msg) {
   case S_VERSION:
     {
@@ -250,414 +251,418 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
       HandleHasGameStarted(gameStarted);
     }
     break;
+  }
 
-  case S_PUSH_GAMESTARTED:
-    {
-      NetworkMessages::GameStarted *msgGameStarted = ParseMessage<NetworkMessages::GameStarted>(m_pBitStream);
+  // All other messages
+  if (Client::getSingleton().GetServerGameStarted()) {
+    switch (msg) {
+    case S_PUSH_GAMESTARTED:
+      {
+        NetworkMessages::GameStarted *msgGameStarted = ParseMessage<NetworkMessages::GameStarted>(m_pBitStream);
 
-      HandleGameStarted();
-    }
-    break;
-
-  case S_PUSH_GAMEENDED:
-    {
-      NetworkMessages::GameEnded *msgGameEnded = ParseMessage<NetworkMessages::GameEnded>(m_pBitStream);
-
-      HandleGameEnded();
-
-      log("debug /HandleGameEnded");
-    }
-    break;
-
-  case S_PUSH_CURRENT_LEVEL:
-    {
-      NetworkMessages::CurrentLevel *msgCurrentLevel = ParseMessage<NetworkMessages::CurrentLevel>(m_pBitStream);
-
-      HandleCurrentLevel(msgCurrentLevel);
-    }
-    break;
-
-  case S_REQUEST_CHARINFO:
-    {
-      NetworkMessages::RequestCharacterInfo *msgRequestCharacterInfo = ParseMessage<NetworkMessages::RequestCharacterInfo>(m_pBitStream);
-
-      HandleRequestCharacterInfo();
-    }
-    break;
-
-  case S_REPLY_CHARID:
-    {
-      NetworkMessages::ReplyCharacterId *msgReplyCharacterId = ParseMessage<NetworkMessages::ReplyCharacterId>(m_pBitStream);
-
-      HandleReplyCharacterId(msgReplyCharacterId);
-    }
-    break;
-
-  case S_REPLY_EQUIPMENT_ID:
-    {
-      NetworkMessages::EquipmentSetID *msgEquipmentSetID = ParseMessage<NetworkMessages::EquipmentSetID>(m_pBitStream);
-
-      HandleReplyEquipmentID(msgEquipmentSetID);
-    }
-    break;
-
-  case S_PUSH_NEWCHAR:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        HandleGameStarted();
       }
+      break;
 
-      NetworkMessages::Character *msgCharacter = ParseMessage<NetworkMessages::Character>(m_pBitStream);
+    case S_PUSH_GAMEENDED:
+      {
+        NetworkMessages::GameEnded *msgGameEnded = ParseMessage<NetworkMessages::GameEnded>(m_pBitStream);
 
-      HandleCharacterCreation(msgCharacter);
-    }
-    break;
+        HandleGameEnded();
 
-  case S_PUSH_NEWEQUIPMENT:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        log("debug /HandleGameEnded");
       }
+      break;
 
-      NetworkMessages::Equipment *msgEquipment = ParseMessage<NetworkMessages::Equipment>(m_pBitStream);
+    case S_PUSH_CURRENT_LEVEL:
+      {
+        NetworkMessages::CurrentLevel *msgCurrentLevel = ParseMessage<NetworkMessages::CurrentLevel>(m_pBitStream);
+
+        HandleCurrentLevel(msgCurrentLevel);
+      }
+      break;
+
+    case S_REQUEST_CHARINFO:
+      {
+        NetworkMessages::RequestCharacterInfo *msgRequestCharacterInfo = ParseMessage<NetworkMessages::RequestCharacterInfo>(m_pBitStream);
+
+        HandleRequestCharacterInfo();
+      }
+      break;
+
+    case S_REPLY_CHARID:
+      {
+        NetworkMessages::ReplyCharacterId *msgReplyCharacterId = ParseMessage<NetworkMessages::ReplyCharacterId>(m_pBitStream);
+
+        HandleReplyCharacterId(msgReplyCharacterId);
+      }
+      break;
+
+    case S_REPLY_EQUIPMENT_ID:
+      {
+        NetworkMessages::EquipmentSetID *msgEquipmentSetID = ParseMessage<NetworkMessages::EquipmentSetID>(m_pBitStream);
+
+        HandleReplyEquipmentID(msgEquipmentSetID);
+      }
+      break;
+
+    case S_PUSH_NEWCHAR:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::Character *msgCharacter = ParseMessage<NetworkMessages::Character>(m_pBitStream);
+
+        HandleCharacterCreation(msgCharacter);
+      }
+      break;
+
+    case S_PUSH_NEWEQUIPMENT:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::Equipment *msgEquipment = ParseMessage<NetworkMessages::Equipment>(m_pBitStream);
+        
+        HandleEquipmentCreation(msgEquipment); 
+      }
+      break;
+
+    case S_PUSH_ADDCHARMINION:
+      break;
+
+    case S_PUSH_EQUIPMENT_DROP:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::EquipmentDrop *msgEquipmentDrop = ParseMessage<NetworkMessages::EquipmentDrop>(m_pBitStream);
+        NetworkMessages::Position msgPosition = msgEquipmentDrop->position().Get(0);
+
+        Vector3 position;
+        position.x = msgPosition.x();
+        position.y = msgPosition.y();
+        position.z = msgPosition.z();
+
+        u32 equipmentId = msgEquipmentDrop->equipmentid();
+        bool unk0 = msgEquipmentDrop->unk0();
+
+        HandleEquipmentDrop(equipmentId, position, unk0);
+      }
+      break;
+
+    case S_PUSH_EQUIPMENT_PICKUP:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::EquipmentPickup *msgEquipmentPickup = ParseMessage<NetworkMessages::EquipmentPickup>(m_pBitStream);
+
+        u32 equipmentId = msgEquipmentPickup->equipmentid();
+        u32 characterId = msgEquipmentPickup->characterid();
+
+        HandleEquipmentPickup(characterId, equipmentId);
+      }
+      break;
+
+    case S_PUSH_EQUIPMENT_EQUIP:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::InventoryAddEquipment *msgInventoryAddEquipment = ParseMessage<NetworkMessages::InventoryAddEquipment>(m_pBitStream);
+        u32 ownerId = msgInventoryAddEquipment->ownerid();
+        u32 equipmentId = msgInventoryAddEquipment->equipmentid();
+        u32 slot = msgInventoryAddEquipment->slot();
+        u32 unk0 = msgInventoryAddEquipment->unk0();
+
+        HandleInventoryAddEquipment(ownerId, equipmentId, slot, unk0);
+      }
+      break;
+
+    case S_PUSH_EQUIPMENT_UNEQUIP:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::InventoryRemoveEquipment *msgInventoryRemoveEquipment = ParseMessage<NetworkMessages::InventoryRemoveEquipment>(m_pBitStream);
+        u32 ownerId = msgInventoryRemoveEquipment->ownerid();
+        u32 equipmentId = msgInventoryRemoveEquipment->equipmentid();
+
+        HandleInventoryRemoveEquipment(ownerId, equipmentId);
+      }
+      break;
+
+    case S_PUSH_EQUIPMENT_USE:
+      break;
+
+    case S_PUSH_EQUIPMENT_IDENTIFY:
+      {
+        NetworkMessages::EquipmentIdentify *msgEquipmentIdentify = ParseMessage<NetworkMessages::EquipmentIdentify>(m_pBitStream);
+
+        HandleEquipmentIdentify(msgEquipmentIdentify);
+      }
+      break;
+
+    case S_PUSH_EQUIPMENT_ADDENCHANT:
+      break;
+
+    case S_PUSH_EQUIPMENT_ADDSOCKET:
+      break;
+
+    case S_PUSH_CHARACTER_SETDEST:
+      {
+        // Ignore server character creation if we're not in the game
+        if (!gameClient->inGame) {
+          break;
+        }
+
+        NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
+        NetworkMessages::Position msgDestination = msgCharacterDestination->destination();
+        NetworkMessages::Position msgCurrent = msgCharacterDestination->current();
+
+        u32 id = msgCharacterDestination->id();
+
+        Vector3 destination;
+        destination.x = msgDestination.x();
+        destination.y = msgDestination.z();
+        destination.z = msgDestination.z();
+
+        Vector3 currentPosition;
+        currentPosition.x = msgCurrent.x();
+        currentPosition.y = msgCurrent.y();
+        currentPosition.z = msgCurrent.z();
+
+        u8 running = msgCharacterDestination->running();
+        u8 attacking = msgCharacterDestination->attacking();
+
+        HandleCharacterDestination(id, currentPosition, destination, running, attacking);
+      }
+      break;
+
+    case S_PUSH_CHARACTER_ACTION:
+      {
+        NetworkMessages::CharacterAction *msgCharacterAction = ParseMessage<NetworkMessages::CharacterAction>(m_pBitStream);
+
+        HandleCharacterSetAction(msgCharacterAction);
+      }
+      break;
+
       
-      HandleEquipmentCreation(msgEquipment); 
-    }
-    break;
+    case S_PUSH_CHARACTER_ATTACK:
+      {
+        //* Hold off on this for now
+        NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
 
-  case S_PUSH_ADDCHARMINION:
-    break;
-
-  case S_PUSH_EQUIPMENT_DROP:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        HandleCharacterAttack(msgCharacterAttack);
+        //*/
       }
+      break;
 
-      NetworkMessages::EquipmentDrop *msgEquipmentDrop = ParseMessage<NetworkMessages::EquipmentDrop>(m_pBitStream);
-      NetworkMessages::Position msgPosition = msgEquipmentDrop->position().Get(0);
+    case S_PUSH_CHARACTER_USESKILL:
+      {
+        NetworkMessages::CharacterUseSkill *msgCharacterUseSkill = ParseMessage<NetworkMessages::CharacterUseSkill>(m_pBitStream);
 
-      Vector3 position;
-      position.x = msgPosition.x();
-      position.y = msgPosition.y();
-      position.z = msgPosition.z();
-
-      u32 equipmentId = msgEquipmentDrop->equipmentid();
-      bool unk0 = msgEquipmentDrop->unk0();
-
-      HandleEquipmentDrop(equipmentId, position, unk0);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_PICKUP:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        HandleCharacterUseSkill(msgCharacterUseSkill);
       }
+      break;
 
-      NetworkMessages::EquipmentPickup *msgEquipmentPickup = ParseMessage<NetworkMessages::EquipmentPickup>(m_pBitStream);
+    case S_PUSH_EQUIPMENT_STACKUPDATE:
+      {
+        NetworkMessages::EquipmentUpdateStackSize *msgEquipmentUpdateStackSize = ParseMessage<NetworkMessages::EquipmentUpdateStackSize>(m_pBitStream);
 
-      u32 equipmentId = msgEquipmentPickup->equipmentid();
-      u32 characterId = msgEquipmentPickup->characterid();
-
-      HandleEquipmentPickup(characterId, equipmentId);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_EQUIP:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        HandleEquipmentUpdateStack(msgEquipmentUpdateStackSize);
       }
+      break;
 
-      NetworkMessages::InventoryAddEquipment *msgInventoryAddEquipment = ParseMessage<NetworkMessages::InventoryAddEquipment>(m_pBitStream);
-      u32 ownerId = msgInventoryAddEquipment->ownerid();
-      u32 equipmentId = msgInventoryAddEquipment->equipmentid();
-      u32 slot = msgInventoryAddEquipment->slot();
-      u32 unk0 = msgInventoryAddEquipment->unk0();
+    case S_PUSH_EQUIPMENT_ADD_GEM:
+      {
+        NetworkMessages::EquipmentAddGem *msgEquipmentAddGem = ParseMessage<NetworkMessages::EquipmentAddGem>(m_pBitStream);
 
-      HandleInventoryAddEquipment(ownerId, equipmentId, slot, unk0);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_UNEQUIP:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        HandleEquipmentAddGem(msgEquipmentAddGem);
       }
+      break;
 
-      NetworkMessages::InventoryRemoveEquipment *msgInventoryRemoveEquipment = ParseMessage<NetworkMessages::InventoryRemoveEquipment>(m_pBitStream);
-      u32 ownerId = msgInventoryRemoveEquipment->ownerid();
-      u32 equipmentId = msgInventoryRemoveEquipment->equipmentid();
+    case S_PUSH_EQUIPMENT_REMOVE_GEMS:
+      {
+        NetworkMessages::EquipmentRemoveGems *msgEquipmentRemoveGems = ParseMessage<NetworkMessages::EquipmentRemoveGems>(m_pBitStream);
 
-      HandleInventoryRemoveEquipment(ownerId, equipmentId);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_USE:
-    break;
-
-  case S_PUSH_EQUIPMENT_IDENTIFY:
-    {
-      NetworkMessages::EquipmentIdentify *msgEquipmentIdentify = ParseMessage<NetworkMessages::EquipmentIdentify>(m_pBitStream);
-
-      HandleEquipmentIdentify(msgEquipmentIdentify);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_ADDENCHANT:
-    break;
-
-  case S_PUSH_EQUIPMENT_ADDSOCKET:
-    break;
-
-  case S_PUSH_CHARACTER_SETDEST:
-    {
-      // Ignore server character creation if we're not in the game
-      if (!gameClient->inGame) {
-        break;
+        HandleEquipmentRemoveGems(msgEquipmentRemoveGems);
       }
+      break;
+      
+    case S_PUSH_CHAT_PLAYER:
+      {
+        NetworkMessages::ChatPlayerText *msgChatPlayerText = ParseMessage<NetworkMessages::ChatPlayerText>(m_pBitStream);
 
-      NetworkMessages::CharacterDestination *msgCharacterDestination = ParseMessage<NetworkMessages::CharacterDestination>(m_pBitStream);
-      NetworkMessages::Position msgDestination = msgCharacterDestination->destination();
-      NetworkMessages::Position msgCurrent = msgCharacterDestination->current();
+        HandleChatMessage(msgChatPlayerText);
+      }
+      break;
 
-      u32 id = msgCharacterDestination->id();
+    case S_PUSH_CHANGE_LEVEL:
+      {
+        NetworkMessages::ChangeLevel *msgChangeLevel = ParseMessage<NetworkMessages::ChangeLevel>(m_pBitStream);
 
-      Vector3 destination;
-      destination.x = msgDestination.x();
-      destination.y = msgDestination.z();
-      destination.z = msgDestination.z();
+        HandleChangeLevel(msgChangeLevel);
+      }
+      break;
 
-      Vector3 currentPosition;
-      currentPosition.x = msgCurrent.x();
-      currentPosition.y = msgCurrent.y();
-      currentPosition.z = msgCurrent.z();
+    case S_PUSH_CHAR_UPDATE_HEALTH:
+      {
+        NetworkMessages::CharacterUpdateHealth *msgCharacterUpdateHealth = ParseMessage<NetworkMessages::CharacterUpdateHealth>(m_pBitStream);
 
-      u8 running = msgCharacterDestination->running();
-      u8 attacking = msgCharacterDestination->attacking();
+        HandleUpdateHealth(msgCharacterUpdateHealth);
+      }
+      break;
 
-      HandleCharacterDestination(id, currentPosition, destination, running, attacking);
+    case S_PUSH_CHAR_DESTROY:
+      {
+        NetworkMessages::CharacterDestroy *msgCharacterDestroy = ParseMessage<NetworkMessages::CharacterDestroy>(m_pBitStream);
+
+        HandleCharacterDestroy(msgCharacterDestroy);
+      }
+      break;
+
+    case S_PUSH_LEVEL_CREATE_ITEM:
+      {
+        NetworkMessages::LevelCreateItem *msgLevelCreateItem = ParseMessage<NetworkMessages::LevelCreateItem>(m_pBitStream);
+
+        HandleLevelCreateItem(msgLevelCreateItem);
+      }
+      break;
+
+    case S_PUSH_LEVEL_ITEM_DROP:
+      {
+        NetworkMessages::LevelDropItem *msgLevelDropItem = ParseMessage<NetworkMessages::LevelDropItem>(m_pBitStream);
+
+        HandleLevelDropItem(msgLevelDropItem);
+      }
+      break;
+      
+    case S_PUSH_BREAKABLE_TRIGGERED:
+      {
+        NetworkMessages::BreakableTriggered *msgBreakableTriggered = ParseMessage<NetworkMessages::BreakableTriggered>(m_pBitStream);
+
+        HandleBreakableTriggered(msgBreakableTriggered);
+      }
+      break;
+
+    case S_PUSH_TRIGGER_TRIGGERED:
+      {
+        NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTriggered = ParseMessage<NetworkMessages::TriggerUnitTriggered>(m_pBitStream);
+
+        HandleTriggerUnitTriggered(msgTriggerUnitTriggered);
+      }
+      break;
+
+    case S_PUSH_ITEM_GOLD:
+      {
+        NetworkMessages::ItemGoldCreate *msgItemGoldCreate = ParseMessage<NetworkMessages::ItemGoldCreate>(m_pBitStream);
+
+        HandleItemGoldAmount(msgItemGoldCreate);
+      }
+      break;
+
+    case S_PUSH_CHARACTER_ALIGNMENT:
+      {
+        NetworkMessages::CharacterAlignment *msgCharacterAlignment = ParseMessage<NetworkMessages::CharacterAlignment>(m_pBitStream);
+
+        HandleCharacterAlignment(msgCharacterAlignment);
+      }
+      break;
+
+    case S_PUSH_CHARACTER_SETTARGET:
+      {
+        NetworkMessages::CharacterSetTarget *msgCharacterSetTarget = ParseMessage<NetworkMessages::CharacterSetTarget>(m_pBitStream);
+
+        HandleCharacterSetTarget(msgCharacterSetTarget);
+      }
+      break;
+
+    case S_PUSH_TRIGGERUNIT_SYNC:
+      {
+        NetworkMessages::TriggerUnitSync *msgTriggerUnitSync = ParseMessage<NetworkMessages::TriggerUnitSync>(m_pBitStream);
+
+        HandleTriggerUnitSync(msgTriggerUnitSync);
+      }
+      break;
+
+    case S_PUSH_CHARACTER_RESURRECT:
+      {
+        NetworkMessages::CharacterResurrect *msgCharacterResurrect = ParseMessage<NetworkMessages::CharacterResurrect>(m_pBitStream);
+
+        HandleCharacterResurrect(msgCharacterResurrect);
+      }
+      break;
+
+    case S_PUSH_ADDEXPERIENCE:
+      {
+        NetworkMessages::CharacterAddExperience *msgCharacterAddExperience = ParseMessage<NetworkMessages::CharacterAddExperience>(m_pBitStream);
+
+        HandleCharacterAddExperience(msgCharacterAddExperience);
+      }
+      break;
+
+    case S_PUSH_CHARACTERKILLED:
+      {
+        NetworkMessages::CharacterKilledCharacter *msgCharacterKilledCharacter = ParseMessage<NetworkMessages::CharacterKilledCharacter>(m_pBitStream);
+
+        HandleCharacterKillCharacter(msgCharacterKilledCharacter);
+      }
+      break;
+
+    case S_PUSH_CHARACTER_ADD_SKILL:
+      {
+        NetworkMessages::BaseUnitAddSkill *msgCharacterAddSkill = ParseMessage<NetworkMessages::BaseUnitAddSkill>(m_pBitStream);
+
+        HandleCharacterAddSkill(msgCharacterAddSkill);
+      }
+      break;
+
+    case S_PUSH_RANDOM_SEED:
+      {
+        NetworkMessages::RandomSeed *msgRandomSeed = ParseMessage<NetworkMessages::RandomSeed>(m_pBitStream);
+
+        HandleRandomSeed(msgRandomSeed);
+      }
+      break;
+
+    case S_PUSH_ORIENTATION:
+      {
+        NetworkMessages::CharacterOrientation *msgCharacterOrientation = ParseMessage<NetworkMessages::CharacterOrientation>(m_pBitStream);
+
+        HandleCharacterOrientation(msgCharacterOrientation);
+      }
+      break;
+
+    case S_PUSH_WEAPONSWAP:
+      {
+        NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons = ParseMessage<NetworkMessages::PlayerSwapWeapons>(m_pBitStream);
+
+        HandlePlayerWeaponSwap(msgPlayerSwapWeapons);
+      }
+      break;
+
+    case S_PUSH_SKILLLEVEL:
+      {
+        NetworkMessages::CharacterSetSkillPoints *msgCharacterSetSkillPoints = ParseMessage<NetworkMessages::CharacterSetSkillPoints>(m_pBitStream);
+
+        HandleCharacterSetSkillPoints(msgCharacterSetSkillPoints);
+      }
+      break;
     }
-    break;
-
-  case S_PUSH_CHARACTER_ACTION:
-    {
-      NetworkMessages::CharacterAction *msgCharacterAction = ParseMessage<NetworkMessages::CharacterAction>(m_pBitStream);
-
-      HandleCharacterSetAction(msgCharacterAction);
-    }
-    break;
-
-    
-  case S_PUSH_CHARACTER_ATTACK:
-    {
-      //* Hold off on this for now
-      NetworkMessages::CharacterAttack *msgCharacterAttack = ParseMessage<NetworkMessages::CharacterAttack>(m_pBitStream);
-
-      HandleCharacterAttack(msgCharacterAttack);
-      //*/
-    }
-    break;
-
-  case S_PUSH_CHARACTER_USESKILL:
-    {
-      NetworkMessages::CharacterUseSkill *msgCharacterUseSkill = ParseMessage<NetworkMessages::CharacterUseSkill>(m_pBitStream);
-
-      HandleCharacterUseSkill(msgCharacterUseSkill);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_STACKUPDATE:
-    {
-      NetworkMessages::EquipmentUpdateStackSize *msgEquipmentUpdateStackSize = ParseMessage<NetworkMessages::EquipmentUpdateStackSize>(m_pBitStream);
-
-      HandleEquipmentUpdateStack(msgEquipmentUpdateStackSize);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_ADD_GEM:
-    {
-      NetworkMessages::EquipmentAddGem *msgEquipmentAddGem = ParseMessage<NetworkMessages::EquipmentAddGem>(m_pBitStream);
-
-      HandleEquipmentAddGem(msgEquipmentAddGem);
-    }
-    break;
-
-  case S_PUSH_EQUIPMENT_REMOVE_GEMS:
-    {
-      NetworkMessages::EquipmentRemoveGems *msgEquipmentRemoveGems = ParseMessage<NetworkMessages::EquipmentRemoveGems>(m_pBitStream);
-
-      HandleEquipmentRemoveGems(msgEquipmentRemoveGems);
-    }
-    break;
-    
-  case S_PUSH_CHAT_PLAYER:
-    {
-      NetworkMessages::ChatPlayerText *msgChatPlayerText = ParseMessage<NetworkMessages::ChatPlayerText>(m_pBitStream);
-
-      HandleChatMessage(msgChatPlayerText);
-    }
-    break;
-
-  case S_PUSH_CHANGE_LEVEL:
-    {
-      NetworkMessages::ChangeLevel *msgChangeLevel = ParseMessage<NetworkMessages::ChangeLevel>(m_pBitStream);
-
-      HandleChangeLevel(msgChangeLevel);
-    }
-    break;
-
-  case S_PUSH_CHAR_UPDATE_HEALTH:
-    {
-      NetworkMessages::CharacterUpdateHealth *msgCharacterUpdateHealth = ParseMessage<NetworkMessages::CharacterUpdateHealth>(m_pBitStream);
-
-      HandleUpdateHealth(msgCharacterUpdateHealth);
-    }
-    break;
-
-  case S_PUSH_CHAR_DESTROY:
-    {
-      NetworkMessages::CharacterDestroy *msgCharacterDestroy = ParseMessage<NetworkMessages::CharacterDestroy>(m_pBitStream);
-
-      HandleCharacterDestroy(msgCharacterDestroy);
-    }
-    break;
-
-  case S_PUSH_LEVEL_CREATE_ITEM:
-    {
-      NetworkMessages::LevelCreateItem *msgLevelCreateItem = ParseMessage<NetworkMessages::LevelCreateItem>(m_pBitStream);
-
-      HandleLevelCreateItem(msgLevelCreateItem);
-    }
-    break;
-
-  case S_PUSH_LEVEL_ITEM_DROP:
-    {
-      NetworkMessages::LevelDropItem *msgLevelDropItem = ParseMessage<NetworkMessages::LevelDropItem>(m_pBitStream);
-
-      HandleLevelDropItem(msgLevelDropItem);
-    }
-    break;
-    
-  case S_PUSH_BREAKABLE_TRIGGERED:
-    {
-      NetworkMessages::BreakableTriggered *msgBreakableTriggered = ParseMessage<NetworkMessages::BreakableTriggered>(m_pBitStream);
-
-      HandleBreakableTriggered(msgBreakableTriggered);
-    }
-    break;
-
-  case S_PUSH_TRIGGER_TRIGGERED:
-    {
-      NetworkMessages::TriggerUnitTriggered *msgTriggerUnitTriggered = ParseMessage<NetworkMessages::TriggerUnitTriggered>(m_pBitStream);
-
-      HandleTriggerUnitTriggered(msgTriggerUnitTriggered);
-    }
-    break;
-
-  case S_PUSH_ITEM_GOLD:
-    {
-      NetworkMessages::ItemGoldCreate *msgItemGoldCreate = ParseMessage<NetworkMessages::ItemGoldCreate>(m_pBitStream);
-
-      HandleItemGoldAmount(msgItemGoldCreate);
-    }
-    break;
-
-  case S_PUSH_CHARACTER_ALIGNMENT:
-    {
-      NetworkMessages::CharacterAlignment *msgCharacterAlignment = ParseMessage<NetworkMessages::CharacterAlignment>(m_pBitStream);
-
-      HandleCharacterAlignment(msgCharacterAlignment);
-    }
-    break;
-
-  case S_PUSH_CHARACTER_SETTARGET:
-    {
-      NetworkMessages::CharacterSetTarget *msgCharacterSetTarget = ParseMessage<NetworkMessages::CharacterSetTarget>(m_pBitStream);
-
-      HandleCharacterSetTarget(msgCharacterSetTarget);
-    }
-    break;
-
-  case S_PUSH_TRIGGERUNIT_SYNC:
-    {
-      NetworkMessages::TriggerUnitSync *msgTriggerUnitSync = ParseMessage<NetworkMessages::TriggerUnitSync>(m_pBitStream);
-
-      HandleTriggerUnitSync(msgTriggerUnitSync);
-    }
-    break;
-
-  case S_PUSH_CHARACTER_RESURRECT:
-    {
-      NetworkMessages::CharacterResurrect *msgCharacterResurrect = ParseMessage<NetworkMessages::CharacterResurrect>(m_pBitStream);
-
-      HandleCharacterResurrect(msgCharacterResurrect);
-    }
-    break;
-
-  case S_PUSH_ADDEXPERIENCE:
-    {
-      NetworkMessages::CharacterAddExperience *msgCharacterAddExperience = ParseMessage<NetworkMessages::CharacterAddExperience>(m_pBitStream);
-
-      HandleCharacterAddExperience(msgCharacterAddExperience);
-    }
-    break;
-
-  case S_PUSH_CHARACTERKILLED:
-    {
-      NetworkMessages::CharacterKilledCharacter *msgCharacterKilledCharacter = ParseMessage<NetworkMessages::CharacterKilledCharacter>(m_pBitStream);
-
-      HandleCharacterKillCharacter(msgCharacterKilledCharacter);
-    }
-    break;
-
-  case S_PUSH_CHARACTER_ADD_SKILL:
-    {
-      NetworkMessages::BaseUnitAddSkill *msgCharacterAddSkill = ParseMessage<NetworkMessages::BaseUnitAddSkill>(m_pBitStream);
-
-      HandleCharacterAddSkill(msgCharacterAddSkill);
-    }
-    break;
-
-  case S_PUSH_RANDOM_SEED:
-    {
-      NetworkMessages::RandomSeed *msgRandomSeed = ParseMessage<NetworkMessages::RandomSeed>(m_pBitStream);
-
-      HandleRandomSeed(msgRandomSeed);
-    }
-    break;
-
-  case S_PUSH_ORIENTATION:
-    {
-      NetworkMessages::CharacterOrientation *msgCharacterOrientation = ParseMessage<NetworkMessages::CharacterOrientation>(m_pBitStream);
-
-      HandleCharacterOrientation(msgCharacterOrientation);
-    }
-    break;
-
-  case S_PUSH_WEAPONSWAP:
-    {
-      NetworkMessages::PlayerSwapWeapons *msgPlayerSwapWeapons = ParseMessage<NetworkMessages::PlayerSwapWeapons>(m_pBitStream);
-
-      HandlePlayerWeaponSwap(msgPlayerSwapWeapons);
-    }
-    break;
-
-  case S_PUSH_SKILLLEVEL:
-    {
-      NetworkMessages::CharacterSetSkillPoints *msgCharacterSetSkillPoints = ParseMessage<NetworkMessages::CharacterSetSkillPoints>(m_pBitStream);
-
-      HandleCharacterSetSkillPoints(msgCharacterSetSkillPoints);
-    }
-    break;
-
   }
 }
 
@@ -773,11 +778,6 @@ void Client::HandleRequestCharacterInfo()
   // Inventory tab sizes
   Helper_BuildInventoryTabIndexSize(*msgPlayer, player);
 
-  /*
-  msgPlayerPosition->set_x(player->position.x);
-  msgPlayerPosition->set_y(player->position.y);
-  msgPlayerPosition->set_z(player->position.z);
-  */
   msgPlayerPosition->set_x(player->GetPosition().x);
   msgPlayerPosition->set_y(player->GetPosition().y);
   msgPlayerPosition->set_z(player->GetPosition().z);
@@ -1858,7 +1858,7 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
         }
 
         if (breakable) {
-          if (breakable->position.squaredDistance(position) < EPSILON) {
+          if (breakable->GetPosition().squaredDistance(position) < EPSILON) {
             SetSuppressed_SendBreakableTriggered(true);
             breakable->Break(character);
             SetSuppressed_SendBreakableTriggered(false);
@@ -1893,7 +1893,11 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
 
   // Assume the server's trigger units are sync'd with ours
   CLevel *level = gameClient->pCLevel;
+
+  log(L" Position: %f %f %f", position.x, position.y, position.z);
   level->DumpTriggerUnits();
+
+  const u32 OPENABLE = 0x28;
 
   // List our trigger Units
   LinkedListNode* itr = *level->ppCTriggerUnits;
@@ -1901,16 +1905,41 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
     
-    if (netCharacter) {
-      character = (CPlayer*)netCharacter->getInternalObject();
+    if (triggerUnit->type__ == OPENABLE) { 
+      if (netCharacter) {
+        character = (CPlayer*)netCharacter->getInternalObject();
+      }
+
+      const float EPSILON = 0.1f;
+      if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        SetSuppressed_SendTriggerUnitTriggered(true);
+        triggerUnit->Trigger(character);
+        SetSuppressed_SendTriggerUnitTriggered(false);
+        return;
+      }
     }
 
-    const float EPSILON = 0.1f;
-    if (triggerUnit->position.squaredDistance(position) < EPSILON) {
-      SetSuppressed_SendTriggerUnitTriggered(true);
-      triggerUnit->Trigger(character);
-      SetSuppressed_SendTriggerUnitTriggered(false);
-      break;
+    itr = itr->pNext;
+  }
+
+  // Check our items instead
+  itr = *level->ppCItems;
+  while (itr != NULL) {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+    CPlayer *character = NULL;
+    
+    if (triggerUnit->type__ == OPENABLE) { 
+      if (netCharacter) {
+        character = (CPlayer*)netCharacter->getInternalObject();
+      }
+
+      const float EPSILON = 0.1f;
+      if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        SetSuppressed_SendTriggerUnitTriggered(true);
+        triggerUnit->Trigger(character);
+        SetSuppressed_SendTriggerUnitTriggered(false);
+        return;
+      }
     }
 
     itr = itr->pNext;

@@ -31,6 +31,8 @@ namespace TLMP {
   extern map<SystemAddress, vector<NetworkEntity*>*>*  Server_ClientCharacterMapping;
   extern map<SystemAddress, NetworkEntity*>* Server_ClientUnequipMapping;
 
+  extern map<CCharacter*, Vector3>* CharacterNetworkPositionBuffer;
+
   extern vector<CBaseUnit*>* OutsideBaseUnits;  // Represents a list of BaseUnits created outside our singleplayer game
 
   extern CGameClient* gameClient;

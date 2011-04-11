@@ -410,7 +410,7 @@ void Server::WorkMessage(const SystemAddress address, Network::Message msg, RakN
     {
       NetworkMessages::CharacterSetTarget *msgCharacterSetTarget = ParseMessage<NetworkMessages::CharacterSetTarget>(m_pBitStream);
 
-      //HandleCharacterSetTarget(msgCharacterSetTarget);
+      HandleCharacterSetTarget(msgCharacterSetTarget);
     }
     break;
 
@@ -607,11 +607,6 @@ void Server::HandleGameEnter(const SystemAddress clientAddress, NetworkMessages:
       msgNewCharacter.set_name(characterName);
 
       NetworkMessages::Position *msgPlayerPosition = msgNewCharacter.mutable_position();
-      /*
-      msgPlayerPosition->set_x(character->position.x);
-      msgPlayerPosition->set_y(character->position.y);
-      msgPlayerPosition->set_z(character->position.z);
-      */
 
       msgPlayerPosition->set_x(character->GetPosition().x);
       msgPlayerPosition->set_y(character->GetPosition().y);
@@ -865,8 +860,8 @@ void Server::HandleReplyCharacterInfo(const SystemAddress clientAddress, Network
 
 void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 current, Vector3 destination, u8 running, u8 attacking)
 {
-  multiplayerLogger.WriteLine(Info, L"Server received character setDestination (CommonID = %x), Position = %f, %f",
-    commonId, destination.x, destination.z);
+  //multiplayerLogger.WriteLine(Info, L"Server received character setDestination (CommonID = %x), Position = %f, %f",
+  //  commonId, destination.x, destination.z);
 
   // Search for our Character given the CommonID
   NetworkEntity *entity = searchCharacterByCommonID(commonId);
@@ -878,11 +873,25 @@ void Server::HandleCharacterDestination(const SystemAddress clientAddress, u32 c
 
   CCharacter *character = (CCharacter *)entity->getInternalObject();
 
-  HelperCharacterPositioning(character, current);
+  const u64 DESTROYER = 0xD3A8F9982FA111DE;
+  const u64 ALCHEMIST = 0x8D3EE5363F7611DE;
+  const u64 VANQUISHER = 0xAA472CC2629611DE;
+  bool permission = true;
 
-  character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
-  character->running = running;
-  character->attacking = attacking;
+  if (character->GUID == DESTROYER ||
+      character->GUID == ALCHEMIST ||
+      character->GUID == VANQUISHER)
+  {
+    permission = Helper_CheckCharacterPermission(clientAddress, character);
+  }
+
+  if (permission) {
+    HelperCharacterPositioning(character, current);
+
+    character->SetDestination(gameClient->pCLevel, destination.x, destination.z);
+    character->running = running;
+    character->attacking = attacking;
+  }
 }
 
 
@@ -999,11 +1008,7 @@ void Server::Helper_SendGroundEquipmentToClient(const SystemAddress clientAddres
   // Create a new network message for all clients to create this character
   NetworkMessages::EquipmentDrop msgEquipmentDrop;
   NetworkMessages::Position *msgPosition = msgEquipmentDrop.add_position();
-  /*
-  msgPosition->set_x(equipment->position.x);
-  msgPosition->set_y(equipment->position.y);
-  msgPosition->set_z(equipment->position.z);
-  */
+
   msgPosition->set_x(equipment->GetPosition().x);
   msgPosition->set_y(equipment->GetPosition().y);
   msgPosition->set_z(equipment->GetPosition().z);
@@ -1644,6 +1649,8 @@ void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBr
   NetworkEntity *entity = searchItemByCommonID(itemId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
 
+  log(L"  Position: %f, %f, %f", position.x, position.y, position.z);
+
   if (entity) {
     /* Use explicit positioning technique instead
     CBreakable *breakable = (CBreakable*)entity->getInternalObject();
@@ -1660,13 +1667,15 @@ void Server::HandleBreakableTriggered(NetworkMessages::BreakableTriggered *msgBr
 
     // Assume the server's trigger units are sync'd with ours
     CLevel *level = gameClient->pCLevel;
-    level->DumpTriggerUnits();
+    //level->DumpTriggerUnits();
+    //level->DumpItems();
 
     const u32 BREAKABLE = 0x1D;
     const float EPSILON = 0.1f;
 
     // List our trigger Units
-    LinkedListNode* itr = *level->ppCTriggerUnits;
+    //LinkedListNode* itr = *level->ppCTriggerUnits;
+    LinkedListNode* itr = *level->ppCItems;
     while (itr != NULL) {
       if (itr->pCBaseUnit->type__ == BREAKABLE) {
         CBreakable* breakable = (CBreakable*)itr->pCBaseUnit;
@@ -1712,20 +1721,46 @@ void Server::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   CLevel *level = gameClient->pCLevel;
   level->DumpTriggerUnits();
 
+  const u32 OPENABLE = 0x28;
+
   // List our trigger Units
   LinkedListNode* itr = *level->ppCTriggerUnits;
   while (itr != NULL) {
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
-    
-    if (netCharacter) {
-      character = (CPlayer*)netCharacter->getInternalObject();
+
+    if (triggerUnit->type__ == OPENABLE) { 
+      if (netCharacter) {
+        character = (CPlayer*)netCharacter->getInternalObject();
+      }
+
+      const float EPSILON = 0.001f;
+      if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        triggerUnit->Trigger(character);
+        return;
+      }
     }
 
-    const float EPSILON = 0.1f;
-    if (triggerUnit->position.squaredDistance(position) < EPSILON) {
-      triggerUnit->Trigger(character);
-      break;
+    itr = itr->pNext;
+  }
+
+  
+  // Check our items instead
+  itr = *level->ppCItems;
+  while (itr != NULL) {
+    CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
+    CPlayer *character = NULL;
+
+    if (triggerUnit->type__ == OPENABLE) { 
+      if (netCharacter) {
+        character = (CPlayer*)netCharacter->getInternalObject();
+      }
+
+      const float EPSILON = 0.001f;
+      if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
+        triggerUnit->Trigger(character);
+        return;
+      }
     }
 
     itr = itr->pNext;
@@ -1754,7 +1789,14 @@ void Server::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
     CCharacter *character = (CCharacter*)netCharacter->getInternalObject();
 
     if (character) {
-      character->SetTarget(target);
+      log(L"  Server handling client request: %p -> %p", character, target);
+      log(L"  Server handling client request: %s -> %s", character->characterName.c_str(), target->characterName.c_str());
+
+      // Only set the client requested target if it's null
+      if (character->target == NULL) {
+        character->SetAction(3);    // Testing - see if this is the attack state
+        character->SetTarget(target);
+      }
     }
   } else {
     //log(L"Error: Could not find Character of ID: %x", characterId);
