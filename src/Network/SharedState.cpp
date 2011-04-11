@@ -11,6 +11,8 @@ vector<CBaseUnit*>     *TLMP::OutsideBaseUnits = new vector<CBaseUnit*>();
 map<SystemAddress, vector<NetworkEntity*>*> *TLMP::Server_ClientCharacterMapping = new map<SystemAddress, vector<NetworkEntity*>*>();
 map<SystemAddress, NetworkEntity*> *TLMP::Server_ClientUnequipMapping = new map<SystemAddress, NetworkEntity*>();
 
+map<CCharacter*, Vector3>* TLMP::CharacterNetworkPositionBuffer = new map<CCharacter*, Vector3>();
+
 void TLMP::clearAllNetworkIDs()
 {
   if (TLMP::Network::NetworkState::getSingleton().GetState() == TLMP::Network::CLIENT) {

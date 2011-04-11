@@ -10,7 +10,6 @@ using namespace TLAPI;
 
 namespace TLMP
 {
-  // Debugging client slowdown
   static Timer LevelUpdateTime;
   static map<CCharacter*, Timer> CharacterUpdateTime;
 
@@ -69,9 +68,10 @@ namespace TLMP
   // Pre Event for Monster AI and Idle
   void Monster_Idle(CMonster* monster, float dTime, bool & calloriginal);
   void Monster_ProcessAIPre(CMonster* monster, float dTime, u32 unk0, bool & calloriginal);
-  void Monster_ProcessAI2Pre(CMonster* monster, float dTime, u32 unk0, u32 unk1, bool & calloriginal);
+  void Monster_ProcessAI2Pre(CMonster* monster, float dTime, CLevel* level, u32 unk1, bool & calloriginal);
   void Monster_ProcessAI3Pre(CMonster* monster, u32 unk0, bool & calloriginal);
-  void Monster_GetCharacterClosePost(CCharacter*, CMonster*, float, u32, bool&);
+  void Monster_GetCharacterClosePre(CCharacter*&, CMonster*, u32, float, bool&);
+  void Monster_GetCharacterClosePost(CCharacter*&, CMonster*, u32, float, bool&);
 
   // Pre Event for Character SetDestination
   void Character_Dtor(CCharacter*);
@@ -103,7 +103,7 @@ namespace TLMP
   void Character_Player_KillMonsterExperiencePost(CCharacter*, CLevel*, CCharacter*, u32, u32, bool&);
   void Character_KilledPre(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
   void Character_KilledPost(CCharacter*, CCharacter*, Ogre::Vector3*, float, u32, bool&);
-  void Player_SwapWeaponsPre(CCharacter*, bool&);
+  void Player_SwapWeaponsPre(CCharacter*, bool&);  ;
 
   // Player
   void Player_LevelUpPre(CPlayer*, bool&);
@@ -171,6 +171,8 @@ namespace TLMP
   void Level_Level_CharacterKilledCharacterPost(CLevel*, CCharacter*, CCharacter*, Vector3*, u32, bool&);
   void Level_Level_RemoveEquipmentPre(CLevel*, CEquipment*, bool&);
   void Level_Level_RemoveEquipmentPost(CLevel*, CEquipment*, bool&);
+  void Level_CheckCharacterProximityPre(CCharacter*, CLevel*, Vector3*, u32, float, float, float, u32, CCharacter*, u32, bool&);
+  void Level_CheckCharacterProximityPost(CCharacter*, CLevel*, Vector3*, u32, float, float, float, u32, CCharacter*, u32, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
@@ -221,6 +223,13 @@ namespace TLMP
   // Pre Event for InventoryMenuOpenClose
   void InventoryMenu_OpenClosePre(CInventoryMenu *menu, bool open, bool& calloriginal);
   void InventoryMenu_MouseEventPre(CInventoryMenu*, const CEGUI::MouseEventArgs*, bool&);
+
+  // Positionable Object
+  void PositionableObject_SetNearPlayerPre(CPositionableObject*, bool&, bool&);
+
+  // ParticleCache Dtor
+  void ParticleCache_Dtor2Pre(CParticleCache *cache);
+  void ParticleCache_Dtor2Post(CParticleCache *cache);
 
   // Helpers
   void SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk);

@@ -68,7 +68,7 @@ void TLMP::HelperCharacterPositioning(CCharacter* character, const Vector3& posi
 
   if (!bFound) {
     if (position.length() > 0.001f) {
-      if ((character->position - position).squaredLength() > ALLOWED_SQUARED_ERROR) {
+      if ((character->GetPosition() - position).squaredLength() > ALLOWED_SQUARED_ERROR) {
         // Turn off for now
         log(L"Setting character explicit position: %f %f %f", position.x, position.y, position.z);
         character->SetPosition(&position);
