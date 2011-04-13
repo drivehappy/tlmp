@@ -45,8 +45,8 @@ namespace TLMP
   void CharacterSaveState_ReadFromFile(CCharacterSaveState* saveState, PVOID file, u32 unk);
 
   // Pre Event for character initialization
-  void CreateMonsterPre(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
-  void CreateMonsterPost(CMonster* character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool &);
+  void CreateMonsterPre(CMonster*& character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool & calloriginal);
+  void CreateMonsterPost(CMonster*& character, CResourceManager* resourceManager, u64 guid, u32 level, bool unk0, bool &);
   void CreatePlayer(CPlayer* character, CResourceManager* resourceManager, wchar_t* type, u32 unk, bool & calloriginal);
 
   // EffectManager
@@ -142,7 +142,7 @@ namespace TLMP
   void EquipmentInitialize(CEquipment* equipment, CItemSaveState* itemSaveState, bool & calloriginal);
   void EquipmentAddStackCountPost(CEquipment*, u32);
   void EquipmentAddGemPre(CEquipment*, CEquipment*, bool&);
-  void EquipmentIdentifyPre(CEquipment*, CPlayer*, CEquipment*, bool&);
+  void EquipmentIdentifyPre(CEquipment*, CCharacter*, CBaseUnit*, bool&);
   void Equipment_EnchantPre(u32 retval, CEquipment* equipment, u32 unk0, u32 unk1, u32 unk2, bool & calloriginal);
 
   void EquipmentRefDtorPre(CEquipmentRef*, u32);
@@ -158,7 +158,8 @@ namespace TLMP
   void EnchantMenuEnchantItemPre(CEnchantMenu*, bool&);
   
   // Pre Event for player initialization
-  void Level_CharacterInitialize(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
+  void Level_CharacterInitializePre(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
+  void Level_CharacterInitializePost(CCharacter*, CLevel*, CCharacter*, Vector3*, u32, bool&);
   void Level_DropItemPre(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
   void Level_DropItemPost(CLevel* level, CItem* equipment, Vector3 & position, bool unk0, bool&);
   void Level_Dtor(CLevel* level, u32, bool&);
@@ -173,12 +174,14 @@ namespace TLMP
   void Level_Level_RemoveEquipmentPost(CLevel*, CEquipment*, bool&);
   void Level_CheckCharacterProximityPre(CCharacter*, CLevel*, Vector3*, u32, float, float, float, u32, CCharacter*, u32, bool&);
   void Level_CheckCharacterProximityPost(CCharacter*, CLevel*, Vector3*, u32, float, float, float, u32, CCharacter*, u32, bool&);
+  void Level_RemoveCharacterPre(CLevel*, CCharacter*, bool&);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
   void Inventory_AddEquipmentPost(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
   void Inventory_RemoveEquipmentPre(CInventory*, CEquipment*);
   void Inventory_RemoveEquipmentPost(CInventory* inventory, CEquipment* equipment);
+  void Inventory_EquipmentAutoEquipPre(CInventory*, CEquipment*, bool&);
 
   // Pre Event for MainMenu Event
   void MainMenuEventPre(CMainMenu*, u32, wstring, bool&);

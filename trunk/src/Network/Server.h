@@ -98,7 +98,7 @@ namespace TLMP {
       void HandleCharacterDestination(const SystemAddress clientAddress, u32 commonId, Vector3 current, Vector3 destination, u8 running, u8 attacking);
       void HandleEquipmentDrop(const SystemAddress client, u32 equipmentId, Vector3 position, bool unk0);
       void HandleEquipmentCreation(const SystemAddress clientAddress, TLMP::NetworkMessages::Equipment *msgEquipment);
-      void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
+      void HandleEquipmentPickup(u32 characterId, u32 equipmentId, const Vector3&);
       void HandleCharacterSetAction(const SystemAddress clientAddress, NetworkMessages::CharacterAction*);
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
       void HandleCharacterUseSkill(NetworkMessages::CharacterUseSkill*);
@@ -115,6 +115,7 @@ namespace TLMP {
       void HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *);
       void HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *);
       void HandleCharacterStrike(NetworkMessages::CharacterStrikeCharacter *);
+      void HandleEquipmentAutoEquip(NetworkMessages::EquipmentAutoEquip *);
       
       void Helper_SendEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, NetworkEntity *netEquipment);
       void Helper_SendGroundEquipmentToClient(const SystemAddress clientAddress, CEquipment *equipment, TLMP::NetworkEntity *netEquipment);

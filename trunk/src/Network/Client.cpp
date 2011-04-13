@@ -54,6 +54,7 @@ void Client::Reset()
   m_bAllow_UpdateOrientation = false;
   m_bAllow_WeaponSwap = false;
   m_bAllow_SetSkillPoints = false;
+  m_bAllow_AutoEquip = false;
 }
 
 void Client::Connect(const char* address, u16 port)
@@ -369,7 +370,10 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
         u32 equipmentId = msgEquipmentPickup->equipmentid();
         u32 characterId = msgEquipmentPickup->characterid();
 
-        HandleEquipmentPickup(characterId, equipmentId);
+        NetworkMessages::Position msgPosition = msgEquipmentPickup->position();
+        Vector3 position(msgPosition.x(), msgPosition.y(), msgPosition.z());
+
+        HandleEquipmentPickup(characterId, equipmentId, position);
       }
       break;
 
@@ -671,6 +675,14 @@ void Client::WorkMessage(Network::Message msg, RakNet::BitStream *bitStream)
       }
       break;
 
+    case S_PUSH_AUTOEQUIP:
+      {
+        NetworkMessages::EquipmentAutoEquip *msgEquipmentAutoEquip = ParseMessage<NetworkMessages::EquipmentAutoEquip>(m_pBitStream);
+
+        HandleEquipmentAutoEquip(msgEquipmentAutoEquip);
+      }
+      break;
+
     }
   }
 }
@@ -776,10 +788,17 @@ void Client::HandleRequestCharacterInfo()
   msgPlayer->set_defense(player->baseDefense);
   msgPlayer->set_magic(player->baseMagic);
   */
+  /*
   msgPlayer->set_strength(10000);
   msgPlayer->set_dexterity(10000);
   msgPlayer->set_defense(10000);
   msgPlayer->set_magic(10000);
+  */
+  msgPlayer->set_strength(player->baseStrength + 10);
+  msgPlayer->set_dexterity(player->baseDexterity + 10);
+  msgPlayer->set_defense(player->baseDefense + 10);
+  msgPlayer->set_magic(player->baseMagic + 10);
+
   msgPlayer->set_health(player->healthMax);
   msgPlayer->set_mana(player->manaMax);
   msgPlayer->set_weaponsetactive(player->weaponSetToggle);
@@ -901,6 +920,7 @@ void Client::HandleCharacterDestination(u32 commonId, Vector3 current, Vector3 d
 void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
 {
   NetworkMessages::Position msgCharacterPosition = msgCharacter->position();
+  NetworkMessages::Visibility msgCharacterVisibility = msgCharacter->visibility();
 
   Vector3 posCharacter;
   posCharacter.x = msgCharacterPosition.x();
@@ -924,9 +944,6 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
   log(L"Client received character creation: (CommonID = %x) (GUID = %016I64X, name = %s)",
     commonId, guidCharacter, TLMP::convertAsciiToWide(characterName).c_str());
-
-  const u64 STASH = 0x258372C33F2411DE;
-  const u64 SHAREDSTASH = 0xFC4F7F1F9D8E11DE;
 
   // Do not create the stash or shared stash from the server
   if (guidCharacter == STASH || guidCharacter == SHAREDSTASH) {
@@ -956,6 +973,12 @@ void Client::HandleCharacterCreation(NetworkMessages::Character *msgCharacter)
       monster->baseDefense = defense;
       monster->baseMagic = magic;
       monster->weaponSetToggle = weaponSetToggle;
+
+      // Setup visibility
+      monster->flagFadingIn = msgCharacterVisibility.fading_in();
+      monster->flagHasBeenDisplayed = msgCharacterVisibility.has_been_displayed();
+      monster->flagFadingOut = msgCharacterVisibility.fading_out();
+      monster->unkTransparency1 = msgCharacterVisibility.transparency();
 
       // Handle inventory tab sizes
       Helper_ExtractInventoryTabIndexSize(msgCharacter, monster);
@@ -1220,7 +1243,7 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
   }
 }
 
-void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
+void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId, const Vector3& position)
 {
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
   NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
@@ -1249,7 +1272,30 @@ void Client::HandleEquipmentPickup(u32 characterId, u32 equipmentId)
       //log(L"Error: Could not find Character from CommonId: %x", characterId);
     }
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
+    /*
+    // Search our level's items for equipment position
+    if (netCharacter) {
+      CCharacter *character = (CCharacter *)netCharacter->getInternalObject();
+
+      LinkedListNode* itrEquipment = *gameClient->pCLevel->itemsAll;
+      while (itrEquipment) {
+        CEquipment *equipment = (CEquipment*)itrEquipment->pCBaseUnit;
+
+        if (equipment->GetPosition().squaredDistance(position) < EPSILON) {
+          NetworkEntity *entity = searchEquipmentByInternalObject(equipment);
+
+          if (character) {
+            character->PickupEquipment(equipment, gameClient->pCLevel);
+          }
+          break;
+        }
+
+        itrEquipment = itrEquipment->pNext;
+      }
+    }
+    */
+
+    //multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
     //log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
   }
 }
@@ -1718,6 +1764,8 @@ void Client::HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth* msgChara
 {
   u32 characterId = msgCharacterUpdateHealth->characterid();
   float amount = msgCharacterUpdateHealth->amount();
+  u32 maxHealth = msgCharacterUpdateHealth->max_health();
+  float currentHealth = msgCharacterUpdateHealth->current_health();
 
   NetworkEntity *entity = searchCharacterByCommonID(characterId);
   
@@ -1732,6 +1780,9 @@ void Client::HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth* msgChara
 
     if (character) {
       HelperCharacterPositioning(character, currentPosition);
+
+      character->healthMax = maxHealth;
+      character->healthCurrent = currentHealth;
 
       SetAllow_HealthUpdate(true);
       character->UpdateHealth(amount);
@@ -1775,12 +1826,11 @@ void Client::HandleLevelCreateItem(NetworkMessages::LevelCreateItem *msgLevelCre
     CItem *item = resourceManager->CreateItem(guid, level, unk0, unk1);
 
     // Attempt to clean up extra chests
-    const u32 OPENABLE = 0x28;
     if (item->type__ == OPENABLE) {
       item->destroy = true;
       //item->position.x = 1000;
       //item->position.z = 1000;
-      item->SetPosition(&Vector3(1000, 1000, 1000));
+      item->SetPosition(&Vector3(10000, 0, 10000));
     } else {
       addItem(item, itemId);
     }
@@ -1852,11 +1902,8 @@ void Client::HandleBreakableTriggered(NetworkMessages::BreakableTriggered* msgBr
     CLevel *level = gameClient->pCLevel;
     level->DumpTriggerUnits();
 
-    const u32 BREAKABLE = 0x1D;
-    const float EPSILON = 0.1f;
-
     // List our trigger Units
-    LinkedListNode* itr = *level->ppCTriggerUnits;
+    LinkedListNode* itr = *level->itemsProximity;
     while (itr != NULL) {
       if (itr->pCBaseUnit->type__ == BREAKABLE) {
         CBreakable* breakable = (CBreakable*)itr->pCBaseUnit;
@@ -1906,11 +1953,8 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
   log(L" Position: %f %f %f", position.x, position.y, position.z);
   level->DumpTriggerUnits();
 
-  const u32 OPENABLE = 0x28;
-  const u32 INTERACTABLE = 0x20;
-
-  // List our trigger Units
-  LinkedListNode* itr = *level->ppCTriggerUnits;
+  // Check items in proximity first
+  LinkedListNode* itr = *level->itemsProximity;
   while (itr != NULL) {
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
@@ -1920,7 +1964,6 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
         character = (CPlayer*)netCharacter->getInternalObject();
       }
 
-      const float EPSILON = 0.1f;
       if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
         log("  Found in trigger units: %p", triggerUnit);
 
@@ -1934,8 +1977,8 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
     itr = itr->pNext;
   }
 
-  // Check our items instead
-  itr = *level->ppCItems;
+  // Check all items
+  itr = *level->itemsAll;
   while (itr != NULL) {
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
     CPlayer *character = NULL;
@@ -1945,7 +1988,6 @@ void Client::HandleTriggerUnitTriggered(NetworkMessages::TriggerUnitTriggered *m
         character = (CPlayer*)netCharacter->getInternalObject();
       }
 
-      const float EPSILON = 0.1f;
       if (triggerUnit->GetPosition().squaredDistance(position) < EPSILON) {
         log("  Found in items: %p", triggerUnit);
 
@@ -2039,6 +2081,7 @@ void Client::HandleCharacterSetTarget(NetworkMessages::CharacterSetTarget *msgCh
 
 void Client::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEquipmentIdentify)
 {
+  /*
   u32 equipmentId = msgEquipmentIdentify->equipmentid();
 
   NetworkEntity *entity = searchEquipmentByCommonID(equipmentId);
@@ -2055,6 +2098,48 @@ void Client::HandleEquipmentIdentify(NetworkMessages::EquipmentIdentify *msgEqui
     }
   } else {
     //log(L"Error: Could not find equipment of ID: %x", equipmentId);
+  }
+  */
+
+  u32 equipmentId = msgEquipmentIdentify->equipmentid();
+  u32 characterId = msgEquipmentIdentify->characterid();
+  bool characterType = msgEquipmentIdentify->target_player_type();
+  u32 targetId = msgEquipmentIdentify->targetid();
+
+  NetworkEntity *entity = searchEquipmentByCommonID(equipmentId);
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+  NetworkEntity *netTarget = NULL;
+
+  if (characterType) {
+    netTarget = searchCharacterByCommonID(targetId);
+  } else {
+    netTarget = searchEquipmentByCommonID(targetId);
+  }
+  if (!netTarget) {
+    log(L"Error: Could not find Target from ID: %x", targetId);
+    return;
+  }
+
+  //
+  if (entity) {
+    if (netCharacter) {
+      CEquipment* equipment = (CEquipment*)entity->getInternalObject();
+      CCharacter* character = (CCharacter*)netCharacter->getInternalObject();
+      CBaseUnit* target = (CBaseUnit*)netTarget->getInternalObject();
+
+      if (equipment) {
+        //equipment->identified = 1;
+        //equipment->UpdateTooltip();
+
+        Client::getSingleton().SetAllow_EquipmentIdentify(true);
+        equipment->Use(character, target);
+        Client::getSingleton().SetAllow_EquipmentIdentify(false);
+      }
+    } else {
+      log(L"Error: Could not find character of ID: %x", equipmentId);
+    }
+  } else {
+    log(L"Error: Could not find equipment of ID: %x", equipmentId);
   }
 }
 
@@ -2100,7 +2185,7 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
   log(L"Done dumping");
   
   // List our trigger Units
-  LinkedListNode* itr = *level->ppCTriggerUnits;
+  LinkedListNode* itr = *level->itemsProximity;
   while (itr != NULL) {
     CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;
 
@@ -2132,7 +2217,7 @@ void Client::HandleTriggerUnitSync(NetworkMessages::TriggerUnitSync *msgTriggerU
     //  serverTriggerPosition.z);
 
     bool found = false;
-    LinkedListNode* itr = *level->ppCTriggerUnits;
+    LinkedListNode* itr = *level->itemsProximity;
     while (itr != NULL) {
       CTriggerUnit* triggerUnit = (CTriggerUnit*)itr->pCBaseUnit;  
 
@@ -2382,10 +2467,53 @@ void Client::HandleCharacterVisibility(NetworkMessages::Visibility *msgVisibilit
     CCharacter* character = (CCharacter*)netCharacter->getInternalObject();
 
     if (character) {
+      // Don't change visibility of our character
+      vector<CCharacter*>* characters = Helper_ProduceClientSideCharacters(gameClient->pCPlayer);
+      vector<CCharacter*>::iterator itr;
+      for (itr = characters->begin(); itr != characters->end(); ++itr) {
+        if ((*itr) == character) {
+          return;
+        }
+      }
+
       character->flagFadingIn = msgVisibility->fading_in();
       character->flagHasBeenDisplayed = msgVisibility->has_been_displayed();
       character->flagFadingOut = msgVisibility->fading_out();
+      character->unkTransparency1 = msgVisibility->transparency();
     }
+  }
+}
+
+void Client::HandleEquipmentAutoEquip(NetworkMessages::EquipmentAutoEquip *msgEquipmentAutoEquip)
+{
+  u32 characterId = msgEquipmentAutoEquip->characterid();
+  u32 equipmentId = msgEquipmentAutoEquip->equipmentid();
+
+  NetworkEntity *netCharacter = searchCharacterByCommonID(characterId);
+  NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
+
+  CCharacter *character = NULL;
+  CInventory *inventory = NULL;
+  CEquipment *equipment = NULL;
+
+  if (netCharacter) {
+    character = (CCharacter*)netCharacter->getInternalObject();
+    if (character) {
+      inventory = character->pCInventory;
+    }
+  }
+  if (netEquipment) {
+    equipment = (CEquipment*)netEquipment->getInternalObject();
+  }
+
+  //
+  if (equipment && inventory) {
+    SetAllow_AutoEquip(true);
+    inventory->AutoEquipEquipment(equipment);
+    SetAllow_AutoEquip(false);
+  } else {
+    log(L"Error: Could not auto equip: %p %p", equipment, inventory);
+    multiplayerLogger.WriteLine(Error, L"Error: Could not auto equip: %p %p", equipment, inventory);
   }
 }
         

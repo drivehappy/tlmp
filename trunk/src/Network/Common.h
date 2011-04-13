@@ -22,6 +22,8 @@ using namespace TLMP::Network;
 
 #include "network.pb.h"
 
+#include "Constants.h"
+
 #include "NetworkEntity.h"
 #include "SharedState.h"
 
@@ -44,5 +46,7 @@ namespace TLMP
   void Helper_BuildInventoryTabIndexSize(NetworkMessages::Character & msgNewCharacter, CCharacter* character);
   void Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character * msgNewCharacter, CCharacter* character);
   void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
+
+  bool Helper_CheckClientSpecialControl(CCharacter* character);
 
 };

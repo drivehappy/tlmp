@@ -14,6 +14,10 @@ map<SystemAddress, NetworkEntity*> *TLMP::Server_ClientUnequipMapping = new map<
 map<CCharacter*, Vector3>* TLMP::CharacterNetworkPositionBuffer = new map<CCharacter*, Vector3>();
 map<CCharacter*, u32>      *TLMP::CharacterVisibilityBuffer = new map<CCharacter*, u32>();
 
+vector<CCharacter*> *TLMP::ClientDuplicateCharacters = new vector<CCharacter*>();
+
+map<CCharacter*, CCharacter*> *TLMP::CharacterTargetBuffer = new map<CCharacter*, CCharacter*>();
+
 void TLMP::clearAllNetworkIDs()
 {
   if (TLMP::Network::NetworkState::getSingleton().GetState() == TLMP::Network::CLIENT) {
