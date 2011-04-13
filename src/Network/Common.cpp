@@ -53,7 +53,6 @@ void TLMP::Helper_ExtractInventoryTabIndexSize(const NetworkMessages::Character 
 void TLMP::HelperCharacterPositioning(CCharacter* character, const Vector3& position)
 {
   // If the current positioning is off, fix it - don't adjust our own character though
-  const int ALLOWED_SQUARED_ERROR = 100;
   vector<CCharacter*>::iterator itr;
   vector<CCharacter*> *ignoredCharacters = gameClient->pCPlayer->GetMinions();
   ignoredCharacters->push_back(gameClient->pCPlayer);
@@ -75,4 +74,17 @@ void TLMP::HelperCharacterPositioning(CCharacter* character, const Vector3& posi
       }
     }
   }
+}
+
+bool TLMP::Helper_CheckClientSpecialControl(CCharacter* character)
+{
+  if (character) {
+    for (u32 i = 0; i < SIZE_CLIENT_CONTROLLED; ++i) {
+      if (character->GUID == INVALID_CLIENT_CONTROLLED_GUID[i]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }

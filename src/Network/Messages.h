@@ -152,6 +152,9 @@ namespace TLMP {
       S_PUSH_SKILLLEVEL,            // Push skill level change out
 
       S_PUSH_CHARACTER_VISIBILITY,  // Push out visibility updates for the character
+
+      C_REQUEST_AUTOEQUIP,          // Client requests an autoequip
+      S_PUSH_AUTOEQUIP,             // Push autoequip out to clients
     };
 
     static const char* MessageString[] = {
@@ -279,6 +282,9 @@ namespace TLMP {
       "S_PUSH_SKILLLEVEL",
 
       "S_PUSH_CHARACTER_VISIBILITY",
+
+      "C_REQUEST_AUTOEQUIP",
+      "S_PUSH_AUTOEQUIP",
     };
 
   };

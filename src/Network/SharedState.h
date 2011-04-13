@@ -36,6 +36,10 @@ namespace TLMP {
 
   extern vector<CBaseUnit*>* OutsideBaseUnits;  // Represents a list of BaseUnits created outside our singleplayer game
 
+  extern vector<CCharacter*> *ClientDuplicateCharacters;
+
+  extern map<CCharacter*, CCharacter*>* CharacterTargetBuffer;
+
   extern CGameClient* gameClient;
 
   //

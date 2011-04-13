@@ -116,6 +116,9 @@ namespace TLMP {
       inline bool GetAllow_SetSkillPoints()                 { return m_bAllow_SetSkillPoints; }
       inline void SetAllow_SetSkillPoints(bool value)       { m_bAllow_SetSkillPoints = value; }
 
+      inline bool GetAllow_AutoEquip()                      { return m_bAllow_AutoEquip; }
+      inline void SetAllow_AutoEquip(bool value)            { m_bAllow_AutoEquip = value; }
+
       void ReceiveMessages();
 
       template<typename T>
@@ -153,7 +156,7 @@ namespace TLMP {
       void HandleInventoryAddEquipment(u32 ownerId, u32 equipmentId, u32 slot, u32 unk0);
       void HandleInventoryRemoveEquipment(u32 ownerId, u32 equipmentId);
       void HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0);
-      void HandleEquipmentPickup(u32 characterId, u32 equipmentId);
+      void HandleEquipmentPickup(u32 characterId, u32 equipmentId, const Vector3&);
       void HandleReplyEquipmentID(NetworkMessages::EquipmentSetID *msgEquipmentSetID);
       void HandleCharacterSetAction(NetworkMessages::CharacterAction*);
       void HandleCharacterAttack(NetworkMessages::CharacterAttack*);
@@ -184,6 +187,7 @@ namespace TLMP {
       void HandlePlayerWeaponSwap(NetworkMessages::PlayerSwapWeapons *);
       void HandleCharacterSetSkillPoints(NetworkMessages::CharacterSetSkillPoints *);
       void HandleCharacterVisibility(NetworkMessages::Visibility *);
+      void HandleEquipmentAutoEquip(NetworkMessages::EquipmentAutoEquip *);
 
       void Helper_PopulateEquipmentMessage(NetworkMessages::Equipment* msgEquipment, CEquipment *equipment, NetworkEntity *netEquipment);
       //void HelperCharacterPositioning(CCharacter* character, const Vector3& position);
@@ -235,6 +239,7 @@ namespace TLMP {
       bool m_bAllow_UpdateOrientation;
       bool m_bAllow_WeaponSwap;
       bool m_bAllow_SetSkillPoints;
+      bool m_bAllow_AutoEquip;
     };
 
   };

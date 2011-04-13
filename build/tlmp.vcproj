@@ -111,6 +111,10 @@
 			Name="Header Files"
 			>
 			<File
+				RelativePath="..\src\Constants.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\lobby\Game.h"
 				>
 			</File>

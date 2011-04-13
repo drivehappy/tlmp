@@ -28,6 +28,7 @@ message Character {
   required int32            alignment = 14;
   repeated InventoryTabSize inventory_tabsize = 15;
   required bool             weaponSetActive = 16;
+  required Visibility       visibility = 17;
 }
 
 message Visibility {
@@ -35,6 +36,7 @@ message Visibility {
   required bool             fading_in = 2;
   required bool             has_been_displayed = 3;
   required bool             fading_out = 4;
+  required float            transparency = 5;
 }
 
 // This handles both Affixes and Regular Types
@@ -153,6 +155,12 @@ message EquipmentDrop {
 message EquipmentPickup {
   required int32    characterId = 1;
   required int32    equipmentId = 2;
+  required Position position = 3;
+}
+
+message EquipmentAutoEquip {
+  required int32    characterId = 1;
+  required int32    equipmentId = 2;
 }
 
 message CharacterAction {
@@ -201,6 +209,8 @@ message CharacterUpdateHealth {
   required int32    characterId = 1;
   required float    amount = 2;
   required Position position = 3;
+  required float    current_health = 4;
+  required int32    max_health = 5;
 }
 
 message CharacterDestroy {
@@ -250,6 +260,9 @@ message CharacterSetTarget {
 
 message EquipmentIdentify {
   required int32    equipmentId = 1;
+  required int32    characterId = 2;
+  required bool     target_player_type = 3;   // True if player, else equipment target
+  required int32    targetId = 4;
 }
 
 
