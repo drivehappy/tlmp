@@ -1194,8 +1194,8 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
 {
   multiplayerLogger.WriteLine(Info, L"Client received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
     equipmentId, position.x, position.y, position.z, unk0);
-  //log(L"Client received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
-  //  equipmentId, position.x, position.y, position.z, unk0);
+  log(L"Client received Equipment Drop: (EquipmentId = %x, Position: %f, %f, %f, Unk0: %i",
+    equipmentId, position.x, position.y, position.z, unk0);
 
   NetworkEntity *netEquipment = searchEquipmentByCommonID(equipmentId);
 
@@ -1207,39 +1207,9 @@ void Client::HandleEquipmentDrop(u32 equipmentId, Vector3 position, bool unk0)
     SetAllow_LevelItemDrop(true);
     level->EquipmentDrop(equipment, position, unk0);
     SetAllow_LevelItemDrop(false);
-
-    /*
-    // BUG Fix: Move through all character inventories and remove any EquipmentRef's to this equipment
-    //  stops client from creating duplicate equipmentrefs when inventories are full - which shouldn't occur to begin with
-    //  inventory::settabsize should stop this client-side
-    {
-      CLevel *level = gameClient->pCLevel;
-      if (level) {
-        vector<CCharacter*> &characters = level->GetCharacters();
-        vector<CCharacter*>::iterator itr;
-        for (itr = characters.begin(); itr != characters.end(); ++itr) {
-          CCharacter* character = (*itr);
-          if (character) {
-            CInventory* inv = character->pCInventory;
-            if (inv) {
-              for (u32 i = 0; i < inv->equipmentList.size; ++i) {
-                CEquipmentRef* ref = inv->equipmentList[i];
-                if (ref->pCEquipment == equipment) {
-                  inv->RemoveEquipment(equipment);
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    */
   } else {
-    multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x",
-      equipmentId);
-    //log(L"Error: Could not find Equipment from CommonId: %x",
-    //  equipmentId);
+    multiplayerLogger.WriteLine(Error, L"Error: Could not find Equipment from CommonId: %x", equipmentId);
+    log(L"Error: Could not find Equipment from CommonId: %x", equipmentId);
   }
 }
 
@@ -1782,7 +1752,7 @@ void Client::HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth* msgChara
       HelperCharacterPositioning(character, currentPosition);
 
       character->healthMax = maxHealth;
-      character->healthCurrent = currentHealth;
+      //character->healthCurrent = currentHealth;
 
       SetAllow_HealthUpdate(true);
       character->UpdateHealth(amount);

@@ -181,6 +181,17 @@ namespace TLMP {
     return entity;
   }
 
+  static void removeItem(PVOID equipment) {
+    vector<NetworkEntity *>::iterator itr;
+
+    for (itr = NetworkSharedLevelItems->begin(); itr != NetworkSharedLevelItems->end(); ++itr) {
+      if ((*itr)->getInternalObject() == equipment) {
+        NetworkSharedLevelItems->erase(itr);
+        break;
+      }
+    }
+  }
+
   //
   // Equipment helpers
   static NetworkEntity* searchEquipmentByInternalObject(PVOID internalObject) {
@@ -227,6 +238,17 @@ namespace TLMP {
       return newEntity;
     }
     return entity;
+  }
+
+  static void removeEquipment(PVOID equipment) {
+    vector<NetworkEntity *>::iterator itr;
+
+    for (itr = NetworkSharedEquipment->begin(); itr != NetworkSharedEquipment->end(); ++itr) {
+      if ((*itr)->getInternalObject() == equipment) {
+        NetworkSharedEquipment->erase(itr);
+        break;
+      }
+    }
   }
 
 
