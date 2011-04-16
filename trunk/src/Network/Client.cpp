@@ -1030,7 +1030,6 @@ void Client::HandleEquipmentCreation(TLMP::NetworkMessages::Equipment *msgEquipm
   u32 reqMagic = msgEquipment->req_magic();
   u32 reqDefense = msgEquipment->req_defense();
 
-
   multiplayerLogger.WriteLine(Info, L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
     id, guid, stacksize, stacksizemax, socketcount);
   log(L"Client received equipment creation: (CommonID = %x) (GUID = %016I64X) (Stack: %i/%i) (SocketCount: %i)",
@@ -1752,7 +1751,11 @@ void Client::HandleUpdateHealth(NetworkMessages::CharacterUpdateHealth* msgChara
       HelperCharacterPositioning(character, currentPosition);
 
       character->healthMax = maxHealth;
-      //character->healthCurrent = currentHealth;
+
+      // Health pots don't correctly work
+      if (character != gameClient->pCPlayer) {
+        character->healthCurrent = currentHealth;
+      }
 
       SetAllow_HealthUpdate(true);
       character->UpdateHealth(amount);
