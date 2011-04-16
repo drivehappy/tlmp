@@ -50,6 +50,7 @@ void TLMP::SetupNetwork()
   CLevel::RegisterEvent_Level_RemoveEquipment(Level_Level_RemoveEquipmentPre, Level_Level_RemoveEquipmentPost);
   CLevel::RegisterEvent_Level_CheckCharacterProximity(Level_CheckCharacterProximityPre, Level_CheckCharacterProximityPost);
   CLevel::RegisterEvent_Level_RemoveCharacter(Level_RemoveCharacterPre, NULL);
+  CLevel::RegisterEvent_Level_RemoveItem(Level_RemoveItemPre, Level_RemoveItemPost);
 
   CGameClient::RegisterEvent_GameClientCtor(NULL, GameClient_Ctor);
   CGameClient::RegisterEvent_GameClientProcessObjects(GameClient_ProcessObjects, NULL);
@@ -82,7 +83,7 @@ void TLMP::SetupNetwork()
   CMonster::RegisterEvent_MonsterIdle(Monster_Idle, NULL);
   CMonster::RegisterEvent_MonsterGetCharacterClose(Monster_GetCharacterClosePre, Monster_GetCharacterClosePost);
 
-  CCharacter::RegisterEvent_CharacterDtor(Character_Dtor, NULL);
+  CCharacter::RegisterEvent_CharacterDtor(Character_DtorPre, Character_DtorPost);
   CCharacter::RegisterEvent_CharacterSetAction(Character_SetActionPre, NULL);
   CCharacter::RegisterEvent_CharacterSetAlignment(Character_SetAlignmentPre, Character_SetAlignmentPost);
   CCharacter::RegisterEvent_CharacterAttack(Character_AttackPre, Character_AttackPost);
@@ -139,6 +140,8 @@ void TLMP::SetupNetwork()
   CPositionableObject::RegisterEvent_PositionableObject_SetNearPlayer(PositionableObject_SetNearPlayerPre, NULL);
 
   CParticleCache::RegisterEvent_ParticleCache_Dtor2(ParticleCache_Dtor2Pre, ParticleCache_Dtor2Post);
+
+  CGenericModel::RegisterEvent_GenericModel_Dtor(GenericModel_DtorPre, GenericModel_DtorPost);
   // --
 
   multiplayerLogger.WriteLine(Info, L"Registering Events... Done.");
@@ -297,7 +300,7 @@ void TLMP::Equipment_DtorPost(CEquipment* equipment)
   //log(L"Equipment::DtorPost = %p", equipment);
 }
 
-void TLMP::Character_Dtor(CCharacter* character)
+void TLMP::Character_DtorPre(CCharacter* character)
 {
   log(L"Character::Dtor = %p", character);
   log(L"  %s", character->characterName.c_str());
@@ -327,6 +330,12 @@ void TLMP::Character_Dtor(CCharacter* character)
       break;
     }
   }
+}
+
+void TLMP::Character_DtorPost(CCharacter* character)
+{
+  log(L"Character::DtorPost = %p", character);
+  multiplayerLogger.WriteLine(Info, L"Character::DtorPost = %p", character);
 }
 
 void TLMP::Character_SetAlignmentPre(CCharacter* character, u32 alignment, bool& calloriginal)
@@ -783,7 +792,12 @@ void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk
   // Set the started flag - don't bother checking, it's just as fast to set it
   switch (Network::NetworkState::getSingleton().GetState()) {
     case SERVER:
-      Server::getSingleton().SetGameStarted(true);
+      // Only set game started when the town is the level loaded
+      if (!wcscmp(gameClient->pCDungeon->name0.c_str(), L"TOWN")) {
+        Server::getSingleton().SetGameStarted(true);
+      } else {
+        Server::getSingleton().SetGameStarted(false);
+      }
 
       Server::getSingleton().ReceiveMessages();
       break;
@@ -864,7 +878,12 @@ void TLMP::GameClient_CreateLevelPost(CGameClient* client, wstring unk0, wstring
   // Do this in Post to ensure it loads at the right time
   // Send a Message to clients that the Server's game has started
   if (Network::NetworkState::getSingleton().GetState() == SERVER) {
-    Server::getSingleton().SetGameStarted(true);
+    // Only set game started when the town is the level loaded
+    if (!wcscmp(gameClient->pCDungeon->name0.c_str(), L"TOWN")) {
+      Server::getSingleton().SetGameStarted(true);
+    } else {
+      Server::getSingleton().SetGameStarted(false);
+    }
 
     NetworkMessages::GameStarted msgGameStarted;
     Server::getSingleton().BroadcastMessage<NetworkMessages::GameStarted>(S_PUSH_GAMESTARTED, &msgGameStarted);
@@ -920,14 +939,16 @@ void TLMP::Level_Ctor(wstring name, CSettings* settings, CGameClient* gameClient
 
 void TLMP::GameClient_LoadLevelPre(CGameClient* client, bool & calloriginal)
 {
-  logColor(B_GREEN, L"LoadLevelPre (GameClient = %p)", client);
+  logColor(B_GREEN, L"LoadLevelPre (GameClient = %p, player = %p)", client, client->pCPlayer);
   multiplayerLogger.WriteLine(Info, L"LoadLevelPre (GameClient = %p)", client);
 
+  /* Player may be deleted at this point?
   log("Player state: %i", client->pCPlayer->state);
   if (client->pCPlayer->state == DEAD || client->pCPlayer->state == DYING) {
     client->pCPlayer->Resurrect();
     client->pCPlayer->healthCurrent = client->pCPlayer->healthMax;
   }
+  */
 
   // Clear the duplicate character list that will be created by this level load
   ClientDuplicateCharacters->clear();
@@ -1262,8 +1283,8 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
 {
   multiplayerLogger.WriteLine(Info, L"Level pre dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
     item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
-  //log(L"Level pre dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
-  //  item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
+  log(L"Level pre dropping Item %s at (unk0: %i) %f, %f, %f Type = %x",
+    item->nameReal.c_str(), unk0, position.x, position.y, position.z, item->type__);
 
   // Iterate over the existing items on the level and ensure the same item doesn't already exist
   LinkedListNode* itr = *level->itemsAll;
@@ -1299,11 +1320,11 @@ void TLMP::Level_DropItemPre(CLevel* level, CItem* item, Vector3 & position, boo
     {*/
     else {
       if (!Client::getSingleton().GetAllow_LevelItemDrop()) {
+        log(L"Suppressed");
         calloriginal = false;
-        //item->position.x = 1000;
-        //item->position.z = 1000;
         item->SetPosition(&Ogre::Vector3(10000, 0, 10000));
-        item->Destroy();
+        //item->Destroy();
+        item->destroy;
       }
     }
     
@@ -3621,6 +3642,32 @@ void TLMP::Inventory_EquipmentAutoEquipPre(CInventory* inventory, CEquipment* eq
 void TLMP::Level_RemoveCharacterPre(CLevel* level, CCharacter* character, bool& calloriginal)
 {
   logColor(B_RED, L"Level_RemoveCharacterPre: %p %p (%s)", level, character, character->characterName.c_str());
+}
+
+void TLMP::Level_RemoveItemPre(CLevel* level, CItem* item, bool& callorginal)
+{
+  logColor(B_RED, L"Level_RemoveItemPre: %p %p", level, item);
+
+  NetworkEntity* netEquipment = NULL;
+  log(L"Removing item from equipment/item network lists...");
+  
+  removeItem(item);
+  removeEquipment(item);
+}
+
+void TLMP::Level_RemoveItemPost(CLevel* level, CItem* item, bool& callorginal)
+{
+  logColor(B_RED, L"Level_RemoveItemPost: %p %p", level, item);
+}
+
+void TLMP::GenericModel_DtorPre(CGenericModel *model, bool&)
+{
+  log(L"GenericModel::DtorPre: %p", model);
+}
+
+void TLMP::GenericModel_DtorPost(CGenericModel *model, bool&)
+{
+  log(L"GenericModel::DtorPost: %p", model);
 }
 
 // Server Events

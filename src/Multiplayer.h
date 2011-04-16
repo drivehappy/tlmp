@@ -74,7 +74,8 @@ namespace TLMP
   void Monster_GetCharacterClosePost(CCharacter*&, CMonster*, u32, float, bool&);
 
   // Pre Event for Character SetDestination
-  void Character_Dtor(CCharacter*);
+  void Character_DtorPre(CCharacter*);
+  void Character_DtorPost(CCharacter*);
   void Character_SetAlignmentPre(CCharacter*, u32, bool&);
   void Character_SetAlignmentPost(CCharacter*, u32, bool&);
   void Character_SetActionPre(CCharacter*, u32, bool & calloriginal);
@@ -175,6 +176,8 @@ namespace TLMP
   void Level_CheckCharacterProximityPre(CCharacter*, CLevel*, Vector3*, u32, float, float, float, u32, CCharacter*, u32, bool&);
   void Level_CheckCharacterProximityPost(CCharacter*, CLevel*, Vector3*, u32, float, float, float, u32, CCharacter*, u32, bool&);
   void Level_RemoveCharacterPre(CLevel*, CCharacter*, bool&);
+  void Level_RemoveItemPre(CLevel* level, CItem* item, bool& callorginal);
+  void Level_RemoveItemPost(CLevel* level, CItem* item, bool& callorginal);
 
   // Event for Inventory
   void Inventory_AddEquipmentPre(CEquipment*, CInventory*, CEquipment*, u32&, u32, bool&);
@@ -239,5 +242,9 @@ namespace TLMP
 
   // Helpers
   void SendInventoryAddEquipmentToServer(CCharacter* owner, CEquipment* equipment, u32 slot, u32 unk);
+
+  // GenericMode
+  void GenericModel_DtorPre(CGenericModel *model, bool&);
+  void GenericModel_DtorPost(CGenericModel *model, bool&);
   
 };
