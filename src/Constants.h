@@ -35,6 +35,7 @@ namespace TLMP
   const u32 BREAKABLE = 0x1D;
   const u32 WAYPOINTNODE = 0xAB;
   const u32 TOWNPORTAL = 0x2B;
+  const u32 TEMPPORTAL = 0xA5;
 
   // vtables
   const u32 CPLAYER_BASE = 0xA80064;

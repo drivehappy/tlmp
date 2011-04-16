@@ -474,10 +474,14 @@ void TLMP::CreateItemPost(CItem* item, CResourceManager* resourceManager, u64 gu
     multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s) Type = %x",
       guid, level, item, item->nameReal.c_str(), item->type__);
 
+    multiplayerLogger.WriteLine(Info, L"Created equipment with guid of: %016I64X Level: %i (%p, %s) Type = %x",
+      guid, level, item, item->nameReal.c_str(), item->type__);
+
     // If we are real equipment (not Interactable, Openable, Breakable, Gold, ...)
     if (item->type__ != BREAKABLE     && item->type__ != OPENABLE     &&
         item->type__ != GOLD          && item->type__ != INTERACTABLE &&
-        item->type__ != WAYPOINTNODE  && item->type__ != TOWNPORTAL)
+        item->type__ != WAYPOINTNODE  && item->type__ != TOWNPORTAL   &&
+        item->type__ != TEMPPORTAL)
     {
       // --
       if (Network::NetworkState::getSingleton().GetState() == SERVER) {
