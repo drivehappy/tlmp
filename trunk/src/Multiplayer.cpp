@@ -647,8 +647,8 @@ void TLMP::Level_CharacterInitializePre(CCharacter* retval, CLevel* level, CChar
         if (wcscmp(level->levelName.c_str(), L"TOWN")) {
           character->destroy = true;
         }
-      }
-      else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
+        /*
+      } else if (guid == DESTROYER || guid == VANQUISHER || guid == ALCHEMIST ||
         guid == DOG || guid == CAT || guid == BRINK)
       {
         //log("Client: Detected CPlayer addition to CLevel, not suppressing load");
@@ -658,6 +658,17 @@ void TLMP::Level_CharacterInitializePre(CCharacter* retval, CLevel* level, CChar
           log(L"Client: Suppressing Monster load into level: %016I64X %s", character->GUID, character->characterName.c_str());
           calloriginal = false;
           retval = NULL;
+        }
+        */
+      } else {
+        const u32 townsFolkSize = sizeof(TOWNSFOLK) / sizeof(TOWNSFOLK[0]);
+
+        for (u32 i = 0; i < townsFolkSize; ++i) {
+          if (guid == TOWNSFOLK[i]) {
+            log(L"Client: Suppressing TownsFolk load into level: %016I64X %s", character->GUID, character->characterName.c_str());
+            calloriginal = false;
+            retval = NULL;
+          }
         }
       }
 
