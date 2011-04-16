@@ -51,4 +51,48 @@ namespace TLMP
   const u64 STASH = 0x258372C33F2411DE;
   const u64 SHAREDSTASH = 0xFC4F7F1F9D8E11DE;
 
+  // GUIDs for Townsfolk,
+  //  Used to suppress specific NPCs
+  //  Can't use UnitType because they aren't created yet
+  const u64 GOREN = 0x7C17DAB0602811DE;
+  const u64 DURAN = 0x2A1B2D4461DA11DE;
+  const u64 VASMAN = 0xF59522DA8B7A11DE;
+  const u64 GORN = 0x537236AB60EF11DE;
+  const u64 FURL = 0x537236AA60EF11DE;
+  const u64 DUROS = 0x9AC4D74F3DF811DE;
+  const u64 TRIYA = 0x2ED43D193DFD11DE;
+  const u64 SYL = 0xAA0CB4594A3511DE;
+  const u64 TRILLBOT = 0xE1A81F429CCE11DE;
+  const u64 TARN = 0x9AC4D7513DF811DE;
+  const u64 ALMA = 0xCCB09386AD2111DE;
+  const u64 ALBERT = 0x94347D4CAD2111DE;
+  const u64 DRIFT = 0xF685F1228CFD11DE;
+  const u64 BALLON = 0x8E3C27E747FB4FC;
+  const u64 KOLOS = 0x2ED43D183DFD11DE;
+  const u64 STOPE = 0xD98A5B128CFD11DE;
+  const u64 VALERIA = 0xEB43A36A70411DE;
+  const u64 GAR = 0x67BC8670B90F11DE;
+  const u64 HORSE = 0x59E6CA80B9DA11DE;
+
+  const u64 TOWNSFOLK[] = {
+    GOREN,
+    DURAN,
+    VASMAN,
+    GORN,
+    FURL,
+    DUROS,
+    TRIYA,
+    SYL,
+    TRILLBOT,
+    TARN,
+    ALMA,
+    ALBERT,
+    DRIFT,
+    BALLON,
+    KOLOS,
+    STOPE,
+    VALERIA,
+    GAR,
+    HORSE,
+  };
 };
