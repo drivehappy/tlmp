@@ -34,12 +34,13 @@
       <Property Name="Font" Value="SerifBig"/>
       <Property Name="TextColour" Value="FFFFFFFF"/>
       <Property Name="Text" Value="Torchlight Mulitplayer has been successfully loaded.
-This is a first-phase test for multiplayer; it's limited to in-town play only.
+Torchlight Multiplayer successfully loaded!
+
 You must either Host or Join a game before entering to startup the network.
 
 Your log file can be found under TLAPI/MultiplayerLog.txt - if the game crashes please send this to drivehappy@gmail.com along with a description of what you were doing.
 
-Game saves with this test have been suppressed (nothing should be saved). However, there is a chance that your character or other entities in your saved game may be altered or destroyed, PLEASE BACKUP YOUR SAVED GAMES BEFORE CONTINUING."
+Game saves are turned on, please BACKUP your characters because weird things will happen (pet destroyed, or you might find you have more than 1 pet). However, there is a chance that your character or other entities in your saved game may be altered or destroyed, PLEASE BACKUP YOUR SAVED GAMES BEFORE CONTINUING."
       />
     </Window>
 
