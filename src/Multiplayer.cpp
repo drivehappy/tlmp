@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #include "Multiplayer.h"
 using namespace TLMP;
 
@@ -803,6 +805,12 @@ void TLMP::GameClient_ProcessObjects(CGameClient *client, float dTime, PVOID unk
     log(L"  Target: %s", gameClient->pCGameUI->pCTargetCharacter->characterName.c_str());
   }
   */
+
+  ShowCursor(false);
+  CEGUI::MouseCursor* mouseCursor = CEGUI::MouseCursor::getSingletonPtr();
+  mouseCursor->setImage("logo", "destroyericon");
+  mouseCursor->show();
+  mouseCursor->draw();
 
   // Set the started flag - don't bother checking, it's just as fast to set it
   switch (Network::NetworkState::getSingleton().GetState()) {
