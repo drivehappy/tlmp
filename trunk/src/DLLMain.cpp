@@ -303,9 +303,7 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
         return FALSE;
       }
 
-      MessageBox(NULL, systemPath, _T("Error"), 0);
       _tcscat_s(systemPath, DLL_PATH_SIZE, DLL_NAME);
-      MessageBox(NULL, systemPath, _T("Error"), 0);
 
       dll_hm = LoadLibrary(systemPath);
 
