@@ -1,22 +1,19 @@
-
-//
-// Rerouting code developed by dengus
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
 #include <stdio.h>
+#include <tchar.h>
 
 #include "tlapi.h"
 
 #include "Multiplayer.h"
 using namespace TLMP;
 
-const char *dll = "C:\\windows\\system32\\winmm";
-HMODULE dll_hm = LoadLibrary(dll);
+//
+// Rerouting code developed by dengus
+HMODULE dll_hm;
 
-const char*__str__s_ln = "%s\n";
-const char*__str__failed = "failed";
+const char* __str__s_ln = "%s\n";
+const char* __str__failed = "Bounce Function Failed: ";
 
 extern "C" {
 
@@ -66,8 +63,6 @@ extern "C" {
   bounce(gfxCreateZoneFactoriesList);
   bounce(gfxDestroyDeviceInterfaceList);
   bounce(gfxEnumerateGfxs);
-  //bounce(_gfxLogoff@0);
-  //bounce(_gfxLogon@4);
   bounce(gfxModifyGfx);
   bounce(gfxOpenGfx);
   bounce(gfxRemoveGfx);
@@ -195,7 +190,6 @@ extern "C" {
   bounce(mxd32Message);
   bounce(NotifyCallbackData);
   bounce(OpenDriver);
-  //bounce(PlaySound);
   bounce(PlaySoundA);
   bounce(PlaySoundW);
   bounce(SendDriverMessage);
@@ -256,20 +250,19 @@ extern "C" {
   bounce(wod32Message);
   bounce(WOW32DriverCallback);
   bounce(WOW32ResolveMultiMediaHandle);
-  bounce(WOWAppExit);
-
+  bounce(WOWAppExit)
 }
 
 
 uintptr_t _beginthreadex( 
-             void *security,
-             unsigned stack_size,
-             unsigned ( __stdcall *start_address )( void * ),
-             void *arglist,
-             unsigned initflag,
-             unsigned *thrdaddr 
-             ) {
-               return 0;
+  void *security,
+  unsigned stack_size,
+  unsigned (__stdcall *start_address)(void *),
+  void *arglist,
+  unsigned initflag,
+  unsigned *thrdaddr)
+{
+  return 0;
 }
 
 int cnt = 0;
@@ -279,7 +272,7 @@ HANDLE this_module;
 
 BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
 {
-  dll_hm = LoadLibrary(dll);
+  //dll_hm = LoadLibrary(dll);
   this_module = hModule;
   AllocConsole();
   freopen("CONOUT$", "w", stdout);
@@ -289,13 +282,40 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
       log("Torchlight Multiplayer");
       log("Base is at %p", GetModuleHandle("torchlight.exe"));
 
+      // Load the real winmm.dll and setup trampoline functions
+      const UINT DLL_PATH_SIZE = 1024;
+      const LPTSTR DLL_NAME = _T("\\winmm.dll");
+      LPTSTR systemPath = new TCHAR[DLL_PATH_SIZE];
+      DWORD pathSize = GetSystemDirectory(systemPath, DLL_PATH_SIZE);
+
+      if (pathSize == 0) {
+        DWORD dwErr = GetLastError();
+        if (ERROR_ENVVAR_NOT_FOUND == dwErr) {
+          MessageBox(NULL, _T("Environment variable does not exist."), _T("Error"), 0);
+        } else {
+          MessageBox(NULL, _T("Error occured when attempting to obtain system directory."), _T("Error"), 0);
+        }
+        return FALSE;
+      }
+
+      if (pathSize > DLL_PATH_SIZE - _tcslen(DLL_NAME)) {
+        MessageBox(NULL, _T("System path too long."), _T("Error"), 0);
+        return FALSE;
+      }
+
+      MessageBox(NULL, systemPath, _T("Error"), 0);
+      _tcscat_s(systemPath, DLL_PATH_SIZE, DLL_NAME);
+      MessageBox(NULL, systemPath, _T("Error"), 0);
+
+      dll_hm = LoadLibrary(systemPath);
+
       TLAPI::Initialize();
 
       SetupNetwork();
 
       initialized = true;
-    } else if (dwReason==DLL_THREAD_ATTACH) {
-    } else if (dwReason==DLL_PROCESS_DETACH) {
+    } else if (dwReason == DLL_THREAD_ATTACH) {
+    } else if (dwReason == DLL_PROCESS_DETACH) {
     }
   }
 
