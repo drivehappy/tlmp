@@ -12,6 +12,7 @@ using namespace TLMP;
 // Rerouting code developed by dengus
 HMODULE dll_hm;
 
+BOOL loadWinmm();
 const char* __str__s_ln = "%s\n";
 const char* __str__failed = "Bounce Function Failed: ";
 
@@ -21,29 +22,31 @@ extern "C" {
   void* __func__##x = 0; \
   const char*__str__##x = #x; \
   void __declspec(dllexport) __declspec(naked) x() { \
-  /*_asm push __str__##x*/  \
-  /*_asm push __str__s_ln*/ \
-  /*_asm call ds:printf*/ \
-  /*_asm add esp, 8*/ \
-  _asm cmp __func__##x, 0 \
-  _asm jnz l1 \
-  _asm push __str__##x  \
-  _asm push dll_hm \
-  _asm call ds:GetProcAddress \
-  _asm test eax, eax \
-  _asm jz fail \
-  _asm mov __func__##x, eax \
-  _asm l1: \
-  _asm mov eax, __func__##x \
-  _asm jmp eax \
-  _asm fail: \
-  _asm push 0 \
-  _asm push __str__failed \
-  _asm push __str__##x \
-  _asm push 0 \
-  _asm call ds:MessageBox \
-}
-
+    _asm cmp dll_hm, 0 \
+    _asm jz fail_load \
+    _asm dll_good: \
+    _asm cmp __func__##x, 0 \
+    _asm jnz l1 \
+    _asm push __str__##x  \
+    _asm push dll_hm \
+    _asm call ds:GetProcAddress \
+    _asm test eax, eax \
+    _asm jz fail \
+    _asm mov __func__##x, eax \
+    _asm l1: \
+    _asm mov eax, __func__##x \
+    _asm jmp eax \
+    _asm fail: \
+    _asm push 0 \
+    _asm push __str__failed \
+    _asm push __str__##x \
+    _asm push 0 \
+    _asm call ds:MessageBox \
+    _asm retn \
+    _asm fail_load: \
+    _asm call ds:loadWinmm \
+    _asm jmp dll_good \
+  }
 
   bounce(aux32Message);
   bounce(auxGetDevCapsA);
@@ -253,27 +256,46 @@ extern "C" {
   bounce(WOWAppExit)
 }
 
+BOOL loadWinmm() {
+  // Load the real winmm.dll and setup trampoline functions
+  const UINT DLL_PATH_SIZE = 1024;
+  const LPTSTR DLL_NAME = _T("\\winmm.dll");
+  LPTSTR systemPath = new TCHAR[DLL_PATH_SIZE];
+  DWORD pathSize = GetSystemDirectory(systemPath, DLL_PATH_SIZE);
 
-uintptr_t _beginthreadex( 
-  void *security,
-  unsigned stack_size,
-  unsigned (__stdcall *start_address)(void *),
-  void *arglist,
-  unsigned initflag,
-  unsigned *thrdaddr)
-{
-  return 0;
+  if (pathSize == 0) {
+    DWORD dwErr = GetLastError();
+    if (ERROR_ENVVAR_NOT_FOUND == dwErr) {
+      MessageBox(NULL, _T("Environment variable does not exist."), _T("Error"), 0);
+    } else {
+      MessageBox(NULL, _T("Error occured when attempting to obtain system directory."), _T("Error"), 0);
+    }
+    return FALSE;
+  }
+
+  if (pathSize > DLL_PATH_SIZE - _tcslen(DLL_NAME)) {
+    MessageBox(NULL, _T("System path too long."), _T("Error"), 0);
+    return FALSE;
+  }
+
+  _tcscat_s(systemPath, DLL_PATH_SIZE, DLL_NAME);
+
+  dll_hm = LoadLibrary(systemPath);
+  if (!dll_hm) {
+    log("SystemPath is bad: %s", systemPath);
+    log("Error Code: %x", GetLastError());
+    MessageBox(NULL, systemPath, _T("Bad system path"), 0);
+    return FALSE;
+  }
+
+  return TRUE;
 }
 
-int cnt = 0;
 bool initialized = false;
-
-HANDLE this_module;
 
 BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
 {
-  //dll_hm = LoadLibrary(dll);
-  this_module = hModule;
+  HANDLE this_module = hModule;
   AllocConsole();
   freopen("CONOUT$", "w", stdout);
 
@@ -282,30 +304,9 @@ BOOL WINAPI DllMain(HANDLE hModule, DWORD dwReason, void *lpReserved)
       log("Torchlight Multiplayer");
       log("Base is at %p", GetModuleHandle("torchlight.exe"));
 
-      // Load the real winmm.dll and setup trampoline functions
-      const UINT DLL_PATH_SIZE = 1024;
-      const LPTSTR DLL_NAME = _T("\\winmm.dll");
-      LPTSTR systemPath = new TCHAR[DLL_PATH_SIZE];
-      DWORD pathSize = GetSystemDirectory(systemPath, DLL_PATH_SIZE);
-
-      if (pathSize == 0) {
-        DWORD dwErr = GetLastError();
-        if (ERROR_ENVVAR_NOT_FOUND == dwErr) {
-          MessageBox(NULL, _T("Environment variable does not exist."), _T("Error"), 0);
-        } else {
-          MessageBox(NULL, _T("Error occured when attempting to obtain system directory."), _T("Error"), 0);
-        }
+      if (loadWinmm() == FALSE) {
         return FALSE;
       }
-
-      if (pathSize > DLL_PATH_SIZE - _tcslen(DLL_NAME)) {
-        MessageBox(NULL, _T("System path too long."), _T("Error"), 0);
-        return FALSE;
-      }
-
-      _tcscat_s(systemPath, DLL_PATH_SIZE, DLL_NAME);
-
-      dll_hm = LoadLibrary(systemPath);
 
       TLAPI::Initialize();
 
